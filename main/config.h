@@ -6,7 +6,7 @@
 #include "driver/gpio.h"
 
 namespace pizda {
-	class constants {
+	class config {
 		public:
 			class i2c {
 				public:
@@ -14,7 +14,7 @@ namespace pizda {
 					constexpr static gpio_num_t scl = GPIO_NUM_9;
 			};
 
-			class LEDStrip {
+			class lights {
 				public:
 					class interior {
 						public:
@@ -23,16 +23,25 @@ namespace pizda {
 							constexpr static uint8_t length = 1;
 					};
 
+					class leftWing {
+						public:
+//							constexpr static gpio_num_t pin = GPIO_NUM_4;
+//							constexpr static uint8_t length = 3;
+
+							constexpr static uint16_t pin = 48;
+							constexpr static uint8_t length = 1;
+					};
+
+					class rightWing {
+						public:
+							constexpr static gpio_num_t pin = GPIO_NUM_5;
+							constexpr static uint8_t length = 3;
+					};
+
 					class tail {
 						public:
 							constexpr static gpio_num_t pin = GPIO_NUM_4;
-							constexpr static uint8_t length = 4;
-					};
-
-					class leftWing {
-						public:
-							constexpr static gpio_num_t pin = GPIO_NUM_4;
-							constexpr static uint8_t length = 4;
+							constexpr static uint8_t length = 3;
 					};
 			};
 
