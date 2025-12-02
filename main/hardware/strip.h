@@ -32,13 +32,13 @@ namespace pizda {
 				led_strip_set_pixel(stripHandle, index, r, g, b);
 			}
 
-			void setRange(uint8_t index, uint8_t count, uint8_t r, uint8_t g, uint8_t b) {
+			void fill(uint8_t index, uint8_t count, uint8_t r, uint8_t g, uint8_t b) {
 				for (uint8_t i = index; i < index + count; i++)
 					set(i, r, g, b);
 			}
 
 			void fill(uint8_t r, uint8_t g, uint8_t b) {
-				setRange(0, length, r, g, b);
+				fill(0, length, r, g, b);
 			}
 
 			void fill(uint8_t value) {

@@ -1,18 +1,7 @@
-#include "esp_log.h"
-#include "config.h"
-#include "lights.h"
-#include "esp_timer.h"
+#include "rc.h"
 
 using namespace pizda;
 
-Lights lights {};
-
 extern "C" void app_main(void) {
-	lights.setup();
-
-	while (true) {
-		ESP_LOGI("Main", "pizda");
-
-		vTaskDelay(pdMS_TO_TICKS(1000));
-	}
+	RC::getInstance().run();
 }

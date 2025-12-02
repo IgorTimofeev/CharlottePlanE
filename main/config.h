@@ -14,6 +14,12 @@ namespace pizda {
 					constexpr static gpio_num_t scl = GPIO_NUM_9;
 			};
 
+			class servos {
+				public:
+					constexpr static gpio_num_t leftWingFlap = GPIO_NUM_5;
+					constexpr static gpio_num_t leftWingAileron = GPIO_NUM_6;
+			};
+
 			class lights {
 				public:
 					class interior {
@@ -25,17 +31,14 @@ namespace pizda {
 
 					class leftWing {
 						public:
-//							constexpr static gpio_num_t pin = GPIO_NUM_4;
-//							constexpr static uint8_t length = 3;
-
-							constexpr static uint16_t pin = 48;
-							constexpr static uint8_t length = 1;
+							constexpr static gpio_num_t pin = GPIO_NUM_4;
+							constexpr static uint8_t length = 6;
 					};
 
 					class rightWing {
 						public:
-							constexpr static gpio_num_t pin = GPIO_NUM_5;
-							constexpr static uint8_t length = 3;
+							constexpr static gpio_num_t pin = GPIO_NUM_4;
+							constexpr static uint8_t length = 6;
 					};
 
 					class tail {
