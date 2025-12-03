@@ -6,23 +6,15 @@
 namespace pizda {
 	class Transceiver {
 		public:
-			void setup() const;
-
+			void setup();
 			void start();
 
-			Packet lastPacket {
-				PacketType::Aircraft,
-				127,
-				127,
-				127,
-				1,
-				1,
-				0
-			};
-
 		private:
-			constexpr static uint16_t bufferLength = 2048;
+			constexpr static uint16_t rxBufferLength = 255;
+
+			uint8_t rxBuffer[rxBufferLength];
 
 			static void rxTask(void *arg);
+			void analyze();
 	};;
 }

@@ -16,8 +16,8 @@ namespace pizda {
 
 			class servos {
 				public:
-					constexpr static gpio_num_t leftWingFlap = GPIO_NUM_5;
-					constexpr static gpio_num_t leftWingAileron = GPIO_NUM_6;
+					constexpr static gpio_num_t leftWingFlap = GPIO_NUM_6;
+					constexpr static gpio_num_t leftWingAileron = GPIO_NUM_5;
 			};
 
 			class lights {

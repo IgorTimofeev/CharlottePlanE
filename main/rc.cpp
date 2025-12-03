@@ -25,17 +25,9 @@ namespace pizda {
 		transceiver.start();
 
 		while (true) {
-			ESP_LOGI("Main", "pizda");
+			ESP_LOGI("Main", "Pizda");
 
 			vTaskDelay(pdMS_TO_TICKS(1000));
-
-			motors.leftWingAileron.setUint8(transceiver.lastPacket.leftWingAileron);
-			motors.leftWingFlap.setUint8(transceiver.lastPacket.flaps);
-
-			// Lights
-			lights.setNavigationEnabled(transceiver.lastPacket.navigationLights);
-			lights.setStrobeEnabled(transceiver.lastPacket.strobeLights);
-			lights.setLandingEnabled(transceiver.lastPacket.landingLights);
 		}
 	}
 

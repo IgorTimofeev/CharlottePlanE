@@ -34,7 +34,6 @@ namespace pizda {
 			}
 
 			void start() {
-				TaskHandle_t taskHandle;
 				xTaskCreate(taskBody, "lights", 2048, this, tskIDLE_PRIORITY, &taskHandle);
 			}
 
@@ -43,7 +42,11 @@ namespace pizda {
 			}
 
 			void setNavigationEnabled(bool value) {
+				if (value == navigationEnabled)
+					return;
+
 				navigationEnabled = value;
+				restart();
 			}
 
 			bool isStrobeEnabled() const {
@@ -51,7 +54,11 @@ namespace pizda {
 			}
 
 			void setStrobeEnabled(bool value) {
+				if (value == strobeEnabled)
+					return;
+
 				strobeEnabled = value;
+				restart();
 			}
 
 			bool isLandingEnabled() const {
@@ -59,15 +66,26 @@ namespace pizda {
 			}
 
 			void setLandingEnabled(bool value) {
+				if (value == landingEnabled)
+					return;
+
 				landingEnabled = value;
+				restart();
 			}
 
 		private:
 			constexpr static const uint8_t dimmedChannelValue = 0x22;
 
+			TaskHandle_t taskHandle;
+
 			bool navigationEnabled = false;
 			bool strobeEnabled = false;
 			bool landingEnabled = false;
+
+			void restart() {
+				vTaskDelete(taskHandle);
+				start();
+			}
 
 			void updateNavOrLanding(Strip& strip, const uint8_t r, const uint8_t g, const uint8_t b) {
 				// Navigation
