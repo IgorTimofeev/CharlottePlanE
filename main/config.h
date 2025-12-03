@@ -14,10 +14,10 @@ namespace pizda {
 					constexpr static gpio_num_t scl = GPIO_NUM_9;
 			};
 
-			class servos {
+			class motors {
 				public:
-					constexpr static gpio_num_t leftWingFlap = GPIO_NUM_6;
-					constexpr static gpio_num_t leftWingAileron = GPIO_NUM_5;
+					constexpr static gpio_num_t leftFlap = GPIO_NUM_6;
+					constexpr static gpio_num_t leftAileron = GPIO_NUM_5;
 			};
 
 			class lights {

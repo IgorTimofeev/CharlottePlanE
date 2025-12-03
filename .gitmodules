@@ -1,0 +1,3 @@
+[submodule "components/YOBANVS"]
+	path = components/YOBANVS
+	url = https://github.com/IgorTimofeev/YOBANVS.git

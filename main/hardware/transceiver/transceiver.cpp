@@ -72,10 +72,10 @@ namespace pizda {
 		auto checksum = getCRC8(data, length);
 		auto expectedChecksum = *(data + length);
 
-		ESP_LOGI("Transceiver (packet)", "Checksum: %d, expected: %d", checksum, expectedChecksum);
+//		ESP_LOGI("Transceiver", "Checksum: %d, expected: %d", checksum, expectedChecksum);
 
 		if (checksum != expectedChecksum) {
-			ESP_LOGE("Transceiver (packet)", "Checksum mismatch: got %d, expected %d", checksum, expectedChecksum);
+			ESP_LOGE("Transceiver", "Checksum mismatch: got %d, expected %d", checksum, expectedChecksum);
 
 			return false;
 		}
@@ -90,7 +90,7 @@ namespace pizda {
 
 		// Header
 		if (memcmp(packetPtr, PacketExtensions::header, PacketExtensions::headerLength) != 0) {
-			ESP_LOGE("Transceiver (packet)", "Mismatched header: %s", packetPtr);
+			ESP_LOGE("Transceiver", "Mismatched header: %s", packetPtr);
 
 			return;
 		}
@@ -101,29 +101,67 @@ namespace pizda {
 		const auto dataType = *reinterpret_cast<PacketDataType*>(packetPtr);
 		packetPtr += 1;
 
-		ESP_LOGI("Transceiver (packet)", "Data type: %d", static_cast<uint8_t>(dataType));
+		ESP_LOGI("Transceiver", "Data type: %d", static_cast<uint8_t>(dataType));
 
 		switch (dataType) {
-			case PacketDataType::RemoteControls: {
-				if (!checkCRC(packetPtr, sizeof(RemoteControlsPacketData)))
+			case PacketDataType::RemoteControlsValues: {
+				if (!checkCRC(packetPtr, sizeof(RemoteControlsValuesPacketData)))
 					return;
 
-				auto packetData = reinterpret_cast<RemoteControlsPacketData*>(packetPtr);
+				auto packetData = reinterpret_cast<RemoteControlsValuesPacketData*>(packetPtr);
 
-				rc.motors.leftAileron.setUint16(packetData->leftAileron);
-				rc.motors.leftFlap.setUint16(packetData->flaps);
+				// Updating motors position
+				rc.motors.setLeftAileron(packetData->leftAileron);
+				rc.motors.setLeftFlap(packetData->leftFlap);
 
-				ESP_LOGI("Transceiver (packet)", "-------- Lights packet data --------");
+				ESP_LOGI("Transceiver", "-------- Controls values --------");
+				ESP_LOGI("Transceiver", "Left engine: %d", packetData->leftEngine);
+				ESP_LOGI("Transceiver", "Right engine: %d", packetData->rightEngine);
+				ESP_LOGI("Transceiver", "Left aileron: %d", packetData->leftAileron);
+				ESP_LOGI("Transceiver", "Right aileron: %d", packetData->rightAileron);
+				ESP_LOGI("Transceiver", "Left tail: %d", packetData->leftTail);
+				ESP_LOGI("Transceiver", "Right tail: %d", packetData->rightTail);
+				ESP_LOGI("Transceiver", "Left flap: %d", packetData->leftFlap);
+				ESP_LOGI("Transceiver", "Right flap: %d", packetData->rightFlap);
+				ESP_LOGI("Transceiver", "----------------");
 
-				ESP_LOGI("Transceiver (packet)", "Left engine: %d", packetData->leftEngine);
-				ESP_LOGI("Transceiver (packet)", "Right engine: %d", packetData->rightEngine);
+				break;
+			}
+			case PacketDataType::RemoteControlsCalibration: {
+				if (!checkCRC(packetPtr, sizeof(RemoteControlsCalibrationPacketData)))
+					return;
 
-				ESP_LOGI("Transceiver (packet)", "Left aileron: %d", packetData->leftAileron);
-				ESP_LOGI("Transceiver (packet)", "Right aileron: %d", packetData->rightAileron);
+				auto packetData = reinterpret_cast<RemoteControlsCalibrationPacketData*>(packetPtr);
 
-				ESP_LOGI("Transceiver (packet)", "Flaps: %d", packetData->flaps);
+				// Saving new calibration data
+				rc.settings.controlsCalibration.leftEngine = packetData->leftEngine;
+				rc.settings.controlsCalibration.rightEngine = packetData->rightEngine;
 
-				ESP_LOGI("Transceiver (packet)", "----------------");
+				rc.settings.controlsCalibration.leftAileron = packetData->leftAileron;
+				rc.settings.controlsCalibration.rightAileron = packetData->rightAileron;
+
+				rc.settings.controlsCalibration.leftTail = packetData->leftTail;
+				rc.settings.controlsCalibration.rightTail = packetData->rightTail;
+
+				rc.settings.controlsCalibration.leftFlap = packetData->leftFlap;
+				rc.settings.controlsCalibration.rightFlap = packetData->rightFlap;
+
+				rc.settings.controlsCalibration.scheduleWrite();
+
+				// Updating motors position
+				rc.motors.setLeftAileron(rc.motors.getLeftAileron());
+				rc.motors.setLeftFlap(rc.motors.getLeftFlap());
+
+				ESP_LOGI("Transceiver", "-------- Controls calibration --------");
+				ESP_LOGI("Transceiver", "Left engine min: %d, max: %d, offset: %d", packetData->leftEngine.min, packetData->leftEngine.max, packetData->leftEngine.offset);
+				ESP_LOGI("Transceiver", "Right engine min: %d, max: %d, offset: %d", packetData->rightEngine.min, packetData->rightEngine.max, packetData->rightEngine.offset);
+				ESP_LOGI("Transceiver", "Left aileron min: %d, max: %d, offset: %d", packetData->leftAileron.min, packetData->leftAileron.max, packetData->leftAileron.offset);
+				ESP_LOGI("Transceiver", "Right aileron min: %d, max: %d, offset: %d", packetData->rightAileron.min, packetData->rightAileron.max, packetData->rightAileron.offset);
+				ESP_LOGI("Transceiver", "Left tail min: %d, max: %d, offset: %d", packetData->leftTail.min, packetData->leftTail.max, packetData->leftTail.offset);
+				ESP_LOGI("Transceiver", "Right tail min: %d, max: %d, offset: %d", packetData->rightTail.min, packetData->rightTail.max, packetData->rightTail.offset);
+				ESP_LOGI("Transceiver", "Left flap min: %d, max: %d, offset: %d", packetData->leftFlap.min, packetData->leftFlap.max, packetData->leftFlap.offset);
+				ESP_LOGI("Transceiver", "Right flap min: %d, max: %d, offset: %d", packetData->rightFlap.min, packetData->rightFlap.max, packetData->rightFlap.offset);
+				ESP_LOGI("Transceiver", "----------------");
 
 				break;
 			}
@@ -137,11 +175,11 @@ namespace pizda {
 				rc.lights.setStrobeEnabled((packetData->value >> 1) & 0b1);
 				rc.lights.setLandingEnabled((packetData->value >> 2) & 0b1);
 
-				ESP_LOGI("Transceiver (packet)", "-------- Lights packet data --------");
-				ESP_LOGI("Transceiver (packet)", "Nav lights: %d", rc.lights.isNavigationEnabled());
-				ESP_LOGI("Transceiver (packet)", "Strobe lights: %d", rc.lights.isStrobeEnabled());
-				ESP_LOGI("Transceiver (packet)", "Landing lights: %d", rc.lights.isLandingEnabled());
-				ESP_LOGI("Transceiver (packet)", "----------------");
+				ESP_LOGI("Transceiver", "-------- Lights --------");
+				ESP_LOGI("Transceiver", "Nav lights: %d", rc.lights.isNavigationEnabled());
+				ESP_LOGI("Transceiver", "Strobe lights: %d", rc.lights.isStrobeEnabled());
+				ESP_LOGI("Transceiver", "Landing lights: %d", rc.lights.isLandingEnabled());
+				ESP_LOGI("Transceiver", "----------------");
 
 				break;
 			}

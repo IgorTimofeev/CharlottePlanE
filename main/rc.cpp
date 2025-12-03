@@ -13,7 +13,9 @@ namespace pizda {
 		return instance;
 	}
 
-	void RC::run() {
+	void RC::start() {
+		settings.setup();
+
 		SPIBusSetup();
 
 		motors.setup();
@@ -25,7 +27,7 @@ namespace pizda {
 		transceiver.start();
 
 		while (true) {
-			ESP_LOGI("Main", "Pizda");
+//			ESP_LOGI("Main", "Pizda");
 
 			vTaskDelay(pdMS_TO_TICKS(1000));
 		}

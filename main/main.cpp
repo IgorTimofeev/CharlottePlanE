@@ -3,5 +3,5 @@
 using namespace pizda;
 
 extern "C" void app_main(void) {
-	RC::getInstance().run();
+	RC::getInstance().start();
 }

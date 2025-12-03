@@ -1,41 +1,57 @@
 #pragma once
 
 #include <cmath>
+#include "settings.h"
 
 namespace pizda {
 	enum class PacketDataType : uint8_t {
-		RemoteControls,
+		RemoteControlsValues,
+		RemoteControlsCalibration,
 		RemoteLights,
 		Aircraft
 	};
 
 	#pragma pack(push, 1)
-		class RemoteControlsPacketData {
-			public:
-				uint16_t leftEngine;
-				uint16_t rightEngine;
+		struct RemoteControlsValuesPacketData {
+			uint16_t leftEngine {};
+			uint16_t rightEngine {};
 
-				uint16_t leftAileron;
-				uint16_t rightAileron;
+			uint16_t leftAileron {};
+			uint16_t rightAileron {};
 
-				uint16_t leftTail;
-				uint16_t rightTail;
+			uint16_t leftTail {};
+			uint16_t rightTail {};
 
-				uint16_t flaps;
+			uint16_t leftFlap {};
+			uint16_t rightFlap {};
 		};
 	#pragma pack(pop)
 
 	#pragma pack(push, 1)
-		class RemoteLightsPacketData {
-			public:
-				uint8_t value;
+		struct RemoteControlsCalibrationPacketData {
+			ControlsCalibrationSettingsMotor leftEngine {};
+			ControlsCalibrationSettingsMotor rightEngine {};
+
+			ControlsCalibrationSettingsMotor leftAileron {};
+			ControlsCalibrationSettingsMotor rightAileron {};
+
+			ControlsCalibrationSettingsMotor leftTail {};
+			ControlsCalibrationSettingsMotor rightTail {};
+
+			ControlsCalibrationSettingsMotor leftFlap {};
+			ControlsCalibrationSettingsMotor rightFlap {};
 		};
 	#pragma pack(pop)
 
 	#pragma pack(push, 1)
-		class AircraftPacketData {
-			public:
-				uint8_t roll;
+		struct RemoteLightsPacketData {
+			uint8_t value = 0;
+		};
+	#pragma pack(pop)
+
+	#pragma pack(push, 1)
+		struct AircraftPacketData {
+			uint8_t roll =0;
 		};
 	#pragma pack(pop)
 
@@ -46,7 +62,8 @@ namespace pizda {
 
 			static uint8_t getDataLength(PacketDataType type) {
 				switch (type) {
-					case PacketDataType::RemoteControls: return sizeof(RemoteControlsPacketData);
+					case PacketDataType::RemoteControlsValues: return sizeof(RemoteControlsValuesPacketData);
+					case PacketDataType::RemoteControlsCalibration: return sizeof(RemoteControlsCalibrationPacketData);
 					case PacketDataType::RemoteLights: return sizeof(RemoteLightsPacketData);
 					case PacketDataType::Aircraft: return sizeof(AircraftPacketData);
 				}

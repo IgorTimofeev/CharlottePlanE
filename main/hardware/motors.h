@@ -6,25 +6,26 @@
 namespace pizda {
 	class Motors {
 		public:
-			Motor leftFlap {
-				config::servos::leftWingFlap,
-				LEDC_CHANNEL_0,
-				1000,
-				2000
-			};
+			void setup();
 
-			Motor leftAileron {
-				config::servos::leftWingAileron,
-				LEDC_CHANNEL_1,
-				1000,
-				2000
-			};
+			uint16_t getLeftAileron() const;
+			void setLeftAileron(uint16_t value);
 
-			void setup() {
-				leftFlap.setup(leftFlap.getPulseWidthFromPercent(50));
-				leftAileron.setup(leftFlap.getPulseWidthFromPercent(50));
-			}
+			uint16_t getLeftFlap() const;
+			void setLeftFlap(uint16_t value);
 
 		private:
+			uint16_t leftAileron = 0;
+			uint16_t leftFlap = 0;
+
+			Motor leftAileronMotor {
+				config::motors::leftAileron,
+				LEDC_CHANNEL_0
+			};
+
+			Motor leftFlapMotor {
+				config::motors::leftFlap,
+				LEDC_CHANNEL_1
+			};
 	};
 }

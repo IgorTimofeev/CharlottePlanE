@@ -6,6 +6,7 @@
 #include "esp_timer.h"
 
 #include "config.h"
+#include "settings.h"
 #include "hardware/lights.h"
 #include "hardware/motors.h"
 #include "hardware/transceiver/transceiver.h"
@@ -13,6 +14,8 @@
 namespace pizda {
 	class RC {
 		public:
+			Settings settings {};
+
 			Lights lights {};
 			Motors motors {};
 			Transceiver transceiver {};
@@ -22,7 +25,7 @@ namespace pizda {
 
 			static RC& getInstance();
 
-			void run();
+			void start();
 		private:
 			RC() = default;
 
