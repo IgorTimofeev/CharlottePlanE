@@ -1,20 +1,21 @@
 #include "motor.h"
 
 #include <cmath>
+#include <algorithm>
+#include <esp_log.h>
 
 namespace pizda {
-	Motor::Motor(const gpio_num_t pin, const ledc_channel_t channel, const uint16_t frequency) :
+	Motor::Motor(const gpio_num_t pin, const ledc_channel_t channel) :
 		pin(pin),
-		channel(channel),
-		frequencyHz(frequency)
+		channel(channel)
 	{
 
 	}
 
-	void Motor::setup() const {
+	void Motor::setup() {
 		ledc_timer_config_t timerConfig {};
 		timerConfig.speed_mode = LEDC_LOW_SPEED_MODE;
-		timerConfig.duty_resolution = _dutyResolution;
+		timerConfig.duty_resolution = dutyResolution;
 		timerConfig.timer_num = LEDC_TIMER_0;
 		timerConfig.freq_hz = frequencyHz;
 		timerConfig.clk_cfg = LEDC_AUTO_CLK;
@@ -31,31 +32,19 @@ namespace pizda {
 		ESP_ERROR_CHECK(ledc_channel_config(&channelConfig));
 	}
 
-	uint16_t Motor::getFrequency() const {
-		return frequencyHz;
-	}
+	void Motor::setPulseWidth(const MotorSettings& settings, uint16_t pulseWidth) const {
+		ESP_LOGI("Motor", "Offset: %d", settings.offset);
 
-	void Motor::setFrequency(const uint16_t value) {
-		this->frequencyHz = value;
-	}
+		pulseWidth = static_cast<uint16_t>(std::clamp<int32_t>(static_cast<int32_t>(pulseWidth) + settings.offset, settings.min, settings.max));
 
-	void Motor::setPulseWidth(const ControlsCalibrationSettingsMotor& settings, const uint16_t pulseWidth) const {
-		const auto duty = getDutyFromPulseWidth(settings, pulseWidth);
+		const auto dutyMax = static_cast<uint32_t>(std::pow(2, static_cast<uint8_t>(dutyResolution))) - 1;
+		const auto duty = static_cast<uint32_t>(pulseWidth * dutyMax / (1'000'000 / frequencyHz));
 
 		ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, channel, duty));
 		ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, channel));
 	}
 
-	void Motor::setUint16(const ControlsCalibrationSettingsMotor& settings, uint16_t value) const {
-		setPulseWidth(settings, settings.min + (settings.max - settings.min) * value / 0xFFFF);
-	}
-
-	uint32_t Motor::getDutyFromPulseWidth(const ControlsCalibrationSettingsMotor& settings, const uint16_t pulseWidth) const {
-		const auto clamped = static_cast<uint16_t>(std::clamp<int32_t>(static_cast<int32_t>(pulseWidth) + settings.offset, settings.min, settings.max));
-
-		const auto dutyResolutionMaxValue = static_cast<uint16_t>(std::pow(2, static_cast<uint8_t>(_dutyResolution))) - 1;
-		const auto duty = static_cast<uint32_t>(clamped * dutyResolutionMaxValue / (1'000'000 / frequencyHz));
-
-		return duty;
+	void Motor::setPower(const MotorSettings& settings, uint16_t power) const {
+		setPulseWidth(settings, settings.min + (settings.max - settings.min) * power / 0xFFFF);
 	}
 }

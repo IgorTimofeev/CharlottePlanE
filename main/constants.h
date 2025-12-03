@@ -6,7 +6,7 @@
 #include "driver/gpio.h"
 
 namespace pizda {
-	class config {
+	class constants {
 		public:
 			class i2c {
 				public:
@@ -47,8 +47,5 @@ namespace pizda {
 							constexpr static uint8_t length = 3;
 					};
 			};
-
-
-			constexpr static gpio_num_t signal = GPIO_NUM_0;
 	};
 }

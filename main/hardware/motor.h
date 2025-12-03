@@ -5,32 +5,28 @@
 #include <driver/gpio.h>
 #include <driver/ledc.h>
 
-#include "settings.h"
-
 namespace pizda {
+	class MotorSettings {
+		public:
+			uint16_t min = 0;
+			uint16_t max = 0;
+			int16_t offset = 0;
+	};
+
 	class Motor {
 		public:
-			Motor(
-				gpio_num_t pin,
-				ledc_channel_t channel,
-				uint16_t frequency = 50
-			);
+			Motor(gpio_num_t pin, ledc_channel_t channel);
 
-			void setup() const;
-
-			uint16_t getFrequency() const;
-			void setFrequency(uint16_t value);
-
-			void setPulseWidth(const ControlsCalibrationSettingsMotor& settings, uint16_t pulseWidth) const;
-			void setUint16(const ControlsCalibrationSettingsMotor& settings, uint16_t value) const;
+			void setup();
+			void setPower(const MotorSettings& settings, uint16_t power) const;
+			void setPulseWidth(const MotorSettings& settings, uint16_t pulseWidth) const;
 
 		private:
 			gpio_num_t pin;
 			ledc_channel_t channel;
-			uint16_t frequencyHz;
 
-			constexpr static ledc_timer_bit_t _dutyResolution = LEDC_TIMER_13_BIT;
+			constexpr static uint8_t frequencyHz = 50;
+			constexpr static ledc_timer_bit_t dutyResolution = LEDC_TIMER_13_BIT;
 
-			uint32_t getDutyFromPulseWidth(const ControlsCalibrationSettingsMotor& settings, uint16_t pulseWidth) const;
 	};
 }

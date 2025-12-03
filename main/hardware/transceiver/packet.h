@@ -8,6 +8,7 @@ namespace pizda {
 		RemoteControlsValues,
 		RemoteControlsCalibration,
 		RemoteLights,
+
 		Aircraft
 	};
 
@@ -29,29 +30,31 @@ namespace pizda {
 
 	#pragma pack(push, 1)
 		struct RemoteControlsCalibrationPacketData {
-			ControlsCalibrationSettingsMotor leftEngine {};
-			ControlsCalibrationSettingsMotor rightEngine {};
+			MotorSettings leftEngine {};
+			MotorSettings rightEngine {};
 
-			ControlsCalibrationSettingsMotor leftAileron {};
-			ControlsCalibrationSettingsMotor rightAileron {};
+			MotorSettings leftAileron {};
+			MotorSettings rightAileron {};
 
-			ControlsCalibrationSettingsMotor leftTail {};
-			ControlsCalibrationSettingsMotor rightTail {};
+			MotorSettings leftTail {};
+			MotorSettings rightTail {};
 
-			ControlsCalibrationSettingsMotor leftFlap {};
-			ControlsCalibrationSettingsMotor rightFlap {};
+			MotorSettings leftFlap {};
+			MotorSettings rightFlap {};
 		};
 	#pragma pack(pop)
 
 	#pragma pack(push, 1)
 		struct RemoteLightsPacketData {
-			uint8_t value = 0;
+			uint8_t navigation: 1;
+			uint8_t strobe: 1;
+			uint8_t landing: 1;
 		};
 	#pragma pack(pop)
 
 	#pragma pack(push, 1)
 		struct AircraftPacketData {
-			uint8_t roll =0;
+			uint8_t roll = 0;
 		};
 	#pragma pack(pop)
 
@@ -65,6 +68,7 @@ namespace pizda {
 					case PacketDataType::RemoteControlsValues: return sizeof(RemoteControlsValuesPacketData);
 					case PacketDataType::RemoteControlsCalibration: return sizeof(RemoteControlsCalibrationPacketData);
 					case PacketDataType::RemoteLights: return sizeof(RemoteLightsPacketData);
+
 					case PacketDataType::Aircraft: return sizeof(AircraftPacketData);
 				}
 			}

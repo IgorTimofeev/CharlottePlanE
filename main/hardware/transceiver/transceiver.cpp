@@ -45,7 +45,7 @@ namespace pizda {
 			if (bytesRead > 0) {
 				ESP_LOGI("Transceiver", "Got packet, length: %d", bytesRead);
 
-				instance->analyze();
+				instance->parsePacket();
 			}
 		}
 	}
@@ -83,7 +83,7 @@ namespace pizda {
 		return true;
 	}
 
-	void Transceiver::analyze() {
+	void Transceiver::parsePacket() {
 		auto& rc = RC::getInstance();
 
 		auto packetPtr = rxBuffer;
@@ -134,19 +134,19 @@ namespace pizda {
 				auto packetData = reinterpret_cast<RemoteControlsCalibrationPacketData*>(packetPtr);
 
 				// Saving new calibration data
-				rc.settings.controlsCalibration.leftEngine = packetData->leftEngine;
-				rc.settings.controlsCalibration.rightEngine = packetData->rightEngine;
+				rc.settings.motors.leftEngine = packetData->leftEngine;
+				rc.settings.motors.rightEngine = packetData->rightEngine;
 
-				rc.settings.controlsCalibration.leftAileron = packetData->leftAileron;
-				rc.settings.controlsCalibration.rightAileron = packetData->rightAileron;
+				rc.settings.motors.leftAileron = packetData->leftAileron;
+				rc.settings.motors.rightAileron = packetData->rightAileron;
 
-				rc.settings.controlsCalibration.leftTail = packetData->leftTail;
-				rc.settings.controlsCalibration.rightTail = packetData->rightTail;
+				rc.settings.motors.leftTail = packetData->leftTail;
+				rc.settings.motors.rightTail = packetData->rightTail;
 
-				rc.settings.controlsCalibration.leftFlap = packetData->leftFlap;
-				rc.settings.controlsCalibration.rightFlap = packetData->rightFlap;
+				rc.settings.motors.leftFlap = packetData->leftFlap;
+				rc.settings.motors.rightFlap = packetData->rightFlap;
 
-				rc.settings.controlsCalibration.scheduleWrite();
+				rc.settings.motors.scheduleWrite();
 
 				// Updating motors position
 				rc.motors.setLeftAileron(rc.motors.getLeftAileron());
@@ -171,9 +171,9 @@ namespace pizda {
 
 				auto packetData = reinterpret_cast<RemoteLightsPacketData*>(packetPtr);
 
-				rc.lights.setNavigationEnabled((packetData->value >> 0) & 0b1);
-				rc.lights.setStrobeEnabled((packetData->value >> 1) & 0b1);
-				rc.lights.setLandingEnabled((packetData->value >> 2) & 0b1);
+				rc.lights.setNavigationEnabled(packetData->navigation);
+				rc.lights.setStrobeEnabled(packetData->strobe);
+				rc.lights.setLandingEnabled(packetData->landing);
 
 				ESP_LOGI("Transceiver", "-------- Lights --------");
 				ESP_LOGI("Transceiver", "Nav lights: %d", rc.lights.isNavigationEnabled());

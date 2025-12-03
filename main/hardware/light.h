@@ -5,10 +5,10 @@
 #include "led_strip.h"
 
 namespace pizda {
-	class Strip {
+	class Light {
 		public:
-			Strip(uint8_t pin, uint8_t length) : length(length) {
-				led_strip_config_t strip_config{};
+			Light(uint8_t pin, uint8_t length) : length(length) {
+				led_strip_config_t strip_config {};
 				strip_config.strip_gpio_num = pin;
 				strip_config.max_leds = length;
 				strip_config.color_component_format = LED_STRIP_COLOR_COMPONENT_FMT_GRB;

@@ -17,7 +17,7 @@ namespace pizda {
 
 	void Motors::setLeftAileron(uint16_t value) {
 		leftAileron = value;
-		leftAileronMotor.setUint16(RC::getInstance().settings.controlsCalibration.leftAileron, leftAileron);
+		leftAileronMotor.setPower(RC::getInstance().settings.motors.leftAileron, leftAileron);
 	}
 
 	uint16_t Motors::getLeftFlap() const {
@@ -26,6 +26,6 @@ namespace pizda {
 
 	void Motors::setLeftFlap(uint16_t value) {
 		leftFlap = value;
-		leftFlapMotor.setUint16(RC::getInstance().settings.controlsCalibration.leftFlap, leftFlap);
+		leftFlapMotor.setPower(RC::getInstance().settings.motors.leftFlap, leftFlap);
 	}
 }

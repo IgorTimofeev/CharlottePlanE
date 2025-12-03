@@ -1,33 +1,27 @@
 #pragma once
 
 #include <YOBANVS/main.h>
+#include "hardware/motor.h"
 
 namespace pizda {
 	using namespace YOBA;
 
-	class ControlsCalibrationSettingsMotor {
+	class MotorsSettings : public NVSSettings {
 		public:
-			uint16_t min = 0;
-			uint16_t max = 0;
-			int16_t offset = 0;
-	};
-
-	class ControlsCalibrationSettings : public NVSSettings {
-		public:
-			ControlsCalibrationSettingsMotor leftEngine {};
-			ControlsCalibrationSettingsMotor rightEngine {};
+			MotorSettings leftEngine {};
+			MotorSettings rightEngine {};
 			
-			ControlsCalibrationSettingsMotor leftAileron {};
-			ControlsCalibrationSettingsMotor rightAileron {};
+			MotorSettings leftAileron {};
+			MotorSettings rightAileron {};
 
-			ControlsCalibrationSettingsMotor leftTail {};
-			ControlsCalibrationSettingsMotor rightTail {};
+			MotorSettings leftTail {};
+			MotorSettings rightTail {};
 
-			ControlsCalibrationSettingsMotor leftFlap {};
-			ControlsCalibrationSettingsMotor rightFlap {};
+			MotorSettings leftFlap {};
+			MotorSettings rightFlap {};
 
 		protected:
-			const char* getNVSNamespace() override {
+			const char* getNamespace() override {
 				return "scc";
 			}
 
@@ -132,23 +126,23 @@ namespace pizda {
 				constexpr static auto _rightTailMax = "rtx";
 				constexpr static auto _rightTailOffset = "rto";
 
-				constexpr static auto _leftFlapMin = "fam";
-				constexpr static auto _leftFlapMax = "fax";
-				constexpr static auto _leftFlapOffset = "fao";
+				constexpr static auto _leftFlapMin = "lfm";
+				constexpr static auto _leftFlapMax = "lfx";
+				constexpr static auto _leftFlapOffset = "lfo";
 
-				constexpr static auto _rightFlapMin = "fam";
-				constexpr static auto _rightFlapMax = "fax";
-				constexpr static auto _rightFlapOffset = "fao";
+				constexpr static auto _rightFlapMin = "rfm";
+				constexpr static auto _rightFlapMax = "rfx";
+				constexpr static auto _rightFlapOffset = "rfo";
 		};
 
 	class Settings {
 		public:
-			ControlsCalibrationSettings controlsCalibration {};
+			MotorsSettings motors {};
 
 			void setup() {
 				NVSSettings::setup();
 
-				controlsCalibration.read();
+				motors.read();
 			}
 	};
 }

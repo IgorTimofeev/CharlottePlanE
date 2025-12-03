@@ -1,6 +1,6 @@
 #pragma once
 
-#include "config.h"
+#include "constants.h"
 #include "hardware/motor.h"
 
 namespace pizda {
@@ -18,14 +18,7 @@ namespace pizda {
 			uint16_t leftAileron = 0;
 			uint16_t leftFlap = 0;
 
-			Motor leftAileronMotor {
-				config::motors::leftAileron,
-				LEDC_CHANNEL_0
-			};
-
-			Motor leftFlapMotor {
-				config::motors::leftFlap,
-				LEDC_CHANNEL_1
-			};
+			Motor leftAileronMotor { constants::motors::leftAileron, LEDC_CHANNEL_0 };
+			Motor leftFlapMotor { constants::motors::leftFlap, LEDC_CHANNEL_1 };
 	};
 }

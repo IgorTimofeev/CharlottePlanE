@@ -1,15 +1,15 @@
 #pragma once
 
 #include <esp_timer.h>
-#include "strip.h"
-#include "config.h"
+#include "light.h"
+#include "constants.h"
 
 namespace pizda {
 	class Lights {
 		public:
-			Strip interior {
-				config::lights::interior::pin,
-				config::lights::interior::length
+			Light interior {
+				constants::lights::interior::pin,
+				constants::lights::interior::length
 			};
 
 //			Strip tail {
@@ -17,9 +17,9 @@ namespace pizda {
 //				config::lights::tail::length
 //			};
 
-			Strip leftWing {
-				config::lights::leftWing::pin,
-				config::lights::leftWing::length
+			Light leftWing {
+				constants::lights::leftWing::pin,
+				constants::lights::leftWing::length
 			};
 
 			void setup() {
@@ -46,7 +46,6 @@ namespace pizda {
 					return;
 
 				navigationEnabled = value;
-				restart();
 			}
 
 			bool isStrobeEnabled() const {
@@ -58,7 +57,6 @@ namespace pizda {
 					return;
 
 				strobeEnabled = value;
-				restart();
 			}
 
 			bool isLandingEnabled() const {
@@ -70,7 +68,6 @@ namespace pizda {
 					return;
 
 				landingEnabled = value;
-				restart();
 			}
 
 		private:
@@ -82,34 +79,29 @@ namespace pizda {
 			bool strobeEnabled = false;
 			bool landingEnabled = false;
 
-			void restart() {
-				vTaskDelete(taskHandle);
-				start();
-			}
-
-			void updateNavOrLanding(Strip& strip, const uint8_t r, const uint8_t g, const uint8_t b) {
+			void updateNavOrLanding(Light& light, const uint8_t r, const uint8_t g, const uint8_t b) const {
 				// Navigation
 				if (navigationEnabled) {
-					strip.fill(r, g, b);
+					light.fill(r, g, b);
 				}
 				else {
-					strip.fill(0x00);
+					light.fill(0x00);
 				}
 
 				// Landing
 				if (landingEnabled)
-					strip.fill(0, strip.getLength() / 2, 0xFF, 0xFF, 0xFF);
+					light.fill(0, light.getLength() / 2, 0xFF, 0xFF, 0xFF);
 
-				strip.flush();
+				light.flush();
 			}
 
-			void updateStrobes(Strip& strip, const uint8_t r, const uint8_t g, const uint8_t b) {
+			void updateStrobes(Light& light, const uint8_t r, const uint8_t g, const uint8_t b) {
 				if (strobeEnabled) {
-					strip.fill(0xFF);
-					strip.flush();
+					light.fill(0xFF);
+					light.flush();
 				}
 				else {
-					updateNavOrLanding(strip, r, g, b);
+					updateNavOrLanding(light, r, g, b);
 				}
 			}
 

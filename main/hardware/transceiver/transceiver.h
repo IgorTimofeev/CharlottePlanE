@@ -15,6 +15,6 @@ namespace pizda {
 			uint8_t rxBuffer[rxBufferLength];
 
 			static void rxTask(void *arg);
-			void analyze();
+			void parsePacket();
 	};;
 }
