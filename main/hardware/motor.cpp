@@ -33,11 +33,15 @@ namespace pizda {
 	}
 
 	void Motor::setPulseWidth(const MotorSettings& settings, uint16_t pulseWidth) const {
-		ESP_LOGI("Motor", "Offset: %d", settings.offset);
+		auto pizda = static_cast<int32_t>(pulseWidth) + settings.offset;
 
-		pulseWidth = static_cast<uint16_t>(std::clamp<int32_t>(static_cast<int32_t>(pulseWidth) + settings.offset, settings.min, settings.max));
+		if (settings.reverse)
+			pizda = settings.min + settings.max - pizda;
 
-		const auto dutyMax = static_cast<uint32_t>(std::pow(2, static_cast<uint8_t>(dutyResolution))) - 1;
+		pulseWidth = static_cast<uint16_t>(std::clamp<int32_t>(pizda, settings.min, settings.max));
+
+		// Pulse width -> duty cycle conversion
+		static const auto dutyMax = static_cast<uint32_t>(std::pow(2, static_cast<uint8_t>(dutyResolution))) - 1;
 		const auto duty = static_cast<uint32_t>(pulseWidth * dutyMax / (1'000'000 / frequencyHz));
 
 		ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, channel, duty));

@@ -5,27 +5,61 @@
 namespace pizda {
 	void Motors::setup() {
 		leftAileronMotor.setup();
-		setLeftAileron(0xFFFF / 2);
+		setAilerons(0xFFFF / 2);
 
 		leftFlapMotor.setup();
-		setLeftFlap(0xFFFF / 2);
+		setFlaps(0xFFFF / 2);
 	}
 
-	uint16_t Motors::getLeftAileron() const {
-		return leftAileron;
+	uint16_t Motors::getLeftThrottle() const {
+		return leftThrottle;
 	}
 
-	void Motors::setLeftAileron(uint16_t value) {
-		leftAileron = value;
-		leftAileronMotor.setPower(RC::getInstance().settings.motors.leftAileron, leftAileron);
+	void Motors::setLeftThrottle(uint16_t value) {
+		leftThrottle = value;
 	}
 
-	uint16_t Motors::getLeftFlap() const {
-		return leftFlap;
+	uint16_t Motors::getRightThrottle() const {
+		return rightThrottle;
 	}
 
-	void Motors::setLeftFlap(uint16_t value) {
-		leftFlap = value;
-		leftFlapMotor.setPower(RC::getInstance().settings.motors.leftFlap, leftFlap);
+	void Motors::setRightThrottle(uint16_t value) {
+		rightThrottle = value;
+	}
+
+	uint16_t Motors::getElevator() const {
+		return elevator;
+	}
+
+	void Motors::setElevator(uint16_t value) {
+		elevator = value;
+	}
+
+	uint16_t Motors::getRudder() const {
+		return rudder;
+	}
+
+	void Motors::setRudder(uint16_t value) {
+		rudder = value;
+	}
+
+	uint16_t Motors::getAilerons() const {
+		return ailerons;
+	}
+
+	void Motors::setAilerons(uint16_t value) {
+		ailerons = value;
+
+		leftAileronMotor.setPower(RC::getInstance().settings.motors.leftAileron, ailerons);
+	}
+
+	uint16_t Motors::getFlaps() const {
+		return flaps;
+	}
+
+	void Motors::setFlaps(uint16_t value) {
+		flaps = value;
+
+		leftFlapMotor.setPower(RC::getInstance().settings.motors.leftFlap, flaps);
 	}
 }

@@ -1,15 +1,32 @@
 #pragma once
 
 #include <YOBANVS/main.h>
-#include "hardware/motor.h"
 
 namespace pizda {
 	using namespace YOBA;
 
+	#pragma pack(push, 1)
+	class MotorSettings {
+		public:
+			uint16_t min = 0;
+			uint16_t max = 0;
+			int16_t offset = 0;
+			bool reverse = false;
+
+			void sanitize() {
+				min = std::clamp<uint16_t>(min, 100, 1400);
+				max = std::clamp<uint16_t>(max, 1600, 2900);
+
+				if (std::abs(offset) > 900)
+					offset = 0;
+			}
+	};
+	#pragma pack(pop)
+
 	class MotorsSettings : public NVSSettings {
 		public:
-			MotorSettings leftEngine {};
-			MotorSettings rightEngine {};
+			MotorSettings leftThrottle {};
+			MotorSettings rightThrottle {};
 			
 			MotorSettings leftAileron {};
 			MotorSettings rightAileron {};
@@ -22,117 +39,149 @@ namespace pizda {
 
 		protected:
 			const char* getNamespace() override {
-				return "scc";
+				return "scc4";
 			}
 
 			void onRead(const NVSStream& stream) override {
-				// Engines
-				leftEngine.min = stream.getUint16(_leftEngineMin, 1000);
-				leftEngine.max = stream.getUint16(_leftEngineMax, 2000);
-				leftEngine.offset = stream.getInt16(_leftEngineOffset, 0);
+				// Throttles
+				leftThrottle.min = stream.getUint16(_leftThrottleMin, 1000);
+				leftThrottle.max = stream.getUint16(_leftThrottleMax, 2000);
+				leftThrottle.offset = stream.getInt16(_leftThrottleOffset, 0);
+				leftThrottle.reverse = stream.getInt16(_leftThrottleReverse, 0);
+				leftThrottle.sanitize();
 
-				rightEngine.min = stream.getUint16(_rightEngineMin, 1000);
-				rightEngine.max = stream.getUint16(_rightEngineMax, 2000);
-				rightEngine.offset = stream.getInt16(_rightEngineOffset, 0);
-				
+				rightThrottle.min = stream.getUint16(_rightThrottleMin, 1000);
+				rightThrottle.max = stream.getUint16(_rightThrottleMax, 2000);
+				rightThrottle.offset = stream.getInt16(_rightThrottleOffset, 0);
+				rightThrottle.reverse = stream.getInt16(_rightThrottleReverse, 0);
+				rightThrottle.sanitize();
+
 				// Ailerons
 				leftAileron.min = stream.getUint16(_leftAileronMin, 1000);
 				leftAileron.max = stream.getUint16(_leftAileronMax, 2000);
 				leftAileron.offset = stream.getInt16(_leftAileronOffset, 0);
+				leftAileron.reverse = stream.getInt16(_leftAileronReverse, 0);
+				leftAileron.sanitize();
 
 				rightAileron.min = stream.getUint16(_rightAileronMin, 1000);
 				rightAileron.max = stream.getUint16(_rightAileronMax, 2000);
 				rightAileron.offset = stream.getInt16(_rightAileronOffset, 0);
+				rightAileron.reverse = stream.getInt16(_rightAileronReverse, 0);
+				rightAileron.sanitize();
 
 				// Tail
 				leftFlap.min = stream.getUint16(_leftFlapMin, 1000);
 				leftFlap.max = stream.getUint16(_leftFlapMax, 2000);
 				leftFlap.offset = stream.getInt16(_leftFlapOffset, 0);
+				leftFlap.reverse = stream.getInt16(_leftFlapReverse, 0);
+				leftFlap.sanitize();
 
 				rightFlap.min = stream.getUint16(_rightFlapMin, 1000);
 				rightFlap.max = stream.getUint16(_rightFlapMax, 2000);
 				rightFlap.offset = stream.getInt16(_rightFlapOffset, 0);
+				rightFlap.reverse = stream.getInt16(_rightFlapReverse, 0);
+				rightFlap.sanitize();
 
 				// Flaps
 				leftTail.min = stream.getUint16(_leftFlapMin, 1000);
 				leftTail.max = stream.getUint16(_leftFlapMax, 2000);
 				leftTail.offset = stream.getInt16(_leftFlapOffset, 0);
+				leftTail.reverse = stream.getInt16(_leftFlapReverse, 0);
+				leftTail.sanitize();
 
 				rightTail.min = stream.getUint16(_rightTailMin, 1000);
 				rightTail.max = stream.getUint16(_rightTailMax, 2000);
 				rightTail.offset = stream.getInt16(_rightTailOffset, 0);
+				rightTail.reverse = stream.getInt16(_rightTailReverse, 0);
+				rightTail.sanitize();
 			}
 
 			void onWrite(const NVSStream& stream) override {
-				// Engines
-				stream.setUint16(_leftEngineMin, leftEngine.min);
-				stream.setUint16(_leftEngineMax, leftEngine.max);
-				stream.setInt16(_leftEngineOffset, leftEngine.offset);
+				// Throttles
+				stream.setUint16(_leftThrottleMin, leftThrottle.min);
+				stream.setUint16(_leftThrottleMax, leftThrottle.max);
+				stream.setInt16(_leftThrottleOffset, leftThrottle.offset);
+				stream.setBool(_leftThrottleReverse, leftThrottle.reverse);
 
-				stream.setUint16(_rightEngineMin, rightEngine.min);
-				stream.setUint16(_rightEngineMax, rightEngine.max);
-				stream.setInt16(_rightEngineOffset, rightEngine.offset);
-				
+				stream.setUint16(_rightThrottleMin, rightThrottle.min);
+				stream.setUint16(_rightThrottleMax, rightThrottle.max);
+				stream.setInt16(_rightThrottleOffset, rightThrottle.offset);
+				stream.setBool(_rightThrottleReverse, rightThrottle.reverse);
+
 				// Ailerons
 				stream.setUint16(_leftAileronMin, leftAileron.min);
 				stream.setUint16(_leftAileronMax, leftAileron.max);
 				stream.setInt16(_leftAileronOffset, leftAileron.offset);
+				stream.setBool(_leftAileronReverse, leftAileron.reverse);
 
 				stream.setUint16(_rightAileronMin, rightAileron.min);
 				stream.setUint16(_rightAileronMax, rightAileron.max);
 				stream.setInt16(_rightAileronOffset, rightAileron.offset);
+				stream.setBool(_rightAileronReverse, rightAileron.reverse);
 
 				// Tail
 				stream.setUint16(_leftTailMin, leftTail.min);
 				stream.setUint16(_leftTailMax, leftTail.max);
 				stream.setInt16(_leftTailOffset, leftTail.offset);
+				stream.setBool(_leftTailReverse, leftTail.reverse);
 
 				stream.setUint16(_rightTailMin, rightTail.min);
 				stream.setUint16(_rightTailMax, rightTail.max);
 				stream.setInt16(_rightTailOffset, rightTail.offset);
+				stream.setBool(_rightTailReverse, rightTail.reverse);
 
 				// Flaps
 				stream.setUint16(_leftFlapMin, leftFlap.min);
 				stream.setUint16(_leftFlapMax, leftFlap.max);
 				stream.setInt16(_leftFlapOffset, leftFlap.offset);
+				stream.setBool(_leftFlapReverse, leftFlap.reverse);
 
 				stream.setUint16(_rightFlapMin, rightFlap.min);
 				stream.setUint16(_rightFlapMax, rightFlap.max);
 				stream.setInt16(_rightFlapOffset, rightFlap.offset);
+				stream.setBool(_rightFlapReverse, rightFlap.reverse);
 			}
 
 			private:
-				constexpr static auto _leftEngineMin = "lem";
-				constexpr static auto _leftEngineMax = "lex";
-				constexpr static auto _leftEngineOffset = "leo";
-	
-				constexpr static auto _rightEngineMin = "rem";
-				constexpr static auto _rightEngineMax = "rex";
-				constexpr static auto _rightEngineOffset = "reo";
-			
+				constexpr static auto _leftThrottleMin = "ltm";
+				constexpr static auto _leftThrottleMax = "ltx";
+				constexpr static auto _leftThrottleOffset = "lto";
+				constexpr static auto _leftThrottleReverse = "ltr";
+
+				constexpr static auto _rightThrottleMin = "rtm";
+				constexpr static auto _rightThrottleMax = "rtx";
+				constexpr static auto _rightThrottleOffset = "rto";
+				constexpr static auto _rightThrottleReverse = "rlr";
+
 				constexpr static auto _leftAileronMin = "lam";
 				constexpr static auto _leftAileronMax = "lax";
 				constexpr static auto _leftAileronOffset = "lao";
+				constexpr static auto _leftAileronReverse = "lar";
 
 				constexpr static auto _rightAileronMin = "ram";
 				constexpr static auto _rightAileronMax = "rax";
 				constexpr static auto _rightAileronOffset = "rao";
+				constexpr static auto _rightAileronReverse = "rar";
 
-				constexpr static auto _leftTailMin = "ltm";
-				constexpr static auto _leftTailMax = "ltx";
-				constexpr static auto _leftTailOffset = "lto";
+				constexpr static auto _leftTailMin = "llm";
+				constexpr static auto _leftTailMax = "llx";
+				constexpr static auto _leftTailOffset = "llo";
+				constexpr static auto _leftTailReverse = "llr";
 
-				constexpr static auto _rightTailMin = "rtm";
-				constexpr static auto _rightTailMax = "rtx";
-				constexpr static auto _rightTailOffset = "rto";
+				constexpr static auto _rightTailMin = "rlm";
+				constexpr static auto _rightTailMax = "rlx";
+				constexpr static auto _rightTailOffset = "rlo";
+				constexpr static auto _rightTailReverse = "rlr";
 
 				constexpr static auto _leftFlapMin = "lfm";
 				constexpr static auto _leftFlapMax = "lfx";
 				constexpr static auto _leftFlapOffset = "lfo";
+				constexpr static auto _leftFlapReverse = "lfr";
 
 				constexpr static auto _rightFlapMin = "rfm";
 				constexpr static auto _rightFlapMax = "rfx";
 				constexpr static auto _rightFlapOffset = "rfo";
+				constexpr static auto _rightFlapReverse = "rfr";
 		};
 
 	class Settings {

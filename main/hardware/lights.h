@@ -7,7 +7,7 @@
 namespace pizda {
 	class Lights {
 		public:
-			Light interior {
+			Light cabin {
 				constants::lights::interior::pin,
 				constants::lights::interior::length
 			};
@@ -23,8 +23,8 @@ namespace pizda {
 			};
 
 			void setup() {
-				interior.fill(0x55);
-				interior.flush();
+				cabin.fill(0x00);
+				cabin.flush();
 
 //				tail.fill(0x00);
 //				tail.flush();
@@ -70,6 +70,20 @@ namespace pizda {
 				landingEnabled = value;
 			}
 
+			bool isCabinEnabled() const {
+				return cabinEnabled;
+			}
+
+			void setCabinEnabled(bool value) {
+				if (value == cabinEnabled)
+					return;
+
+				cabinEnabled = value;
+
+				cabin.fill(cabinEnabled ? 0x22 : 0x00);
+				cabin.flush();
+			}
+
 		private:
 			constexpr static const uint8_t dimmedChannelValue = 0x22;
 
@@ -78,6 +92,7 @@ namespace pizda {
 			bool navigationEnabled = false;
 			bool strobeEnabled = false;
 			bool landingEnabled = false;
+			bool cabinEnabled = false;
 
 			void updateNavOrLanding(Light& light, const uint8_t r, const uint8_t g, const uint8_t b) const {
 				// Navigation

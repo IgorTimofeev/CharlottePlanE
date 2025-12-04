@@ -4,15 +4,9 @@
 
 #include <driver/gpio.h>
 #include <driver/ledc.h>
+#include "settings.h"
 
 namespace pizda {
-	class MotorSettings {
-		public:
-			uint16_t min = 0;
-			uint16_t max = 0;
-			int16_t offset = 0;
-	};
-
 	class Motor {
 		public:
 			Motor(gpio_num_t pin, ledc_channel_t channel);
