@@ -8,8 +8,5 @@
     <sourceRoots>
       <file path="$PROJECT_DIR$/main" />
     </sourceRoots>
-    <libraryRoots>
-      <file path="$PROJECT_DIR$/../../../../../../../../Espressif/frameworks/esp-idf-v5.5" />
-    </libraryRoots>
   </component>
 </project>

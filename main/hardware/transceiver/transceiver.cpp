@@ -43,7 +43,7 @@ namespace pizda {
 			const int bytesRead = uart_read_bytes(UART_NUM_0, instance->rxBuffer, rxBufferLength, 20 / portTICK_PERIOD_MS);
 
 			if (bytesRead > 0) {
-				ESP_LOGI("Transceiver", "Got packet, length: %d", bytesRead);
+//				ESP_LOGI("Transceiver", "Got packet, length: %d", bytesRead);
 
 				Packet::parse(instance->rxBuffer);
 			}

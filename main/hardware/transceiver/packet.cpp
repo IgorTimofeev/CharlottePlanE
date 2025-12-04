@@ -3,6 +3,7 @@
 #include <cmath>
 #include "settings.h"
 #include "rc.h"
+#include <YOBABitStream/main.h>
 
 namespace pizda {
 	uint8_t Packet::getCRC8(const uint8_t* data, size_t length) {
@@ -38,6 +39,34 @@ namespace pizda {
 		return true;
 	}
 
+	bool Packet::computeByteCountAndCheckCRC(uint8_t* buffer, uint32_t bitCount) {
+		const uint8_t byteCount = (bitCount + 7) / 8;
+
+//		ESP_LOGI("Packet", "Expected bit count: %d, byte count: %d", bitCount, byteCount);
+
+		return checkCRC(buffer, byteCount);
+	}
+
+	bool Packet::readValueCountAndCheckCRC(
+		uint8_t* buffer,
+		ReadableBitStream& bitStream,
+		uint8_t valueBitCount,
+		uint8_t valueCountBitCount,
+		uint8_t valueCountExpected,
+		uint8_t* valueCount
+	) {
+		*valueCount = bitStream.readUint8(valueCountBitCount);
+
+		ESP_LOGE("Packet", "Value count: %d", *valueCount);
+
+		if (*valueCount != valueCountExpected) {
+			ESP_LOGE("Packet", "Value count mismatch: got %d, expected %d", *valueCount, valueCountExpected);
+			return false;
+		}
+
+		return computeByteCountAndCheckCRC(buffer, valueCountBitCount + valueBitCount * *valueCount);
+	}
+
 	void Packet::parse(uint8_t* buffer) {
 		auto& rc = RC::getInstance();
 
@@ -54,39 +83,30 @@ namespace pizda {
 		const auto dataType = *reinterpret_cast<PacketType*>(buffer);
 		buffer += 1;
 
-		ESP_LOGI("Packet", "Data type: %d", static_cast<uint8_t>(dataType));
+		ReadableBitStream bitStream { buffer };
 
 		switch (dataType) {
-			case PacketType::RemoteSetControlsValues: {
-				ESP_LOGI("Packet", "-------- RemoteSetControlsValues --------");
+			case PacketType::RemoteSetMotorValues: {
+				ESP_LOGI("Packet", "-------- RemoteSetMotorValues --------");
 
-				const auto controlsCount = *buffer;
+				uint8_t valueCount = 0;
 
-				ESP_LOGI("Packet", "Controls count: %d", controlsCount);
-
-				if (!checkCRC(buffer, 1 + sizeof(uint16_t) * controlsCount))
+				if (!readValueCountAndCheckCRC(
+					buffer,
+					bitStream,
+					12,
+					4,
+					6,
+					&valueCount
+				))
 					return;
 
-				buffer++;
-
-				// Updating motors position
-				rc.motors.setLeftThrottle(*reinterpret_cast<uint16_t*>(buffer));
-				buffer += sizeof(uint16_t);
-
-				rc.motors.setRightThrottle(*reinterpret_cast<uint16_t*>(buffer));
-				buffer += sizeof(uint16_t);
-
-				rc.motors.setAilerons(*reinterpret_cast<uint16_t*>(buffer));
-				buffer += sizeof(uint16_t);
-
-				rc.motors.setElevator(*reinterpret_cast<uint16_t*>(buffer));
-				buffer += sizeof(uint16_t);
-
-				rc.motors.setRudder(*reinterpret_cast<uint16_t*>(buffer));
-				buffer += sizeof(uint16_t);
-
-				rc.motors.setFlaps(*reinterpret_cast<uint16_t*>(buffer));
-				buffer += sizeof(uint16_t);
+				rc.motors.setLeftThrottle(bitStream.readUint16(12));
+				rc.motors.setRightThrottle(bitStream.readUint16(12));
+				rc.motors.setAilerons(bitStream.readUint16(12));
+				rc.motors.setElevator(bitStream.readUint16(12));
+				rc.motors.setRudder(bitStream.readUint16(12));
+				rc.motors.setFlaps(bitStream.readUint16(12));
 
 				ESP_LOGI("Packet", "Left throttle: %d", rc.motors.getLeftThrottle());
 				ESP_LOGI("Packet", "Right throttle: %d", rc.motors.getRightThrottle());
@@ -101,47 +121,36 @@ namespace pizda {
 			case PacketType::RemoteSetMotorConfigurations: {
 				ESP_LOGI("Packet", "-------- RemoteSetMotorConfigurations --------");
 
-				const auto motorCount = *buffer;
+				uint8_t valueCount = 0;
 
-				ESP_LOGI("Packet", "Motor count: %d", motorCount);
-
-				if (!checkCRC(buffer, 1 + sizeof(MotorSettings) * motorCount))
+				if (!readValueCountAndCheckCRC(
+					buffer,
+					bitStream,
+					12 + 12 + 12 + 1,
+					4,
+					8,
+					&valueCount
+				))
 					return;
 
-				buffer++;
+				const auto readSettings = [&bitStream](MotorSettings& settings) {
+					settings.min = bitStream.readUint16(12);
+					settings.max = bitStream.readUint16(12);
+					settings.offset = bitStream.readInt16(12);
+					settings.reverse = bitStream.readBool();
+				};
 
-				// Saving new calibration data
-				rc.settings.motors.leftThrottle = *reinterpret_cast<MotorSettings*>(buffer);
-				rc.settings.motors.leftThrottle.sanitize();
-				buffer += sizeof(MotorSettings);
+				readSettings(rc.settings.motors.leftThrottle);
+				readSettings(rc.settings.motors.rightThrottle);
 
-				rc.settings.motors.rightThrottle = *reinterpret_cast<MotorSettings*>(buffer);
-				rc.settings.motors.rightThrottle.sanitize();
-				buffer += sizeof(MotorSettings);
+				readSettings(rc.settings.motors.leftAileron);
+				readSettings(rc.settings.motors.rightAileron);
 
-				rc.settings.motors.leftAileron = *reinterpret_cast<MotorSettings*>(buffer);
-				rc.settings.motors.leftAileron.sanitize();
-				buffer += sizeof(MotorSettings);
+				readSettings(rc.settings.motors.leftTail);
+				readSettings(rc.settings.motors.rightTail);
 
-				rc.settings.motors.rightAileron = *reinterpret_cast<MotorSettings*>(buffer);
-				rc.settings.motors.rightAileron.sanitize();
-				buffer += sizeof(MotorSettings);
-
-				rc.settings.motors.leftTail = *reinterpret_cast<MotorSettings*>(buffer);
-				rc.settings.motors.leftTail.sanitize();
-				buffer += sizeof(MotorSettings);
-
-				rc.settings.motors.rightTail = *reinterpret_cast<MotorSettings*>(buffer);
-				rc.settings.motors.rightTail.sanitize();
-				buffer += sizeof(MotorSettings);
-
-				rc.settings.motors.leftFlap = *reinterpret_cast<MotorSettings*>(buffer);
-				rc.settings.motors.leftFlap.sanitize();
-				buffer += sizeof(MotorSettings);
-
-				rc.settings.motors.rightFlap = *reinterpret_cast<MotorSettings*>(buffer);
-				rc.settings.motors.rightFlap.sanitize();
-				buffer += sizeof(MotorSettings);
+				readSettings(rc.settings.motors.leftFlap);
+				readSettings(rc.settings.motors.rightFlap);
 
 //				rc.settings.motors.scheduleWrite();
 
@@ -164,19 +173,22 @@ namespace pizda {
 			case PacketType::RemoteSetBooleanValues: {
 				ESP_LOGI("Packet", "-------- RemoteSetBooleanValues --------");
 
-				const auto booleanCount = *buffer;
+				uint8_t valueCount = 0;
 
-				ESP_LOGI("Packet", "Boolean count: %d", booleanCount);
-
-				if (!checkCRC(buffer, 1 + booleanCount))
+				if (!readValueCountAndCheckCRC(
+					buffer,
+					bitStream,
+					1,
+					4,
+					4,
+					&valueCount
+				))
 					return;
 
-				buffer++;
-
-				rc.lights.setNavigationEnabled((*buffer >> 0) & 0b1);
-				rc.lights.setStrobeEnabled((*buffer >> 1) & 0b1);
-				rc.lights.setLandingEnabled((*buffer >> 2) & 0b1);
-				rc.lights.setCabinEnabled((*buffer >> 3) & 0b1);
+				rc.lights.setNavigationEnabled(bitStream.readBool());
+				rc.lights.setStrobeEnabled(bitStream.readBool());
+				rc.lights.setLandingEnabled(bitStream.readBool());
+				rc.lights.setCabinEnabled(bitStream.readBool());
 
 				ESP_LOGI("Packet", "Navigation: %d", rc.lights.isNavigationEnabled());
 				ESP_LOGI("Packet", "Strobe: %d", rc.lights.isStrobeEnabled());

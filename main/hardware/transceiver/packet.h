@@ -2,12 +2,13 @@
 
 #include <cmath>
 #include "settings.h"
+#include "YOBABitStream/main.h"
 
 namespace pizda {
 	enum class PacketType : uint8_t {
-		RemoteSetControlsValues,
+		RemoteSetMotorValues,
+		RemoteSetMotorConfigurations,
 		RemoteSetBooleanValues,
-		RemoteSetMotorConfigurations
 	};
 
 	class Packet {
@@ -20,5 +21,15 @@ namespace pizda {
 		private:
 			static uint8_t getCRC8(const uint8_t* data, size_t length);
 			static bool checkCRC(const uint8_t* data, size_t length);
+
+			static bool computeByteCountAndCheckCRC(uint8_t* buffer, uint32_t bitCount);
+			static bool readValueCountAndCheckCRC(
+				uint8_t* buffer,
+				ReadableBitStream& bitStream,
+				uint8_t valueBitCount,
+				uint8_t valueCountBitCount,
+				uint8_t valueCountExpected,
+				uint8_t* valueCount
+			);
 	};
 }
