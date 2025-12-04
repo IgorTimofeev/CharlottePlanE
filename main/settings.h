@@ -17,6 +17,9 @@ namespace pizda {
 				min = std::clamp<uint16_t>(min, 100, 1400);
 				max = std::clamp<uint16_t>(max, 1600, 2900);
 
+				if (min > max)
+					std::swap(min, max);
+
 				if (std::abs(offset) > 900)
 					offset = 0;
 			}

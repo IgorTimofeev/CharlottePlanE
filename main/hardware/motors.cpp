@@ -5,26 +5,18 @@
 namespace pizda {
 	void Motors::setup() {
 		leftAileronMotor.setup();
-		setAilerons(0xFFFF / 2);
+		setAilerons(Motor::powerMaxValue / 2);
 
 		leftFlapMotor.setup();
-		setFlaps(0xFFFF / 2);
+		setFlaps(Motor::powerMaxValue / 2);
 	}
 
-	uint16_t Motors::getLeftThrottle() const {
-		return leftThrottle;
+	uint16_t Motors::getThrottle() const {
+		return throttle;
 	}
 
-	void Motors::setLeftThrottle(uint16_t value) {
-		leftThrottle = value;
-	}
-
-	uint16_t Motors::getRightThrottle() const {
-		return rightThrottle;
-	}
-
-	void Motors::setRightThrottle(uint16_t value) {
-		rightThrottle = value;
+	void Motors::setThrottle(uint16_t value) {
+		throttle = value;
 	}
 
 	uint16_t Motors::getElevator() const {

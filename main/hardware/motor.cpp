@@ -15,7 +15,7 @@ namespace pizda {
 	void Motor::setup() {
 		ledc_timer_config_t timerConfig {};
 		timerConfig.speed_mode = LEDC_LOW_SPEED_MODE;
-		timerConfig.duty_resolution = dutyResolution;
+		timerConfig.duty_resolution = dutyBitCount;
 		timerConfig.timer_num = LEDC_TIMER_0;
 		timerConfig.freq_hz = frequencyHz;
 		timerConfig.clk_cfg = LEDC_AUTO_CLK;
@@ -32,23 +32,22 @@ namespace pizda {
 		ESP_ERROR_CHECK(ledc_channel_config(&channelConfig));
 	}
 
-	void Motor::setPulseWidth(const MotorSettings& settings, uint16_t pulseWidth) const {
+	void Motor::setPulseWidth(const MotorSettings& settings, const uint16_t pulseWidth) const {
 		auto pizda = static_cast<int32_t>(pulseWidth) + settings.offset;
 
 		if (settings.reverse)
 			pizda = settings.min + settings.max - pizda;
 
-		pulseWidth = static_cast<uint16_t>(std::clamp<int32_t>(pizda, settings.min, settings.max));
+		pizda = std::clamp<int32_t>(pizda, settings.min, settings.max);
 
 		// Pulse width -> duty cycle conversion
-		static const auto dutyMax = static_cast<uint32_t>(std::pow(2, static_cast<uint8_t>(dutyResolution))) - 1;
-		const auto duty = static_cast<uint32_t>(pulseWidth * dutyMax / (1'000'000 / frequencyHz));
+		const auto duty = static_cast<uint32_t>(pizda * dutyMaxValue * frequencyHz / 1'000'000);
 
 		ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, channel, duty));
 		ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, channel));
 	}
 
 	void Motor::setPower(const MotorSettings& settings, uint16_t power) const {
-		setPulseWidth(settings, settings.min + (settings.max - settings.min) * power / 0xFFFF);
+		setPulseWidth(settings, settings.min + (settings.max - settings.min) * power / powerMaxValue);
 	}
 }
