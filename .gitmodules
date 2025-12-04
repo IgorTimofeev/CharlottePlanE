@@ -1,3 +1,6 @@
 [submodule "components/YOBANVS"]
 	path = components/YOBANVS
 	url = https://github.com/IgorTimofeev/YOBANVS.git
+[submodule "components/YOBABitStream"]
+	path = components/YOBABitStream
+	url = https://github.com/IgorTimofeev/YOBABitStream.git
