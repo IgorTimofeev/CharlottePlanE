@@ -131,6 +131,7 @@ namespace pizda {
 					settings.max = bitStream.readUint16(Motor::powerBitCount);
 					settings.offset = bitStream.readInt16(Motor::powerBitCount);
 					settings.reverse = bitStream.readBool();
+					settings.sanitize();
 				};
 
 				readSettings(rc.settings.motors.leftThrottle);
@@ -145,7 +146,7 @@ namespace pizda {
 				readSettings(rc.settings.motors.leftFlap);
 				readSettings(rc.settings.motors.rightFlap);
 
-//				rc.settings.motors.scheduleWrite();
+				rc.settings.motors.scheduleWrite();
 
 				// Updating motors position
 				rc.motors.setAilerons(rc.motors.getAilerons());

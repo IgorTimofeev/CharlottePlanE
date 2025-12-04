@@ -42,7 +42,7 @@ namespace pizda {
 
 		protected:
 			const char* getNamespace() override {
-				return "scc4";
+				return "scc5";
 			}
 
 			void onRead(const NVSStream& stream) override {
@@ -50,52 +50,52 @@ namespace pizda {
 				leftThrottle.min = stream.getUint16(_leftThrottleMin, 1000);
 				leftThrottle.max = stream.getUint16(_leftThrottleMax, 2000);
 				leftThrottle.offset = stream.getInt16(_leftThrottleOffset, 0);
-				leftThrottle.reverse = stream.getInt16(_leftThrottleReverse, 0);
+				leftThrottle.reverse = stream.getBool(_leftThrottleReverse, false);
 				leftThrottle.sanitize();
 
 				rightThrottle.min = stream.getUint16(_rightThrottleMin, 1000);
 				rightThrottle.max = stream.getUint16(_rightThrottleMax, 2000);
 				rightThrottle.offset = stream.getInt16(_rightThrottleOffset, 0);
-				rightThrottle.reverse = stream.getInt16(_rightThrottleReverse, 0);
+				rightThrottle.reverse = stream.getBool(_rightThrottleReverse, false);
 				rightThrottle.sanitize();
 
 				// Ailerons
 				leftAileron.min = stream.getUint16(_leftAileronMin, 1000);
 				leftAileron.max = stream.getUint16(_leftAileronMax, 2000);
 				leftAileron.offset = stream.getInt16(_leftAileronOffset, 0);
-				leftAileron.reverse = stream.getInt16(_leftAileronReverse, 0);
+				leftAileron.reverse = stream.getBool(_leftAileronReverse, false);
 				leftAileron.sanitize();
 
 				rightAileron.min = stream.getUint16(_rightAileronMin, 1000);
 				rightAileron.max = stream.getUint16(_rightAileronMax, 2000);
 				rightAileron.offset = stream.getInt16(_rightAileronOffset, 0);
-				rightAileron.reverse = stream.getInt16(_rightAileronReverse, 0);
+				rightAileron.reverse = stream.getBool(_rightAileronReverse, false);
 				rightAileron.sanitize();
 
 				// Tail
 				leftFlap.min = stream.getUint16(_leftFlapMin, 1000);
 				leftFlap.max = stream.getUint16(_leftFlapMax, 2000);
 				leftFlap.offset = stream.getInt16(_leftFlapOffset, 0);
-				leftFlap.reverse = stream.getInt16(_leftFlapReverse, 0);
+				leftFlap.reverse = stream.getBool(_leftFlapReverse, false);
 				leftFlap.sanitize();
 
 				rightFlap.min = stream.getUint16(_rightFlapMin, 1000);
 				rightFlap.max = stream.getUint16(_rightFlapMax, 2000);
 				rightFlap.offset = stream.getInt16(_rightFlapOffset, 0);
-				rightFlap.reverse = stream.getInt16(_rightFlapReverse, 0);
+				rightFlap.reverse = stream.getBool(_rightFlapReverse, false);
 				rightFlap.sanitize();
 
 				// Flaps
 				leftTail.min = stream.getUint16(_leftFlapMin, 1000);
 				leftTail.max = stream.getUint16(_leftFlapMax, 2000);
 				leftTail.offset = stream.getInt16(_leftFlapOffset, 0);
-				leftTail.reverse = stream.getInt16(_leftFlapReverse, 0);
+				leftTail.reverse = stream.getBool(_leftFlapReverse, false);
 				leftTail.sanitize();
 
 				rightTail.min = stream.getUint16(_rightTailMin, 1000);
 				rightTail.max = stream.getUint16(_rightTailMax, 2000);
 				rightTail.offset = stream.getInt16(_rightTailOffset, 0);
-				rightTail.reverse = stream.getInt16(_rightTailReverse, 0);
+				rightTail.reverse = stream.getBool(_rightTailReverse, false);
 				rightTail.sanitize();
 			}
 
