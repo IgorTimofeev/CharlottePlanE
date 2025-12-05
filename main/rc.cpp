@@ -1,10 +1,13 @@
+#include "rc.h"
+
 #include <string>
 #include <iostream>
-#include "rc.h"
 
 #include "esp_log.h"
 #include "constants.h"
 #include "esp_console.h"
+
+#include <YOBABitStream/main.h>
 
 namespace pizda {
 	RC& RC::getInstance() {
@@ -23,8 +26,7 @@ namespace pizda {
 		lights.setup();
 		lights.start();
 
-		transceiver.setup();
-		transceiver.start();
+		transceiverSetup();
 
 		while (true) {
 //			ESP_LOGI("Main", "Pizda");
@@ -43,5 +45,11 @@ namespace pizda {
 //		busConfig.max_transfer_sz = static_cast<int32_t>(display.getSize().getSquare()) * 2;
 //
 //		ESP_ERROR_CHECK(spi_bus_initialize(SPI2_HOST, &busConfig, SPI_DMA_CH_AUTO));
+	}
+
+	void RC::transceiverSetup() {
+		transceiver.setup();
+		transceiver.setPacketParser(&packetParser);
+		transceiver.start();
 	}
 }

@@ -105,44 +105,52 @@ namespace pizda {
 				stream.setUint16(_leftThrottleMax, leftThrottle.max);
 				stream.setInt16(_leftThrottleOffset, leftThrottle.offset);
 				stream.setBool(_leftThrottleReverse, leftThrottle.reverse);
+				leftThrottle.sanitize();
 
 				stream.setUint16(_rightThrottleMin, rightThrottle.min);
 				stream.setUint16(_rightThrottleMax, rightThrottle.max);
 				stream.setInt16(_rightThrottleOffset, rightThrottle.offset);
 				stream.setBool(_rightThrottleReverse, rightThrottle.reverse);
+				rightThrottle.sanitize();
 
 				// Ailerons
 				stream.setUint16(_leftAileronMin, leftAileron.min);
 				stream.setUint16(_leftAileronMax, leftAileron.max);
 				stream.setInt16(_leftAileronOffset, leftAileron.offset);
 				stream.setBool(_leftAileronReverse, leftAileron.reverse);
+				leftAileron.sanitize();
 
 				stream.setUint16(_rightAileronMin, rightAileron.min);
 				stream.setUint16(_rightAileronMax, rightAileron.max);
 				stream.setInt16(_rightAileronOffset, rightAileron.offset);
 				stream.setBool(_rightAileronReverse, rightAileron.reverse);
+				rightAileron.sanitize();
 
 				// Tail
 				stream.setUint16(_leftTailMin, leftTail.min);
 				stream.setUint16(_leftTailMax, leftTail.max);
 				stream.setInt16(_leftTailOffset, leftTail.offset);
 				stream.setBool(_leftTailReverse, leftTail.reverse);
+				leftTail.sanitize();
 
 				stream.setUint16(_rightTailMin, rightTail.min);
 				stream.setUint16(_rightTailMax, rightTail.max);
 				stream.setInt16(_rightTailOffset, rightTail.offset);
 				stream.setBool(_rightTailReverse, rightTail.reverse);
+				rightTail.sanitize();
 
 				// Flaps
 				stream.setUint16(_leftFlapMin, leftFlap.min);
 				stream.setUint16(_leftFlapMax, leftFlap.max);
 				stream.setInt16(_leftFlapOffset, leftFlap.offset);
 				stream.setBool(_leftFlapReverse, leftFlap.reverse);
+				leftFlap.sanitize();
 
 				stream.setUint16(_rightFlapMin, rightFlap.min);
 				stream.setUint16(_rightFlapMax, rightFlap.max);
 				stream.setInt16(_rightFlapOffset, rightFlap.offset);
 				stream.setBool(_rightFlapReverse, rightFlap.reverse);
+				rightFlap.sanitize();
 			}
 
 			private:

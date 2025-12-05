@@ -1,19 +1,27 @@
 #pragma once
 
 #include <cmath>
+#include <functional>
+
+#include <YOBABitStream/main.h>
+
 #include "packet.h"
+#include "packetParser.h"
 
 namespace pizda {
 	class Transceiver {
 		public:
 			void setup();
+			void setPacketParser(PacketParser* packetParser);
 			void start();
 
 		private:
-			constexpr static uint16_t rxBufferLength = 255;
+			PacketParser* packetParser = nullptr;
 
-			uint8_t rxBuffer[rxBufferLength];
+			constexpr static uint16_t readingBufferLength = 255;
+			uint8_t readingBuffer[readingBufferLength] {};
 
-			static void rxTask(void *arg);
+			static void readingTask(void *arg);
+
 	};;
 }
