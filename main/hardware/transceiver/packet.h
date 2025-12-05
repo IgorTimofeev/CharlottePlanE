@@ -8,7 +8,9 @@ namespace pizda {
 	enum class PacketType : uint8_t {
 		RemoteSetAnalogValues,
 		RemoteSetBooleanValues,
-		RemoteSetMotorConfigurations
+		RemoteSetMotorConfigurations,
+
+		AircraftAHRS
 	};
 
 	class Packet {

@@ -83,6 +83,7 @@ namespace pizda {
 		// Total length = header + payload + CRC
 		const auto payloadLength = bitStream.getBytesRead();
 		packetPtr += payloadLength + 1;
+
 		const auto packetLength = packetPtr - buffer;
 
 		ESP_LOGI("PacketParser", "payload length: %d, total length: %d", payloadLength, packetLength);
