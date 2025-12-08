@@ -28,6 +28,16 @@ namespace pizda {
 
 		transceiverSetup();
 
+		// Ailerons
+		channels.bindings[2] = &motors.motors[2].value();
+		// Flaps
+		channels.bindings[5] = &motors.motors[6].value();
+		// Lights
+		channels.bindings[6] = &lights.navChannel;
+		channels.bindings[7] = &lights.strobeChannel;
+		channels.bindings[8] = &lights.landingChannel;
+		channels.bindings[9] = &lights.cabinChannel;
+
 		while (true) {
 //			ESP_LOGI("Main", "Pizda");
 

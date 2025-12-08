@@ -4,7 +4,8 @@
 
 #include <driver/gpio.h>
 #include <driver/ledc.h>
-#include "settings.h"
+#include "settings/settings.h"
+#include "channels.h"
 
 namespace pizda {
 	class Motor {
@@ -20,11 +21,31 @@ namespace pizda {
 			constexpr static uint32_t dutyMaxValue = 8191;
 
 			void setup();
-			void setPower(const MotorSettings& settings, uint16_t power) const;
-			void setPulseWidth(const MotorSettings& settings, uint16_t pulseWidth) const;
+			void setDuty(uint32_t duty) const;
+			void setPulseWidth(uint16_t pulseWidth) const;
 
 		private:
 			gpio_num_t pin;
 			ledc_channel_t channel;
+
+	};
+
+	class YobaMotor : public ChannelAware {
+		public:
+			YobaMotor(const Motor& motor);
+
+			Motor motor;
+			MotorConfiguration configuration {};
+
+			void setup();
+			void setPower(uint16_t value);
+			void setStartupPower();
+
+			uint16_t getPower() const;
+
+			void fromChannel(uint32_t value) override;
+
+		private:
+			uint16_t power = 0;
 	};
 }

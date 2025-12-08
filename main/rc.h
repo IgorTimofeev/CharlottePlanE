@@ -6,11 +6,12 @@
 #include "esp_timer.h"
 
 #include "constants.h"
-#include "settings.h"
+#include "settings/settings.h"
 #include "hardware/lights.h"
 #include "hardware/motors.h"
 #include "hardware/transceiver/transceiver.h"
 #include "hardware/transceiver/RCPacketParser.h"
+#include "hardware/channels.h"
 
 namespace pizda {
 	class RC {
@@ -19,6 +20,7 @@ namespace pizda {
 
 			Lights lights {};
 			Motors motors {};
+			Channels channels {};
 
 			Transceiver transceiver {};
 			RCPacketParser packetParser {};

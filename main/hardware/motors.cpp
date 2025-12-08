@@ -1,65 +1,51 @@
 #include "motors.h"
 
+#include "hardware/channels.h"
 #include "rc.h"
 
 namespace pizda {
 	void Motors::setup() {
-		leftAileronMotor.setup();
-		setAilerons(Motor::powerMaxValue / 2);
+		copyConfigurationsFromSettings();
 
-		leftFlapMotor.setup();
-		setFlaps(Motor::powerMaxValue / 2);
+		for (auto& motor : motors) {
+			if (motor) {
+				motor->setup();
+			}
+		}
 	}
 
-	uint16_t Motors::getThrottle() const {
-		return throttle;
+	void Motors::setPower(uint8_t index, uint16_t value) {
+		if (index >= motors.size()) {
+			ESP_LOGI("Motors::setPower()", "index %d >= motors count %d", index, motors.size());
+			return;
+		}
+		else if (!motors[index]) {
+			ESP_LOGI("Motors::setPower()", "motor with index %d is not bound");
+			return;
+		}
+
+		motors[index]->setPower(value);
 	}
 
-	void Motors::setThrottle(uint16_t value) {
-		throttle = value;
+	void Motors::copyConfigurationsFromSettings() {
+		auto& rc = RC::getInstance();
+
+		for (size_t i = 0; i < rc.settings.motors.configurations.size(); ++i) {
+			if (i < motors.size()) {
+				if (motors[i]) {
+					motors[i]->configuration = rc.settings.motors.configurations[i];
+				}
+			}
+		}
 	}
 
-	uint16_t Motors::getReverseThrottle() const {
-		return reverseThrottle;
-	}
+	void Motors::updateFromSettings() {
+		copyConfigurationsFromSettings();
 
-	void Motors::setReverseThrottle(uint16_t value) {
-		reverseThrottle = value;
-	}
-
-	uint16_t Motors::getElevator() const {
-		return elevator;
-	}
-
-	void Motors::setElevator(uint16_t value) {
-		elevator = value;
-	}
-
-	uint16_t Motors::getRudder() const {
-		return rudder;
-	}
-
-	void Motors::setRudder(uint16_t value) {
-		rudder = value;
-	}
-
-	uint16_t Motors::getAilerons() const {
-		return ailerons;
-	}
-
-	void Motors::setAilerons(uint16_t value) {
-		ailerons = value;
-
-		leftAileronMotor.setPower(RC::getInstance().settings.motors.leftAileron, ailerons);
-	}
-
-	uint16_t Motors::getFlaps() const {
-		return flaps;
-	}
-
-	void Motors::setFlaps(uint16_t value) {
-		flaps = value;
-
-		leftFlapMotor.setPower(RC::getInstance().settings.motors.leftFlap, flaps);
+		for (auto& motor : motors) {
+			if (motor) {
+				motor->setPower(motor->getPower());
+			}
+		}
 	}
 }

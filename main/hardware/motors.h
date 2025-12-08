@@ -1,5 +1,8 @@
 #pragma once
 
+#include <array>
+#include <optional>
+
 #include "constants.h"
 #include "hardware/motor.h"
 
@@ -7,35 +10,22 @@ namespace pizda {
 	class Motors {
 		public:
 			void setup();
+			void setPower(uint8_t index, uint16_t value);
+			void updateFromSettings();
 
-			uint16_t getThrottle() const;
-			void setThrottle(uint16_t value);
-
-			uint16_t getReverseThrottle() const;
-			void setReverseThrottle(uint16_t value);
-
-			uint16_t getAilerons() const;
-			void setAilerons(uint16_t value);
-
-			uint16_t getElevator() const;
-			void setElevator(uint16_t value);
-
-			uint16_t getRudder() const;
-			void setRudder(uint16_t value);
-
-			uint16_t getFlaps() const;
-			void setFlaps(uint16_t value);
+			std::array<std::optional<YobaMotor>, 8> motors {
+				std::nullopt,
+				std::nullopt,
+				std::optional<YobaMotor>( Motor { constants::motors::leftAileron, LEDC_CHANNEL_0 }),
+				std::nullopt,
+				std::nullopt,
+				std::nullopt,
+				std::optional<YobaMotor>( Motor { constants::motors::leftFlap, LEDC_CHANNEL_1 }),
+				std::nullopt,
+			};
 
 		private:
-			uint16_t throttle = 0;
-			uint16_t reverseThrottle = 0;
-			uint16_t rightThrottle = 0;
-			uint16_t ailerons = 0;
-			uint16_t elevator = 0;
-			uint16_t rudder = 0;
-			uint16_t flaps = 0;
+			void copyConfigurationsFromSettings();
 
-			Motor leftAileronMotor { constants::motors::leftAileron, LEDC_CHANNEL_0 };
-			Motor leftFlapMotor { constants::motors::leftFlap, LEDC_CHANNEL_1 };
 	};
 }

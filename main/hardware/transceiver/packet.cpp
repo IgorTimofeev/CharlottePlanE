@@ -4,7 +4,7 @@
 
 #include <YOBABitStream/main.h>
 
-#include "settings.h"
+#include "settings/settings.h"
 #include "hardware/motor.h"
 #include "rc.h"
 #include <span>

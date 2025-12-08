@@ -34,15 +34,10 @@ namespace pizda {
 		return true;
 	}
 
-	uint8_t PacketParser::readValueCountAndCheckCRC(ReadableBitStream& bitStream, uint8_t valueCountExpected, uint8_t valueCountBitCount, uint8_t valueBitCount) {
+	uint8_t PacketParser::readValueCountAndCheckCRC(ReadableBitStream& bitStream, uint8_t valueCountBitCount, uint8_t valueBitCount) {
 		auto valueCount = bitStream.readUint8(valueCountBitCount);
 
 		ESP_LOGI("PacketParser", "value count: %d", valueCount);
-
-		if (valueCount != valueCountExpected) {
-			ESP_LOGE("PacketParser", "value count mismatch: got %d, expected %d", valueCount, valueCountExpected);
-			return 0;
-		}
 
 		// CRC check
 		if (!checkCRC(bitStream.getBuffer(), valueCountBitCount + valueBitCount * valueCount))

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cmath>
-#include "settings.h"
+#include "settings/settings.h"
 #include "YOBABitStream/main.h"
 
 namespace pizda {

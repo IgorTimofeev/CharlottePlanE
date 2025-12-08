@@ -32,22 +32,51 @@ namespace pizda {
 		ESP_ERROR_CHECK(ledc_channel_config(&channelConfig));
 	}
 
-	void Motor::setPulseWidth(const MotorSettings& settings, const uint16_t pulseWidth) const {
-		auto pizda = static_cast<int32_t>(pulseWidth) + settings.offset;
-
-		if (settings.reverse)
-			pizda = settings.min + settings.max - pizda;
-
-		pizda = std::clamp<int32_t>(pizda, settings.min, settings.max);
-
-		// Pulse width -> duty cycle conversion
-		const auto duty = static_cast<uint32_t>(pizda * dutyMaxValue * frequencyHz / 1'000'000);
-
+	void Motor::setDuty(uint32_t duty) const {
 		ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, channel, duty));
 		ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, channel));
 	}
 
-	void Motor::setPower(const MotorSettings& settings, uint16_t power) const {
-		setPulseWidth(settings, settings.min + (settings.max - settings.min) * power / powerMaxValue);
+	void Motor::setPulseWidth(uint16_t pulseWidth) const {
+		// Pulse width -> duty cycle conversion
+		const auto duty = static_cast<uint32_t>(pulseWidth * dutyMaxValue * frequencyHz / 1'000'000);
+
+		setDuty(duty);
+	}
+
+	YobaMotor::YobaMotor(const Motor& motor) : motor(motor) {
+
+	}
+
+	void YobaMotor::setup() {
+		motor.setup();
+		setStartupPower();
+	}
+
+	uint16_t YobaMotor::getPower() const {
+		return power;
+	}
+
+	void YobaMotor::setPower(uint16_t value) {
+		power = value;
+
+		const auto pulseWidth = configuration.min + (configuration.max - configuration.min) * power / Motor::powerMaxValue;
+
+		auto pizda = static_cast<int32_t>(pulseWidth) + configuration.offset;
+
+		if (configuration.reverse)
+			pizda = configuration.min + configuration.max - pizda;
+
+		pizda = std::clamp<int32_t>(pizda, configuration.min, configuration.max);
+
+		motor.setPulseWidth(pizda);
+	}
+
+	void YobaMotor::setStartupPower() {
+		setPower((configuration.startup - configuration.min) * Motor::powerMaxValue / (configuration.max - configuration.min));
+	}
+
+	void YobaMotor::fromChannel(uint32_t value) {
+		setPower(value);
 	}
 }
