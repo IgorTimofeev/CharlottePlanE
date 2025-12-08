@@ -7,32 +7,32 @@
 #include "settings/settings.h"
 
 namespace pizda {
-	class NavLightsChannelAware : public ChannelAware {
+	class NavLightsChannelBinding : public ChannelBinding {
 		public:
-			void fromChannel(bool value) override;
+			void onChannelValueChanged(bool value) override;
 	};
 
-	class StrobeLightsChannelAware : public ChannelAware {
+	class StrobeLightsChannelBinding : public ChannelBinding {
 		public:
-			void fromChannel(bool value) override;
+			void onChannelValueChanged(bool value) override;
 	};
 
-	class LandingLightsChannelAware : public ChannelAware {
+	class LandingLightsChannelBinding : public ChannelBinding {
 		public:
-			void fromChannel(bool value) override;
+			void onChannelValueChanged(bool value) override;
 	};
 
-	class CabinLightsChannelAware : public ChannelAware {
+	class CabinLightsChannelBinding : public ChannelBinding {
 		public:
-			void fromChannel(bool value) override;
+			void onChannelValueChanged(bool value) override;
 	};
 
 	class Lights {
 		public:
-			NavLightsChannelAware navChannel {};
-			StrobeLightsChannelAware strobeChannel {};
-			LandingLightsChannelAware landingChannel {};
-			CabinLightsChannelAware cabinChannel {};
+			NavLightsChannelBinding navBinding {};
+			StrobeLightsChannelBinding strobeBinding {};
+			LandingLightsChannelBinding landingBinding {};
+			CabinLightsChannelBinding cabinBinding {};
 
 			void setup();
 

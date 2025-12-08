@@ -33,7 +33,7 @@ namespace pizda {
 			RC() = default;
 
 			void SPIBusSetup() const;
-
 			void transceiverSetup();
+			void channelsSetup();
 	};
 }

@@ -28,15 +28,7 @@ namespace pizda {
 
 		transceiverSetup();
 
-		// Ailerons
-		channels.bindings[2] = &motors.motors[2].value();
-		// Flaps
-		channels.bindings[5] = &motors.motors[6].value();
-		// Lights
-		channels.bindings[6] = &lights.navChannel;
-		channels.bindings[7] = &lights.strobeChannel;
-		channels.bindings[8] = &lights.landingChannel;
-		channels.bindings[9] = &lights.cabinChannel;
+		channelsSetup();
 
 		while (true) {
 //			ESP_LOGI("Main", "Pizda");
@@ -61,5 +53,17 @@ namespace pizda {
 		transceiver.setup();
 		transceiver.setPacketParser(&packetParser);
 		transceiver.start();
+	}
+
+	void RC::channelsSetup() {
+		// Ailerons
+		channels.setBinding(2, &motors.motors[2].value());
+		// Flaps
+		channels.setBinding(5, &motors.motors[6].value());
+		// Lights
+		channels.setBinding(6, &lights.navBinding);
+		channels.setBinding(7, &lights.strobeBinding);
+		channels.setBinding(8, &lights.landingBinding);
+		channels.setBinding(9, &lights.cabinBinding);
 	}
 }

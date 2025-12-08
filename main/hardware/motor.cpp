@@ -76,7 +76,7 @@ namespace pizda {
 		setPower((configuration.startup - configuration.min) * Motor::powerMaxValue / (configuration.max - configuration.min));
 	}
 
-	void YobaMotor::fromChannel(uint32_t value) {
+	void YobaMotor::onChannelValueChanged(uint32_t value) {
 		setPower(value);
 	}
 }

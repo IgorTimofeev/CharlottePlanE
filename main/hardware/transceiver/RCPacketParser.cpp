@@ -26,7 +26,7 @@ namespace pizda {
 							field.bitDepth = stream.readUint8(5);
 							field.count = stream.readUint8(8);
 
-							ESP_LOGI("RCPacketParser", "data type num: %d, type: uint, bit depth: %d, count: %d", i, field.bitDepth, field.count);
+							ESP_LOGI("RCPacketParser", "data type #%d, type: uint, bit depth: %d, count: %d", i, field.bitDepth, field.count);
 
 							break;
 						}
@@ -34,7 +34,7 @@ namespace pizda {
 							field.bitDepth = 1;
 							field.count = stream.readUint8(8);
 
-							ESP_LOGI("RCPacketParser", "data type num: %d, type: bool", i);
+							ESP_LOGI("RCPacketParser", "data type #%d, type: bool", i);
 
 							break;
 						}
@@ -70,7 +70,7 @@ namespace pizda {
 								const auto value = stream.readUint32(field.bitDepth);
 								rc.channels.setValue(channelIndex, value);
 
-								ESP_LOGI("RCPacketParser", "channel: %d, uint value: %d", channelIndex, value);
+								ESP_LOGI("RCPacketParser", "channel #%d, uint value: %d", channelIndex, value);
 
 								break;
 							}
@@ -78,7 +78,7 @@ namespace pizda {
 								const auto value = stream.readBool();
 								rc.channels.setValue(channelIndex, value);
 
-								ESP_LOGI("RCPacketParser", "channel: %d, bool value: %d", channelIndex, value);
+								ESP_LOGI("RCPacketParser", "channel #%d, bool value: %d", channelIndex, value);
 
 								break;
 							}
@@ -87,7 +87,7 @@ namespace pizda {
 						channelIndex++;
 
 						if (channelIndex >= 255) {
-							ESP_LOGE("RCPacketParser", "channel index %d is out of range", channelIndex);
+							ESP_LOGE("RCPacketParser", "channel #%d is out of range", channelIndex);
 
 							return false;
 						}

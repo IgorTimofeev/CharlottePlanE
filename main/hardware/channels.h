@@ -5,14 +5,14 @@
 #include <esp_log.h>
 
 namespace pizda {
-	class ChannelAware {
+	class ChannelBinding {
 		public:
-			virtual void fromChannel(uint32_t value) {
-				ESP_LOGE("ChannelAware", "fromChannel(uint32_t value) is not implemented");
+			virtual void onChannelValueChanged(uint32_t value) {
+				ESP_LOGE("ChannelBinding", "onChannelValueChanged(uint32_t value) is not implemented");
 			}
 
-			virtual void fromChannel(bool value) {
-				ESP_LOGE("ChannelAware", "fromChannel(bool value) is not implemented");
+			virtual void onChannelValueChanged(bool value) {
+				ESP_LOGE("ChannelBinding", "onChannelValueChanged(bool value) is not implemented");
 			}
 	};
 
@@ -24,7 +24,9 @@ namespace pizda {
 				}
 			}
 
-			std::array<ChannelAware*, 255> bindings {};
+			void setBinding(uint8_t channelIndex, ChannelBinding* binding) {
+				bindings[channelIndex] = binding;
+			}
 
 			void setValue(uint8_t channelIndex, uint32_t value) {
 				setValue<uint32_t>(channelIndex, value);
@@ -35,13 +37,15 @@ namespace pizda {
 			}
 
 		private:
+			std::array<ChannelBinding*, 255> bindings {};
+
 			template<typename TValue>
 			void setValue(uint8_t channelIndex, TValue value) {
 				if (bindings[channelIndex]) {
-					bindings[channelIndex]->fromChannel(value);
+					bindings[channelIndex]->onChannelValueChanged(value);
 				}
 				else {
-					ESP_LOGE("Channels", "channel with index %d is empty", channelIndex);
+					ESP_LOGE("Channels", "channel %d is not bound", channelIndex);
 				}
 			}
 	};

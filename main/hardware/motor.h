@@ -30,7 +30,7 @@ namespace pizda {
 
 	};
 
-	class YobaMotor : public ChannelAware {
+	class YobaMotor : public ChannelBinding {
 		public:
 			YobaMotor(const Motor& motor);
 
@@ -43,7 +43,7 @@ namespace pizda {
 
 			uint16_t getPower() const;
 
-			void fromChannel(uint32_t value) override;
+			void onChannelValueChanged(uint32_t value) override;
 
 		private:
 			uint16_t power = 0;

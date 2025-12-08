@@ -4,19 +4,19 @@
 #include "rc.h"
 
 namespace pizda {
-	void NavLightsChannelAware::fromChannel(bool value) {
+	void NavLightsChannelBinding::onChannelValueChanged(bool value) {
 		RC::getInstance().lights.setNavigationEnabled(value);
 	}
 
-	void StrobeLightsChannelAware::fromChannel(bool value) {
+	void StrobeLightsChannelBinding::onChannelValueChanged(bool value) {
 		RC::getInstance().lights.setStrobeEnabled(value);
 	}
 
-	void LandingLightsChannelAware::fromChannel(bool value) {
+	void LandingLightsChannelBinding::onChannelValueChanged(bool value) {
 		RC::getInstance().lights.setLandingEnabled(value);
 	}
 
-	void CabinLightsChannelAware::fromChannel(bool value) {
+	void CabinLightsChannelBinding::onChannelValueChanged(bool value) {
 		RC::getInstance().lights.setCabinEnabled(value);
 	}
 
