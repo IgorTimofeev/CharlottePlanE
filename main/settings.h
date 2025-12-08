@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include <YOBANVS/main.h>
 
 namespace pizda {
@@ -195,13 +197,79 @@ namespace pizda {
 				constexpr static auto _rightFlapReverse = "rfr";
 		};
 
+	enum class RemoteChannelDataStructureSettingsChannelType : uint8_t {
+		Int,
+		Uint,
+		Bool
+	};
+
+	#pragma pack(push, 1)
+	class RemoteChannelDataStructureSettingsField {
+		public:
+			RemoteChannelDataStructureSettingsChannelType type = RemoteChannelDataStructureSettingsChannelType::Int;
+			uint8_t bitDepth = 8;
+			uint8_t count = 1;
+	};
+	#pragma pack(pop)
+
+	class RemoteChannelDataStructureSettings : public NVSSettings {
+		public:
+			std::vector<RemoteChannelDataStructureSettingsField> fields {};
+
+			size_t getRequiredBitCountForChannels() {
+				size_t result = 0;
+
+				for (auto& field : fields)
+					result += field.bitDepth * field.count;
+
+				return result;
+			}
+
+		protected:
+			const char* getNamespace() override {
+				return "ds2";
+			}
+
+			void onRead(const NVSStream& stream) override {
+				const auto dataTypeCount = stream.getUint8(_dataTypeCount, 0);
+
+				fields.clear();
+
+				if (dataTypeCount > 0) {
+					const auto readFields = std::make_unique<RemoteChannelDataStructureSettingsField[]>(dataTypeCount);
+					stream.getObject<RemoteChannelDataStructureSettingsField>(_dataTypeBlob, readFields.get(), dataTypeCount);
+
+					for (int i = 0; i < dataTypeCount; ++i)
+						fields.push_back(readFields[i]);
+				}
+			}
+
+			void onWrite(const NVSStream& stream) override {
+				stream.setUint8(_dataTypeCount, fields.size());
+
+				if (fields.empty()) {
+					stream.erase(_dataTypeBlob);
+				}
+				else {
+					stream.setObject<RemoteChannelDataStructureSettingsField>(_dataTypeBlob, fields.data(), fields.size());
+				}
+			}
+
+		private:
+			constexpr static auto _dataTypeCount = "dtc";
+			constexpr static auto _dataTypeBlob = "dtb";
+
+	};
+
 	class Settings {
 		public:
+			RemoteChannelDataStructureSettings remoteChannelDataStructure {};
 			MotorsSettings motors {};
 
 			void setup() {
 				NVSSettings::setup();
 
+				remoteChannelDataStructure.read();
 				motors.read();
 			}
 	};

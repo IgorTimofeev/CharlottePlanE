@@ -11,8 +11,8 @@ namespace pizda {
 			uint16_t getThrottle() const;
 			void setThrottle(uint16_t value);
 
-			uint16_t getRightThrottle() const;
-			void setRightThrottle(uint16_t value);
+			uint16_t getReverseThrottle() const;
+			void setReverseThrottle(uint16_t value);
 
 			uint16_t getAilerons() const;
 			void setAilerons(uint16_t value);
@@ -28,6 +28,7 @@ namespace pizda {
 
 		private:
 			uint16_t throttle = 0;
+			uint16_t reverseThrottle = 0;
 			uint16_t rightThrottle = 0;
 			uint16_t ailerons = 0;
 			uint16_t elevator = 0;

@@ -19,9 +19,11 @@ namespace pizda {
 		return crc;
 	}
 
-	bool PacketParser::checkCRC(const uint8_t* buffer, size_t length) {
-		const auto checksum = getCRC8(buffer, length);
-		const auto expectedChecksum = *(buffer + length);
+	bool PacketParser::checkCRC(const uint8_t* buffer, size_t dataBitCount) {
+		const uint8_t dataByteCount = (Packet::typeBitCount + dataBitCount + 7) / 8;
+
+		const auto checksum = getCRC8(buffer, dataByteCount);
+		const auto expectedChecksum = *(buffer + dataByteCount);
 
 		if (checksum != expectedChecksum) {
 			ESP_LOGE("PacketParser", "checksum mismatch: got %d, expected %d", checksum, expectedChecksum);
@@ -42,11 +44,8 @@ namespace pizda {
 			return 0;
 		}
 
-		const auto dataBitCount = Packet::typeBitCount + valueCountBitCount + valueBitCount * valueCount;
-		const uint8_t dataByteCount = (dataBitCount + 7) / 8;
-
 		// CRC check
-		if (!checkCRC(bitStream.getBuffer(), dataByteCount))
+		if (!checkCRC(bitStream.getBuffer(), valueCountBitCount + valueBitCount * valueCount))
 			return 0;
 
 		return valueCount;
@@ -55,7 +54,7 @@ namespace pizda {
 	uint8_t PacketParser::parseOne(uint8_t* buffer) {
 		auto packetPtr = buffer;
 
-		ESP_LOGI("PacketParser", "----------------");
+		ESP_LOGI("PacketParser", "-------- Begin --------");
 
 		// Header
 		const auto headerValid = memcmp(packetPtr, Packet::header, Packet::headerByteCount) == 0;
@@ -71,7 +70,7 @@ namespace pizda {
 
 		// Type
 		const auto packetType = static_cast<PacketType>(bitStream.readUint16(4));
-		ESP_LOGI("PacketParser", "type: %d", static_cast<uint8_t>(packetType));
+		ESP_LOGI("PacketParser", "packet type: %d", static_cast<uint8_t>(packetType));
 
 		// Payload parsing
 		if (!onParse(bitStream, packetType)) {
@@ -87,7 +86,7 @@ namespace pizda {
 		const auto packetLength = packetPtr - buffer;
 
 		ESP_LOGI("PacketParser", "payload length: %d, total length: %d", payloadLength, packetLength);
-		ESP_LOGI("PacketParser", "----------------");
+		ESP_LOGI("PacketParser", "-------- End --------");
 
 		return packetLength;
 	}

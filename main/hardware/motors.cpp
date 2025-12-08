@@ -19,6 +19,14 @@ namespace pizda {
 		throttle = value;
 	}
 
+	uint16_t Motors::getReverseThrottle() const {
+		return reverseThrottle;
+	}
+
+	void Motors::setReverseThrottle(uint16_t value) {
+		reverseThrottle = value;
+	}
+
 	uint16_t Motors::getElevator() const {
 		return elevator;
 	}
