@@ -4,34 +4,13 @@
 
 #include <YOBANVS/main.h>
 
+#include "hardware/motor.h"
+#include "hardware/channels.h"
+
 namespace pizda {
 	using namespace YOBA;
 
-	#pragma pack(push, 1)
-	class MotorConfiguration {
-		public:
-			uint16_t min = 1000;
-			uint16_t max = 2000;
-			uint16_t startup = 1500;
-			int16_t offset = 0;
-			bool reverse = false;
-
-			void sanitize() {
-				min = std::clamp<uint16_t>(min, 100, 1400);
-				max = std::clamp<uint16_t>(max, 1600, 2900);
-
-				if (min > max)
-					std::swap(min, max);
-
-				startup = std::clamp<uint16_t>(startup, min, max);
-
-				if (std::abs(offset) > 900)
-					offset = 0;
-			}
-	};
-	#pragma pack(pop)
-
-	class RemoteMotorSettings : public NVSSettings {
+	class MotorSettings : public NVSSettings {
 		public:
 			std::vector<MotorConfiguration> configurations {};
 
@@ -60,9 +39,6 @@ namespace pizda {
 					stream.erase(_configurations);
 				}
 				else {
-					for (auto& item : configurations)
-						item.sanitize();
-
 					stream.setObject<MotorConfiguration>(_configurations, configurations.data(), configurations.size());
 				}
 			}
@@ -71,27 +47,18 @@ namespace pizda {
 				constexpr static auto _configurations = "cnf";
 		};
 
-	enum class RemoteChannelDataStructureSettingsChannelType : uint8_t {
-		unsignedInteger,
-		boolean
-	};
-
 	#pragma pack(push, 1)
-	class RemoteChannelDataStructureSettingsField {
+	class ChannelDataStructureSettingsField {
 		public:
-			RemoteChannelDataStructureSettingsField() {
-
-			}
-
-			RemoteChannelDataStructureSettingsChannelType type = RemoteChannelDataStructureSettingsChannelType::unsignedInteger;
+			ChannelDataType type = ChannelDataType::unsignedInteger;
 			uint8_t bitDepth = 8;
 			uint8_t count = 1;
 	};
 	#pragma pack(pop)
 
-	class RemoteChannelDataStructureSettings : public NVSSettings {
+	class ChannelDataStructureSettings : public NVSSettings {
 		public:
-			std::vector<RemoteChannelDataStructureSettingsField> fields {};
+			std::vector<ChannelDataStructureSettingsField> fields {};
 
 			size_t getRequiredBitCountForChannels() {
 				size_t result = 0;
@@ -108,13 +75,13 @@ namespace pizda {
 			}
 
 			void onRead(const NVSStream& stream) override {
-				const auto readSize = stream.getObjectLength<RemoteChannelDataStructureSettingsField>(_fields);
+				const auto readSize = stream.getObjectLength<ChannelDataStructureSettingsField>(_fields);
 
 				fields.clear();
 
 				if (readSize > 0) {
 					fields.resize(readSize);
-					stream.getObject<RemoteChannelDataStructureSettingsField>(_fields, fields.data(), readSize);
+					stream.getObject<ChannelDataStructureSettingsField>(_fields, fields.data(), readSize);
 				}
 			}
 
@@ -123,7 +90,7 @@ namespace pizda {
 					stream.erase(_fields);
 				}
 				else {
-					stream.setObject<RemoteChannelDataStructureSettingsField>(_fields, fields.data(), fields.size());
+					stream.setObject<ChannelDataStructureSettingsField>(_fields, fields.data(), fields.size());
 				}
 			}
 
@@ -134,13 +101,13 @@ namespace pizda {
 
 	class Settings {
 		public:
-			RemoteChannelDataStructureSettings remoteChannelDataStructure {};
-			RemoteMotorSettings motors {};
+			ChannelDataStructureSettings channelDataStructure {};
+			MotorSettings motors {};
 
 			void setup() {
 				NVSSettings::setup();
 
-				remoteChannelDataStructure.read();
+				channelDataStructure.read();
 				motors.read();
 			}
 	};

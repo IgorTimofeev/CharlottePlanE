@@ -44,39 +44,40 @@ namespace pizda {
 		setDuty(duty);
 	}
 
-	YobaMotor::YobaMotor(const Motor& motor) : motor(motor) {
+	ConfiguredMotor::ConfiguredMotor(gpio_num_t pin, ledc_channel_t channel) : motor(Motor(pin, channel)) {
 
 	}
 
-	void YobaMotor::setup() {
+	void ConfiguredMotor::setup() {
 		motor.setup();
 		setStartupPower();
 	}
 
-	uint16_t YobaMotor::getPower() const {
+	uint16_t ConfiguredMotor::getPower() const {
 		return power;
 	}
 
-	void YobaMotor::setPower(uint16_t value) {
+	void ConfiguredMotor::setPower(uint16_t value) {
 		power = value;
 
-		const auto pulseWidth = configuration.min + (configuration.max - configuration.min) * power / Motor::powerMaxValue;
-
-		auto pizda = static_cast<int32_t>(pulseWidth) + configuration.offset;
+		auto pulseWidth =
+			configuration.min
+			+ (configuration.max - configuration.min) * power / Motor::powerMaxValue
+			+ configuration.offset;
 
 		if (configuration.reverse)
-			pizda = configuration.min + configuration.max - pizda;
+			pulseWidth = configuration.min + configuration.max - pulseWidth;
 
-		pizda = std::clamp<int32_t>(pizda, configuration.min, configuration.max);
+		pulseWidth = std::clamp<int32_t>(pulseWidth, configuration.min, configuration.max);
 
-		motor.setPulseWidth(pizda);
+		motor.setPulseWidth(pulseWidth);
 	}
 
-	void YobaMotor::setStartupPower() {
+	void ConfiguredMotor::updatePowerFromConfiguration() {
+		setPower(power);
+	}
+
+	void ConfiguredMotor::setStartupPower() {
 		setPower((configuration.startup - configuration.min) * Motor::powerMaxValue / (configuration.max - configuration.min));
-	}
-
-	void YobaMotor::onChannelValueChanged(uint32_t value) {
-		setPower(value);
 	}
 }

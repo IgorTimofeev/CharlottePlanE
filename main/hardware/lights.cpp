@@ -4,22 +4,6 @@
 #include "rc.h"
 
 namespace pizda {
-	void NavLightsChannelBinding::onChannelValueChanged(bool value) {
-		RC::getInstance().lights.setNavigationEnabled(value);
-	}
-
-	void StrobeLightsChannelBinding::onChannelValueChanged(bool value) {
-		RC::getInstance().lights.setStrobeEnabled(value);
-	}
-
-	void LandingLightsChannelBinding::onChannelValueChanged(bool value) {
-		RC::getInstance().lights.setLandingEnabled(value);
-	}
-
-	void CabinLightsChannelBinding::onChannelValueChanged(bool value) {
-		RC::getInstance().lights.setCabinEnabled(value);
-	}
-
 	void Lights::setup() {
 		cabin.fill(0x00);
 		cabin.flush();

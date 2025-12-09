@@ -34,6 +34,5 @@ namespace pizda {
 
 			void SPIBusSetup() const;
 			void transceiverSetup();
-			void channelsSetup();
 	};
 }

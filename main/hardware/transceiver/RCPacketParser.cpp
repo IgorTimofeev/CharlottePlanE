@@ -13,16 +13,16 @@ namespace pizda {
 
 				ESP_LOGI("RCPacketParser", "data type count: %d", valueCount);
 
-				rc.settings.remoteChannelDataStructure.fields.clear();
-				rc.settings.remoteChannelDataStructure.fields.reserve(valueCount);
+				rc.settings.channelDataStructure.fields.clear();
+				rc.settings.channelDataStructure.fields.reserve(valueCount);
 
-				RemoteChannelDataStructureSettingsField field {};
+				ChannelDataStructureSettingsField field {};
 
 				for (uint8_t i = 0; i < valueCount; ++i) {
-					field.type = static_cast<RemoteChannelDataStructureSettingsChannelType>(stream.readUint8(3));
+					field.type = static_cast<ChannelDataType>(stream.readUint8(3));
 
 					switch (field.type) {
-						case RemoteChannelDataStructureSettingsChannelType::unsignedInteger: {
+						case ChannelDataType::unsignedInteger: {
 							field.bitDepth = stream.readUint8(5);
 							field.count = stream.readUint8(8);
 
@@ -30,7 +30,7 @@ namespace pizda {
 
 							break;
 						}
-						case RemoteChannelDataStructureSettingsChannelType::boolean: {
+						case ChannelDataType::boolean: {
 							field.bitDepth = 1;
 							field.count = stream.readUint8(8);
 
@@ -44,55 +44,60 @@ namespace pizda {
 						}
 					}
 
-					rc.settings.remoteChannelDataStructure.fields.push_back(field);
+					rc.settings.channelDataStructure.fields.push_back(field);
 				}
 
-				rc.settings.remoteChannelDataStructure.scheduleWrite();
+				rc.channels.updateFromSettings();
+				rc.settings.channelDataStructure.scheduleWrite();
 
 				break;
 			}
 			case PacketType::RemoteChannelData: {
-				if (!checkCRC(stream.getBuffer(), rc.settings.remoteChannelDataStructure.getRequiredBitCountForChannels()))
+				if (!checkCRC(stream.getBuffer(), rc.settings.channelDataStructure.getRequiredBitCountForChannels()))
 					return false;
 
-				if (rc.settings.remoteChannelDataStructure.fields.empty()) {
+				if (rc.settings.channelDataStructure.fields.empty()) {
 					ESP_LOGE("RCPacketParser", "channel data structure is empty");
 
 					return false;
 				}
 
-				size_t channelIndex = 0;
+				uint8_t channelIndex = 0;
 
-				for (auto field : rc.settings.remoteChannelDataStructure.fields) {
+				for (auto field : rc.settings.channelDataStructure.fields) {
 					for (uint8_t i = 0; i < field.count; ++i) {
-						switch (field.type) {
-							case RemoteChannelDataStructureSettingsChannelType::unsignedInteger: {
-								const auto value = stream.readUint32(field.bitDepth);
-								rc.channels.setValue(channelIndex, value);
+						if (channelIndex >= rc.channels.instances.size()) {
+							ESP_LOGE("RCPacketParser", "channel index %d >= channels count %d", channelIndex, rc.channels.instances.size());
 
-								ESP_LOGI("RCPacketParser", "channel #%d, uint value: %d", channelIndex, value);
+							return false;
+						}
+
+						const auto channel = rc.channels.instances[channelIndex];
+
+						switch (channel->getDataType()) {
+							case ChannelDataType::unsignedInteger: {
+								auto uintChannel = reinterpret_cast<UintChannel*>(channel);
+								uintChannel->setValue(stream.readUint32(uintChannel->getBitDepth()));
+
+								ESP_LOGI("RCPacketParser", "channel #%d, uint value: %d", channelIndex, uintChannel->getValue());
 
 								break;
 							}
-							case RemoteChannelDataStructureSettingsChannelType::boolean: {
-								const auto value = stream.readBool();
-								rc.channels.setValue(channelIndex, value);
+							case ChannelDataType::boolean: {
+								auto boolChannel = reinterpret_cast<BoolChannel*>(channel);
+								boolChannel->setValue(stream.readBool());
 
-								ESP_LOGI("RCPacketParser", "channel #%d, bool value: %d", channelIndex, value);
+								ESP_LOGI("RCPacketParser", "channel #%d, bool value: %d", channelIndex, boolChannel->getValue());
 
 								break;
 							}
 						}
 
 						channelIndex++;
-
-						if (channelIndex >= 255) {
-							ESP_LOGE("RCPacketParser", "channel #%d is out of range", channelIndex);
-
-							return false;
-						}
 					}
 				}
+
+				rc.channels.onValueUpdated();
 
 				break;
 			}
@@ -109,18 +114,19 @@ namespace pizda {
 				rc.settings.motors.configurations.clear();
 				rc.settings.motors.configurations.reserve(motorCount);
 
-				MotorConfiguration settings {};
+				MotorConfiguration configuration {};
 
 				for (uint8_t i = 0; i < motorCount; ++i) {
-					settings.min = stream.readUint16(Motor::powerBitCount);
-					settings.max = stream.readUint16(Motor::powerBitCount);
-					settings.startup = stream.readUint16(Motor::powerBitCount);
-					settings.offset = stream.readInt16(Motor::powerBitCount);
-					settings.reverse = stream.readBool();
+					configuration.min = stream.readUint16(Motor::powerBitCount);
+					configuration.max = stream.readUint16(Motor::powerBitCount);
+					configuration.startup = stream.readUint16(Motor::powerBitCount);
+					configuration.offset = stream.readInt16(Motor::powerBitCount);
+					configuration.reverse = stream.readBool();
+					configuration.sanitize();
 
-					rc.settings.motors.configurations.push_back(settings);
+					rc.settings.motors.configurations.push_back(configuration);
 
-					ESP_LOGI("RCPacketParser", "motor index: %d, min: %d, max: %d, startup: %d, offset: %d, reverse: %d", i, settings.min, settings.max, settings.startup, settings.offset, settings.reverse);
+					ESP_LOGI("RCPacketParser", "motor index: %d, min: %d, max: %d, startup: %d, offset: %d, reverse: %d", i, configuration.min, configuration.max, configuration.startup, configuration.offset, configuration.reverse);
 				}
 
 				rc.motors.updateFromSettings();

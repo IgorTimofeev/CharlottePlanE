@@ -1,0 +1,113 @@
+#include "channels.h"
+
+#include "rc.h"
+
+namespace pizda {
+	void Channels::setup() {
+		updateFromSettings();
+	}
+
+	void Channels::updateFromSettings() {
+		auto& rc = RC::getInstance();
+
+		for (auto& channel : instances) {
+			if (channel) {
+				delete channel;
+				channel = nullptr;
+			}
+		}
+
+		Channel* channel = nullptr;
+		size_t channelIndex = 0;
+
+		for (int i = 0; i < rc.settings.channelDataStructure.fields.size(); ++i) {
+			auto& field = rc.settings.channelDataStructure.fields[i];
+
+			for (int j = 0; j < field.count; ++j) {
+				switch (field.type) {
+					case ChannelDataType::unsignedInteger:
+						channel = new UintChannel(field.bitDepth);
+						break;
+
+					case ChannelDataType::boolean:
+						channel = new BoolChannel();
+						break;
+				}
+
+				instances[channelIndex] = channel;
+				channelIndex++;
+			}
+		}
+	}
+
+	bool Channels::checkChannel(uint8_t channelIndex, ChannelDataType dataType) {
+		auto channel = instances[channelIndex];
+
+		if (!channel) {
+			ESP_LOGE("Channels", "check failed, channel %d is null", channelIndex);
+			return false;
+		}
+		else if (channel->getDataType() != dataType) {
+			ESP_LOGE("Channels", "check failed, channel %d data type %d != requested data type", channelIndex, channel->getDataType(), dataType);
+			return false;
+		}
+
+		return true;
+	}
+
+	UintChannel* Channels::checkUintChannel(uint8_t channelIndex, uint8_t bitDepth) {
+		if (!checkChannel(channelIndex, ChannelDataType::unsignedInteger)) {
+			return nullptr;
+		}
+
+		const auto uintChannel = reinterpret_cast<UintChannel*>(instances[channelIndex]);
+
+		if (uintChannel->getBitDepth() != bitDepth) {
+			ESP_LOGE("Channels", "check failed, channel %d bit depth %d != requested bit depth", channelIndex, uintChannel->getBitDepth(), bitDepth);
+			return nullptr;
+		}
+
+		return uintChannel;
+	}
+
+	BoolChannel* Channels::checkBoolChannel(uint8_t channelIndex) {
+		if (!checkChannel(channelIndex, ChannelDataType::boolean))
+			return nullptr;
+
+		return reinterpret_cast<BoolChannel*>(instances[channelIndex]);
+	}
+
+	void Channels::checkAndSetMotor(uint8_t channelIndex, ConfiguredMotor* motor) {
+		const auto uintChannel = checkUintChannel(channelIndex, Motor::powerBitCount);
+
+		if (!uintChannel)
+			return;
+
+		motor->setPower(uintChannel->getValue());
+	}
+
+	void Channels::onValueUpdated() {
+		auto& rc = RC::getInstance();
+
+		// Motors
+		checkAndSetMotor(2, &rc.motors.instances[2].value());
+		checkAndSetMotor(5, &rc.motors.instances[6].value());
+
+		// Lights
+		{
+			BoolChannel* boolChannel;
+
+			if ((boolChannel = checkBoolChannel(6)))
+				rc.lights.setNavigationEnabled(boolChannel->getValue());
+
+			if ((boolChannel = checkBoolChannel(7)))
+				rc.lights.setStrobeEnabled(boolChannel->getValue());
+
+			if ((boolChannel = checkBoolChannel(8)))
+				rc.lights.setLandingEnabled(boolChannel->getValue());
+
+			if ((boolChannel = checkBoolChannel(9)))
+				rc.lights.setCabinEnabled(boolChannel->getValue());
+		}
+	}
+}
