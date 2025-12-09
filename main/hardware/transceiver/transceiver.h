@@ -22,6 +22,5 @@ namespace pizda {
 			uint8_t readingBuffer[readingBufferLength] {};
 
 			static void readingTask(void *arg);
-
 	};;
 }

@@ -5,7 +5,7 @@
 #include <YOBANVS/main.h>
 
 #include "hardware/motor.h"
-#include "hardware/channels.h"
+#include "hardware/transceiver/channels.h"
 
 namespace pizda {
 	using namespace YOBA;

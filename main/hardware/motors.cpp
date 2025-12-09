@@ -1,16 +1,15 @@
 #include "motors.h"
 
-#include "hardware/channels.h"
-#include "rc.h"
+#include "hardware/transceiver/channels.h"
+#include "aircraft.h"
 
 namespace pizda {
 	void Motors::setup() {
+		auto& ac = Aircraft::getInstance();
 
-		auto& rc = RC::getInstance();
-
-		for (size_t i = 0; i < rc.settings.motors.configurations.size(); ++i) {
+		for (size_t i = 0; i < ac.settings.motors.configurations.size(); ++i) {
 			if (i < instances.size() && instances[i]) {
-				instances[i]->configuration = rc.settings.motors.configurations[i];
+				instances[i]->configuration = ac.settings.motors.configurations[i];
 				instances[i]->setup();
 			}
 		}
@@ -30,11 +29,11 @@ namespace pizda {
 	}
 
 	void Motors::updateFromSettings() {
-		auto& rc = RC::getInstance();
+		auto& ac = Aircraft::getInstance();
 
-		for (size_t i = 0; i < rc.settings.motors.configurations.size(); ++i) {
+		for (size_t i = 0; i < ac.settings.motors.configurations.size(); ++i) {
 			if (i < instances.size() && instances[i]) {
-				instances[i]->configuration = rc.settings.motors.configurations[i];
+				instances[i]->configuration = ac.settings.motors.configurations[i];
 				instances[i]->updatePowerFromConfiguration();
 			}
 		}

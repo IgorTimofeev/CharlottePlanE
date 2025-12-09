@@ -1,4 +1,4 @@
-#include "rc.h"
+#include "aircraft.h"
 
 #include <string>
 #include <iostream>
@@ -10,13 +10,13 @@
 #include <YOBABitStream/main.h>
 
 namespace pizda {
-	RC& RC::getInstance() {
-		static auto instance = RC();
+	Aircraft& Aircraft::getInstance() {
+		static auto instance = Aircraft();
 
 		return instance;
 	}
 
-	void RC::start() {
+	void Aircraft::start() {
 		settings.setup();
 
 		SPIBusSetup();
@@ -36,7 +36,7 @@ namespace pizda {
 		}
 	}
 
-	void RC::SPIBusSetup() const {
+	void Aircraft::SPIBusSetup() const {
 //		spi_bus_config_t busConfig {};
 //		busConfig.mosi_io_num = config::spi::mosi;
 //		busConfig.miso_io_num = config::spi::miso;
@@ -48,7 +48,7 @@ namespace pizda {
 //		ESP_ERROR_CHECK(spi_bus_initialize(SPI2_HOST, &busConfig, SPI_DMA_CH_AUTO));
 	}
 
-	void RC::transceiverSetup() {
+	void Aircraft::transceiverSetup() {
 		transceiver.setup();
 		transceiver.setPacketParser(&packetParser);
 		transceiver.start();

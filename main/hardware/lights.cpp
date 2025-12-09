@@ -1,7 +1,7 @@
 #include "lights.h"
 
 #include <esp_timer.h>
-#include "rc.h"
+#include "aircraft.h"
 
 namespace pizda {
 	void Lights::setup() {

@@ -10,11 +10,11 @@
 #include "hardware/lights.h"
 #include "hardware/motors.h"
 #include "hardware/transceiver/transceiver.h"
-#include "hardware/transceiver/RCPacketParser.h"
-#include "hardware/channels.h"
+#include "hardware/transceiver/aircraftPacketParser.h"
+#include "hardware/transceiver/channels.h"
 
 namespace pizda {
-	class RC {
+	class Aircraft {
 		public:
 			Settings settings {};
 
@@ -23,14 +23,14 @@ namespace pizda {
 			Channels channels {};
 
 			Transceiver transceiver {};
-			RCPacketParser packetParser {};
+			AircraftPacketParser packetParser {};
 
-			static RC& getInstance();
+			static Aircraft& getInstance();
 
 			void start();
 
 		private:
-			RC() = default;
+			Aircraft() = default;
 
 			void SPIBusSetup() const;
 			void transceiverSetup();

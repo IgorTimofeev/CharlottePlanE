@@ -4,7 +4,8 @@
 #include <array>
 #include <optional>
 #include <esp_log.h>
-#include "motor.h"
+
+#include "hardware/motor.h"
 
 namespace pizda {
 	enum class ChannelDataType : uint8_t {
@@ -87,6 +88,6 @@ namespace pizda {
 			bool checkChannel(uint8_t channelIndex, ChannelDataType dataType);
 			UintChannel* checkUintChannel(uint8_t channelIndex, uint8_t bitDepth);
 			BoolChannel* checkBoolChannel(uint8_t channelIndex);
-			void checkAndSetMotor(uint8_t channelIndex, ConfiguredMotor* motor);
+			void checkAndSetMotor(uint8_t channelIndex, uint8_t motorIndex);
 	};
 }

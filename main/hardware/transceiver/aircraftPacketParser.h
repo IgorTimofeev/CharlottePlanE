@@ -8,7 +8,7 @@
 #include <YOBABitStream/main.h>
 
 namespace pizda {
-	class RCPacketParser : public PacketParser {
+	class AircraftPacketParser : public PacketParser {
 		public:
 
 		protected:

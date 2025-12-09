@@ -11,7 +11,7 @@
 #include <driver/uart.h>
 #include <esp_log.h>
 
-#include "rc.h"
+#include "aircraft.h"
 
 namespace pizda {
 	void Transceiver::setup() {

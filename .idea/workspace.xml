@@ -163,20 +163,21 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="ппц заебался">
-      <change afterPath="$PROJECT_DIR$/main/hardware/channels.cpp" afterDir="false" />
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="получше">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/channels.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/channels.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/channels.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/channels.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/channels.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/channels.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/lights.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/lights.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/lights.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/lights.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/motor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motor.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/motor.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motor.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/motors.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/motors.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/RCPacketParser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/RCPacketParser.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/RCPacketParser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketParser.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/RCPacketParser.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketParser.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packet.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packet.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/rc.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/rc.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/rc.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/rc.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/transceiver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/transceiver.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/transceiver.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/transceiver.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/rc.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/rc.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/settings/settings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/settings/settings.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -252,6 +253,7 @@
       <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\hardware" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\hardware\transceiver" />
       <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\settings" />
     </key>
   </component>
@@ -1120,7 +1122,7 @@
       <workItem from="1765188863881" duration="131000" />
       <workItem from="1765189079469" duration="19059000" />
       <workItem from="1765233566240" duration="2473000" />
-      <workItem from="1765236113589" duration="4148000" />
+      <workItem from="1765236113589" duration="5121000" />
     </task>
     <task id="LOCAL-00001" summary="ппц заебался">
       <option name="closed" value="true" />
@@ -1138,7 +1140,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765210319805</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="получше">
+      <option name="closed" value="true" />
+      <created>1765240491208</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1765240491208</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1146,6 +1156,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="ппц заебался" />
-    <option name="LAST_COMMIT_MESSAGE" value="ппц заебался" />
+    <MESSAGE value="получше" />
+    <option name="LAST_COMMIT_MESSAGE" value="получше" />
   </component>
 </project>

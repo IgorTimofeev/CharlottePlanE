@@ -1,7 +1,7 @@
-#include "rc.h"
+#include "aircraft.h"
 
 using namespace pizda;
 
 extern "C" void app_main(void) {
-	RC::getInstance().start();
+	Aircraft::getInstance().start();
 }

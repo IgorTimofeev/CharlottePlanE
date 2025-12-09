@@ -6,7 +6,7 @@
 
 #include "settings/settings.h"
 #include "hardware/motor.h"
-#include "rc.h"
+#include "aircraft.h"
 
 namespace pizda {
 
