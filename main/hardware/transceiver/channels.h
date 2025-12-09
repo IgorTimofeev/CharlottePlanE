@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vector>
 #include <array>
 #include <optional>
+
 #include <esp_log.h>
 
 #include "hardware/motor.h"
@@ -76,14 +76,33 @@ namespace pizda {
 			}
 	};
 
+	enum class ChannelType : uint8_t {
+		throttle,
+		reverseThrottle,
+		ailerons,
+		elevator,
+		rudder,
+		flaps,
+
+		navLights,
+		strobeLights,
+		landingLights,
+		cabinLights
+	};
+
 	class Channels {
 		public:
 			void setup();
 			void updateFromDataStructure();
 
 			Channel* getChannel(uint8_t channelIndex);
-			UintChannel* getUintChannel(uint8_t channelIndex, uint8_t bitDepth);
+			Channel* getChannel(ChannelType channelType);
+
+			UintChannel* getUintChannel(uint8_t channelIndex);
+			UintChannel* getUintChannel(ChannelType channelType);
+
 			BoolChannel* getBoolChannel(uint8_t channelIndex);
+			BoolChannel* getBoolChannel(ChannelType channelType);
 
 		private:
 			std::array<Channel*, 10> instances {};

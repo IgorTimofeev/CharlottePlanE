@@ -55,40 +55,46 @@ namespace pizda {
 	}
 
 	void Aircraft::updateHardwareFromChannels() {
-		// Motors
+		// Ailerons
 		{
-			const auto getUintChannelAndUpdateMotor = [this](uint8_t channelIndex, MotorType motorType) {
-				const auto uintChannel = channels.getUintChannel(channelIndex, Motor::powerBitCount);
+			const auto channel = channels.getUintChannel(ChannelType::ailerons);
+			const auto leftAileronMotor = motors.getMotor(MotorType::leftAileron);
+//				const auto rightAileronMotor = motors.getMotor(MotorType::rightAileron);
 
-				if (!uintChannel)
-					return;
+			if (!channel || !leftAileronMotor)
+				return;
 
-				const auto motor = Aircraft::getInstance().motors.getMotor(motorType);
+			leftAileronMotor->setPower(channel->getValue());
+//				rightAileronMotor->setPower(aileronsChannel->getValue());
+		}
 
-				if (!motor)
-					return;
+		// Flaps
+		{
+			const auto flapsChannel = channels.getUintChannel(ChannelType::flaps);
+			const auto leftFlapMotor = motors.getMotor(MotorType::leftFlap);
+//				const auto rightFlapMotor = motors.getMotor(MotorType::rightAileron);
 
-				motor->setPower(uintChannel->getValue());
-			};
+			if (!flapsChannel || !leftFlapMotor)
+				return;
 
-			getUintChannelAndUpdateMotor(2, MotorType::leftAileron);
-			getUintChannelAndUpdateMotor(5, MotorType::leftFlap);
+			leftFlapMotor->setPower(flapsChannel->getValue());
+//				rightFlapMotor->setPower(aileronsChannel->getValue());
 		}
 
 		// Lights
 		{
 			BoolChannel* boolChannel;
 
-			if ((boolChannel = channels.getBoolChannel(6)))
+			if ((boolChannel = channels.getBoolChannel(ChannelType::navLights)))
 				lights.setNavigationEnabled(boolChannel->getValue());
 
-			if ((boolChannel = channels.getBoolChannel(7)))
+			if ((boolChannel = channels.getBoolChannel(ChannelType::strobeLights)))
 				lights.setStrobeEnabled(boolChannel->getValue());
 
-			if ((boolChannel = channels.getBoolChannel(8)))
+			if ((boolChannel = channels.getBoolChannel(ChannelType::landingLights)))
 				lights.setLandingEnabled(boolChannel->getValue());
 
-			if ((boolChannel = channels.getBoolChannel(9)))
+			if ((boolChannel = channels.getBoolChannel(ChannelType::cabinLights)))
 				lights.setCabinEnabled(boolChannel->getValue());
 		}
 	}

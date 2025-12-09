@@ -166,10 +166,6 @@
     <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="pizda">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/aircraft.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/lights.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/lights.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/lights.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/lights.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/motors.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/motors.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketParser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketParser.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/channels.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/channels.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/channels.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/channels.h" afterDir="false" />
@@ -1117,7 +1113,7 @@
       <workItem from="1765189079469" duration="19059000" />
       <workItem from="1765233566240" duration="2473000" />
       <workItem from="1765236113589" duration="5203000" />
-      <workItem from="1765284586328" duration="5123000" />
+      <workItem from="1765284586328" duration="6119000" />
     </task>
     <task id="LOCAL-00001" summary="ппц заебался">
       <option name="closed" value="true" />
@@ -1159,7 +1155,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765288965181</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="pizda">
+      <option name="closed" value="true" />
+      <created>1765289941190</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1765289941190</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

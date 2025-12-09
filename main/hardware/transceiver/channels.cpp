@@ -1,5 +1,7 @@
 #include "channels.h"
 
+#include <utility>
+
 #include "aircraft.h"
 
 namespace pizda {
@@ -63,6 +65,10 @@ namespace pizda {
 		return channel;
 	}
 
+	Channel* Channels::getChannel(ChannelType channelType) {
+		return getChannel(std::to_underlying(channelType));
+	}
+
 	Channel* Channels::getChannelAndCheckDataType(uint8_t channelIndex, ChannelDataType dataType) {
 		const auto channel = getChannel(channelIndex);
 
@@ -74,20 +80,14 @@ namespace pizda {
 		return channel;
 	}
 
-	UintChannel* Channels::getUintChannel(uint8_t channelIndex, uint8_t bitDepth) {
+	UintChannel* Channels::getUintChannel(uint8_t channelIndex) {
 		const auto channel = getChannelAndCheckDataType(channelIndex, ChannelDataType::unsignedInteger);
 
-		if (!channel)
-			return nullptr;
+		return channel ? reinterpret_cast<UintChannel*>(channel) : nullptr;
+	}
 
-		const auto uintChannel = reinterpret_cast<UintChannel*>(channel);
-
-		if (uintChannel->getBitDepth() != bitDepth) {
-			ESP_LOGE("Channels", "getUintChannel() failed, channel %d bit depth %d != requested bit depth", channelIndex, uintChannel->getBitDepth(), bitDepth);
-			return nullptr;
-		}
-
-		return uintChannel;
+	UintChannel* Channels::getUintChannel(ChannelType channelType) {
+		return getUintChannel(std::to_underlying(channelType));
 	}
 
 	BoolChannel* Channels::getBoolChannel(uint8_t channelIndex) {
@@ -96,4 +96,7 @@ namespace pizda {
 		return channel ? reinterpret_cast<BoolChannel*>(channel) : nullptr;
 	}
 
+	BoolChannel* Channels::getBoolChannel(ChannelType channelType) {
+		return getBoolChannel(std::to_underlying(channelType));
+	}
 }

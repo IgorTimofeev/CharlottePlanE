@@ -93,7 +93,7 @@ namespace pizda {
 
 				switch (channel->getDataType()) {
 					case ChannelDataType::unsignedInteger: {
-						auto uintChannel = reinterpret_cast<UintChannel*>(channel);
+						const auto uintChannel = reinterpret_cast<UintChannel*>(channel);
 						uintChannel->setValue(stream.readUint32(uintChannel->getBitDepth()));
 
 						ESP_LOGI("PacketParser", "channel #%d, uint value: %d", channelIndex, uintChannel->getValue());
@@ -101,7 +101,7 @@ namespace pizda {
 						break;
 					}
 					case ChannelDataType::boolean: {
-						auto boolChannel = reinterpret_cast<BoolChannel*>(channel);
+						const auto boolChannel = reinterpret_cast<BoolChannel*>(channel);
 						boolChannel->setValue(stream.readBool());
 
 						ESP_LOGI("PacketParser", "channel #%d, bool value: %d", channelIndex, boolChannel->getValue());
