@@ -57,13 +57,13 @@ namespace pizda {
 	void Aircraft::updateHardwareFromChannels() {
 		// Motors
 		{
-			const auto getUintChannelAndUpdateMotor = [this](uint8_t channelIndex, uint8_t motorIndex) {
+			const auto getUintChannelAndUpdateMotor = [this](uint8_t channelIndex, MotorType motorType) {
 				const auto uintChannel = channels.getUintChannel(channelIndex, Motor::powerBitCount);
 
 				if (!uintChannel)
 					return;
 
-				const auto motor = Aircraft::getInstance().motors.getMotor(motorIndex);
+				const auto motor = Aircraft::getInstance().motors.getMotor(motorType);
 
 				if (!motor)
 					return;
@@ -71,8 +71,8 @@ namespace pizda {
 				motor->setPower(uintChannel->getValue());
 			};
 
-			getUintChannelAndUpdateMotor(2, 2);
-			getUintChannelAndUpdateMotor(5, 6);
+			getUintChannelAndUpdateMotor(2, MotorType::leftAileron);
+			getUintChannelAndUpdateMotor(5, MotorType::leftFlap);
 		}
 
 		// Lights

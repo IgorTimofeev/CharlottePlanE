@@ -66,10 +66,6 @@ namespace pizda {
 		cabin.flush();
 	}
 
-	void Lights::setPower(uint8_t index, uint16_t value) {
-
-	}
-
 	void Lights::updateNavOrLanding(Light& light, const uint8_t r, const uint8_t g, const uint8_t b) const {
 		// Navigation
 		if (navigationEnabled) {

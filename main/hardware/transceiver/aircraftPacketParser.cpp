@@ -64,7 +64,7 @@ namespace pizda {
 			ac.settings.channelDataStructure.fields.push_back(field);
 		}
 
-		ac.channels.updateFromSettings();
+		ac.channels.updateFromDataStructure();
 		ac.settings.channelDataStructure.write();
 
 		return true;

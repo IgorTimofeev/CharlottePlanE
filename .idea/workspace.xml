@@ -163,22 +163,16 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="получше">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="pizda">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/YOBANVS" beforeDir="false" afterPath="$PROJECT_DIR$/components/YOBANVS" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/YOBANVS/src/YOBANVS/stream.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/YOBANVS/src/YOBANVS/stream.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/aircraft.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/aircraft.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/motor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motor.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/motor.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motor.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/lights.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/lights.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/lights.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/lights.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/motors.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/motors.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketParser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketParser.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketParser.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketParser.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/channels.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/channels.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/channels.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/channels.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packetParser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packetParser.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packetParser.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packetParser.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -1123,7 +1117,7 @@
       <workItem from="1765189079469" duration="19059000" />
       <workItem from="1765233566240" duration="2473000" />
       <workItem from="1765236113589" duration="5203000" />
-      <workItem from="1765284586328" duration="4126000" />
+      <workItem from="1765284586328" duration="5123000" />
     </task>
     <task id="LOCAL-00001" summary="ппц заебался">
       <option name="closed" value="true" />
@@ -1157,7 +1151,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765241340080</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="pizda">
+      <option name="closed" value="true" />
+      <created>1765288965181</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1765288965181</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1166,6 +1168,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="ппц заебался" />
     <MESSAGE value="получше" />
-    <option name="LAST_COMMIT_MESSAGE" value="получше" />
+    <MESSAGE value="pizda" />
+    <option name="LAST_COMMIT_MESSAGE" value="pizda" />
   </component>
 </project>

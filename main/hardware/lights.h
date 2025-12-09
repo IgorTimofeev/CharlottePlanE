@@ -11,26 +11,19 @@ namespace pizda {
 	class Lights {
 		public:
 			void setup();
-
 			void start();
 
 			bool isNavigationEnabled() const;
-
 			void setNavigationEnabled(bool value);
 
 			bool isStrobeEnabled() const;
-
 			void setStrobeEnabled(bool value);
 
 			bool isLandingEnabled() const;
-
 			void setLandingEnabled(bool value);
 
 			bool isCabinEnabled() const;
-
 			void setCabinEnabled(bool value);
-
-			void setPower(uint8_t index, uint16_t value);
 
 		private:
 			constexpr static const uint8_t dimmedChannelValue = 0x22;

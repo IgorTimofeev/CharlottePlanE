@@ -32,6 +32,10 @@ namespace pizda {
 		return &instances[index].value();
 	}
 
+	ConfiguredMotor* Motors::getMotor(MotorType type) {
+		return getMotor(std::to_underlying(type));
+	}
+
 	void Motors::updateConfigurationsFromSettings() {
 		auto& ac = Aircraft::getInstance();
 
@@ -45,4 +49,5 @@ namespace pizda {
 			motor->updateCurrentPowerFromConfiguration();
 		}
 	}
+
 }

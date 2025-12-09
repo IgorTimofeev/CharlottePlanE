@@ -4,26 +4,32 @@
 
 namespace pizda {
 	void Channels::setup() {
-		updateFromSettings();
+		updateFromDataStructure();
 	}
 
-	void Channels::updateFromSettings() {
+	void Channels::updateFromDataStructure() {
 		auto& ac = Aircraft::getInstance();
 
 		// Deleting existing channels
-		for (auto channel : instances) {
+		for (auto& channel : instances) {
 			if (channel) {
 				delete channel;
+				channel = nullptr;
 			}
 		}
-
-		instances.clear();
 
 		// Creating new channels
 		Channel* channel = nullptr;
 
+		uint16_t channelIndex = 0;
+
 		for (const auto& field : ac.settings.channelDataStructure.fields) {
 			for (uint16_t i = 0; i < field.count; ++i) {
+				if (channelIndex >= instances.size()) {
+					ESP_LOGE("Channels", "updateFromDataStructure() failed, channel %d >= channels size %d", channelIndex, instances.size());
+					return;
+				}
+
 				switch (field.type) {
 					case ChannelDataType::unsignedInteger:
 						channel = new UintChannel(field.bitDepth);
@@ -34,21 +40,23 @@ namespace pizda {
 						break;
 				}
 
-				instances.push_back(channel);
+				instances[channelIndex] = channel;
+
+				channelIndex++;
 			}
 		}
 	}
 
 	Channel* Channels::getChannel(uint8_t channelIndex) {
 		if (channelIndex >= instances.size()) {
-			ESP_LOGE("Channels", "check failed, channel %d >= channels size %d", channelIndex, instances.size());
+			ESP_LOGE("Channels", "getChannel() failed, channel %d >= channels size %d", channelIndex, instances.size());
 			return nullptr;
 		}
 
 		const auto channel = instances[channelIndex];
 
 		if (!channel) {
-			ESP_LOGE("Channels", "check failed, channel %d is not configured", channelIndex);
+			ESP_LOGE("Channels", "getChannel() failed, channel %d is not configured", channelIndex);
 			return nullptr;
 		}
 
@@ -59,7 +67,7 @@ namespace pizda {
 		const auto channel = getChannel(channelIndex);
 
 		if (channel->getDataType() != dataType) {
-			ESP_LOGE("Channels", "check failed, channel %d data type %d != requested data type", channelIndex, channel->getDataType(), dataType);
+			ESP_LOGE("Channels", "getChannelAndCheckDataType() failed, channel %d data type %d != requested data type", channelIndex, channel->getDataType(), dataType);
 			return nullptr;
 		}
 
@@ -75,7 +83,7 @@ namespace pizda {
 		const auto uintChannel = reinterpret_cast<UintChannel*>(channel);
 
 		if (uintChannel->getBitDepth() != bitDepth) {
-			ESP_LOGE("Channels", "check failed, channel %d bit depth %d != requested bit depth", channelIndex, uintChannel->getBitDepth(), bitDepth);
+			ESP_LOGE("Channels", "getUintChannel() failed, channel %d bit depth %d != requested bit depth", channelIndex, uintChannel->getBitDepth(), bitDepth);
 			return nullptr;
 		}
 

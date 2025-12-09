@@ -79,14 +79,14 @@ namespace pizda {
 	class Channels {
 		public:
 			void setup();
-			void updateFromSettings();
+			void updateFromDataStructure();
 
 			Channel* getChannel(uint8_t channelIndex);
 			UintChannel* getUintChannel(uint8_t channelIndex, uint8_t bitDepth);
 			BoolChannel* getBoolChannel(uint8_t channelIndex);
 
 		private:
-			std::vector<Channel*> instances {};
+			std::array<Channel*, 10> instances {};
 
 			Channel* getChannelAndCheckDataType(uint8_t channelIndex, ChannelDataType dataType);
 	};
