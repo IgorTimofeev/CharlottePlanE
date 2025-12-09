@@ -53,4 +53,43 @@ namespace pizda {
 		transceiver.setPacketParser(&packetParser);
 		transceiver.start();
 	}
+
+	void Aircraft::updateHardwareFromChannels() {
+		// Motors
+		{
+			const auto getUintChannelAndUpdateMotor = [this](uint8_t channelIndex, uint8_t motorIndex) {
+				const auto uintChannel = channels.getUintChannel(channelIndex, Motor::powerBitCount);
+
+				if (!uintChannel)
+					return;
+
+				const auto motor = Aircraft::getInstance().motors.getMotor(motorIndex);
+
+				if (!motor)
+					return;
+
+				motor->setPower(uintChannel->getValue());
+			};
+
+			getUintChannelAndUpdateMotor(2, 2);
+			getUintChannelAndUpdateMotor(5, 6);
+		}
+
+		// Lights
+		{
+			BoolChannel* boolChannel;
+
+			if ((boolChannel = channels.getBoolChannel(6)))
+				lights.setNavigationEnabled(boolChannel->getValue());
+
+			if ((boolChannel = channels.getBoolChannel(7)))
+				lights.setStrobeEnabled(boolChannel->getValue());
+
+			if ((boolChannel = channels.getBoolChannel(8)))
+				lights.setLandingEnabled(boolChannel->getValue());
+
+			if ((boolChannel = channels.getBoolChannel(9)))
+				lights.setCabinEnabled(boolChannel->getValue());
+		}
+	}
 }

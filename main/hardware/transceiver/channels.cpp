@@ -10,20 +10,20 @@ namespace pizda {
 	void Channels::updateFromSettings() {
 		auto& ac = Aircraft::getInstance();
 
-		for (auto& channel : instances) {
+		// Deleting existing channels
+		for (auto channel : instances) {
 			if (channel) {
 				delete channel;
-				channel = nullptr;
 			}
 		}
 
+		instances.clear();
+
+		// Creating new channels
 		Channel* channel = nullptr;
-		size_t channelIndex = 0;
 
-		for (int i = 0; i < ac.settings.channelDataStructure.fields.size(); ++i) {
-			auto& field = ac.settings.channelDataStructure.fields[i];
-
-			for (int j = 0; j < field.count; ++j) {
+		for (const auto& field : ac.settings.channelDataStructure.fields) {
+			for (uint16_t i = 0; i < field.count; ++i) {
 				switch (field.type) {
 					case ChannelDataType::unsignedInteger:
 						channel = new UintChannel(field.bitDepth);
@@ -34,33 +34,45 @@ namespace pizda {
 						break;
 				}
 
-				instances[channelIndex] = channel;
-				channelIndex++;
+				instances.push_back(channel);
 			}
 		}
 	}
 
-	bool Channels::checkChannel(uint8_t channelIndex, ChannelDataType dataType) {
-		auto channel = instances[channelIndex];
-
-		if (!channel) {
-			ESP_LOGE("Channels", "check failed, channel %d is null", channelIndex);
-			return false;
-		}
-		else if (channel->getDataType() != dataType) {
-			ESP_LOGE("Channels", "check failed, channel %d data type %d != requested data type", channelIndex, channel->getDataType(), dataType);
-			return false;
-		}
-
-		return true;
-	}
-
-	UintChannel* Channels::checkUintChannel(uint8_t channelIndex, uint8_t bitDepth) {
-		if (!checkChannel(channelIndex, ChannelDataType::unsignedInteger)) {
+	Channel* Channels::getChannel(uint8_t channelIndex) {
+		if (channelIndex >= instances.size()) {
+			ESP_LOGE("Channels", "check failed, channel %d >= channels size %d", channelIndex, instances.size());
 			return nullptr;
 		}
 
-		const auto uintChannel = reinterpret_cast<UintChannel*>(instances[channelIndex]);
+		const auto channel = instances[channelIndex];
+
+		if (!channel) {
+			ESP_LOGE("Channels", "check failed, channel %d is not configured", channelIndex);
+			return nullptr;
+		}
+
+		return channel;
+	}
+
+	Channel* Channels::getChannelAndCheckDataType(uint8_t channelIndex, ChannelDataType dataType) {
+		const auto channel = getChannel(channelIndex);
+
+		if (channel->getDataType() != dataType) {
+			ESP_LOGE("Channels", "check failed, channel %d data type %d != requested data type", channelIndex, channel->getDataType(), dataType);
+			return nullptr;
+		}
+
+		return channel;
+	}
+
+	UintChannel* Channels::getUintChannel(uint8_t channelIndex, uint8_t bitDepth) {
+		const auto channel = getChannelAndCheckDataType(channelIndex, ChannelDataType::unsignedInteger);
+
+		if (!channel)
+			return nullptr;
+
+		const auto uintChannel = reinterpret_cast<UintChannel*>(channel);
 
 		if (uintChannel->getBitDepth() != bitDepth) {
 			ESP_LOGE("Channels", "check failed, channel %d bit depth %d != requested bit depth", channelIndex, uintChannel->getBitDepth(), bitDepth);
@@ -70,44 +82,10 @@ namespace pizda {
 		return uintChannel;
 	}
 
-	BoolChannel* Channels::checkBoolChannel(uint8_t channelIndex) {
-		if (!checkChannel(channelIndex, ChannelDataType::boolean))
-			return nullptr;
+	BoolChannel* Channels::getBoolChannel(uint8_t channelIndex) {
+		const auto channel = getChannelAndCheckDataType(channelIndex, ChannelDataType::boolean);
 
-		return reinterpret_cast<BoolChannel*>(instances[channelIndex]);
+		return channel ? reinterpret_cast<BoolChannel*>(channel) : nullptr;
 	}
 
-	void Channels::checkAndSetMotor(uint8_t channelIndex, uint8_t motorIndex) {
-		const auto uintChannel = checkUintChannel(channelIndex, Motor::powerBitCount);
-
-		if (!uintChannel)
-			return;
-
-		Aircraft::getInstance().motors.setPower(motorIndex, uintChannel->getValue());
-	}
-
-	void Channels::onValueUpdated() {
-		auto& ac = Aircraft::getInstance();
-
-		// Motors
-		checkAndSetMotor(2, 2);
-		checkAndSetMotor(5, 6);
-
-		// Lights
-		{
-			BoolChannel* boolChannel;
-
-			if ((boolChannel = checkBoolChannel(6)))
-				ac.lights.setNavigationEnabled(boolChannel->getValue());
-
-			if ((boolChannel = checkBoolChannel(7)))
-				ac.lights.setStrobeEnabled(boolChannel->getValue());
-
-			if ((boolChannel = checkBoolChannel(8)))
-				ac.lights.setLandingEnabled(boolChannel->getValue());
-
-			if ((boolChannel = checkBoolChannel(9)))
-				ac.lights.setCabinEnabled(boolChannel->getValue());
-		}
-	}
 }

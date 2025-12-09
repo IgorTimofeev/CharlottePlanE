@@ -44,40 +44,44 @@ namespace pizda {
 		setDuty(duty);
 	}
 
-	ConfiguredMotor::ConfiguredMotor(gpio_num_t pin, ledc_channel_t channel) : motor(Motor(pin, channel)) {
+	ConfiguredMotor::ConfiguredMotor(gpio_num_t pin, ledc_channel_t channel) : _motor(Motor(pin, channel)) {
 
 	}
 
 	void ConfiguredMotor::setup() {
-		motor.setup();
+		_motor.setup();
 		setStartupPower();
 	}
 
 	uint16_t ConfiguredMotor::getPower() const {
-		return power;
+		return _power;
 	}
 
 	void ConfiguredMotor::setPower(uint16_t value) {
-		power = value;
+		_power = value;
 
 		auto pulseWidth =
-			configuration.min
-			+ (configuration.max - configuration.min) * power / Motor::powerMaxValue
-			+ configuration.offset;
+			_configuration.min
+			+ (_configuration.max - _configuration.min) * _power / Motor::powerMaxValue
+			+ _configuration.offset;
 
-		if (configuration.reverse)
-			pulseWidth = configuration.min + configuration.max - pulseWidth;
+		if (_configuration.reverse)
+			pulseWidth = _configuration.min + _configuration.max - pulseWidth;
 
-		pulseWidth = std::clamp<int32_t>(pulseWidth, configuration.min, configuration.max);
+		pulseWidth = std::clamp<int32_t>(pulseWidth, _configuration.min, _configuration.max);
 
-		motor.setPulseWidth(pulseWidth);
+		_motor.setPulseWidth(pulseWidth);
 	}
 
-	void ConfiguredMotor::updatePowerFromConfiguration() {
-		setPower(power);
+	void ConfiguredMotor::updateCurrentPowerFromConfiguration() {
+		setPower(_power);
 	}
 
 	void ConfiguredMotor::setStartupPower() {
-		setPower((configuration.startup - configuration.min) * Motor::powerMaxValue / (configuration.max - configuration.min));
+		setPower((_configuration.startup - _configuration.min) * Motor::powerMaxValue / (_configuration.max - _configuration.min));
+	}
+
+	void ConfiguredMotor::setConfiguration(const MotorConfiguration& configuration) {
+		_configuration = configuration;
 	}
 }

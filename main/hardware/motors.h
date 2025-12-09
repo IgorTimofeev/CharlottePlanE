@@ -10,9 +10,10 @@ namespace pizda {
 	class Motors {
 		public:
 			void setup();
-			void setPower(uint8_t index, uint16_t value);
-			void updateFromSettings();
+			ConfiguredMotor* getMotor(uint8_t index);
+			void updateConfigurationsFromSettings();
 
+		private:
 			std::array<std::optional<ConfiguredMotor>, 8> instances {
 				std::nullopt,
 				std::nullopt,
@@ -23,8 +24,6 @@ namespace pizda {
 				ConfiguredMotor {constants::motors::leftFlap, LEDC_CHANNEL_1 },
 				std::nullopt,
 			};
-
-		private:
 
 	};
 }

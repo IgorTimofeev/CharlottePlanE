@@ -26,8 +26,8 @@ namespace pizda {
 			AircraftPacketParser packetParser {};
 
 			static Aircraft& getInstance();
-
 			void start();
+			void updateHardwareFromChannels();
 
 		private:
 			Aircraft() = default;

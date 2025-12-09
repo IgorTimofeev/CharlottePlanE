@@ -15,6 +15,9 @@ namespace pizda {
 			bool onParse(ReadableBitStream& stream, PacketType packetType) override;
 
 		private:
+			bool onChannelDataStructurePacket(ReadableBitStream& stream);
+			bool onChannelDataPacket(ReadableBitStream& stream);
 
+			bool onMotorConfigurationPacket(ReadableBitStream& stream);
 	};
 }

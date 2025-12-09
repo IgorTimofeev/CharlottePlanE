@@ -57,16 +57,18 @@ namespace pizda {
 		public:
 			ConfiguredMotor(gpio_num_t pin, ledc_channel_t channel);
 
-			MotorConfiguration configuration {};
 
 			void setup();
 			void setPower(uint16_t value);
-			void updatePowerFromConfiguration();
+			void updateCurrentPowerFromConfiguration();
 			void setStartupPower();
 			uint16_t getPower() const;
 
+			void setConfiguration(const MotorConfiguration& configuration);
+
 		private:
-			Motor motor;
-			uint16_t power = 0;
+			MotorConfiguration _configuration {};
+			Motor _motor;
+			uint16_t _power = 0;
 	};
 }

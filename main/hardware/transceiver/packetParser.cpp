@@ -19,7 +19,7 @@ namespace pizda {
 		return crc;
 	}
 
-	bool PacketParser::checkCRC(const uint8_t* buffer, size_t dataBitCount) {
+	bool PacketParser::validateChecksum(const uint8_t* buffer, size_t dataBitCount) {
 		const uint8_t dataByteCount = (Packet::typeBitCount + dataBitCount + 7) / 8;
 
 		const auto checksum = getCRC8(buffer, dataByteCount);
@@ -34,13 +34,13 @@ namespace pizda {
 		return true;
 	}
 
-	uint8_t PacketParser::readValueCountAndCheckCRC(ReadableBitStream& bitStream, uint8_t valueCountBitCount, uint8_t valueBitCount) {
+	uint8_t PacketParser::readValueCountAndValidateChecksum(ReadableBitStream& bitStream, uint8_t valueCountBitCount, uint8_t valueBitCount) {
 		auto valueCount = bitStream.readUint8(valueCountBitCount);
 
 		ESP_LOGI("PacketParser", "value count: %d", valueCount);
 
 		// CRC check
-		if (!checkCRC(bitStream.getBuffer(), valueCountBitCount + valueBitCount * valueCount))
+		if (!validateChecksum(bitStream.getBuffer(), valueCountBitCount + valueBitCount * valueCount))
 			return 0;
 
 		return valueCount;
@@ -69,7 +69,7 @@ namespace pizda {
 
 		// Payload parsing
 		if (!onParse(bitStream, packetType)) {
-			ESP_LOGI("PacketParser", "Parsing failed");
+			ESP_LOGI("PacketParser", "parsing failed");
 			
 			return 0;
 		}

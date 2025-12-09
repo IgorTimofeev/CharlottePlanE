@@ -78,16 +78,16 @@ namespace pizda {
 
 	class Channels {
 		public:
-			std::array<Channel*, 255> instances {};
-
 			void setup();
 			void updateFromSettings();
-			void onValueUpdated();
+
+			Channel* getChannel(uint8_t channelIndex);
+			UintChannel* getUintChannel(uint8_t channelIndex, uint8_t bitDepth);
+			BoolChannel* getBoolChannel(uint8_t channelIndex);
 
 		private:
-			bool checkChannel(uint8_t channelIndex, ChannelDataType dataType);
-			UintChannel* checkUintChannel(uint8_t channelIndex, uint8_t bitDepth);
-			BoolChannel* checkBoolChannel(uint8_t channelIndex);
-			void checkAndSetMotor(uint8_t channelIndex, uint8_t motorIndex);
+			std::vector<Channel*> instances {};
+
+			Channel* getChannelAndCheckDataType(uint8_t channelIndex, ChannelDataType dataType);
 	};
 }

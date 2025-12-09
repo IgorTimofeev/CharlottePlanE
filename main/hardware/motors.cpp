@@ -7,35 +7,42 @@ namespace pizda {
 	void Motors::setup() {
 		auto& ac = Aircraft::getInstance();
 
+		// Copying configuration from settings
 		for (size_t i = 0; i < ac.settings.motors.configurations.size(); ++i) {
-			if (i < instances.size() && instances[i]) {
-				instances[i]->configuration = ac.settings.motors.configurations[i];
-				instances[i]->setup();
-			}
+			const auto motor = getMotor(i);
+
+			if (!motor)
+				break;
+
+			motor->setConfiguration(ac.settings.motors.configurations[i]);
+			motor->setup();
 		}
 	}
 
-	void Motors::setPower(uint8_t index, uint16_t value) {
+	ConfiguredMotor* Motors::getMotor(uint8_t index) {
 		if (index >= instances.size()) {
 			ESP_LOGI("Motors::setPower()", "index %d >= motors count %d", index, instances.size());
-			return;
+			return nullptr;
 		}
 		else if (!instances[index]) {
 			ESP_LOGI("Motors::setPower()", "motor with index %d is not bound");
-			return;
+			return nullptr;
 		}
 
-		instances[index]->setPower(value);
+		return &instances[index].value();
 	}
 
-	void Motors::updateFromSettings() {
+	void Motors::updateConfigurationsFromSettings() {
 		auto& ac = Aircraft::getInstance();
 
 		for (size_t i = 0; i < ac.settings.motors.configurations.size(); ++i) {
-			if (i < instances.size() && instances[i]) {
-				instances[i]->configuration = ac.settings.motors.configurations[i];
-				instances[i]->updatePowerFromConfiguration();
-			}
+			const auto motor = getMotor(i);
+
+			if (!motor)
+				break;
+
+			motor->setConfiguration(ac.settings.motors.configurations[i]);
+			motor->updateCurrentPowerFromConfiguration();
 		}
 	}
 }
