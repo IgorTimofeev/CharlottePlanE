@@ -64,13 +64,13 @@ namespace pizda {
 					};
 			};
 
-			class ahrs1 {
+			class adiru1 {
 				public:
 					constexpr static gpio_num_t mpu9250ss = GPIO_NUM_NC;
 					constexpr static gpio_num_t bmp280ss = GPIO_NUM_NC;
 			};
 
-			class ahrs2 {
+			class adiru2 {
 				public:
 					constexpr static gpio_num_t mpu9250ss = GPIO_NUM_NC;
 					constexpr static gpio_num_t bmp280ss = GPIO_NUM_NC;

@@ -86,19 +86,21 @@ namespace pizda {
 		return packetLength;
 	}
 
-	void PacketParser::parse(uint8_t* buffer, uint8_t length) {
+	bool PacketParser::parse(uint8_t* buffer, uint8_t length) {
 		auto bufferEnd = buffer + length;
 
 		while (true) {
 			auto packetLength = parseOne(buffer);
 
 			if (packetLength == 0)
-				break;
+				return false;
 
 			buffer += packetLength;
 
 			if (buffer >= bufferEnd)
 				break;
 		}
+
+		return true;
 	}
 }

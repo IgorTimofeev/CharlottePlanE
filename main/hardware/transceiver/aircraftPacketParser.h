@@ -10,6 +10,8 @@
 namespace pizda {
 	class AircraftPacketParser : public PacketParser {
 		public:
+			void onConnectionLost() override;
+			void onConnectionRestored() override;
 
 		protected:
 			bool onParse(ReadableBitStream& stream, PacketType packetType) override;
@@ -17,7 +19,6 @@ namespace pizda {
 		private:
 			bool onChannelDataStructurePacket(ReadableBitStream& stream);
 			bool onChannelDataPacket(ReadableBitStream& stream);
-
 			bool onMotorConfigurationPacket(ReadableBitStream& stream);
 	};
 }

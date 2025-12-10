@@ -11,21 +11,20 @@ namespace pizda {
 		for (size_t i = 0; i < ac.settings.motors.configurations.size(); ++i) {
 			const auto motor = getMotor(i);
 
-			if (!motor)
-				break;
-
-			motor->setConfiguration(ac.settings.motors.configurations[i]);
-			motor->setup();
+			if (motor) {
+				motor->setConfiguration(ac.settings.motors.configurations[i]);
+				motor->setup();
+			}
 		}
 	}
 
 	ConfiguredMotor* Motors::getMotor(uint8_t index) {
 		if (index >= instances.size()) {
-			ESP_LOGI("Motors::setPower()", "index %d >= motors count %d", index, instances.size());
+			ESP_LOGI("Motors::getMotor()", "index %d >= motors count %d", index, instances.size());
 			return nullptr;
 		}
 		else if (!instances[index]) {
-			ESP_LOGI("Motors::setPower()", "motor with index %d is not bound");
+			ESP_LOGI("Motors::getMotor()", "motor with index %d is not bound");
 			return nullptr;
 		}
 
@@ -42,12 +41,10 @@ namespace pizda {
 		for (size_t i = 0; i < ac.settings.motors.configurations.size(); ++i) {
 			const auto motor = getMotor(i);
 
-			if (!motor)
-				break;
-
-			motor->setConfiguration(ac.settings.motors.configurations[i]);
-			motor->updateCurrentPowerFromConfiguration();
+			if (motor) {
+				motor->setConfiguration(ac.settings.motors.configurations[i]);
+				motor->updateCurrentPowerFromConfiguration();
+			}
 		}
 	}
-
 }

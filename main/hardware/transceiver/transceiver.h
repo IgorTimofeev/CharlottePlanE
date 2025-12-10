@@ -9,6 +9,12 @@
 #include "packetParser.h"
 
 namespace pizda {
+	enum class TransceiverConnectionState : uint8_t {
+		initial,
+		normal,
+		lost
+	};
+
 	class Transceiver {
 		public:
 			void setup();
@@ -16,11 +22,17 @@ namespace pizda {
 			void start();
 
 		private:
-			PacketParser* packetParser = nullptr;
+			constexpr static uint32_t _connectionLostInterval = 3'000'000;
 
-			constexpr static uint16_t readingBufferLength = 255;
-			uint8_t readingBuffer[readingBufferLength] {};
+			PacketParser* _packetParser = nullptr;
+			uint32_t _connectionLostTime = 0;
+			TransceiverConnectionState _connectionState = TransceiverConnectionState::initial;
+
+			constexpr static uint16_t _readingBufferLength = 255;
+			uint8_t _readingBuffer[_readingBufferLength] {};
 
 			static void readingTask(void *arg);
+			void onReadingTaskTick();
+			void updateConnectionLostTime();
 	};;
 }

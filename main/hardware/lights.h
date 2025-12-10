@@ -25,6 +25,9 @@ namespace pizda {
 			bool isCabinEnabled() const;
 			void setCabinEnabled(bool value);
 
+			bool isEmergencyEnabled() const;
+			void setEmergencyEnabled(bool emergencyEnabled);
+
 		private:
 			constexpr static const uint8_t dimmedChannelValue = 0x22;
 
@@ -49,11 +52,14 @@ namespace pizda {
 			bool strobeEnabled = false;
 			bool landingEnabled = false;
 			bool cabinEnabled = false;
+			bool emergencyEnabled = false;
 
 			void updateNavOrLanding(Light& light, const uint8_t r, const uint8_t g, const uint8_t b) const;
 
 			void updateStrobes(Light& light, const uint8_t r, const uint8_t g, const uint8_t b);
 
 			static void taskBody(void* args);
+
+			void onTaskTick();
 	};
 }

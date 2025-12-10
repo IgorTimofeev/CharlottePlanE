@@ -61,9 +61,17 @@ namespace pizda {
 			return;
 
 		cabinEnabled = value;
+	}
 
-		cabin.fill(cabinEnabled ? 0x22 : 0x00);
-		cabin.flush();
+	bool Lights::isEmergencyEnabled() const {
+		return emergencyEnabled;
+	}
+
+	void Lights::setEmergencyEnabled(bool value) {
+		if (value == emergencyEnabled)
+			return;
+
+		emergencyEnabled = value;
 	}
 
 	void Lights::updateNavOrLanding(Light& light, const uint8_t r, const uint8_t g, const uint8_t b) const {
@@ -93,8 +101,10 @@ namespace pizda {
 	}
 
 	void Lights::taskBody(void* args) {
-		const auto lights = reinterpret_cast<Lights*>(args);
-
+		reinterpret_cast<Lights*>(args)->onTaskTick();
+	}
+	
+	void Lights::onTaskTick() {
 		//             0       500       1000 ms
 		//             +--------+---------+
 		// Left wing:  WRWRRRRRRRRRRRRRRRRR
@@ -102,37 +112,64 @@ namespace pizda {
 		// Tail:       DDDWDDDDDDDDDDDDDDDD
 
 		while (true) {
-			// Left wing (strobe 1)
-			lights->updateStrobes(lights->leftWing, 0xFF, 0x00, 0x00);
+			if (emergencyEnabled) {
+				// Cabin
+				cabin.fill(0xFF, 0x00, 0x00);
+				cabin.flush();
 
-			// Tail (dimmed)
-//					lights->tail.fill(dimmedChannelValue);
-//					lights->tail.flush();
+				// Left wing
+				leftWing.fill(0xFF, 0x00, 0x00);
+				leftWing.flush();
 
-			vTaskDelay(pdMS_TO_TICKS(50));
+				vTaskDelay(pdMS_TO_TICKS(500));
 
-			// Left wing (red)
-			lights->updateNavOrLanding(lights->leftWing, 0xFF, 0x00, 0x00);
-			vTaskDelay(pdMS_TO_TICKS(50));
+				// Cabin
+				cabin.fill(0x00);
+				cabin.flush();
 
-			// Left wing (strobe 2)
-			lights->updateStrobes(lights->leftWing, 0xFF, 0x00, 0x00);
-			vTaskDelay(pdMS_TO_TICKS(50));
+				// Left wing
+				leftWing.fill(0x00);
+				leftWing.flush();
 
-			// Left wing (red)
-			lights->updateNavOrLanding(lights->leftWing, 0xFF, 0x00, 0x00);
+				vTaskDelay(pdMS_TO_TICKS(500));
+			}
+			else {
+				// Cabin
+				cabin.fill(cabinEnabled ? 0x22 : 0x00);
+				cabin.flush();
 
-			// Tail (strobe)
-//					lights->tail.fill(0xFF);
-//					lights->tail.flush();
+				// Left wing (strobe 1)
+				updateStrobes(leftWing, 0xFF, 0x00, 0x00);
 
-			vTaskDelay(pdMS_TO_TICKS(50));
+				// Tail (dimmed)
+//					tail.fill(dimmedChannelValue);
+//					tail.flush();
 
-			// Tail (dimmed)
-//					lights->tail.fill(dimmedChannelValue);
-//					lights->tail.flush();
+				vTaskDelay(pdMS_TO_TICKS(50));
 
-			vTaskDelay(pdMS_TO_TICKS(16 * 50));
+				// Left wing (red)
+				updateNavOrLanding(leftWing, 0xFF, 0x00, 0x00);
+				vTaskDelay(pdMS_TO_TICKS(50));
+
+				// Left wing (strobe 2)
+				updateStrobes(leftWing, 0xFF, 0x00, 0x00);
+				vTaskDelay(pdMS_TO_TICKS(50));
+
+				// Left wing (red)
+				updateNavOrLanding(leftWing, 0xFF, 0x00, 0x00);
+
+				// Tail (strobe)
+//					tail.fill(0xFF);
+//					tail.flush();
+
+				vTaskDelay(pdMS_TO_TICKS(50));
+
+				// Tail (dimmed)
+//					tail.fill(dimmedChannelValue);
+//					tail.flush();
+
+				vTaskDelay(pdMS_TO_TICKS(16 * 50));
+			}
 		}
 	}
 }

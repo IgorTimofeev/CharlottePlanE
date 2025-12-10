@@ -154,4 +154,16 @@ namespace pizda {
 
 		return true;
 	}
+
+	void AircraftPacketParser::onConnectionLost() {
+		auto& ac = Aircraft::getInstance();
+
+		ac.lights.setEmergencyEnabled(true);
+	}
+
+	void AircraftPacketParser::onConnectionRestored() {
+		auto& ac = Aircraft::getInstance();
+
+		ac.lights.setEmergencyEnabled(false);
+	}
 }
