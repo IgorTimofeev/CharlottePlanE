@@ -7,7 +7,7 @@
 namespace pizda {
 	class Light {
 		public:
-			Light(uint8_t pin, uint8_t length) : length(length) {
+			Light(gpio_num_t pin, uint8_t length) : length(length) {
 				led_strip_config_t strip_config {};
 				strip_config.strip_gpio_num = pin;
 				strip_config.max_leds = length;

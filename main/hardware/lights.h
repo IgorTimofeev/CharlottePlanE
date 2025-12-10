@@ -31,8 +31,8 @@ namespace pizda {
 			TaskHandle_t taskHandle;
 
 			Light cabin {
-				constants::lights::interior::pin,
-				constants::lights::interior::length
+				constants::lights::cabin::pin,
+				constants::lights::cabin::length
 			};
 
 //			Strip tail {

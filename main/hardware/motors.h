@@ -34,13 +34,13 @@ namespace pizda {
 				std::nullopt,
 				std::nullopt,
 
-				ConfiguredMotor {constants::motors::leftAileron, LEDC_CHANNEL_0 },
+				ConfiguredMotor {constants::motors::leftWingAileron, LEDC_CHANNEL_0 },
 				std::nullopt,
 
 				std::nullopt,
 				std::nullopt,
 
-				ConfiguredMotor {constants::motors::leftFlap, LEDC_CHANNEL_1 },
+				ConfiguredMotor {constants::motors::leftWingFlap, LEDC_CHANNEL_1 },
 				std::nullopt,
 			};
 

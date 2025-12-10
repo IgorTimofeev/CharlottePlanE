@@ -8,24 +8,40 @@
 namespace pizda {
 	class constants {
 		public:
-			class i2c {
+			class common {
 				public:
-					constexpr static gpio_num_t sda = GPIO_NUM_8;
-					constexpr static gpio_num_t scl = GPIO_NUM_9;
+					constexpr static gpio_num_t reset = GPIO_NUM_NC;
+			};
+
+			class spi {
+				public:
+					constexpr static gpio_num_t miso = GPIO_NUM_13;
+					constexpr static gpio_num_t mosi = GPIO_NUM_11;
+					constexpr static gpio_num_t sck = GPIO_NUM_12;
 			};
 
 			class motors {
 				public:
-					constexpr static gpio_num_t leftFlap = GPIO_NUM_6;
-					constexpr static gpio_num_t leftAileron = GPIO_NUM_5;
+					constexpr static gpio_num_t throttle = GPIO_NUM_NC;
+					constexpr static gpio_num_t throttleReverse = GPIO_NUM_NC;
+
+					constexpr static gpio_num_t noseWheelSteering = GPIO_NUM_NC;
+
+					constexpr static gpio_num_t leftWingFlap = GPIO_NUM_6;
+					constexpr static gpio_num_t leftWingAileron = GPIO_NUM_5;
+
+					constexpr static gpio_num_t rightWingFlap = GPIO_NUM_NC;
+					constexpr static gpio_num_t rightWingAileron = GPIO_NUM_NC;
+
+					constexpr static gpio_num_t tailLeft = GPIO_NUM_NC;
+					constexpr static gpio_num_t tailRight = GPIO_NUM_NC;
 			};
 
 			class lights {
 				public:
-					class interior {
+					class cabin {
 						public:
-							// ESP-IDF is crying about missing GPIO_NUM_48, so
-							constexpr static uint16_t pin = 48;
+							constexpr static gpio_num_t pin = GPIO_NUM_48;
 							constexpr static uint8_t length = 1;
 					};
 
@@ -46,6 +62,31 @@ namespace pizda {
 							constexpr static gpio_num_t pin = GPIO_NUM_4;
 							constexpr static uint8_t length = 3;
 					};
+			};
+
+			class ahrs1 {
+				public:
+					constexpr static gpio_num_t mpu9250ss = GPIO_NUM_NC;
+					constexpr static gpio_num_t bmp280ss = GPIO_NUM_NC;
+			};
+
+			class ahrs2 {
+				public:
+					constexpr static gpio_num_t mpu9250ss = GPIO_NUM_NC;
+					constexpr static gpio_num_t bmp280ss = GPIO_NUM_NC;
+			};
+
+			class transceiver {
+				public:
+					constexpr static gpio_num_t ss = GPIO_NUM_NC;
+					constexpr static gpio_num_t busy = GPIO_NUM_NC;
+					constexpr static gpio_num_t dio0 = GPIO_NUM_NC;
+			};
+
+			class gnss {
+				public:
+					constexpr static gpio_num_t rx = GPIO_NUM_NC;
+					constexpr static gpio_num_t tx = GPIO_NUM_NC;
 			};
 	};
 }

@@ -165,10 +165,9 @@
   <component name="ChangeListManager">
     <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="pizda">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/aircraft.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketParser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketParser.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/channels.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/channels.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/channels.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/channels.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/constants.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/constants.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/light.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/light.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/lights.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/lights.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -718,11 +717,6 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="apidoc" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="apidoc" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -1113,7 +1107,10 @@
       <workItem from="1765189079469" duration="19059000" />
       <workItem from="1765233566240" duration="2473000" />
       <workItem from="1765236113589" duration="5203000" />
-      <workItem from="1765284586328" duration="6119000" />
+      <workItem from="1765284586328" duration="6506000" />
+      <workItem from="1765295222010" duration="994000" />
+      <workItem from="1765316613623" duration="807000" />
+      <workItem from="1765321556692" duration="1436000" />
     </task>
     <task id="LOCAL-00001" summary="ппц заебался">
       <option name="closed" value="true" />
@@ -1163,7 +1160,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765289941190</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="pizda">
+      <option name="closed" value="true" />
+      <created>1765291030883</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1765291030883</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
