@@ -29,6 +29,8 @@ namespace pizda {
 		transceiverSetup();
 		channels.setup();
 
+		ahrs.setup();
+
 		while (true) {
 //			ESP_LOGI("Main", "Pizda");
 
@@ -59,17 +61,6 @@ namespace pizda {
 		{
 			const auto channel = channels.getUintChannel(ChannelType::throttle);
 			const auto motor = motors.getMotor(MotorType::throttle);
-
-			if (!channel || !motor)
-				return;
-
-			motor->setPower(channel->getValue());
-		}
-
-		// Reverse throttle
-		{
-			const auto channel = channels.getUintChannel(ChannelType::reverseThrottle);
-			const auto motor = motors.getMotor(MotorType::reverseThrottle);
 
 			if (!channel || !motor)
 				return;
@@ -115,9 +106,6 @@ namespace pizda {
 
 			if ((boolChannel = channels.getBoolChannel(ChannelType::landingLights)))
 				lights.setLandingEnabled(boolChannel->getValue());
-
-			if ((boolChannel = channels.getBoolChannel(ChannelType::cabinLights)))
-				lights.setCabinEnabled(boolChannel->getValue());
 		}
 	}
 }

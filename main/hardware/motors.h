@@ -10,7 +10,6 @@
 namespace pizda {
 	enum class MotorType : uint8_t {
 		throttle,
-		reverseThrottle,
 
 		leftAileron,
 		rightAileron,
@@ -30,9 +29,8 @@ namespace pizda {
 			void updateConfigurationsFromSettings();
 
 		private:
-			std::array<std::optional<ConfiguredMotor>, 8> instances {
+			std::array<std::optional<ConfiguredMotor>, 7> instances {
 				ConfiguredMotor {constants::motors::throttle, LEDC_CHANNEL_0 },
-				ConfiguredMotor {constants::motors::throttleReverse, LEDC_CHANNEL_1 },
 
 				ConfiguredMotor {constants::motors::leftWingAileron, LEDC_CHANNEL_2 },
 				std::nullopt,

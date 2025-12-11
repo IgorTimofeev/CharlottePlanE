@@ -5,9 +5,6 @@
 
 namespace pizda {
 	void Lights::setup() {
-		cabin.fill(0x00);
-		cabin.flush();
-
 //				tail.fill(0x00);
 //				tail.flush();
 
@@ -21,7 +18,7 @@ namespace pizda {
 				reinterpret_cast<Lights*>(arg)->taskBody();
 			},
 			"lights",
-			2048,
+			4096,
 			this,
 			tskIDLE_PRIORITY,
 			&taskHandle
@@ -59,17 +56,6 @@ namespace pizda {
 			return;
 
 		landingEnabled = value;
-	}
-
-	bool Lights::isCabinEnabled() const {
-		return cabinEnabled;
-	}
-
-	void Lights::setCabinEnabled(bool value) {
-		if (value == cabinEnabled)
-			return;
-
-		cabinEnabled = value;
 	}
 
 	bool Lights::isEmergencyEnabled() const {
@@ -118,19 +104,11 @@ namespace pizda {
 
 		while (true) {
 			if (emergencyEnabled) {
-				// Cabin
-				cabin.fill(0xFF, 0x00, 0x00);
-				cabin.flush();
-
 				// Left wing
 				leftWing.fill(0xFF, 0x00, 0x00);
 				leftWing.flush();
 
 				vTaskDelay(pdMS_TO_TICKS(500));
-
-				// Cabin
-				cabin.fill(0x00);
-				cabin.flush();
 
 				// Left wing
 				leftWing.fill(0x00);
@@ -139,10 +117,6 @@ namespace pizda {
 				vTaskDelay(pdMS_TO_TICKS(500));
 			}
 			else {
-				// Cabin
-				cabin.fill(cabinEnabled ? 0x22 : 0x00);
-				cabin.flush();
-
 				// Left wing (strobe 1)
 				updateStrobes(leftWing, 0xFF, 0x00, 0x00);
 
