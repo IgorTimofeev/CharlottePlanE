@@ -22,7 +22,7 @@ namespace pizda {
 			void start();
 
 		private:
-			constexpr static uint32_t _connectionLostInterval = 3'000'000;
+			constexpr static uint32_t _connectionLostInterval = 5'000'000;
 
 			PacketParser* _packetParser = nullptr;
 			uint32_t _connectionLostTime = 0;
@@ -31,8 +31,7 @@ namespace pizda {
 			constexpr static uint16_t _readingBufferLength = 255;
 			uint8_t _readingBuffer[_readingBufferLength] {};
 
-			static void readingTask(void *arg);
-			void onReadingTaskTick();
+			void readingTaskBody();
 			void updateConnectionLostTime();
 	};;
 }

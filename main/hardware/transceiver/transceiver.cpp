@@ -35,11 +35,7 @@ namespace pizda {
 		_packetParser = value;
 	}
 
-	void Transceiver::readingTask(void* arg) {
-		reinterpret_cast<Transceiver*>(arg)->onReadingTaskTick();
-	}
-
-	void Transceiver::onReadingTaskTick() {
+	void Transceiver::readingTaskBody() {
 		ESP_LOGI("Transceiver", "reading started");
 
 		while (true) {
@@ -85,6 +81,15 @@ namespace pizda {
 	}
 
 	void Transceiver::start() {
-		xTaskCreate(readingTask, "UARTReadingTask", 4096, this, configMAX_PRIORITIES - 1, nullptr);
+		xTaskCreate(
+			[](void* arg) {
+				reinterpret_cast<Transceiver*>(arg)->readingTaskBody();
+			},
+			"UARTReading",
+			4096,
+			this,
+			configMAX_PRIORITIES - 1,
+			nullptr
+		);
 	}
 }

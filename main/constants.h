@@ -22,8 +22,8 @@ namespace pizda {
 
 			class motors {
 				public:
-					constexpr static gpio_num_t throttle = GPIO_NUM_NC;
-					constexpr static gpio_num_t throttleReverse = GPIO_NUM_NC;
+					constexpr static gpio_num_t throttle = GPIO_NUM_7;
+					constexpr static gpio_num_t throttleReverse = GPIO_NUM_15;
 
 					constexpr static gpio_num_t noseWheelSteering = GPIO_NUM_NC;
 

@@ -16,7 +16,16 @@ namespace pizda {
 	}
 
 	void Lights::start() {
-		xTaskCreate(taskBody, "lights", 2048, this, tskIDLE_PRIORITY, &taskHandle);
+		xTaskCreate(
+			[](void* arg) {
+				reinterpret_cast<Lights*>(arg)->taskBody();
+			},
+			"lights",
+			2048,
+			this,
+			tskIDLE_PRIORITY,
+			&taskHandle
+		);
 	}
 
 	bool Lights::isNavigationEnabled() const {
@@ -99,12 +108,8 @@ namespace pizda {
 			updateNavOrLanding(light, r, g, b);
 		}
 	}
-
-	void Lights::taskBody(void* args) {
-		reinterpret_cast<Lights*>(args)->onTaskTick();
-	}
 	
-	void Lights::onTaskTick() {
+	void Lights::taskBody() {
 		//             0       500       1000 ms
 		//             +--------+---------+
 		// Left wing:  WRWRRRRRRRRRRRRRRRRR

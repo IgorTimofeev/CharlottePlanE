@@ -55,6 +55,28 @@ namespace pizda {
 	}
 
 	void Aircraft::updateHardwareFromChannels() {
+		// Throttle
+		{
+			const auto channel = channels.getUintChannel(ChannelType::throttle);
+			const auto motor = motors.getMotor(MotorType::throttle);
+
+			if (!channel || !motor)
+				return;
+
+			motor->setPower(channel->getValue());
+		}
+
+		// Reverse throttle
+		{
+			const auto channel = channels.getUintChannel(ChannelType::reverseThrottle);
+			const auto motor = motors.getMotor(MotorType::reverseThrottle);
+
+			if (!channel || !motor)
+				return;
+
+			motor->setPower(channel->getValue());
+		}
+
 		// Ailerons
 		{
 			const auto channel = channels.getUintChannel(ChannelType::ailerons);

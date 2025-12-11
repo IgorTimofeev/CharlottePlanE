@@ -58,8 +58,6 @@ namespace pizda {
 
 			void updateStrobes(Light& light, const uint8_t r, const uint8_t g, const uint8_t b);
 
-			static void taskBody(void* args);
-
-			void onTaskTick();
+			void taskBody();
 	};
 }
