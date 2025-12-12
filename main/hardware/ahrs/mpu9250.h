@@ -12,7 +12,7 @@ namespace pizda {
 
 			}
 
-			void setup(spi_host_device_t spiDevice, gpio_num_t misoPin, gpio_num_t mosiPin, gpio_num_t sckPin) {
+			void setup(spi_host_device_t SPIDevice, gpio_num_t misoPin, gpio_num_t mosiPin, gpio_num_t sckPin, uint32_t frequencyHz) {
 				setupGPIO();
 				setSlaveSelect(true);
 			}

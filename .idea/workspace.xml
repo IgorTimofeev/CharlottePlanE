@@ -170,8 +170,10 @@
   <component name="ChangeListManager">
     <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="pizda">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ahrs/ahrs.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ahrs/ahrs.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/ahrs/bmp280.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ahrs/bmp280.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/ahrs/gy-91.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ahrs/gy-91.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ahrs/mpu9250.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ahrs/mpu9250.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -1129,7 +1131,7 @@
       <workItem from="1765398336618" duration="7129000" />
       <workItem from="1765478746122" duration="6833000" />
       <workItem from="1765487641998" duration="5786000" />
-      <workItem from="1765536882298" duration="5415000" />
+      <workItem from="1765536882298" duration="11847000" />
     </task>
     <task id="LOCAL-00001" summary="ппц заебался">
       <option name="closed" value="true" />
@@ -1235,7 +1237,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765506470379</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="pizda">
+      <option name="closed" value="true" />
+      <created>1765542410969</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1765542410969</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
