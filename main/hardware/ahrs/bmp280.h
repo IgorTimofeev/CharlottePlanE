@@ -255,8 +255,7 @@ namespace pizda {
 				// Interface
 				spi_device_interface_config_t interfaceConfig {};
 				interfaceConfig.mode = 0;
-				interfaceConfig.clock_speed_hz = static_cast<int>(5'000);
-				interfaceConfig.spics_io_num = static_cast<int>(_ssPin);
+				interfaceConfig.clock_speed_hz = 5'000;
 				interfaceConfig.spics_io_num = -1;
 				interfaceConfig.queue_size = 1;
 
@@ -283,23 +282,28 @@ namespace pizda {
 			}
 
 			void writeAndRead(BMP280Register reg, uint8_t* buffer, uint32_t readSize) {
+				// Writing
 				buffer[0] = (uint8_t) (uint8_t(reg) | 0x80);
 
-				// Writing
 				spi_transaction_t transaction {};
 				transaction.length = 1 * 8;
+				transaction.rx_buffer = nullptr;
 				transaction.tx_buffer = buffer;
+				transaction.flags = 0;
 
 				setSlaveSelect(false);
 				ESP_ERROR_CHECK(spi_device_transmit(_spiDeviceHandle, &transaction));
+				setSlaveSelect(true);
 
 				// Reading
-				transaction = {};
-				transaction.length = readSize * 8;
-				transaction.rx_buffer = buffer;
+				spi_transaction_t transaction2 = {};
+				transaction2.length = readSize * 8;
+				transaction2.rx_buffer = buffer;
+				transaction2.tx_buffer = nullptr;
+				transaction2.flags = 0;
 
 				setSlaveSelect(false);
-				ESP_ERROR_CHECK(spi_device_transmit(_spiDeviceHandle, &transaction));
+				ESP_ERROR_CHECK(spi_device_transmit(_spiDeviceHandle, &transaction2));
 				setSlaveSelect(true);
 			}
 

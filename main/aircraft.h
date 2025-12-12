@@ -28,7 +28,7 @@ namespace pizda {
 
 			AHRS ahrs {
 				constants::adiru1::mpu9250ss,
-				constants::adiru1::bmp280ss,
+				constants::adiru1::bmp280ss
 			};
 
 			static Aircraft& getInstance();
