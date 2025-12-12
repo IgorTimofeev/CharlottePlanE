@@ -24,7 +24,7 @@ namespace pizda {
 			return nullptr;
 		}
 		else if (!instances[index]) {
-			ESP_LOGI("Motors::getMotor()", "motor with index %d is not bound");
+			ESP_LOGI("Motors::getMotor()", "motor with index %d is not bound", index);
 			return nullptr;
 		}
 

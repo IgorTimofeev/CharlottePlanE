@@ -51,7 +51,7 @@ namespace pizda {
 					field.bitDepth = 1;
 					field.count = stream.readUint8(8);
 
-					ESP_LOGI("PacketParser", "data type #%d, type: bool", i);
+					ESP_LOGI("PacketParser", "data type #%d, type: bool, count: %d", i, field.count);
 
 					break;
 				}

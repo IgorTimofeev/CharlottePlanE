@@ -39,15 +39,15 @@ namespace pizda {
 	}
 
 	void Aircraft::SPIBusSetup() const {
-//		spi_bus_config_t busConfig {};
-//		busConfig.mosi_io_num = config::spi::mosi;
-//		busConfig.miso_io_num = config::spi::miso;
-//		busConfig.sclk_io_num = config::spi::sck;
-//		busConfig.quadwp_io_num = -1;
-//		busConfig.quadhd_io_num = -1;
-//		busConfig.max_transfer_sz = static_cast<int32_t>(display.getSize().getSquare()) * 2;
-//
-//		ESP_ERROR_CHECK(spi_bus_initialize(SPI2_HOST, &busConfig, SPI_DMA_CH_AUTO));
+		spi_bus_config_t busConfig {};
+		busConfig.mosi_io_num = constants::spi::mosi;
+		busConfig.miso_io_num = constants::spi::miso;
+		busConfig.sclk_io_num = constants::spi::sck;
+		busConfig.quadwp_io_num = -1;
+		busConfig.quadhd_io_num = -1;
+		busConfig.max_transfer_sz = 320 * 240;
+
+		ESP_ERROR_CHECK(spi_bus_initialize(SPI2_HOST, &busConfig, SPI_DMA_CH_AUTO));
 	}
 
 	void Aircraft::transceiverSetup() {

@@ -78,7 +78,6 @@ namespace pizda {
 
 	enum class ChannelType : uint8_t {
 		throttle,
-		reverseThrottle,
 		ailerons,
 		elevator,
 		rudder,
@@ -86,8 +85,7 @@ namespace pizda {
 
 		navLights,
 		strobeLights,
-		landingLights,
-		cabinLights
+		landingLights
 	};
 
 	class Channels {

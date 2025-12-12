@@ -37,16 +37,16 @@ namespace pizda {
 					BMP280StandbyDuration::Ms125
 				);
 
-				xTaskCreate(
-					[](void* arg) {
-						reinterpret_cast<AHRS*>(arg)->taskBody();
-					},
-					"ahrs",
-					2048,
-					this,
-					10,
-					nullptr
-				);
+//				xTaskCreate(
+//					[](void* arg) {
+//						reinterpret_cast<AHRS*>(arg)->taskBody();
+//					},
+//					"ahrs",
+//					4096,
+//					this,
+//					10,
+//					nullptr
+//				);
 			}
 
 		private:
