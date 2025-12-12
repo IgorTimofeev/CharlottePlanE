@@ -1,5 +1,4 @@
 #include <esp_log.h>
-#include <rom/ets_sys.h>
 #include "mpu9250.h"
 
 namespace pizda {
@@ -17,11 +16,9 @@ namespace pizda {
 
 		/* Toggle CS pin to lock in SPI mode */
 		setSlaveSelect(false);
-		vTaskDelay(pdMS_TO_TICKS(100));
+		ets_delay_us(100'000);
 		setSlaveSelect(true);
-		vTaskDelay(pdMS_TO_TICKS(100));
-
-		esp_log_level_set("spi_master", ESP_LOG_VERBOSE);
+		ets_delay_us(100'000);
 
 		// SPI interface
 		spi_device_interface_config_t interfaceConfig {};
@@ -57,7 +54,7 @@ namespace pizda {
 		/* Reset the MPU9250 */
 		WriteRegister(PWR_MGMNT_1_, H_RESET_);
 		/* Wait for MPU-9250 to come back up */
-		vTaskDelay(pdMS_TO_TICKS(100));
+		ets_delay_us(100'000);
 		/* Reset the AK8963 */
 		WriteAk8963Register(AK8963_CNTL2_, AK8963_RESET_);
 
@@ -112,13 +109,13 @@ namespace pizda {
 
 		ESP_LOGI("MPU", "pizda 4 1");
 
-		vTaskDelay(pdMS_TO_TICKS(100));  // long wait between AK8963 mode changes
+		longSleepAka();  // long wait between AK8963 mode changes
 		/* Set AK8963 to FUSE ROM access */
 		if (!WriteAk8963Register(AK8963_CNTL1_, AK8963_FUSE_ROM_)) {
 			return false;
 		}
 
-		vTaskDelay(pdMS_TO_TICKS(100));  // long wait between AK8963 mode changes
+		longSleepAka();  // long wait between AK8963 mode changes
 
 		ESP_LOGI("MPU", "pizda 5");
 
@@ -146,7 +143,7 @@ namespace pizda {
 			return false;
 		}
 
-		vTaskDelay(pdMS_TO_TICKS(100));  // long wait between AK8963 mode changes
+		longSleepAka();  // long wait between AK8963 mode changes
 		/* Select clock source to gyro */
 		if (!WriteRegister(PWR_MGMNT_1_, CLKSEL_PLL_)) {
 			return false;
@@ -268,33 +265,46 @@ namespace pizda {
 		return true;
 	}
 	bool MPU9250::ConfigSrd(const uint8_t srd) {
+		ESP_LOGI("MPU", "ConfigSrd: %d", srd);
+
 		spi_clock_ = SPI_CFG_CLOCK_;
+
 		/* Changing the SRD to allow us to set the magnetometer successfully */
 		if (!WriteRegister(SMPLRT_DIV_, 19)) {
 			return false;
 		}
+
 		/* Set the magnetometer sample rate */
 		if (srd > 9) {
 			/* Set AK8963 to power down */
 			WriteAk8963Register(AK8963_CNTL1_, AK8963_PWR_DOWN_);
-			vTaskDelay(pdMS_TO_TICKS(100));  // long wait between AK8963 mode changes
+
+			longSleepAka();  // long wait between AK8963 mode changes
+
 			/* Set AK8963 to 16 bit resolution, 8 Hz update rate */
 			if (!WriteAk8963Register(AK8963_CNTL1_, AK8963_CNT_MEAS1_)) {
 				return false;
 			}
-			vTaskDelay(pdMS_TO_TICKS(100));  // long wait between AK8963 mode changes
+
+			longSleepAka();  // long wait between AK8963 mode changes
+
 			if (!ReadAk8963Registers(AK8963_ST1_, sizeof(mag_data_), mag_data_)) {
 				return false;
 			}
-		} else {
+		}
+		else {
 			/* Set AK8963 to power down */
 			WriteAk8963Register(AK8963_CNTL1_, AK8963_PWR_DOWN_);
-			vTaskDelay(pdMS_TO_TICKS(100));  // long wait between AK8963 mode changes
+
+			longSleepAka();  // long wait between AK8963 mode changes
+
 			/* Set AK8963 to 16 bit resolution, 100 Hz update rate */
 			if (!WriteAk8963Register(AK8963_CNTL1_, AK8963_CNT_MEAS2_)) {
 				return false;
 			}
-			vTaskDelay(pdMS_TO_TICKS(100));  // long wait between AK8963 mode changes
+
+			longSleepAka();  // long wait between AK8963 mode changes
+
 			if (!ReadAk8963Registers(AK8963_ST1_, sizeof(mag_data_), mag_data_)) {
 				return false;
 			}
@@ -358,7 +368,7 @@ namespace pizda {
 		/* Reset the MPU9250 */
 		WriteRegister(PWR_MGMNT_1_, H_RESET_);
 		/* Wait for MPU-9250 to come back up */
-		vTaskDelay(pdMS_TO_TICKS(1));
+		ets_delay_us(1'000);
 		/* Cycle 0, Sleep 0, Standby 0, Internal Clock */
 		if (!WriteRegister(PWR_MGMNT_1_, 0x00)) {
 			return false;
@@ -402,7 +412,7 @@ namespace pizda {
 		/* Reset the MPU9250 */
 		WriteRegister(PWR_MGMNT_1_, H_RESET_);
 		/* Wait for MPU-9250 to come back up */
-		vTaskDelay(pdMS_TO_TICKS(1));
+		ets_delay_us(1'000);
 	}
 	bool MPU9250::Read() {
 		spi_clock_ = SPI_READ_CLOCK_;
@@ -534,8 +544,7 @@ namespace pizda {
 			return false;
 		}
 
-//		vTaskDelay(pdMS_TO_TICKS(50));
-		ets_delay_us(1'000'000);
+		ets_delay_us(10'000);
 
 		return ReadRegisters(EXT_SENS_DATA_00_, count, data);
 	}

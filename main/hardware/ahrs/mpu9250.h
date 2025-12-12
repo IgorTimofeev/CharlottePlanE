@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <driver/gpio.h>
 #include <driver/spi_master.h>
+#include <rom/ets_sys.h>
 
 namespace pizda {
 	/* Sensor and filter settings */
@@ -85,6 +86,10 @@ namespace pizda {
 
 			inline void setSlaveSelect(bool value) {
 				gpio_set_level(_ssPin, value);
+			}
+
+			inline void longSleepAka() {
+				ets_delay_us(100'000);
 			}
 
 			/*

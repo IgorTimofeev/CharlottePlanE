@@ -57,7 +57,7 @@ namespace pizda {
 						return;
 					}
 
-					if (!unitAndPin.unit.ConfigSrd(19)) {
+					if (!unitAndPin.unit.ConfigSrd(8)) {
 						ESP_LOGE("AHRS", "MPU-9250 srd configuring failed");
 						return;
 					}
@@ -174,13 +174,36 @@ namespace pizda {
 				_pressure = pressureSum / _BMPs.size();
 				_temperature = temperatureSum / _BMPs.size();
 				_altitude = computeAltitude(pressureSum, temperatureSum);
+
+				ESP_LOGI("AHRS", "Avg press: %f, temp: %f, alt: %f", _pressure, _temperature, _altitude);
+			}
+			
+			void updateMPU() {
+				for (auto MPU : _MPUs) {
+					if (MPU.unit.Read()) {
+						ESP_LOGI("AHRS", "Mpu new_imu_data: %d", MPU.unit.new_imu_data());
+						ESP_LOGI("AHRS", "Mpu new_mag_data: %d", MPU.unit.new_mag_data());
+						ESP_LOGI("AHRS", "Mpu accel_x_mps2: %f", MPU.unit.accel_x_mps2());
+						ESP_LOGI("AHRS", "Mpu accel_y_mps2: %f", MPU.unit.accel_y_mps2());
+						ESP_LOGI("AHRS", "Mpu accel_z_mps2: %f", MPU.unit.accel_z_mps2());
+						ESP_LOGI("AHRS", "Mpu gyro_x_radps: %f", MPU.unit.gyro_x_radps());
+						ESP_LOGI("AHRS", "Mpu gyro_y_radps: %f", MPU.unit.gyro_y_radps());
+						ESP_LOGI("AHRS", "Mpu gyro_z_radps: %f", MPU.unit.gyro_z_radps());
+						ESP_LOGI("AHRS", "Mpu mag_x_ut: %f", MPU.unit.mag_x_ut());
+						ESP_LOGI("AHRS", "Mpu mag_y_ut: %f", MPU.unit.mag_y_ut());
+						ESP_LOGI("AHRS", "Mpu mag_z_ut: %f", MPU.unit.mag_z_ut());
+						ESP_LOGI("AHRS", "Mpu die_temp_c: %f", MPU.unit.die_temp_c());
+					}
+					else {
+						ESP_LOGI("AHRS", "Mpu unable to read");
+					}
+				}
 			}
 
 			void taskBody() {
 				while (true) {
+					updateMPU();
 					updateBMPs();
-
-					ESP_LOGI("AHRS", "Avg press: %f, temp: %f, alt: %f", _pressure, _temperature, _altitude);
 
 					vTaskDelay(pdMS_TO_TICKS(1000));
 				}
