@@ -51,10 +51,7 @@ namespace pizda {
 				// MPUs
 				for (auto& unitAndPin : _MPUs) {
 					unitAndPin.unit.setup(
-						SPI2_HOST,
-						constants::spi::miso,
-						constants::spi::mosi,
-						constants::spi::sck,
+						constants::spi::device,
 						unitAndPin.pin,
 						10'000'000
 					);
@@ -63,15 +60,10 @@ namespace pizda {
 				// BMPs
 				for (auto& unitAndPin : _BMPs) {
 					unitAndPin.unit.setup(
-						SPI2_HOST,
-						constants::spi::miso,
-						constants::spi::mosi,
-						constants::spi::sck,
+						constants::spi::device,
 						unitAndPin.pin,
-						10'000'000
-					);
+						10'000'000,
 
-					unitAndPin.unit.configure(
 						BMP280Mode::normal,
 						BMP280Oversampling::x16,
 						BMP280Oversampling::x2,
@@ -105,17 +97,13 @@ namespace pizda {
 			}
 
 		private:
-			constexpr static uint8_t _ADIRUQuantity = 1;
-
-			std::array<AHRSUnitAndSSPin<MPU9250>, _ADIRUQuantity> _MPUs {
+			std::array<AHRSUnitAndSSPin<MPU9250>, 1> _MPUs {
 				AHRSUnitAndSSPin<MPU9250> {
 					constants::adiru1::mpu9250ss
 				}
 			};
 
-			constexpr static uint8_t _BMPQuantity = 1;
-
-			std::array<AHRSUnitAndSSPin<BMP280>, _BMPQuantity> _BMPs {
+			std::array<AHRSUnitAndSSPin<BMP280>, 1> _BMPs {
 				AHRSUnitAndSSPin<BMP280> {
 					constants::adiru1::bmp280ss
 				}
@@ -175,8 +163,8 @@ namespace pizda {
 					temperatureSum += temperature;
 				}
 
-				_pressure = pressureSum / _BMPQuantity;
-				_temperature = temperatureSum / _BMPQuantity;
+				_pressure = pressureSum / _BMPs.size();
+				_temperature = temperatureSum / _BMPs.size();
 				_altitude = computeAltitude(pressureSum, temperatureSum);
 			}
 

@@ -8,7 +8,7 @@
 namespace pizda {
 	class MPU9250 {
 		public:
-			void setup(spi_host_device_t SPIDevice, gpio_num_t misoPin, gpio_num_t mosiPin, gpio_num_t sckPin, gpio_num_t ssPin, uint32_t frequencyHz) {
+			void setup(spi_host_device_t SPIDevice, gpio_num_t ssPin, uint32_t frequencyHz) {
 				// GPIO
 				gpio_config_t GPIOConfig {};
 				GPIOConfig.pin_bit_mask = 1ULL << _ssPin;

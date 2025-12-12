@@ -19,8 +19,7 @@ namespace pizda {
 	enum class BMP280Mode : uint8_t {
 		sleep = 0x00,
 		forced = 0x01,
-		normal = 0x03,
-		softReset = 0xB6
+		normal = 0x03
 	};
 
 	enum class BMP280Filter : uint8_t {
@@ -68,15 +67,22 @@ namespace pizda {
 		temperatureData = 0xFA
 	};
 
+	enum class BMP280RegisterValues : uint8_t {
+		softReset = 0xB6
+	};
+
 	class BMP280 {
 		public:
 			bool setup(
 				spi_host_device_t SPIDevice,
-				gpio_num_t misoPin,
-				gpio_num_t mosiPin,
-				gpio_num_t sckPin,
 				gpio_num_t ssPin,
-				uint32_t frequencyHz = 1'000'000
+				uint32_t frequencyHz,
+
+				BMP280Mode mode,
+				BMP280Oversampling pressureOversampling,
+				BMP280Oversampling temperatureOversampling,
+				BMP280Filter filter,
+				BMP280StandbyDuration standbyDuration
 			) {
 				// GPIO
 				gpio_config_t GPIOConfig {};
@@ -90,19 +96,6 @@ namespace pizda {
 				// Setting SS to high just in case
 				gpio_set_level(ssPin, true);
 
-				// SPI bus
-				spi_bus_config_t busConfig {};
-				busConfig.mosi_io_num = mosiPin;
-				busConfig.miso_io_num = misoPin;
-				busConfig.sclk_io_num = sckPin;
-				busConfig.quadwp_io_num = -1;
-				busConfig.quadhd_io_num = -1;
-				busConfig.max_transfer_sz = 4092;
-
-				// May be already initialized
-				const auto result = spi_bus_initialize(SPIDevice, &busConfig, SPI_DMA_CH_AUTO);
-				assert(result == ESP_OK || result == ESP_ERR_INVALID_STATE);
-
 				// SPI interface
 				spi_device_interface_config_t interfaceConfig {};
 				interfaceConfig.mode = 0;
@@ -114,28 +107,37 @@ namespace pizda {
 
 				ESP_ERROR_CHECK(spi_bus_add_device(SPIDevice, &interfaceConfig, &_SPIDeviceHandle));
 
+				// Soft reset
+				writeToRegister(BMP280Register::softReset, std::to_underlying(BMP280RegisterValues::softReset));
+
+				// // Do we need some sleep?
+				// vTaskDelay(pdMS_TO_TICKS(100));
+
+				// Checking for valid chip ID & proper SPI wiring
+				const auto chipID = readUint8(BMP280Register::chipID);
+
+				if (chipID != BMP280ChipID) {
+					ESP_LOGE("BMP280", "Invalid chip ID: %d", chipID);
+
+					return false;
+				}
+
 				// Reading factory-fused calibration offsets
 				readCalibrationData();
 
-				// Configuring sensor to power-on-reset state
-				configure(
-					BMP280Mode::sleep,
-					BMP280Oversampling::none,
-					BMP280Oversampling::none,
-					BMP280Filter::none,
-					BMP280StandbyDuration::ms125
+				// Configuring sensor to initial state
+				reconfigure(
+					mode,
+					pressureOversampling,
+					temperatureOversampling,
+					filter,
+					standbyDuration
 				);
-
-				// Checking for valid chip ID & proper SPI wiring
-				// From datasheet: "Chip ID can be read as soon as the device finished the power-on-reset"
-				// ESP_LOGI("BMP", "chip id: %d", readUint8(BMP280Register::chipID));
-				if (readUint8(BMP280Register::chipID) != chipID)
-					return false;
 
 				return true;
 			}
 
-			void configure(
+			void reconfigure(
 				BMP280Mode mode,
 				BMP280Oversampling pressureOversampling,
 				BMP280Oversampling temperatureOversampling,
@@ -183,64 +185,54 @@ namespace pizda {
 				_calibrationDigP9 = readInt16LE(BMP280Register::digP9);
 			}
 
-			void readRawPressureAndTemperature(int32_t adc_P, int32_t adc_T) {
+			// These bitchy formulas has been taken directly from datasheet: https://cdn-shop.adafruit.com/datasheets/BST-BMP280-DS001-11.pdf
+			// Don't see any reason to touch them))0
+			void readPressureAndTemperature(float& pressure, float& temperature) {
 				// Seems like module allows to read both pressure & temp is one continuous operation
 				uint8_t buffer[6];
 				readFromRegister(BMP280Register::pressureData, buffer, 6);
 
-				adc_P = buffer[0] << 12 | buffer[1] << 4 | buffer[2] >> 4;
-				adc_T = buffer[3] << 12 | buffer[4] << 4 | buffer[5] >> 4;
-			}
-
-			// Copyright: https://github.com/esp-idf-lib/bmp280/blob/main/bmp280.c#L312
-			// Slightly modified for my needs
-			void readPressureAndTemperature(float& pressure, float& temperature) {
-				int32_t adc_P = 0;
-				int32_t adc_T = 0;
-				readRawPressureAndTemperature(adc_P, adc_T);
+				int32_t adc_P = buffer[0] << 12 | buffer[1] << 4 | buffer[2] >> 4;
+				int32_t adc_T = buffer[3] << 12 | buffer[4] << 4 | buffer[5] >> 4;
 
 				// Temperature should be processed first for tFine
 				{
-					int32_t var1, var2;
-
-					var1 = ((((adc_T >> 3) - ((int32_t)_calibrationDigT1 << 1))) * (int32_t)_calibrationDigT2) >> 11;
-					var2 = (((((adc_T >> 4) - (int32_t)_calibrationDigT1) * ((adc_T >> 4) - (int32_t)_calibrationDigT1)) >> 12) * (int32_t)_calibrationDigT3) >> 14;
-
+					int32_t var1, var2, T;
+					var1 = ((((adc_T>>3) - ((int32_t)_calibrationDigT1<<1))) * ((int32_t)_calibrationDigT2)) >> 11;
+					var2 = (((((adc_T>>4) - ((int32_t)_calibrationDigT1)) * ((adc_T>>4) - ((int32_t)_calibrationDigT1))) >> 12) *
+						((int32_t)_calibrationDigT3)) >> 14;
 					_tFine = var1 + var2;
+					T = (_tFine * 5 + 128) >> 8;
 
-					temperature = ((_tFine * 5 + 128) >> 8) / 100.f;
+					temperature = T / 100.f;
 				}
 
 				// Pressure
 				{
 					int64_t var1, var2, p;
-
-					var1 = (int64_t)_tFine - 128000;
+					var1 = ((int64_t)_tFine) - 128000;
 					var2 = var1 * var1 * (int64_t)_calibrationDigP6;
-					var2 = var2 + ((var1 * (int64_t)_calibrationDigP5) << 17);
-					var2 = var2 + (((int64_t)_calibrationDigP4) << 35);
-					var1 = ((var1 * var1 * (int64_t)_calibrationDigP3) >> 8) + ((var1 * (int64_t)_calibrationDigP2) << 12);
-					var1 = (((int64_t)1 << 47) + var1) * ((int64_t)_calibrationDigP1) >> 33;
-
+					var2 = var2 + ((var1*(int64_t)_calibrationDigP5)<<17);
+					var2 = var2 + (((int64_t)_calibrationDigP4)<<35);
+					var1 = ((var1 * var1 * (int64_t)_calibrationDigP3)>>8) + ((var1 * (int64_t)_calibrationDigP2)<<12);
+					var1 = (((((int64_t)1)<<47)+var1))*((int64_t)_calibrationDigP1)>>33;
 					if (var1 == 0)
 					{
-						pressure = 0;  // avoid exception caused by division by zero
-						return;
+						pressure = 0;
+						return; // avoid exception caused by division by zero
 					}
+					p = 1048576-adc_P;
+					p = (((p<<31)-var2)*3125)/var1;
+					var1 = (((int64_t)_calibrationDigP9) * (p>>13) * (p>>13)) >> 25;
+					var2 = (((int64_t)_calibrationDigP8) * p) >> 19;
+					p = ((p + var1 + var2) >> 8) + (((int64_t)_calibrationDigP7)<<4);
 
-					p = 1048576 - adc_P;
-					p = (((p << 31) - var2) * 3125) / var1;
-					var1 = ((int64_t)_calibrationDigP9 * (p >> 13) * (p >> 13)) >> 25;
-					var2 = ((int64_t)_calibrationDigP8 * p) >> 19;
-
-					p = ((p + var1 + var2) >> 8) + ((int64_t)_calibrationDigP7 << 4);
-
-					pressure = p / 256.0f;
+					pressure = ((uint32_t) p) / 256.0f;
 				}
 			}
 
 		private:
-			constexpr static uint8_t chipID = 0x58;
+			constexpr static uint8_t BMP280ChipID = 0x58;
 
 			// From datasheet:
 			// The variable t_fine (signed 32 bit) carries a fine resolution temperature value over to the

@@ -1,9 +1,11 @@
 #pragma once
 
-#include "cstdint"
-#include "driver/uart.h"
-#include "driver/ledc.h"
-#include "driver/gpio.h"
+#include <cstdint>
+
+#include <driver/uart.h>
+#include <driver/ledc.h>
+#include <driver/gpio.h>
+#include <driver/spi_master.h>
 
 namespace pizda {
 	class constants {
@@ -18,6 +20,7 @@ namespace pizda {
 					constexpr static gpio_num_t miso = GPIO_NUM_13;
 					constexpr static gpio_num_t mosi = GPIO_NUM_11;
 					constexpr static gpio_num_t sck = GPIO_NUM_12;
+					constexpr static spi_host_device_t device = SPI2_HOST;
 			};
 
 			class motors {
