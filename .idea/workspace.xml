@@ -164,9 +164,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="pizda">
+      <change afterPath="$PROJECT_DIR$/main/hardware/ahrs/gy-91.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/aircraft.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ahrs/ahrs.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ahrs/ahrs.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/ahrs/bmp280.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ahrs/bmp280.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ahrs/mpu9250/mpu9250.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ahrs/mpu9250.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -245,6 +248,7 @@
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\hardware\ahrs" />
+      <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\hardware\ahrs\gy-91" />
       <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\hardware\transceiver" />
       <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\settings" />
     </key>

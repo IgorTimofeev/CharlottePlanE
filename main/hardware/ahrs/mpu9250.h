@@ -2,30 +2,32 @@
 
 #include <cstdint>
 
-#include "driver/gpio.h"
-#include "driver/spi_master.h"
+#include <driver/gpio.h>
+#include <driver/spi_master.h>
 
 namespace pizda {
 	class MPU9250 {
 		public:
-			MPU9250(gpio_num_t misoPin, gpio_num_t mosiPin, gpio_num_t sckPin, gpio_num_t ssPin) : _misoPin(misoPin), _mosiPin(mosiPin), _sckPin(sckPin), _ssPin(ssPin) {
+			MPU9250(gpio_num_t ssPin) :_ssPin(ssPin) {
 
 			}
 
-			void setup(
-
-			) {
+			void setup(spi_host_device_t spiDevice, gpio_num_t misoPin, gpio_num_t mosiPin, gpio_num_t sckPin) {
 				setupGPIO();
-				gpio_set_level(_ssPin, true);
+				setSlaveSelect(true);
+			}
+
+			void setSlaveSelect(bool value) {
+				gpio_set_level(_ssPin, value);
+			}
+
+			gpio_num_t getSSPin() const {
+				return _ssPin;
 			}
 
 		private:
 			// SPI
-			gpio_num_t _misoPin;
-			gpio_num_t _mosiPin;
-			gpio_num_t _sckPin;
 			gpio_num_t _ssPin;
-
 			spi_device_handle_t _spiDeviceHandle {};
 
 			void setupGPIO() {

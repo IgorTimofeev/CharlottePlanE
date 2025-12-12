@@ -2,8 +2,8 @@
 
 #include <cstdint>
 
-#include "driver/gpio.h"
-#include "driver/spi_master.h"
+#include <driver/gpio.h>
+#include <driver/spi_master.h>
 
 namespace pizda {
 	enum class BMP280Oversampling : uint8_t {
@@ -69,15 +69,13 @@ namespace pizda {
 
 	class BMP280 {
 		public:
-			BMP280(gpio_num_t misoPin, gpio_num_t mosiPin, gpio_num_t sckPin, gpio_num_t ssPin) : _misoPin(misoPin), _mosiPin(mosiPin), _sckPin(sckPin), _ssPin(ssPin) {
+			BMP280(gpio_num_t ssPin) : _ssPin(ssPin) {
 
 			}
 
-			bool setup() {
+			bool setup(spi_host_device_t spiDevice, gpio_num_t misoPin, gpio_num_t mosiPin, gpio_num_t sckPin) {
 				setupGPIO();
-				setSlaveSelect(true);
-
-				setupSPI();
+				setupSPI(spiDevice, misoPin, mosiPin, sckPin);
 
 				// Reading factory-fused calibration offsets
 				readCalibrationData();
@@ -199,6 +197,10 @@ namespace pizda {
 				return p;
 			}
 
+			gpio_num_t getSSPin() const {
+				return _ssPin;
+			}
+
 		private:
 			// From datasheet:
 			// The variable t_fine (signed 32 bit) carries a fine resolution temperature value over to the
@@ -206,11 +208,7 @@ namespace pizda {
 			int32_t _tFine = -0xFFFF;
 
 			// SPI
-			gpio_num_t _misoPin;
-			gpio_num_t _mosiPin;
-			gpio_num_t _sckPin;
 			gpio_num_t _ssPin;
-
 			spi_device_handle_t _spiDeviceHandle {};
 
 			// Calibration data
@@ -236,30 +234,34 @@ namespace pizda {
 				config.pull_down_en = GPIO_PULLDOWN_DISABLE;
 				config.intr_type = GPIO_INTR_DISABLE;
 				gpio_config(&config);
+
+				setSlaveSelect(true);
 			}
 
-			void setupSPI() {
-//				// Initializing SPI bus if this hasn't been done
-//				spi_bus_config_t busConfig {};
-//				busConfig.mosi_io_num = _mosiPin;
-//				busConfig.miso_io_num = _misoPin;
-//				busConfig.sclk_io_num = _sckPin;
-//				busConfig.quadwp_io_num = -1;
-//				busConfig.quadhd_io_num = -1;
-//				busConfig.max_transfer_sz = 320 * 240 * 2;
-//
-//				// May be already initialized
-//				const auto result = spi_bus_initialize(SPI2_HOST, &busConfig, SPI_DMA_CH_AUTO);
-//				assert(result == ESP_OK || result == ESP_ERR_INVALID_STATE);
+			void setupSPI(spi_host_device_t spiDevice, gpio_num_t misoPin, gpio_num_t mosiPin, gpio_num_t sckPin) {
+				// Bus
+				spi_bus_config_t busConfig {};
+				busConfig.mosi_io_num = mosiPin;
+				busConfig.miso_io_num = misoPin;
+				busConfig.sclk_io_num = sckPin;
+				busConfig.quadwp_io_num = -1;
+				busConfig.quadhd_io_num = -1;
+				busConfig.max_transfer_sz = 4096;
+
+				// May be already initialized
+				const auto result = spi_bus_initialize(spiDevice, &busConfig, SPI_DMA_CH_AUTO);
+				assert(result == ESP_OK || result == ESP_ERR_INVALID_STATE);
 
 				// Interface
 				spi_device_interface_config_t interfaceConfig {};
 				interfaceConfig.mode = 0;
-				interfaceConfig.clock_speed_hz = 5'000;
+				interfaceConfig.clock_speed_hz = 1'000'000;
+//				interfaceConfig.spics_io_num = static_cast<int>(_ssPin);
 				interfaceConfig.spics_io_num = -1;
 				interfaceConfig.queue_size = 1;
+				interfaceConfig.flags = 0;
 
-				ESP_ERROR_CHECK(spi_bus_add_device(SPI2_HOST, &interfaceConfig, &_spiDeviceHandle));
+				ESP_ERROR_CHECK(spi_bus_add_device(spiDevice, &interfaceConfig, &_spiDeviceHandle));
 			}
 
 			void setSlaveSelect(bool value) const {
@@ -267,14 +269,11 @@ namespace pizda {
 			}
 
 			void writeRegisterValue(BMP280Register reg, uint8_t value) {
-				uint8_t buffer[2] {
-					(uint8_t) (uint8_t(reg) & ~0x80),
-					value
-				};
-
 				spi_transaction_t transaction {};
 				transaction.length = 2 * 8;
-				transaction.tx_buffer = buffer;
+				transaction.tx_data[0] = (uint8_t) (uint8_t(reg) & ~0x80);
+				transaction.tx_data[1] = value;
+				transaction.flags = SPI_TRANS_USE_TXDATA;
 
 				setSlaveSelect(false);
 				ESP_ERROR_CHECK(spi_device_transmit(_spiDeviceHandle, &transaction));
@@ -283,27 +282,22 @@ namespace pizda {
 
 			void writeAndRead(BMP280Register reg, uint8_t* buffer, uint32_t readSize) {
 				// Writing
-				buffer[0] = (uint8_t) (uint8_t(reg) | 0x80);
-
 				spi_transaction_t transaction {};
 				transaction.length = 1 * 8;
-				transaction.rx_buffer = nullptr;
-				transaction.tx_buffer = buffer;
-				transaction.flags = 0;
+				transaction.tx_data[0] = (uint8_t) (uint8_t(reg) | 0x80);
+				transaction.flags = SPI_TRANS_USE_TXDATA;
 
 				setSlaveSelect(false);
+
 				ESP_ERROR_CHECK(spi_device_transmit(_spiDeviceHandle, &transaction));
-				setSlaveSelect(true);
 
 				// Reading
-				spi_transaction_t transaction2 = {};
-				transaction2.length = readSize * 8;
-				transaction2.rx_buffer = buffer;
-				transaction2.tx_buffer = nullptr;
-				transaction2.flags = 0;
+				transaction = {};
+				transaction.length = readSize * 8;
+				transaction.rx_buffer = buffer;
 
-				setSlaveSelect(false);
-				ESP_ERROR_CHECK(spi_device_transmit(_spiDeviceHandle, &transaction2));
+				ESP_ERROR_CHECK(spi_device_transmit(_spiDeviceHandle, &transaction));
+
 				setSlaveSelect(true);
 			}
 

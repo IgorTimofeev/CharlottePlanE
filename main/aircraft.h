@@ -2,8 +2,8 @@
 
 #include <cstdint>
 
-#include "esp_log.h"
-#include "esp_timer.h"
+#include <esp_log.h>
+#include <esp_timer.h>
 
 #include "constants.h"
 #include "settings/settings.h"
@@ -26,10 +26,7 @@ namespace pizda {
 			Transceiver transceiver {};
 			AircraftPacketParser packetParser {};
 
-			AHRS ahrs {
-				constants::adiru1::mpu9250ss,
-				constants::adiru1::bmp280ss
-			};
+			AHRS ahrs {};
 
 			static Aircraft& getInstance();
 			void start();
