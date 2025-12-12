@@ -135,6 +135,19 @@ namespace pizda {
 				_calibrationDigP7 = readInt16LE(BMP280Register::DigP7);
 				_calibrationDigP8 = readInt16LE(BMP280Register::DigP8);
 				_calibrationDigP9 = readInt16LE(BMP280Register::DigP9);
+
+				ESP_LOGI("BMP", "Pizda: _calibrationDigT1: %d",  _calibrationDigT1);
+				ESP_LOGI("BMP", "Pizda: _calibrationDigT2: %d",  _calibrationDigT2);
+				ESP_LOGI("BMP", "Pizda: _calibrationDigT3: %d",  _calibrationDigT3);
+				ESP_LOGI("BMP", "Pizda: _calibrationDigP1: %d",  _calibrationDigP1);
+				ESP_LOGI("BMP", "Pizda: _calibrationDigP2: %d",  _calibrationDigP2);
+				ESP_LOGI("BMP", "Pizda: _calibrationDigP3: %d",  _calibrationDigP3);
+				ESP_LOGI("BMP", "Pizda: _calibrationDigP4: %d",  _calibrationDigP4);
+				ESP_LOGI("BMP", "Pizda: _calibrationDigP5: %d",  _calibrationDigP5);
+				ESP_LOGI("BMP", "Pizda: _calibrationDigP6: %d",  _calibrationDigP6);
+				ESP_LOGI("BMP", "Pizda: _calibrationDigP7: %d",  _calibrationDigP7);
+				ESP_LOGI("BMP", "Pizda: _calibrationDigP8: %d",  _calibrationDigP8);
+				ESP_LOGI("BMP", "Pizda: _calibrationDigP9: %d",  _calibrationDigP9);
 			}
 
 			// These bitchy compensation formulas has been taken from datasheet
@@ -244,6 +257,7 @@ namespace pizda {
 				interfaceConfig.mode = 0;
 				interfaceConfig.clock_speed_hz = static_cast<int>(5'000);
 				interfaceConfig.spics_io_num = static_cast<int>(_ssPin);
+				interfaceConfig.spics_io_num = -1;
 				interfaceConfig.queue_size = 1;
 
 				ESP_ERROR_CHECK(spi_bus_add_device(SPI2_HOST, &interfaceConfig, &_spiDeviceHandle));
@@ -263,7 +277,9 @@ namespace pizda {
 				transaction.length = 2 * 8;
 				transaction.tx_buffer = buffer;
 
+				setSlaveSelect(false);
 				ESP_ERROR_CHECK(spi_device_transmit(_spiDeviceHandle, &transaction));
+				setSlaveSelect(true);
 			}
 
 			void writeAndRead(BMP280Register reg, uint8_t* buffer, uint32_t readSize) {
@@ -273,13 +289,18 @@ namespace pizda {
 				spi_transaction_t transaction {};
 				transaction.length = 1 * 8;
 				transaction.tx_buffer = buffer;
+
+				setSlaveSelect(false);
 				ESP_ERROR_CHECK(spi_device_transmit(_spiDeviceHandle, &transaction));
 
 				// Reading
 				transaction = {};
 				transaction.length = readSize * 8;
 				transaction.rx_buffer = buffer;
+
+				setSlaveSelect(false);
 				ESP_ERROR_CHECK(spi_device_transmit(_spiDeviceHandle, &transaction));
+				setSlaveSelect(true);
 			}
 
 			uint16_t readUint8(BMP280Register reg) {

@@ -165,13 +165,7 @@
   <component name="ChangeListManager">
     <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="pizda">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/aircraft.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/constants.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/constants.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ahrs/ahrs.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ahrs/ahrs.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/ahrs/bmp280.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ahrs/bmp280.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/motors.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketParser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketParser.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/channels.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/channels.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
