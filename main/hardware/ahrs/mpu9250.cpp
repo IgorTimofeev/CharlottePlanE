@@ -1,4 +1,5 @@
 #include <esp_log.h>
+#include <rom/ets_sys.h>
 #include "mpu9250.h"
 
 namespace pizda {
@@ -14,8 +15,13 @@ namespace pizda {
 		GPIOConfig.intr_type = GPIO_INTR_DISABLE;
 		gpio_config(&GPIOConfig);
 
-		// Setting SS to high just in case
+		/* Toggle CS pin to lock in SPI mode */
+		setSlaveSelect(false);
+		vTaskDelay(pdMS_TO_TICKS(100));
 		setSlaveSelect(true);
+		vTaskDelay(pdMS_TO_TICKS(100));
+
+		esp_log_level_set("spi_master", ESP_LOG_VERBOSE);
 
 		// SPI interface
 		spi_device_interface_config_t interfaceConfig {};
@@ -28,12 +34,6 @@ namespace pizda {
 		ESP_ERROR_CHECK(spi_bus_add_device(SPIDevice, &interfaceConfig, &_SPIDeviceHandle));
 
 		// ---------------------------------------------------------
-
-		/* Toggle CS pin to lock in SPI mode */
-		setSlaveSelect(false);
-		vTaskDelay(pdMS_TO_TICKS(200));
-		setSlaveSelect(true);
-		vTaskDelay(pdMS_TO_TICKS(200));
 
 		/* 1 MHz for config */
 		spi_clock_ = SPI_CFG_CLOCK_;
@@ -57,26 +57,21 @@ namespace pizda {
 		/* Reset the MPU9250 */
 		WriteRegister(PWR_MGMNT_1_, H_RESET_);
 		/* Wait for MPU-9250 to come back up */
-		vTaskDelay(pdMS_TO_TICKS(500));
+		vTaskDelay(pdMS_TO_TICKS(100));
 		/* Reset the AK8963 */
 		WriteAk8963Register(AK8963_CNTL2_, AK8963_RESET_);
 
 		ESP_LOGI("MPU", "pizda 2");
-
 
 		/* Select clock source to gyro */
 		if (!WriteRegister(PWR_MGMNT_1_, CLKSEL_PLL_)) {
 			return false;
 		}
 
-		ESP_LOGI("MPU", "pizda 2 1");
-
 		/* Check the WHO AM I byte */
 		if (!ReadRegisters(WHOAMI_, sizeof(who_am_i_), &who_am_i_)) {
 			return false;
 		}
-
-		ESP_LOGI("MPU", "pizda 2 2");
 
 		ESP_LOGI("MPU", "who_am_i_: %d", who_am_i_);
 
@@ -84,58 +79,63 @@ namespace pizda {
 			return false;
 		}
 
-		ESP_LOGI("MPU", "pizda 2 3");
-
 		/* Enable I2C master mode */
 		if (!WriteRegister(USER_CTRL_, I2C_MST_EN_)) {
 			return false;
 		}
-
-		ESP_LOGI("MPU", "pizda 2 4");
 
 		/* Set the I2C bus speed to 400 kHz */
 		if (!WriteRegister(I2C_MST_CTRL_, I2C_MST_CLK_)) {
 			return false;
 		}
 
-		ESP_LOGI("MPU", "pizda 2 5");
+		ESP_LOGI("MPU", "pizda 3");
 
 		/* Check the AK8963 WHOAMI */
 		if (!ReadAk8963Registers(AK8963_WHOAMI_, sizeof(who_am_i_), &who_am_i_)) {
 			return false;
 		}
 
-		ESP_LOGI("MPU", "pizda 2 6");
+		ESP_LOGI("MPU", "AK8963 WHOAMI: %d", who_am_i_);
 
 		if (who_am_i_ != WHOAMI_AK8963_) {
 			return false;
 		}
 
-		ESP_LOGI("MPU", "pizda 3");
+		ESP_LOGI("MPU", "pizda 4");
 
 		/* Get the magnetometer calibration */
 		/* Set AK8963 to power down */
 		if (!WriteAk8963Register(AK8963_CNTL1_, AK8963_PWR_DOWN_)) {
 			return false;
 		}
+
+		ESP_LOGI("MPU", "pizda 4 1");
+
 		vTaskDelay(pdMS_TO_TICKS(100));  // long wait between AK8963 mode changes
 		/* Set AK8963 to FUSE ROM access */
 		if (!WriteAk8963Register(AK8963_CNTL1_, AK8963_FUSE_ROM_)) {
 			return false;
 		}
+
 		vTaskDelay(pdMS_TO_TICKS(100));  // long wait between AK8963 mode changes
+
+		ESP_LOGI("MPU", "pizda 5");
+
 		/* Read the AK8963 ASA registers and compute magnetometer scale factors */
 		if (!ReadAk8963Registers(AK8963_ASA_, sizeof(asa_buff_), asa_buff_)) {
 			return false;
 		}
+
+		ESP_LOGI("MPU", "pizda 6");
+
+
 		mag_scale_[0] = ((static_cast<float>(asa_buff_[0]) - 128.0f)
 						 / 256.0f + 1.0f) * 4912.0f / 32760.0f;
 		mag_scale_[1] = ((static_cast<float>(asa_buff_[1]) - 128.0f)
 						 / 256.0f + 1.0f) * 4912.0f / 32760.0f;
 		mag_scale_[2] = ((static_cast<float>(asa_buff_[2]) - 128.0f)
 						 / 256.0f + 1.0f) * 4912.0f / 32760.0f;
-
-		ESP_LOGI("MPU", "pizda 4");
 
 		/* Set AK8963 to power down */
 		if (!WriteAk8963Register(AK8963_CNTL1_, AK8963_PWR_DOWN_)) {
@@ -146,13 +146,14 @@ namespace pizda {
 			return false;
 		}
 
-		ESP_LOGI("MPU", "pizda 5");
-
 		vTaskDelay(pdMS_TO_TICKS(100));  // long wait between AK8963 mode changes
 		/* Select clock source to gyro */
 		if (!WriteRegister(PWR_MGMNT_1_, CLKSEL_PLL_)) {
 			return false;
 		}
+
+		ESP_LOGI("MPU", "pizda 7");
+
 		/* Set the accel range to 16G by default */
 		if (!ConfigAccelRange(ACCEL_RANGE_16G)) {
 			return false;
@@ -165,13 +166,13 @@ namespace pizda {
 		if (!ConfigDlpfBandwidth(DLPF_BANDWIDTH_184HZ)) {
 			return false;
 		}
-		ESP_LOGI("MPU", "pizda 6");
+
+		ESP_LOGI("MPU", "pizda before ConfigSrd(0)");
 
 		/* Set the SRD to 0 by default */
 		if (!ConfigSrd(0)) {
 			return false;
 		}
-		ESP_LOGI("MPU", "pizda 7");
 
 		return true;
 	}
@@ -470,7 +471,7 @@ namespace pizda {
 		// 1
 		spi_transaction_t transaction1 {};
 		transaction1.length = 8;
-		transaction1.tx_data[0] = reg;
+		transaction1.tx_data[0] = reg | 0x80;
 		transaction1.flags = SPI_TRANS_USE_TXDATA;
 
 		setSlaveSelect(false);
@@ -512,6 +513,9 @@ namespace pizda {
 		if (!ReadAk8963Registers(reg, sizeof(ret_val), &ret_val)) {
 			return false;
 		}
+
+		ESP_LOGI("MPU", "WriteAk8963Register(), ret_val: %d, data: %d", ret_val, data);
+
 		if (data == ret_val) {
 			return true;
 		} else {
@@ -529,9 +533,10 @@ namespace pizda {
 		if (!WriteRegister(I2C_SLV0_CTRL_, I2C_SLV0_EN_ | count)) {
 			return false;
 		}
-		vTaskDelay(pdMS_TO_TICKS(1));
+
+//		vTaskDelay(pdMS_TO_TICKS(50));
+		ets_delay_us(1'000'000);
+
 		return ReadRegisters(EXT_SENS_DATA_00_, count, data);
 	}
-
-
 }

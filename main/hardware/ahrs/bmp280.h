@@ -221,7 +221,7 @@ namespace pizda {
 			void readFromRegister(BMP280Register reg, uint8_t* buffer, uint32_t readSize) {
 				spi_transaction_t transaction {};
 				transaction.cmd = static_cast<uint8_t>(std::to_underlying(reg) | 0x80);
-				transaction.length = (readSize) * 8;
+				transaction.length = readSize * 8;
 				transaction.rx_buffer = buffer;
 
 				ESP_ERROR_CHECK(spi_device_transmit(_SPIDeviceHandle, &transaction));

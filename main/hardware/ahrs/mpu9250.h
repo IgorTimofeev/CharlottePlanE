@@ -92,8 +92,8 @@ namespace pizda {
 			* data; however, in testing we found that 20 MHz was sometimes too fast and
 			* scaled this down to 15 MHz, which consistently worked well.
 			*/
-			static constexpr int32_t SPI_CFG_CLOCK_ = 1000000;
-			static constexpr int32_t SPI_READ_CLOCK_ = 15000000;
+			static constexpr int32_t SPI_CFG_CLOCK_ = 1'000'000;
+			static constexpr int32_t SPI_READ_CLOCK_ = 15'000'000;
 			/* Configuration */
 			AccelRange accel_range_, requested_accel_range_;
 			GyroRange gyro_range_, requested_gyro_range_;

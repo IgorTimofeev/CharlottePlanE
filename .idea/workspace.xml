@@ -169,11 +169,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="pizda1111">
-      <change afterPath="$PROJECT_DIR$/main/hardware/ahrs/mpu9250.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ahrs/ahrs.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ahrs/ahrs.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/ahrs/bmp280.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ahrs/bmp280.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ahrs/mpu9250.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ahrs/mpu9250.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ahrs/mpu9250.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ahrs/mpu9250.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -1133,7 +1131,7 @@
       <workItem from="1765478746122" duration="6833000" />
       <workItem from="1765487641998" duration="5786000" />
       <workItem from="1765536882298" duration="16976000" />
-      <workItem from="1765555015515" duration="11901000" />
+      <workItem from="1765555015515" duration="16233000" />
     </task>
     <task id="LOCAL-00001" summary="ппц заебался">
       <option name="closed" value="true" />
@@ -1287,7 +1285,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765560387876</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="pizda1111">
+      <option name="closed" value="true" />
+      <created>1765569548005</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1765569548005</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
