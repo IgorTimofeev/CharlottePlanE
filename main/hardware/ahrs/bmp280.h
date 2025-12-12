@@ -76,7 +76,6 @@ namespace pizda {
 			bool setup(
 				spi_host_device_t SPIDevice,
 				gpio_num_t ssPin,
-				uint32_t frequencyHz,
 
 				BMP280Mode mode,
 				BMP280Oversampling pressureOversampling,
@@ -99,7 +98,7 @@ namespace pizda {
 				// SPI interface
 				spi_device_interface_config_t interfaceConfig {};
 				interfaceConfig.mode = 0;
-				interfaceConfig.clock_speed_hz = frequencyHz;
+				interfaceConfig.clock_speed_hz = 10'000'000;
 				interfaceConfig.spics_io_num = static_cast<int>(ssPin);
 				interfaceConfig.queue_size = 1;
 				interfaceConfig.flags = 0;
@@ -135,54 +134,6 @@ namespace pizda {
 				);
 
 				return true;
-			}
-
-			void reconfigure(
-				BMP280Mode mode,
-				BMP280Oversampling pressureOversampling,
-				BMP280Oversampling temperatureOversampling,
-				BMP280Filter filter,
-				BMP280StandbyDuration standbyDuration
-			) {
-				// t_sb = standbyDuration
-				// filter = filter
-				// spi3w_en = 0
-				writeToRegister(
-					BMP280Register::config,
-					static_cast<uint8_t>(
-						(std::to_underlying(standbyDuration) << 5)
-						| (std::to_underlying(filter) << 2)
-						| 0
-					)
-				);
-
-				// osrs_t = temperatureOversampling
-				// osrs_p = pressureOversampling
-				// mode = mode
-				writeToRegister(
-					BMP280Register::control,
-					static_cast<uint8_t>(
-						(std::to_underlying(temperatureOversampling) << 5)
-						| (std::to_underlying(pressureOversampling) << 2)
-						| std::to_underlying(mode)
-					)
-				);
-			}
-
-			void readCalibrationData() {
-				_calibrationDigT1 = readUint16LE(BMP280Register::digT1);
-				_calibrationDigT2 = readInt16LE(BMP280Register::digT2);
-				_calibrationDigT3 = readInt16LE(BMP280Register::digT3);
-
-				_calibrationDigP1 = readUint16LE(BMP280Register::digP1);
-				_calibrationDigP2 = readInt16LE(BMP280Register::digP2);
-				_calibrationDigP3 = readInt16LE(BMP280Register::digP3);
-				_calibrationDigP4 = readInt16LE(BMP280Register::digP4);
-				_calibrationDigP5 = readInt16LE(BMP280Register::digP5);
-				_calibrationDigP6 = readInt16LE(BMP280Register::digP6);
-				_calibrationDigP7 = readInt16LE(BMP280Register::digP7);
-				_calibrationDigP8 = readInt16LE(BMP280Register::digP8);
-				_calibrationDigP9 = readInt16LE(BMP280Register::digP9);
 			}
 
 			// These bitchy formulas has been taken directly from datasheet: https://cdn-shop.adafruit.com/datasheets/BST-BMP280-DS001-11.pdf
@@ -292,6 +243,54 @@ namespace pizda {
 
 			int16_t readInt16LE(BMP280Register reg) {
 				return static_cast<int16_t>(readUint16LE(reg));
+			}
+
+			void reconfigure(
+				BMP280Mode mode,
+				BMP280Oversampling pressureOversampling,
+				BMP280Oversampling temperatureOversampling,
+				BMP280Filter filter,
+				BMP280StandbyDuration standbyDuration
+			) {
+				// t_sb = standbyDuration
+				// filter = filter
+				// spi3w_en = 0
+				writeToRegister(
+					BMP280Register::config,
+					static_cast<uint8_t>(
+						(std::to_underlying(standbyDuration) << 5)
+						| (std::to_underlying(filter) << 2)
+						| 0
+					)
+				);
+
+				// osrs_t = temperatureOversampling
+				// osrs_p = pressureOversampling
+				// mode = mode
+				writeToRegister(
+					BMP280Register::control,
+					static_cast<uint8_t>(
+						(std::to_underlying(temperatureOversampling) << 5)
+						| (std::to_underlying(pressureOversampling) << 2)
+						| std::to_underlying(mode)
+					)
+				);
+			}
+
+			void readCalibrationData() {
+				_calibrationDigT1 = readUint16LE(BMP280Register::digT1);
+				_calibrationDigT2 = readInt16LE(BMP280Register::digT2);
+				_calibrationDigT3 = readInt16LE(BMP280Register::digT3);
+
+				_calibrationDigP1 = readUint16LE(BMP280Register::digP1);
+				_calibrationDigP2 = readInt16LE(BMP280Register::digP2);
+				_calibrationDigP3 = readInt16LE(BMP280Register::digP3);
+				_calibrationDigP4 = readInt16LE(BMP280Register::digP4);
+				_calibrationDigP5 = readInt16LE(BMP280Register::digP5);
+				_calibrationDigP6 = readInt16LE(BMP280Register::digP6);
+				_calibrationDigP7 = readInt16LE(BMP280Register::digP7);
+				_calibrationDigP8 = readInt16LE(BMP280Register::digP8);
+				_calibrationDigP9 = readInt16LE(BMP280Register::digP9);
 			}
 	};
 }

@@ -49,26 +49,35 @@ namespace pizda {
 
 				// MPUs
 				for (auto& unitAndPin : _MPUs) {
-					unitAndPin.unit.setup(
+					if (!unitAndPin.unit.setup(
 						constants::spi::device,
-						unitAndPin.pin,
-						10'000'000
-					);
+						unitAndPin.pin
+					)) {
+						ESP_LOGE("AHRS", "MPU-9250 initialization failed");
+						return;
+					}
+
+					if (!unitAndPin.unit.ConfigSrd(19)) {
+						ESP_LOGE("AHRS", "MPU-9250 srd configuring failed");
+						return;
+					}
 				}
 
 				// BMPs
 				for (auto& unitAndPin : _BMPs) {
-					unitAndPin.unit.setup(
+					if (!unitAndPin.unit.setup(
 						constants::spi::device,
 						unitAndPin.pin,
-						10'000'000,
 
 						BMP280Mode::normal,
 						BMP280Oversampling::x16,
 						BMP280Oversampling::x2,
 						BMP280Filter::x4,
 						BMP280StandbyDuration::ms1
-					);
+					)) {
+						ESP_LOGE("AHRS", "BMP280 initialization failed");
+						return;
+					}
 				}
 
 				xTaskCreate(
