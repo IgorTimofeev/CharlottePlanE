@@ -3,20 +3,80 @@
 #include <array>
 
 #include <driver/spi_master.h>
+#include <driver/gpio.h>
 
 #include "constants.h"
-#include "hardware/ahrs/gy-91.h"
+#include "hardware/ahrs/mpu9250.h"
+#include "hardware/ahrs/bmp280.h"
 
 namespace pizda {
+	template<typename T>
+	class AHRSUnitAndSSPin {
+		public:
+			explicit AHRSUnitAndSSPin(gpio_num_t ssPin) : pin(ssPin) {
+
+			}
+
+			T unit {};
+			gpio_num_t pin;
+	};
+
 	class AHRS {
 		public:
 			void setup() {
-				for (auto& adiru : _ADIRUs) {
-					adiru.setup(
+				// GPIO
+				uint64_t GPIOSSPinBitMask = 0;
+
+				for (auto& unitAndPin : _MPUs)
+					GPIOSSPinBitMask |= (1ULL << unitAndPin.pin);
+
+				for (auto& unitAndPin : _BMPs)
+					GPIOSSPinBitMask |= (1ULL << unitAndPin.pin);
+
+				gpio_config_t GPIOConfig {};
+				GPIOConfig.pin_bit_mask = 1ULL << GPIOSSPinBitMask;
+				GPIOConfig.mode = GPIO_MODE_OUTPUT;
+				GPIOConfig.pull_up_en = GPIO_PULLUP_ENABLE;
+				GPIOConfig.pull_down_en = GPIO_PULLDOWN_DISABLE;
+				GPIOConfig.intr_type = GPIO_INTR_DISABLE;
+				gpio_config(&GPIOConfig);
+
+				// Setting CS to high
+				for (auto& unitAndPin : _MPUs)
+					gpio_set_level(unitAndPin.pin, true);
+
+				for (auto& unitAndPin : _BMPs)
+					gpio_set_level(unitAndPin.pin, true);
+
+				// MPUs
+				for (auto& unitAndPin : _MPUs) {
+					unitAndPin.unit.setup(
 						SPI2_HOST,
 						constants::spi::miso,
 						constants::spi::mosi,
-						constants::spi::sck
+						constants::spi::sck,
+						unitAndPin.pin,
+						10'000'000
+					);
+				}
+
+				// BMPs
+				for (auto& unitAndPin : _BMPs) {
+					unitAndPin.unit.setup(
+						SPI2_HOST,
+						constants::spi::miso,
+						constants::spi::mosi,
+						constants::spi::sck,
+						unitAndPin.pin,
+						10'000'000
+					);
+
+					unitAndPin.unit.configure(
+						BMP280Mode::normal,
+						BMP280Oversampling::x16,
+						BMP280Oversampling::x2,
+						BMP280Filter::x4,
+						BMP280StandbyDuration::ms1
 					);
 				}
 
@@ -32,17 +92,40 @@ namespace pizda {
 				);
 			}
 
+			float getPressure() const {
+				return _pressure;
+			}
+
+			float getTemperature() const {
+				return _temperature;
+			}
+
+			float getAltitude() const {
+				return _altitude;
+			}
+
 		private:
 			constexpr static uint8_t _ADIRUQuantity = 1;
 
-			std::array<GY91, _ADIRUQuantity> _ADIRUs {
-				GY91 {
-					constants::adiru1::mpu9250ss,
+			std::array<AHRSUnitAndSSPin<MPU9250>, _ADIRUQuantity> _MPUs {
+				AHRSUnitAndSSPin<MPU9250> {
+					constants::adiru1::mpu9250ss
+				}
+			};
+
+			constexpr static uint8_t _BMPQuantity = 1;
+
+			std::array<AHRSUnitAndSSPin<BMP280>, _BMPQuantity> _BMPs {
+				AHRSUnitAndSSPin<BMP280> {
 					constants::adiru1::bmp280ss
 				}
 			};
 
-			float getAltitude(
+			float _pressure = 0;
+			float _temperature = 0;
+			float _altitude = 0;
+
+			static float computeAltitude(
 				float pressurePa,
 				float temperatureC,
 				float referencePressurePa = 101325.0f,
@@ -78,26 +161,30 @@ namespace pizda {
 				return altitude;
 			}
 
+			void updateBMPs() {
+				float pressureSum = 0;
+				float temperatureSum = 0;
+
+				float pressure;
+				float temperature;
+
+				for (auto& BMP : _BMPs) {
+					BMP.unit.readPressureAndTemperature(pressure, temperature);
+
+					pressureSum += pressure;
+					temperatureSum += temperature;
+				}
+
+				_pressure = pressureSum / _BMPQuantity;
+				_temperature = temperatureSum / _BMPQuantity;
+				_altitude = computeAltitude(pressureSum, temperatureSum);
+			}
+
 			void taskBody() {
 				while (true) {
-					float avgPressure = 0;
-					float avgTemperature = 0;
+					updateBMPs();
 
-					float pressure, temperature;
-
-					for (auto& ADIRU : _ADIRUs) {
-						ADIRU.readPressureAndTemperature(pressure, temperature);
-
-						avgPressure += pressure;
-						avgTemperature += temperature;
-					}
-
-					avgTemperature /= _ADIRUQuantity;
-					avgPressure /= _ADIRUQuantity;
-
-					const auto altitude = getAltitude(avgPressure, avgTemperature);
-
-					ESP_LOGI("AHRS", "Avg press: %f, temp: %f, alt: %f", avgPressure, avgTemperature, altitude);
+					ESP_LOGI("AHRS", "Avg press: %f, temp: %f, alt: %f", _pressure, _temperature, _altitude);
 
 					vTaskDelay(pdMS_TO_TICKS(1000));
 				}

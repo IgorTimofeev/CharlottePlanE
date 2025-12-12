@@ -8,37 +8,25 @@
 namespace pizda {
 	class MPU9250 {
 		public:
-			MPU9250(gpio_num_t ssPin) :_ssPin(ssPin) {
+			void setup(spi_host_device_t SPIDevice, gpio_num_t misoPin, gpio_num_t mosiPin, gpio_num_t sckPin, gpio_num_t ssPin, uint32_t frequencyHz) {
+				// GPIO
+				gpio_config_t GPIOConfig {};
+				GPIOConfig.pin_bit_mask = 1ULL << _ssPin;
+				GPIOConfig.mode = GPIO_MODE_OUTPUT;
+				GPIOConfig.pull_up_en = GPIO_PULLUP_ENABLE;
+				GPIOConfig.pull_down_en = GPIO_PULLDOWN_DISABLE;
+				GPIOConfig.intr_type = GPIO_INTR_DISABLE;
+				gpio_config(&GPIOConfig);
 
-			}
+				gpio_set_level(_ssPin, ssPin);
 
-			void setup(spi_host_device_t SPIDevice, gpio_num_t misoPin, gpio_num_t mosiPin, gpio_num_t sckPin, uint32_t frequencyHz) {
-				setupGPIO();
-				setSlaveSelect(true);
-			}
-
-			void setSlaveSelect(bool value) {
-				gpio_set_level(_ssPin, value);
-			}
-
-			gpio_num_t getSSPin() const {
-				return _ssPin;
+				// SPI
 			}
 
 		private:
 			// SPI
 			gpio_num_t _ssPin;
 			spi_device_handle_t _spiDeviceHandle {};
-
-			void setupGPIO() {
-				gpio_config_t config {};
-				config.pin_bit_mask = 1ULL << _ssPin;
-				config.mode = GPIO_MODE_OUTPUT;
-				config.pull_up_en = GPIO_PULLUP_ENABLE;
-				config.pull_down_en = GPIO_PULLDOWN_DISABLE;
-				config.intr_type = GPIO_INTR_DISABLE;
-				gpio_config(&config);
-			}
 
 	};
 }

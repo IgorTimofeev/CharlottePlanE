@@ -70,28 +70,25 @@ namespace pizda {
 
 	class BMP280 {
 		public:
-			explicit BMP280(gpio_num_t ssPin) : _ssPin(ssPin) {
-
-			}
-
 			bool setup(
 				spi_host_device_t SPIDevice,
 				gpio_num_t misoPin,
 				gpio_num_t mosiPin,
 				gpio_num_t sckPin,
+				gpio_num_t ssPin,
 				uint32_t frequencyHz = 1'000'000
 			) {
 				// GPIO
-				gpio_config_t config {};
-				config.pin_bit_mask = 1ULL << _ssPin;
-				config.mode = GPIO_MODE_OUTPUT;
-				config.pull_up_en = GPIO_PULLUP_ENABLE;
-				config.pull_down_en = GPIO_PULLDOWN_DISABLE;
-				config.intr_type = GPIO_INTR_DISABLE;
-				gpio_config(&config);
+				gpio_config_t GPIOConfig {};
+				GPIOConfig.pin_bit_mask = 1ULL << ssPin;
+				GPIOConfig.mode = GPIO_MODE_OUTPUT;
+				GPIOConfig.pull_up_en = GPIO_PULLUP_ENABLE;
+				GPIOConfig.pull_down_en = GPIO_PULLDOWN_DISABLE;
+				GPIOConfig.intr_type = GPIO_INTR_DISABLE;
+				gpio_config(&GPIOConfig);
 
 				// Setting SS to high just in case
-				setSlaveSelect(true);
+				gpio_set_level(ssPin, true);
 
 				// SPI bus
 				spi_bus_config_t busConfig {};
@@ -110,7 +107,7 @@ namespace pizda {
 				spi_device_interface_config_t interfaceConfig {};
 				interfaceConfig.mode = 0;
 				interfaceConfig.clock_speed_hz = frequencyHz;
-				interfaceConfig.spics_io_num = static_cast<int>(_ssPin);
+				interfaceConfig.spics_io_num = static_cast<int>(ssPin);
 				interfaceConfig.queue_size = 1;
 				interfaceConfig.flags = 0;
 				interfaceConfig.command_bits = 8;
@@ -241,10 +238,6 @@ namespace pizda {
 				}
 			}
 
-			gpio_num_t getSSPin() const {
-				return _ssPin;
-			}
-
 		private:
 			constexpr static uint8_t chipID = 0x58;
 
@@ -254,7 +247,6 @@ namespace pizda {
 			int32_t _tFine = -0xFFFF;
 
 			// SPI
-			gpio_num_t _ssPin = GPIO_NUM_NC;
 			spi_device_handle_t _SPIDeviceHandle {};
 
 			// Calibration data
@@ -271,10 +263,6 @@ namespace pizda {
 			int16_t _calibrationDigP7 = 0;
 			int16_t _calibrationDigP8 = 0;
 			int16_t _calibrationDigP9 = 0;
-
-			void setSlaveSelect(bool value) const {
-				gpio_set_level(_ssPin, value);
-			}
 
 			void writeToRegister(BMP280Register reg, uint8_t value) {
 				spi_transaction_t transaction {};
