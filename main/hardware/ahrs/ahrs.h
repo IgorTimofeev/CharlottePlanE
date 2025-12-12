@@ -24,24 +24,23 @@ namespace pizda {
 	class AHRS {
 		public:
 			void setup() {
-				// GPIO
-				uint64_t GPIOSSPinBitMask = 0;
+				// Setting every CS to high just in case
+				uint64_t SSPinBitMask = 0;
 
 				for (auto& unitAndPin : _MPUs)
-					GPIOSSPinBitMask |= (1ULL << unitAndPin.pin);
+					SSPinBitMask |= (1ULL << unitAndPin.pin);
 
 				for (auto& unitAndPin : _BMPs)
-					GPIOSSPinBitMask |= (1ULL << unitAndPin.pin);
+					SSPinBitMask |= (1ULL << unitAndPin.pin);
 
 				gpio_config_t GPIOConfig {};
-				GPIOConfig.pin_bit_mask = 1ULL << GPIOSSPinBitMask;
+				GPIOConfig.pin_bit_mask = 1ULL << SSPinBitMask;
 				GPIOConfig.mode = GPIO_MODE_OUTPUT;
-				GPIOConfig.pull_up_en = GPIO_PULLUP_ENABLE;
+				GPIOConfig.pull_up_en = GPIO_PULLUP_DISABLE;
 				GPIOConfig.pull_down_en = GPIO_PULLDOWN_DISABLE;
 				GPIOConfig.intr_type = GPIO_INTR_DISABLE;
 				gpio_config(&GPIOConfig);
 
-				// Setting CS to high
 				for (auto& unitAndPin : _MPUs)
 					gpio_set_level(unitAndPin.pin, true);
 
