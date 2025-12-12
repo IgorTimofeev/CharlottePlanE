@@ -183,58 +183,59 @@ namespace pizda {
 				_calibrationDigP9 = readInt16LE(BMP280Register::digP9);
 			}
 
-			// These bitchy compensation formulas has been taken from datasheet
-			// Don't see any reason to touch them))0
-			// ...
-			// What are those var var lmao
+			void readRawPressureAndTemperature(int32_t adc_P, int32_t adc_T) {
+				// Seems like module allows to read both pressure & temp is one continuous operation
+				uint8_t buffer[6];
+				readFromRegister(BMP280Register::pressureData, buffer, 6);
+
+				adc_P = buffer[0] << 12 | buffer[1] << 4 | buffer[2] >> 4;
+				adc_T = buffer[3] << 12 | buffer[4] << 4 | buffer[5] >> 4;
+			}
+
+			// Copyright: https://github.com/esp-idf-lib/bmp280/blob/main/bmp280.c#L312
+			// Slightly modified for my needs
 			void readPressureAndTemperature(float& pressure, float& temperature) {
-				// Temperature should be read first for tFine
+				int32_t adc_P = 0;
+				int32_t adc_T = 0;
+				readRawPressureAndTemperature(adc_P, adc_T);
+
+				// Temperature should be processed first for tFine
 				{
-					int32_t adc_T = readInt24BE(BMP280Register::temperatureData);
-					// Seems like this shit expects only last 20 bits from 24
-					adc_T >>= 4;
+					int32_t var1, var2;
 
-					float var1, var2, T;
-					var1 = (((float) adc_T) / 16384.0f - ((float) _calibrationDigT1) / 1024.0f) *
-						   ((float) _calibrationDigT2);
-					var2 = ((((float) adc_T) / 131072.0f - ((float) _calibrationDigT1) / 8192.0f) *
-							(((float) adc_T) / 131072.0f - ((float) _calibrationDigT1) / 8192.0f)) *
-						   ((float) _calibrationDigT3);
+					var1 = ((((adc_T >> 3) - ((int32_t)_calibrationDigT1 << 1))) * (int32_t)_calibrationDigT2) >> 11;
+					var2 = (((((adc_T >> 4) - (int32_t)_calibrationDigT1) * ((adc_T >> 4) - (int32_t)_calibrationDigT1)) >> 12) * (int32_t)_calibrationDigT3) >> 14;
 
-					_tFine = (int32_t)(var1 + var2);
-					T = (var1 + var2) / 5120.0f;
+					_tFine = var1 + var2;
 
-					temperature = T;
+					temperature = ((_tFine * 5 + 128) >> 8) / 100.f;
 				}
 
 				// Pressure
 				{
-					int32_t adc_P = readInt24BE(BMP280Register::pressureData);
-					adc_P >>= 4;
+					int64_t var1, var2, p;
 
-					float var1, var2, p;
-					var1 = ((float) _tFine / 2.0f) - 64000.0f;
-					var2 = var1 * var1 * ((float) _calibrationDigP6) / 32768.0f;
-					var2 = var2 + var1 * ((float) _calibrationDigP5) * 2.0f;
-					var2 = (var2 / 4.0f) + (((float) _calibrationDigP4) * 65536.0f);
-					var1 =
-						(((float) _calibrationDigP3) * var1 * var1 / 524288.0f + ((float) _calibrationDigP2) * var1) /
-						524288.0f;
-					var1 = (1.0f + var1 / 32768.0f) * ((float) _calibrationDigP1);
+					var1 = (int64_t)_tFine - 128000;
+					var2 = var1 * var1 * (int64_t)_calibrationDigP6;
+					var2 = var2 + ((var1 * (int64_t)_calibrationDigP5) << 17);
+					var2 = var2 + (((int64_t)_calibrationDigP4) << 35);
+					var1 = ((var1 * var1 * (int64_t)_calibrationDigP3) >> 8) + ((var1 * (int64_t)_calibrationDigP2) << 12);
+					var1 = (((int64_t)1 << 47) + var1) * ((int64_t)_calibrationDigP1) >> 33;
 
-					// avoid exception caused by division by zero
-					if (var1 == 0.0f) {
-						pressure = 0;
+					if (var1 == 0)
+					{
+						pressure = 0;  // avoid exception caused by division by zero
+						return;
 					}
-					else {
-						p = 1048576.0f - (float) adc_P;
-						p = (p - (var2 / 4096.0f)) * 6250.0f / var1;
-						var1 = ((float) _calibrationDigP9) * p * p / 2147483648.0f;
-						var2 = p * ((float) _calibrationDigP8) / 32768.0f;
-						p = p + (var1 + var2 + ((float) _calibrationDigP7)) / 16.0f;
 
-						pressure = p;
-					}
+					p = 1048576 - adc_P;
+					p = (((p << 31) - var2) * 3125) / var1;
+					var1 = ((int64_t)_calibrationDigP9 * (p >> 13) * (p >> 13)) >> 25;
+					var2 = ((int64_t)_calibrationDigP8 * p) >> 19;
+
+					p = ((p + var1 + var2) >> 8) + ((int64_t)_calibrationDigP7 << 4);
+
+					pressure = p / 256.0f;
 				}
 			}
 
@@ -299,17 +300,6 @@ namespace pizda {
 
 			int16_t readInt16LE(BMP280Register reg) {
 				return static_cast<int16_t>(readUint16LE(reg));
-			}
-
-			uint32_t readUint24BE(BMP280Register reg) {
-				uint8_t buffer[3];
-				readFromRegister(reg, buffer, 3);
-
-				return (static_cast<uint32_t>(buffer[0]) << 16) | (static_cast<uint32_t>(buffer[1]) << 8) | static_cast<uint32_t>(buffer[2]);
-			}
-
-			int32_t readInt24BE(BMP280Register reg) {
-				return static_cast<int32_t>(readUint24BE(reg));
 			}
 	};
 }
