@@ -98,9 +98,7 @@ namespace pizda {
 				ESP_ERROR_CHECK(i2c_master_bus_add_device(I2CBusHandle, &I2CDeviceConfig, &_I2CDeviceHandle));
 
 				// Soft reset
-				writeToRegister(BMP280Register::softReset, std::to_underlying(BMP280RegisterValues::softReset));
-
-				vTaskDelay(pdMS_TO_TICKS(200));
+				reset();
 
 				// Checking for valid chip ID & proper SPI wiring
 				const auto chipID = readUint8(BMP280Register::chipID);
@@ -124,6 +122,12 @@ namespace pizda {
 				);
 
 				return true;
+			}
+
+			void reset() {
+				writeToRegister(BMP280Register::softReset, std::to_underlying(BMP280RegisterValues::softReset));
+
+				vTaskDelay(pdMS_TO_TICKS(200));
 			}
 
 			void reconfigure(

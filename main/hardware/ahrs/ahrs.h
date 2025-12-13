@@ -166,7 +166,7 @@ namespace pizda {
 			}
 
 			void updateMPU() {
-				for (auto MPU : _MPUs) {
+				for (auto& MPU : _MPUs) {
 					if (MPU.unit.Read()) {
 						ESP_LOGI("AHRS", "Mpu new_imu_data: %d", MPU.unit.new_imu_data());
 						ESP_LOGI("AHRS", "Mpu new_mag_data: %d", MPU.unit.new_mag_data());
