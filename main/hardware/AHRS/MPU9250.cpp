@@ -25,25 +25,25 @@
 #include "MPU9250.h"
 
 namespace pizda {
-/************  Constructors ************/
-
-/************ Basic Settings ************/
-
-	bool MPU9250::init(i2c_master_bus_handle_t I2CBusHandle, uint8_t I2CAddress) {
+	bool MPU9250::setup(i2c_master_bus_handle_t I2CBusHandle, uint8_t I2CAddress) {
 		// I2C
-		i2c_device_config_t I2CDeviceConfig{};
+		i2c_device_config_t I2CDeviceConfig {};
 		I2CDeviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
 		I2CDeviceConfig.device_address = I2CAddress;
-		I2CDeviceConfig.scl_speed_hz = 1'000'000;
+		I2CDeviceConfig.scl_speed_hz = 400'000;
 
 		ESP_ERROR_CHECK(i2c_master_bus_add_device(I2CBusHandle, &I2CDeviceConfig, &_I2CDeviceHandle));
 
-
 		reset_MPU9250();
-		delay(10);
+		delayMs(10);
 		writeMPU9250Register(REGISTER_INT_PIN_CFG, REGISTER_VALUE_BYPASS_EN);  // Bypass Enable
-		delay(10);
-		if (whoAmI() != WHO_AM_I_CODE) {
+		delayMs(10);
+
+		const auto whoAmI = readWhoAmI();
+
+		if (whoAmI != WHO_AM_I_CODE) {
+			ESP_LOGI("MPU", "Unknown whoAmI value: %d", whoAmI);
+
 			return false;
 		}
 
@@ -51,32 +51,36 @@ namespace pizda {
 		accOffsetVal.setY(0.0);
 		accOffsetVal.setZ(0.0);
 		accRangeFactor = 1;
+
 		gyrOffsetVal.setX(0.0);
 		gyrOffsetVal.setY(0.0);
 		gyrOffsetVal.setZ(0.0);
 		gyrRangeFactor = 1;
+
 		fifoType = MPU9250_FIFO_ACC;
 		sleep(false);
 
-		if (initMagnetometer()) {
-			ESP_LOGI("MPU", "INit mag failed");
+		if (!initMagnetometer()) {
+			ESP_LOGI("MPU", "Mag setup failed");
+
+			return false;
 		}
 
 		return true;
 	}
 
-	uint8_t MPU9250::whoAmI() {
+	uint8_t MPU9250::readWhoAmI() {
 		return readMPU9250Register8(REGISTER_WHO_AM_I);
 	}
 
-	void MPU9250::autoOffsets() {
+	void MPU9250::calibrateAccAndGyr() {
 		enableGyrDLPF();
 		setGyrDLPF(MPU9250_DLPF_6);  // lowest noise
 		setGyrRange(MPU9250_GYRO_RANGE_250); // highest resolution
 		setAccRange(MPU9250_ACC_RANGE_2G);
 		enableAccDLPF(true);
 		setAccDLPF(MPU9250_DLPF_6);
-		delay(100);
+		delayMs(100);
 
 		Vector3F accelerationOffsetAccumulator{0.f, 0.f, 0.f};
 		Vector3F gyroOffsetAccumulator{0.f, 0.f, 0.f};
@@ -84,8 +88,8 @@ namespace pizda {
 			// acceleration
 			accelerationOffsetAccumulator += getAccRawValues();
 			// gyro
-			gyroOffsetAccumulator += getGyrRawValues();
-			delay(1);
+			gyroOffsetAccumulator += readGyroRawValues();
+			delayMs(1);
 		}
 
 		// acceleration
@@ -105,12 +109,6 @@ namespace pizda {
 
 	void MPU9250::setAccOffsets(Vector3F offset) {
 		accOffsetVal = offset;
-	}
-
-	void MPU9250::setGyrOffsets(float xOffset, float yOffset, float zOffset) {
-		gyrOffsetVal.setX(xOffset);
-		gyrOffsetVal.setY(yOffset);
-		gyrOffsetVal.setZ(zOffset);
 	}
 
 	void MPU9250::setGyrOffsets(Vector3F offset) {
@@ -245,13 +243,13 @@ namespace pizda {
 		return resultant;
 	}
 
-	float MPU9250::getTemperature() {
+	float MPU9250::readTemperature() {
 		int16_t regVal16 = readMPU9250Register16(REGISTER_TEMP_OUT);
 		float tmp = (regVal16 * 1.0 - ROOM_TEMPERATURE_OFFSET) / TEMPERATURE_SENSITIVITY + 21.0;
 		return tmp;
 	}
 
-	Vector3F MPU9250::getGyrRawValues() {
+	Vector3F MPU9250::readGyroRawValues() {
 		uint8_t rawData[6];
 		readMPU9250Register3x16(REGISTER_GYRO_OUT, rawData);
 		int16_t const xRaw = static_cast<int16_t>((rawData[0] << 8) | rawData[1]);
@@ -260,18 +258,18 @@ namespace pizda {
 		return Vector3F{static_cast<float>(xRaw), static_cast<float>(yRaw), static_cast<float>(zRaw)};
 	}
 
-	Vector3F MPU9250::getCorrectedGyrRawValues() {
-		Vector3F gyrRawVal = getGyrRawValues();
+	Vector3F MPU9250::readCorrectedGyroRawValues() {
+		Vector3F gyrRawVal = readGyroRawValues();
 		correctGyrRawValues(gyrRawVal);
 		return gyrRawVal;
 	}
 
-	Vector3F MPU9250::getGyrValues() {
-		Vector3F const gyroValues = getCorrectedGyrRawValues();
+	Vector3F MPU9250::readGyroValues() {
+		Vector3F const gyroValues = readCorrectedGyroRawValues();
 		return gyroValues * (static_cast<float>(gyrRangeFactor) * 250.f / 32768.0f);
 	}
 
-	Vector3F MPU9250::getGyrValuesFromFifo() {
+	Vector3F MPU9250::readGyroValuesFromFifo() {
 		Vector3F gyroValues = readMPU9250xyzValFromFifo();
 		correctGyrRawValues(gyroValues);
 		return gyroValues * (static_cast<float>(gyrRangeFactor) * 250.f / 32768.0f);
@@ -313,8 +311,9 @@ namespace pizda {
 /******** Angles and Orientation *********/
 
 	Vector3F MPU9250::getAngles() {
-		Vector3F angleVal;
-		Vector3F gVal = getGValues();
+		Vector3F angleVal {};
+		auto gVal = getGValues();
+
 		if (gVal.getX() > 1.0) {
 			gVal.setX(1.0);
 		} else if (gVal.getX() -1.0) {
@@ -340,8 +339,9 @@ namespace pizda {
 	}
 
 	MPU9250_orientation MPU9250::getOrientation() {
-		Vector3F angleVal = getAngles();
-		MPU9250_orientation orientation = MPU9250_FLAT;
+		const auto angleVal = getAngles();
+		auto orientation = MPU9250_FLAT;
+
 		if (abs(angleVal.getX()) < 45) {      // |x| < 45
 			if (abs(angleVal.getY()) < 45) {      // |y| < 45
 				if (angleVal.getZ() > 0) {          //  z  > 0
@@ -560,7 +560,7 @@ namespace pizda {
 
 	void MPU9250::reset_MPU9250() {
 		writeMPU9250Register(REGISTER_PWR_MGMT_1, REGISTER_VALUE_RESET);
-		delay(10);  // wait for registers to reset
+		delayMs(10);  // wait for registers to reset
 	}
 
 	void MPU9250::enableI2CMaster() {
@@ -568,7 +568,7 @@ namespace pizda {
 		regVal |= REGISTER_VALUE_I2C_MST_EN;
 		writeMPU9250Register(REGISTER_USER_CTRL, regVal); //enable I2C master
 		writeMPU9250Register(REGISTER_I2C_MST_CTRL, 0x00); // set I2C clock to 400 kHz
-		delay(10);
+		delayMs(10);
 	}
 
 	void MPU9250::writeMPU9250Register(uint8_t reg, uint8_t val) {
@@ -711,22 +711,27 @@ namespace pizda {
 		enableI2CMaster();
 		resetMagnetometer();
 
-		if (!(whoAmIMag() == MAGNETOMETER_WHO_AM_I_CODE)) {
+		const auto whoAmI = readWhoAmIMag();
+
+		if (whoAmI != MAGNETOMETER_WHO_AM_I_CODE) {
+			ESP_LOGI("MPU", "Unknown mag WhoAmI value: %d", whoAmI);
+
 			return false;
 		}
+
 		setMagOpMode(AK8963_FUSE_ROM_ACC_MODE);
-		delay(10);
+		delayMs(10);
 		getAsaVals();
-		delay(10);
+		delayMs(10);
 		setMagnetometer16Bit();
-		delay(10);
+		delayMs(10);
 		setMagOpMode(AK8963_CONT_MODE_8HZ);
-		delay(10);
+		delayMs(10);
 
 		return true;
 	}
 
-	uint8_t MPU9250::whoAmIMag() {
+	uint8_t MPU9250::readWhoAmIMag() {
 		return readAK8963Register8(REGISTER_AK8963_WIA);
 	}
 
@@ -735,7 +740,7 @@ namespace pizda {
 		regVal &= 0xF0;
 		regVal |= opMode;
 		writeAK8963Register(REGISTER_AK8963_CNTL_1, regVal);
-		delay(10);
+		delayMs(10);
 		if (opMode != AK8963_PWR_DOWN) {
 			enableMagDataRead(REGISTER_AK8963_HXL, 0x08);
 		}
@@ -743,7 +748,7 @@ namespace pizda {
 
 	void MPU9250::startMagMeasurement() {
 		setMagOpMode(AK8963_TRIGGER_MODE);
-		delay(200);
+		delayMs(200);
 	}
 
 /************************************************
@@ -755,12 +760,12 @@ namespace pizda {
 			MAGNETOMETER_I2C_ADDRESS | REGISTER_VALUE_AK8963_READ); // read AK8963
 		writeMPU9250Register(REGISTER_I2C_SLV0_REG, reg); // define AK8963 register to be read
 		writeMPU9250Register(REGISTER_I2C_SLV0_CTRL, 0x80 | bytes); //enable read | number of byte
-		delay(10);
+		delayMs(10);
 	}
 
 	void MPU9250::resetMagnetometer() {
 		writeAK8963Register(REGISTER_AK8963_CNTL_2, 0x01);
-		delay(100);
+		delayMs(100);
 	}
 
 	void MPU9250::getAsaVals() {
@@ -788,9 +793,11 @@ namespace pizda {
 	}
 
 	void MPU9250::readAK8963Data(uint8_t* buf) {
+		// Write
 		const uint8_t cmd = REGISTER_EXT_SLV_SENS_DATA_00 | 0x80;
 		ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
 
+		// Read
 		ESP_ERROR_CHECK(i2c_master_receive(_I2CDeviceHandle, buf, 6, -1));
 
 //	if(!useSPI){

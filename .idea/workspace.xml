@@ -169,14 +169,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="pizda1111">
-      <change afterPath="$PROJECT_DIR$/main/types/sinAndCos.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main/types/vector3.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/aircraft.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ahrs/ahrs.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/AHRS/AHRS.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ahrs/bmp280.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/AHRS/BMP280.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ahrs/mpu9250.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ahrs/mpu9250.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/AHRS/AHRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/AHRS/AHRS.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/AHRS/MPU9250.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/AHRS/MPU9250.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/AHRS/MPU9250.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/AHRS/MPU9250.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/managed_components/espressif__led_strip/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/managed_components/espressif__led_strip/CHANGELOG.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -1141,7 +1138,7 @@
       <workItem from="1765642091770" duration="1502000" />
       <workItem from="1765655038428" duration="7119000" />
       <workItem from="1765662634981" duration="888000" />
-      <workItem from="1765663544425" duration="296000" />
+      <workItem from="1765663544425" duration="3229000" />
     </task>
     <task id="LOCAL-00001" summary="ппц заебался">
       <option name="closed" value="true" />
@@ -1351,7 +1348,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765656679026</updated>
     </task>
-    <option name="localTasksCounter" value="27" />
+    <task id="LOCAL-00027" summary="pizda1111">
+      <option name="closed" value="true" />
+      <created>1765663971308</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1765663971308</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

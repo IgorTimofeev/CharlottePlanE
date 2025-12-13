@@ -109,7 +109,6 @@ namespace pizda {
 		AK8963_FUSE_ROM_ACC_MODE = 0x0F
 	} AK8963_opMode;
 
-
 	class MPU9250 {
 		public:
 			/* Registers MPU6500 */
@@ -172,6 +171,16 @@ namespace pizda {
 			static float constexpr ROOM_TEMPERATURE_OFFSET = 0.0f;
 			static float constexpr TEMPERATURE_SENSITIVITY = 333.87f;
 
+			/* Register Values */
+			static uint8_t constexpr REGISTER_VALUE_AK8963_16_BIT = 0x10;
+			static uint8_t constexpr REGISTER_VALUE_AK8963_OVF = 0x08;
+			static uint8_t constexpr REGISTER_VALUE_AK8963_READ = 0x80;
+
+			/* Others */
+			static uint8_t constexpr WHO_AM_I_CODE = 0x71;
+			static uint8_t constexpr MAGNETOMETER_I2C_ADDRESS = 0x0C;
+			static uint8_t constexpr MAGNETOMETER_WHO_AM_I_CODE = 0x48;
+
 			/* Registers AK8963 */
 			static uint8_t constexpr REGISTER_AK8963_WIA = 0x00; // Who am I
 			static uint8_t constexpr REGISTER_AK8963_INFO = 0x01;
@@ -188,51 +197,95 @@ namespace pizda {
 			static uint8_t constexpr REGISTER_AK8963_ASAY = 0x11;
 			static uint8_t constexpr REGISTER_AK8963_ASAZ = 0x12;
 
-			/* Register Values */
-			static uint8_t constexpr REGISTER_VALUE_AK8963_16_BIT = 0x10;
-			static uint8_t constexpr REGISTER_VALUE_AK8963_OVF = 0x08;
-			static uint8_t constexpr REGISTER_VALUE_AK8963_READ = 0x80;
+			bool setup(i2c_master_bus_handle_t I2CBusHandle, uint8_t I2CAddress);
 
-			/* Others */
-			static uint8_t constexpr WHO_AM_I_CODE = 0x71;
-			static uint8_t constexpr MAGNETOMETER_I2C_ADDRESS = 0x0C;
-			static uint8_t constexpr MAGNETOMETER_WHO_AM_I_CODE = 0x48;
+			uint8_t readWhoAmI();
 
+			/* The slope of the curve of acceleration vs measured values fits quite well to the theoretical
+			   * values, e.g. 16384 units/g in the +/- 2g range. But the starting point, if you position the
+			   * MPU9250 flat, is not necessarily 0g/0g/1g for x/y/z. The autoOffset function measures offset
+			   * values. It assumes your MPU9250 is positioned flat with its x,y-plane. The more you deviate
+			   * from this, the less accurate will be your results.
+			   * The function also measures the offset of the gyroscope data. The gyroscope offset does not
+			   * depend on the positioning.
+			   * This function needs to be called at the beginning since it can overwrite your settings!
+			   */
+			void calibrateAccAndGyr();
 
-			/* Constructors */
-
-			/* Basic settings */
-
-			bool init(i2c_master_bus_handle_t I2CBusHandle, uint8_t I2CAddress);
-
-			uint8_t whoAmI();
-
-			void autoOffsets();
-
+			/*  This is a more accurate method for calibration. You have to determine the minimum and maximum
+			 *  raw acceleration values of the axes determined in the range +/- 2 g.
+			 *  You call the function as follows: setAccOffsets(xMin,xMax,yMin,yMax,zMin,zMax);
+			 *  Use either autoOffset or setAccOffsets, not both.
+			 */
 			void setAccOffsets(float xMin, float xMax, float yMin, float yMax, float zMin, float zMax);
 
 			void setAccOffsets(Vector3F offset); // for writing back previous offsets
-			void setGyrOffsets(float xOffset, float yOffset, float zOffset);
 
+			/*  The gyroscope data is not zero, even if you don't move the MPU9250.
+			 *  To start at zero, you can apply offset values. These are the gyroscope raw values you obtain
+			 *  using the +/- 250 degrees/s range.
+			 *  Use either autoOffset or setGyrOffsets, not both.
+			 */
 			void setGyrOffsets(Vector3F offset); // for writing back previous offsets
 			Vector3F getAccOffsets();
 
 			Vector3F getGyrOffsets();
 
+			/*  Digital Low Pass Filter for the gyroscope must be enabled to choose the level.
+			 *  MPU9250_DPLF_0, MPU9250_DPLF_2, ...... MPU9250_DPLF_7
+			 *
+			 *  DLPF    Bandwidth [Hz]   Delay [ms]   Output Rate [kHz]
+			 *    0         250            0.97             8
+			 *    1         184            2.9              1
+			 *    2          92            3.9              1
+			 *    3          41            5.9              1
+			 *    4          20            9.9              1
+			 *    5          10           17.85             1
+			 *    6           5           33.48             1
+			 *    7        3600            0.17             8
+			 *
+			 *    You achieve lowest noise using level 6
+			 */
 			void setGyrDLPF(MPU9250_dlpf dlpf);
 
+			/*  Sample rate divider divides the output rate of the gyroscope and accelerometer.
+			 *  Sample rate = Internal sample rate / (1 + divider)
+			 *  It can only be applied if the corresponding DLPF is enabled and 0<DLPF<7!
+			 *  Divider is a number 0...255
+			 */
 			void setSampleRateDivider(uint8_t splRateDiv);
 
 			void setGyrRange(MPU9250_gyroRange gyroRange);
 
+			/*  You can enable or disable the digital low pass filter (DLPF). If you disable the DLPF, you
+		  *  need to select the bandwidth, which can be either 8800 or 3600 Hz. 8800 Hz has a shorter delay,
+		  *  but higher noise level. If DLPF is disabled, the output rate is 32 kHz.
+		  *  MPU9250_BW_WO_DLPF_3600
+		  *  MPU9250_BW_WO_DLPF_8800
+		  */
 			void enableGyrDLPF();
 
 			void disableGyrDLPF(MPU9250_bw_wo_dlpf bw);
 
 			void setAccRange(MPU9250_accRange accRange);
 
+			/* Enable/disable the digital low pass filter for the accelerometer
+			*  If disabled the bandwidth is 1.13 kHz, delay is 0.75 ms, output rate is 4 kHz
+			*/
 			void enableAccDLPF(bool enable);
 
+			/*  Digital low pass filter (DLPF) for the accelerometer (if DLPF enabled)
+			*  MPU9250_DPLF_0, MPU9250_DPLF_2, ...... MPU9250_DPLF_7
+			*   DLPF     Bandwidth [Hz]      Delay [ms]    Output rate [kHz]
+			*     0           460               1.94           1
+			*     1           184               5.80           1
+			*     2            92               7.80           1
+			*     3            41              11.80           1
+			*     4            20              19.80           1
+			*     5            10              35.70           1
+			*     6             5              66.96           1
+			*     7           460               1.94           1
+			*/
 			void setAccDLPF(MPU9250_dlpf dlpf);
 
 			void setLowPowerAccDataRate(MPU9250_lpAccODR lpaodr);
@@ -257,15 +310,15 @@ namespace pizda {
 
 			float getResultantG(Vector3F gVal);
 
-			float getTemperature();
+			float readTemperature();
 
-			Vector3F getGyrRawValues();
+			Vector3F readGyroRawValues();
 
-			Vector3F getCorrectedGyrRawValues();
+			Vector3F readCorrectedGyroRawValues();
 
-			Vector3F getGyrValues();
+			Vector3F readGyroValues();
 
-			Vector3F getGyrValuesFromFifo();
+			Vector3F readGyroValuesFromFifo();
 
 
 			/* Angles and Orientation */
@@ -332,7 +385,7 @@ namespace pizda {
 
 			bool initMagnetometer();
 
-			uint8_t whoAmIMag();
+			uint8_t readWhoAmIMag();
 
 			void setMagOpMode(AK8963_opMode opMode);
 
@@ -348,7 +401,7 @@ namespace pizda {
 
 			i2c_master_dev_handle_t _I2CDeviceHandle{};
 
-			void delay(uint32_t ms) {
+			void delayMs(uint32_t ms) {
 				vTaskDelay(ms <= portTICK_PERIOD_MS ? portTICK_PERIOD_MS : pdMS_TO_TICKS(ms));
 			}
 

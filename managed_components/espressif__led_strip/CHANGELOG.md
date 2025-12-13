@@ -13,7 +13,7 @@
 
 ## 2.5.4
 
-- Inserted extra delay when initialize the SPI LED device, to ensure all LEDs are in the reset state correctly
+- Inserted extra delayMs when initialize the SPI LED device, to ensure all LEDs are in the reset state correctly
 
 ## 2.5.3
 
