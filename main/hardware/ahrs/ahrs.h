@@ -36,7 +36,7 @@ namespace pizda {
 				gpio_config_t GPIOConfig {};
 				GPIOConfig.pin_bit_mask = 1ULL << SSPinBitMask;
 				GPIOConfig.mode = GPIO_MODE_OUTPUT;
-				GPIOConfig.pull_up_en = GPIO_PULLUP_DISABLE;
+				GPIOConfig.pull_up_en = GPIO_PULLUP_ENABLE;
 				GPIOConfig.pull_down_en = GPIO_PULLDOWN_DISABLE;
 				GPIOConfig.intr_type = GPIO_INTR_DISABLE;
 				gpio_config(&GPIOConfig);
@@ -47,21 +47,21 @@ namespace pizda {
 				for (auto& unitAndPin : _BMPs)
 					gpio_set_level(unitAndPin.pin, true);
 
-				// MPUs
-				for (auto& unitAndPin : _MPUs) {
-					if (!unitAndPin.unit.setup(
-						constants::spi::device,
-						unitAndPin.pin
-					)) {
-						ESP_LOGE("AHRS", "MPU-9250 initialization failed");
-						return;
-					}
-
-					if (!unitAndPin.unit.ConfigSrd(8)) {
-						ESP_LOGE("AHRS", "MPU-9250 srd configuring failed");
-						return;
-					}
-				}
+//				// MPUs
+//				for (auto& unitAndPin : _MPUs) {
+//					if (!unitAndPin.unit.setup(
+//						constants::spi::device,
+//						unitAndPin.pin
+//					)) {
+//						ESP_LOGE("AHRS", "MPU-9250 initialization failed");
+//						return;
+//					}
+//
+//					if (!unitAndPin.unit.ConfigSrd(8)) {
+//						ESP_LOGE("AHRS", "MPU-9250 srd configuring failed");
+//						return;
+//					}
+//				}
 
 				// BMPs
 				for (auto& unitAndPin : _BMPs) {
@@ -177,7 +177,7 @@ namespace pizda {
 
 				ESP_LOGI("AHRS", "Avg press: %f, temp: %f, alt: %f", _pressure, _temperature, _altitude);
 			}
-			
+
 			void updateMPU() {
 				for (auto MPU : _MPUs) {
 					if (MPU.unit.Read()) {
@@ -202,7 +202,7 @@ namespace pizda {
 
 			void taskBody() {
 				while (true) {
-					updateMPU();
+//					updateMPU();
 					updateBMPs();
 
 					vTaskDelay(pdMS_TO_TICKS(1000));

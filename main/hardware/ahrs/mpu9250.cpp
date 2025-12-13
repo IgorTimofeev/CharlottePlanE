@@ -419,15 +419,26 @@ namespace pizda {
 		/* Reset the new data flags */
 		new_mag_data_ = false;
 		new_imu_data_ = false;
+
+		ESP_LOGI("MPU", "eblo 1");
+
 		/* Read the data registers */
 		if (!ReadRegisters(INT_STATUS_, sizeof(data_buf_), data_buf_)) {
 			return false;
 		}
+
 		/* Check if data is ready */
 		new_imu_data_ = (data_buf_[0] & RAW_DATA_RDY_INT_);
+
+		ESP_LOGI("MPU", "eblo 2");
+		new_imu_data_ = true;
+
 		if (!new_imu_data_) {
 			return false;
 		}
+
+		ESP_LOGI("MPU", "eblo 3");
+
 		/* Unpack the buffer */
 		accel_cnts_[0] = static_cast<int16_t>(data_buf_[1])  << 8 | data_buf_[2];
 		accel_cnts_[1] = static_cast<int16_t>(data_buf_[3])  << 8 | data_buf_[4];
