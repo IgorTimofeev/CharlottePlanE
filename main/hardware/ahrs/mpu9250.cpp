@@ -514,7 +514,7 @@ namespace pizda {
 			return false;
 		}
 
-		ets_delay_us(10'000);
+		ets_delay_us(1'000);
 
 		return ReadRegisters(EXT_SENS_DATA_00_, count, data);
 	}

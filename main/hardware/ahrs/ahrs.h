@@ -45,7 +45,7 @@ namespace pizda {
 						I2CBusHandle,
 						unitAndAddress.address
 					)) {
-						ESP_LOGE("AHRS", "BMP280 initialization failed");
+						ESP_LOGE("AHRS", "MPU initialization failed");
 						return;
 					}
 				}
