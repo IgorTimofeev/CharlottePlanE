@@ -171,6 +171,7 @@
     <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="pizda1111">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/ahrs/ahrs.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ahrs/ahrs.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ahrs/bmp280.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ahrs/bmp280.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/ahrs/mpu9250.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ahrs/mpu9250.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -1315,6 +1316,11 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VCPKGProject">
+    <isAutomaticCheckingOnLaunch value="false" />
+    <isAutomaticFoundErrors value="true" />
+    <isAutomaticReloadCMake value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="ппц заебался" />
