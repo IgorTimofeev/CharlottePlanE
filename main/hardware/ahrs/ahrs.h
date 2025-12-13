@@ -1,9 +1,11 @@
 #pragma once
 
 #include <array>
+#include <cmath>
 
 #include <driver/spi_master.h>
 #include <driver/gpio.h>
+#include <esp_log.h>
 
 #include "constants.h"
 #include "hardware/ahrs/mpu9250.h"
@@ -11,69 +13,54 @@
 
 namespace pizda {
 	template<typename T>
-	class AHRSUnitAndSSPin {
+	class AHRSUnitAndI2CAddress {
 		public:
-			explicit AHRSUnitAndSSPin(gpio_num_t ssPin) : pin(ssPin) {
+			explicit AHRSUnitAndI2CAddress(uint8_t address) : address(address) {
 
 			}
 
 			T unit {};
-			gpio_num_t pin;
+			uint8_t address;
 	};
 
 	class AHRS {
 		public:
 			void setup() {
-				// Setting every CS to high just in case
-				uint64_t SSPinBitMask = 0;
+				// I2C
+				i2c_master_bus_config_t i2c_mst_config {};
+				i2c_mst_config.clk_source = I2C_CLK_SRC_DEFAULT;
+				i2c_mst_config.i2c_port = I2C_NUM_0;
+				i2c_mst_config.scl_io_num = constants::i2c::scl;
+				i2c_mst_config.sda_io_num = constants::i2c::sda;
+				i2c_mst_config.glitch_ignore_cnt = 7;
+				i2c_mst_config.flags.enable_internal_pullup = true;
 
-				for (auto& unitAndPin : _MPUs)
-					SSPinBitMask |= (1ULL << unitAndPin.pin);
+				i2c_master_bus_handle_t I2CBusHandle;
+				const auto state = i2c_new_master_bus(&i2c_mst_config, &I2CBusHandle);
+				assert(state == ESP_OK || state == ESP_ERR_INVALID_STATE);
 
-				for (auto& unitAndPin : _BMPs)
-					SSPinBitMask |= (1ULL << unitAndPin.pin);
-
-				gpio_config_t GPIOConfig {};
-				GPIOConfig.pin_bit_mask = 1ULL << SSPinBitMask;
-				GPIOConfig.mode = GPIO_MODE_OUTPUT;
-				GPIOConfig.pull_up_en = GPIO_PULLUP_DISABLE;
-				GPIOConfig.pull_down_en = GPIO_PULLDOWN_DISABLE;
-				GPIOConfig.intr_type = GPIO_INTR_DISABLE;
-				gpio_config(&GPIOConfig);
-
-				for (auto& unitAndPin : _MPUs)
-					gpio_set_level(unitAndPin.pin, true);
-
-				for (auto& unitAndPin : _BMPs)
-					gpio_set_level(unitAndPin.pin, true);
-
-//				// MPUs
-//				for (auto& unitAndPin : _MPUs) {
-//					if (!unitAndPin.unit.setup(
-//						constants::spi::device,
-//						unitAndPin.pin
-//					)) {
-//						ESP_LOGE("AHRS", "MPU-9250 initialization failed");
-//						return;
-//					}
-//
-//					if (!unitAndPin.unit.ConfigSrd(8)) {
-//						ESP_LOGE("AHRS", "MPU-9250 srd configuring failed");
-//						return;
-//					}
-//				}
+				// MPUs
+				for (auto& unitAndAddress : _MPUs) {
+					if (!unitAndAddress.unit.setup(
+						I2CBusHandle,
+						unitAndAddress.address
+					)) {
+						ESP_LOGE("AHRS", "BMP280 initialization failed");
+						return;
+					}
+				}
 
 				// BMPs
-				for (auto& unitAndPin : _BMPs) {
-					if (!unitAndPin.unit.setup(
-						constants::spi::device,
-						unitAndPin.pin,
+				for (auto& unitAndAddress : _BMPs) {
+					if (!unitAndAddress.unit.setup(
+						I2CBusHandle,
+						unitAndAddress.address,
 
 						BMP280Mode::normal,
 						BMP280Oversampling::x16,
 						BMP280Oversampling::x2,
 						BMP280Filter::x4,
-						BMP280StandbyDuration::ms1
+						BMP280StandbyDuration::ms125
 					)) {
 						ESP_LOGE("AHRS", "BMP280 initialization failed");
 						return;
@@ -105,15 +92,15 @@ namespace pizda {
 			}
 
 		private:
-			std::array<AHRSUnitAndSSPin<MPU9250>, 1> _MPUs {
-				AHRSUnitAndSSPin<MPU9250> {
-					constants::adiru1::mpu9250ss
+			std::array<AHRSUnitAndI2CAddress<MPU9250>, 1> _MPUs {
+				AHRSUnitAndI2CAddress<MPU9250> {
+					constants::adiru1::mpu9250Address
 				}
 			};
 
-			std::array<AHRSUnitAndSSPin<BMP280>, 1> _BMPs {
-				AHRSUnitAndSSPin<BMP280> {
-					constants::adiru1::bmp280ss
+			std::array<AHRSUnitAndI2CAddress<BMP280>, 1> _BMPs {
+				AHRSUnitAndI2CAddress<BMP280> {
+					constants::adiru1::bmp280Address
 				}
 			};
 
@@ -202,7 +189,7 @@ namespace pizda {
 
 			void taskBody() {
 				while (true) {
-//					updateMPU();
+					updateMPU();
 					updateBMPs();
 
 					vTaskDelay(pdMS_TO_TICKS(1000));

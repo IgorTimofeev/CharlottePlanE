@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <driver/gpio.h>
 #include <driver/spi_master.h>
+#include <driver/i2c_master.h>
 #include <rom/ets_sys.h>
 
 namespace pizda {
@@ -50,7 +51,7 @@ namespace pizda {
 
 	class MPU9250 {
 		public:
-			bool setup(spi_host_device_t SPIDevice, gpio_num_t ssPin);
+			bool setup(i2c_master_bus_handle_t I2CBusHandle, uint8_t I2CAddress);
 
 			bool EnableDrdyInt();
 			bool DisableDrdyInt();
@@ -80,6 +81,8 @@ namespace pizda {
 
 		private:
 			// SPI
+			i2c_master_dev_handle_t _I2CDeviceHandle {};
+
 			gpio_num_t _ssPin;
 			spi_device_handle_t _SPIDeviceHandle {};
 			int32_t spi_clock_;

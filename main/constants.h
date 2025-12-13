@@ -6,6 +6,7 @@
 #include <driver/ledc.h>
 #include <driver/gpio.h>
 #include <driver/spi_master.h>
+#include <driver/i2c_master.h>
 
 namespace pizda {
 	class constants {
@@ -21,6 +22,12 @@ namespace pizda {
 					constexpr static gpio_num_t mosi = GPIO_NUM_11;
 					constexpr static gpio_num_t sck = GPIO_NUM_12;
 					constexpr static spi_host_device_t device = SPI2_HOST;
+			};
+
+			class i2c {
+				public:
+					constexpr static gpio_num_t scl = GPIO_NUM_9;
+					constexpr static gpio_num_t sda = GPIO_NUM_8;
 			};
 
 			class motors {
@@ -67,14 +74,17 @@ namespace pizda {
 
 			class adiru1 {
 				public:
-					constexpr static gpio_num_t mpu9250ss = GPIO_NUM_17;
-					constexpr static gpio_num_t bmp280ss = GPIO_NUM_18;
+					constexpr static uint8_t mpu9250Address = 0x68;
+					constexpr static uint8_t bmp280Address = 0x76;
+
+//					constexpr static gpio_num_t mpu9250ss = GPIO_NUM_17;
+//					constexpr static gpio_num_t bmp280ss = GPIO_NUM_18;
 			};
 
 			class adiru2 {
 				public:
-					constexpr static gpio_num_t mpu9250ss = GPIO_NUM_NC;
-					constexpr static gpio_num_t bmp280ss = GPIO_NUM_NC;
+//					constexpr static gpio_num_t mpu9250ss = GPIO_NUM_NC;
+//					constexpr static gpio_num_t bmp280ss = GPIO_NUM_NC;
 			};
 
 			class transceiver {

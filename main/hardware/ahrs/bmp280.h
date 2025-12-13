@@ -5,8 +5,16 @@
 
 #include <driver/gpio.h>
 #include <driver/spi_master.h>
+#include <driver/i2c_master.h>
 
 namespace pizda {
+	enum class BMP280I2CAddress : uint8_t {
+		// SDO pin is low
+		primary = 0x76,
+		// SDO pin is high
+		secondary = 0x77
+	};
+
 	enum class BMP280Oversampling : uint8_t {
 		none = 0x00,
 		x1 = 0x01,
@@ -74,8 +82,8 @@ namespace pizda {
 	class BMP280 {
 		public:
 			bool setup(
-				spi_host_device_t SPIDevice,
-				gpio_num_t ssPin,
+				i2c_master_bus_handle_t I2CBusHandle,
+				uint8_t I2CAddress,
 
 				BMP280Mode mode,
 				BMP280Oversampling pressureOversampling,
@@ -83,34 +91,16 @@ namespace pizda {
 				BMP280Filter filter,
 				BMP280StandbyDuration standbyDuration
 			) {
-				// GPIO
-				gpio_config_t GPIOConfig {};
-				GPIOConfig.pin_bit_mask = 1ULL << ssPin;
-				GPIOConfig.mode = GPIO_MODE_OUTPUT;
-				GPIOConfig.pull_up_en = GPIO_PULLUP_DISABLE;
-				GPIOConfig.pull_down_en = GPIO_PULLDOWN_DISABLE;
-				GPIOConfig.intr_type = GPIO_INTR_DISABLE;
-				gpio_config(&GPIOConfig);
-
-				// Setting SS to high just in case
-				gpio_set_level(ssPin, true);
-
-				// SPI interface
-				spi_device_interface_config_t interfaceConfig {};
-				interfaceConfig.mode = 0;
-				interfaceConfig.clock_speed_hz = 10'000'000;
-				interfaceConfig.spics_io_num = static_cast<int>(ssPin);
-				interfaceConfig.queue_size = 1;
-				interfaceConfig.flags = 0;
-				interfaceConfig.command_bits = 8;
-
-				ESP_ERROR_CHECK(spi_bus_add_device(SPIDevice, &interfaceConfig, &_SPIDeviceHandle));
+				i2c_device_config_t I2CDeviceConfig {};
+				I2CDeviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
+				I2CDeviceConfig.device_address = I2CAddress;
+				I2CDeviceConfig.scl_speed_hz = 1000000;
+				ESP_ERROR_CHECK(i2c_master_bus_add_device(I2CBusHandle, &I2CDeviceConfig, &_I2CDeviceHandle));
 
 				// Soft reset
 				writeToRegister(BMP280Register::softReset, std::to_underlying(BMP280RegisterValues::softReset));
 
-				// // Do we need some sleep?
-				// vTaskDelay(pdMS_TO_TICKS(100));
+				vTaskDelay(pdMS_TO_TICKS(200));
 
 				// Checking for valid chip ID & proper SPI wiring
 				const auto chipID = readUint8(BMP280Register::chipID);
@@ -136,6 +126,38 @@ namespace pizda {
 				return true;
 			}
 
+			void reconfigure(
+				BMP280Mode mode,
+				BMP280Oversampling pressureOversampling,
+				BMP280Oversampling temperatureOversampling,
+				BMP280Filter filter,
+				BMP280StandbyDuration standbyDuration
+			) {
+				// t_sb = standbyDuration
+				// filter = filter
+				// spi3w_en = 0
+				writeToRegister(
+					BMP280Register::config,
+					static_cast<uint8_t>(
+						(std::to_underlying(standbyDuration) << 5)
+						| (std::to_underlying(filter) << 2)
+						| 0
+					)
+				);
+
+				// osrs_t = temperatureOversampling
+				// osrs_p = pressureOversampling
+				// mode = mode
+				writeToRegister(
+					BMP280Register::control,
+					static_cast<uint8_t>(
+						(std::to_underlying(temperatureOversampling) << 5)
+						| (std::to_underlying(pressureOversampling) << 2)
+						| std::to_underlying(mode)
+					)
+				);
+			}
+
 			// These bitchy formulas has been taken directly from datasheet: https://cdn-shop.adafruit.com/datasheets/BST-BMP280-DS001-11.pdf
 			// Don't see any reason to touch them))0
 			void readPressureAndTemperature(float& pressure, float& temperature) {
@@ -145,6 +167,8 @@ namespace pizda {
 
 				int32_t adc_P = buffer[0] << 12 | buffer[1] << 4 | buffer[2] >> 4;
 				int32_t adc_T = buffer[3] << 12 | buffer[4] << 4 | buffer[5] >> 4;
+
+//				ESP_LOGI("BMP", "adc_P: %d, adc_T: %d", adc_P, adc_T);
 
 				// Temperature should be processed first for tFine
 				{
@@ -191,7 +215,7 @@ namespace pizda {
 			int32_t _tFine = -0xFFFF;
 
 			// SPI
-			spi_device_handle_t _SPIDeviceHandle {};
+			i2c_master_dev_handle_t _I2CDeviceHandle {};
 
 			// Calibration data
 			uint16_t _calibrationDigT1 = 0;
@@ -209,22 +233,19 @@ namespace pizda {
 			int16_t _calibrationDigP9 = 0;
 
 			void writeToRegister(BMP280Register reg, uint8_t value) {
-				spi_transaction_t transaction {};
-				transaction.length = 2 * 8;
-				transaction.tx_data[0] = static_cast<uint8_t>(std::to_underlying(reg) & ~0x80);
-				transaction.tx_data[1] = value;
-				transaction.flags = SPI_TRANS_USE_TXDATA;
+				uint8_t buffer[2] {
+					std::to_underlying(reg),
+					value
+				};
 
-				ESP_ERROR_CHECK(spi_device_transmit(_SPIDeviceHandle, &transaction));
+				ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, buffer, 2, -1));
 			}
 
 			void readFromRegister(BMP280Register reg, uint8_t* buffer, uint32_t readSize) {
-				spi_transaction_t transaction {};
-				transaction.cmd = static_cast<uint8_t>(std::to_underlying(reg) | 0x80);
-				transaction.length = readSize * 8;
-				transaction.rx_buffer = buffer;
+				const auto cmd = static_cast<uint8_t>(std::to_underlying(reg) | 0x80);
+				ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
 
-				ESP_ERROR_CHECK(spi_device_transmit(_SPIDeviceHandle, &transaction));
+				ESP_ERROR_CHECK(i2c_master_receive(_I2CDeviceHandle, buffer, readSize, -1));
 			}
 
 			uint16_t readUint8(BMP280Register reg) {
@@ -245,37 +266,6 @@ namespace pizda {
 				return static_cast<int16_t>(readUint16LE(reg));
 			}
 
-			void reconfigure(
-				BMP280Mode mode,
-				BMP280Oversampling pressureOversampling,
-				BMP280Oversampling temperatureOversampling,
-				BMP280Filter filter,
-				BMP280StandbyDuration standbyDuration
-			) {
-				// t_sb = standbyDuration
-				// filter = filter
-				// spi3w_en = 0
-				writeToRegister(
-					BMP280Register::config,
-					static_cast<uint8_t>(
-						(std::to_underlying(standbyDuration) << 5)
-						| (std::to_underlying(filter) << 2)
-						| 0
-					)
-				);
-
-				// osrs_t = temperatureOversampling
-				// osrs_p = pressureOversampling
-				// mode = mode
-				writeToRegister(
-					BMP280Register::control,
-					static_cast<uint8_t>(
-						(std::to_underlying(temperatureOversampling) << 5)
-						| (std::to_underlying(pressureOversampling) << 2)
-						| std::to_underlying(mode)
-					)
-				);
-			}
 
 			void readCalibrationData() {
 				_calibrationDigT1 = readUint16LE(BMP280Register::digT1);
@@ -291,6 +281,19 @@ namespace pizda {
 				_calibrationDigP7 = readInt16LE(BMP280Register::digP7);
 				_calibrationDigP8 = readInt16LE(BMP280Register::digP8);
 				_calibrationDigP9 = readInt16LE(BMP280Register::digP9);
+
+//				ESP_LOGI("BMP", "_calibrationDigT1: %d", _calibrationDigT1);
+//				ESP_LOGI("BMP", "_calibrationDigT2: %d", _calibrationDigT2);
+//				ESP_LOGI("BMP", "_calibrationDigT3: %d", _calibrationDigT3);
+//				ESP_LOGI("BMP", "_calibrationDigP1: %d", _calibrationDigP1);
+//				ESP_LOGI("BMP", "_calibrationDigP2: %d", _calibrationDigP2);
+//				ESP_LOGI("BMP", "_calibrationDigP3: %d", _calibrationDigP3);
+//				ESP_LOGI("BMP", "_calibrationDigP4: %d", _calibrationDigP4);
+//				ESP_LOGI("BMP", "_calibrationDigP5: %d", _calibrationDigP5);
+//				ESP_LOGI("BMP", "_calibrationDigP6: %d", _calibrationDigP6);
+//				ESP_LOGI("BMP", "_calibrationDigP7: %d", _calibrationDigP7);
+//				ESP_LOGI("BMP", "_calibrationDigP8: %d", _calibrationDigP8);
+//				ESP_LOGI("BMP", "_calibrationDigP9: %d", _calibrationDigP9);
 			}
 	};
 }

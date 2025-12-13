@@ -1,34 +1,16 @@
 #include <esp_log.h>
 #include "mpu9250.h"
+#include "constants.h"
 
 namespace pizda {
-	bool MPU9250::setup(spi_host_device_t SPIDevice, gpio_num_t ssPin) {
-		_ssPin = ssPin;
+	bool MPU9250::setup(i2c_master_bus_handle_t I2CBusHandle, uint8_t I2CAddress) {
+		// I2C
+		i2c_device_config_t I2CDeviceConfig {};
+		I2CDeviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
+		I2CDeviceConfig.device_address = I2CAddress;
+		I2CDeviceConfig.scl_speed_hz = 1'000'000;
 
-		// GPIO
-		gpio_config_t GPIOConfig {};
-		GPIOConfig.pin_bit_mask = 1ULL << _ssPin;
-		GPIOConfig.mode = GPIO_MODE_OUTPUT;
-		GPIOConfig.pull_up_en = GPIO_PULLUP_DISABLE;
-		GPIOConfig.pull_down_en = GPIO_PULLDOWN_DISABLE;
-		GPIOConfig.intr_type = GPIO_INTR_DISABLE;
-		gpio_config(&GPIOConfig);
-
-		/* Toggle CS pin to lock in SPI mode */
-		setSlaveSelect(false);
-		ets_delay_us(100'000);
-		setSlaveSelect(true);
-		ets_delay_us(100'000);
-
-		// SPI interface
-		spi_device_interface_config_t interfaceConfig {};
-		interfaceConfig.mode = 3;
-		interfaceConfig.clock_speed_hz = SPI_CFG_CLOCK_;
-		interfaceConfig.spics_io_num = -1;
-		interfaceConfig.queue_size = 1;
-		interfaceConfig.flags = 0;
-
-		ESP_ERROR_CHECK(spi_bus_add_device(SPIDevice, &interfaceConfig, &_SPIDeviceHandle));
+		ESP_ERROR_CHECK(i2c_master_bus_add_device(I2CBusHandle, &I2CDeviceConfig, &_I2CDeviceHandle));
 
 		// ---------------------------------------------------------
 
@@ -431,7 +413,6 @@ namespace pizda {
 		new_imu_data_ = (data_buf_[0] & RAW_DATA_RDY_INT_);
 
 		ESP_LOGI("MPU", "eblo 2");
-		new_imu_data_ = true;
 
 		if (!new_imu_data_) {
 			return false;
@@ -466,6 +447,7 @@ namespace pizda {
 		gyro_[1] = static_cast<float>(gyro_cnts_[0]) * gyro_scale_ * DEG2RAD_;
 		gyro_[2] = static_cast<float>(gyro_cnts_[2]) * gyro_scale_ * -1.0f * DEG2RAD_;
 		/* Only update on new data */
+		new_mag_data_ = true;
 		if (new_mag_data_) {
 			mag_[0] =   static_cast<float>(mag_cnts_[0]) * mag_scale_[0];
 			mag_[1] =   static_cast<float>(mag_cnts_[1]) * mag_scale_[1];
@@ -474,44 +456,23 @@ namespace pizda {
 		return true;
 	}
 	bool MPU9250::WriteRegister(const uint8_t reg, const uint8_t data) {
-		spi_transaction_t transaction {};
-		transaction.length = 2 * 8;
-		transaction.tx_data[0] = reg;
-		transaction.tx_data[1] = data;
-		transaction.flags = SPI_TRANS_USE_TXDATA;
+		uint8_t buffer[2] {
+			reg,
+			data
+		};
 
-		setSlaveSelect(false);
-		const auto state = spi_device_transmit(_SPIDeviceHandle, &transaction);
-		setSlaveSelect(true);
+		const auto state = i2c_master_transmit(_I2CDeviceHandle, buffer, 2, -1);
 
 		ESP_ERROR_CHECK(state);
 
 		return state == ESP_OK;
 	}
+
 	bool MPU9250::ReadRegisters(const uint8_t reg, const uint8_t count, uint8_t * const data) {
-		// 1
-		spi_transaction_t transaction1 {};
-		transaction1.length = 8;
-		transaction1.tx_data[0] = reg | 0x80;
-		transaction1.flags = SPI_TRANS_USE_TXDATA;
+		const uint8_t cmd = reg | 0x80;
+		ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
 
-		setSlaveSelect(false);
-		auto state = spi_device_transmit(_SPIDeviceHandle, &transaction1);
-
-		ESP_ERROR_CHECK(state);
-
-		if (state != ESP_OK) {
-			setSlaveSelect(true);
-			return false;
-		}
-
-		// 2
-		spi_transaction_t transaction2 {};
-		transaction2.length = count * 8;
-		transaction2.rx_buffer = data;
-
-		state = spi_device_transmit(_SPIDeviceHandle, &transaction2);
-		setSlaveSelect(true);
+		const auto state = i2c_master_receive(_I2CDeviceHandle, data, count, -1);
 
 		ESP_ERROR_CHECK(state);
 
