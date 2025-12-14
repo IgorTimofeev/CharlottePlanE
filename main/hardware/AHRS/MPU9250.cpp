@@ -24,7 +24,6 @@
 #include <cmath>
 #include <esp_log.h>
 
-#include "logger.h"
 
 namespace pizda {
 	bool MPU9250::setup(i2c_master_bus_handle_t I2CBusHandle, uint8_t I2CAddress) {
@@ -34,7 +33,7 @@ namespace pizda {
 		I2CDeviceConfig.device_address = I2CAddress;
 		I2CDeviceConfig.scl_speed_hz = 400'000;
 
-		Logger::check(_logTag, i2c_master_bus_add_device(I2CBusHandle, &I2CDeviceConfig, &_I2CDeviceHandle));
+		ESP_ERROR_CHECK(i2c_master_bus_add_device(I2CBusHandle, &I2CDeviceConfig, &_I2CDeviceHandle));
 
 		reset_MPU9250();
 		delayMs(10);
@@ -44,7 +43,7 @@ namespace pizda {
 		const auto whoAmI = readWhoAmI();
 
 		if (whoAmI != WHO_AM_I_CODE) {
-			Logger::error(_logTag, "Unknown whoAmI value: %d", whoAmI);
+			ESP_LOGE(_logTag, "Unknown whoAmI value: %d", whoAmI);
 
 			return false;
 		}
@@ -63,7 +62,7 @@ namespace pizda {
 		sleep(false);
 
 		if (!initMagnetometer()) {
-			Logger::error(_logTag, "Mag setup failed");
+			ESP_LOGE(_logTag, "Mag setup failed");
 
 			return false;
 		}
@@ -579,25 +578,25 @@ namespace pizda {
 			val
 		};
 
-		Logger::check(_logTag, i2c_master_transmit(_I2CDeviceHandle, buffer, 2, -1));
+		ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, buffer, 2, -1));
 	}
 
 	uint8_t MPU9250::readMPU9250Register8(uint8_t reg) {
 		const uint8_t cmd = reg | 0x80;
-		Logger::check(_logTag, i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
+		ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
 
 		uint8_t result = 0;
-		Logger::check(_logTag, i2c_master_receive(_I2CDeviceHandle, &result, 1, -1));
+		ESP_ERROR_CHECK(i2c_master_receive(_I2CDeviceHandle, &result, 1, -1));
 
 		return result;
 	}
 
 	int16_t MPU9250::readMPU9250Register16(uint8_t reg) {
 		const uint8_t cmd = reg | 0x80;
-		Logger::check(_logTag, i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
+		ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
 
 		uint8_t result[2];
-		Logger::check(_logTag, i2c_master_receive(_I2CDeviceHandle, result, 2, -1));
+		ESP_ERROR_CHECK(i2c_master_receive(_I2CDeviceHandle, result, 2, -1));
 
 		return (result[0] << 8) | result[0];
 
@@ -615,9 +614,9 @@ namespace pizda {
 
 	void MPU9250::readMPU9250Register3x16(uint8_t reg, uint8_t* buf) {
 		const uint8_t cmd = reg | 0x80;
-		Logger::check(_logTag, i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
+		ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
 
-		Logger::check(_logTag, i2c_master_receive(_I2CDeviceHandle, buf, 6, -1));
+		ESP_ERROR_CHECK(i2c_master_receive(_I2CDeviceHandle, buf, 6, -1));
 
 //    if(!useSPI){
 //        _wire->beginTransmission(i2cAddress);
@@ -647,9 +646,9 @@ namespace pizda {
 		uint8_t fifoTriple[6];
 
 		const uint8_t cmd = REGISTER_FIFO_R_W | 0x80;
-		Logger::check(_logTag, i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
+		ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
 
-		Logger::check(_logTag, i2c_master_receive(_I2CDeviceHandle, fifoTriple, 6, -1));
+		ESP_ERROR_CHECK(i2c_master_receive(_I2CDeviceHandle, fifoTriple, 6, -1));
 
 //    if(!useSPI){
 //        _wire->beginTransmission(i2cAddress);
@@ -713,7 +712,7 @@ namespace pizda {
 		const auto whoAmI = readWhoAmIMag();
 
 		if (whoAmI != MAGNETOMETER_WHO_AM_I_CODE) {
-			Logger::error(_logTag, "Unknown mag WhoAmI value: %d", whoAmI);
+			ESP_LOGE(_logTag, "Unknown mag WhoAmI value: %d", whoAmI);
 
 			return false;
 		}
@@ -794,10 +793,10 @@ namespace pizda {
 	void MPU9250::readAK8963Data(uint8_t* buf) {
 		// Write
 		const uint8_t cmd = REGISTER_EXT_SLV_SENS_DATA_00 | 0x80;
-		Logger::check(_logTag, i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
+		ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
 
 		// Read
-		Logger::check(_logTag, i2c_master_receive(_I2CDeviceHandle, buf, 6, -1));
+		ESP_ERROR_CHECK(i2c_master_receive(_I2CDeviceHandle, buf, 6, -1));
 
 //	if(!useSPI){
 //		_wire->beginTransmission(i2cAddress);

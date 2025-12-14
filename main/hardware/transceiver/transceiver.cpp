@@ -13,12 +13,11 @@
 #include <esp_timer.h>
 
 #include "aircraft.h"
-#include "logger.h"
 
 namespace pizda {
 	void Transceiver::setup() {
 		QueueHandle_t queue;
-		Logger::check(_logTag, uart_driver_install(UART_NUM_0, _readingBufferLength, _readingBufferLength, 10, &queue, 0));
+		ESP_ERROR_CHECK(uart_driver_install(UART_NUM_0, _readingBufferLength, _readingBufferLength, 10, &queue, 0));
 
 		uart_config_t uartConfig {};
 		uartConfig.baud_rate = 115200;
@@ -27,9 +26,9 @@ namespace pizda {
 		uartConfig.stop_bits = UART_STOP_BITS_1;
 		uartConfig.flow_ctrl = UART_HW_FLOWCTRL_DISABLE;
 		uartConfig.source_clk = UART_SCLK_DEFAULT;
-		Logger::check(_logTag, uart_param_config(UART_NUM_0, &uartConfig));
+		ESP_ERROR_CHECK(uart_param_config(UART_NUM_0, &uartConfig));
 
-		Logger::check(_logTag, uart_set_pin(UART_NUM_0, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+		ESP_ERROR_CHECK(uart_set_pin(UART_NUM_0, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
 	}
 
 	void Transceiver::setPacketParser(PacketParser* value) {
@@ -37,7 +36,7 @@ namespace pizda {
 	}
 
 	void Transceiver::readingTaskBody() {
-		Logger::info(_logTag, "reading started");
+		ESP_LOGI(_logTag, "reading started");
 
 		while (true) {
 			const int bytesRead = uart_read_bytes(UART_NUM_0, _readingBuffer, _readingBufferLength, pdMS_TO_TICKS(16));
@@ -46,7 +45,7 @@ namespace pizda {
 				continue;
 
 			if (bytesRead > 0) {
-				Logger::info(_logTag, "bytes readRegister: %d", bytesRead);
+				ESP_LOGI(_logTag, "bytes readRegister: %d", bytesRead);
 
 				switch (_connectionState) {
 					case TransceiverConnectionState::initial:

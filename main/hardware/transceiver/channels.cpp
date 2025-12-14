@@ -3,7 +3,6 @@
 #include <utility>
 
 #include "aircraft.h"
-#include "logger.h"
 
 namespace pizda {
 	void Channels::setup() {
@@ -29,7 +28,7 @@ namespace pizda {
 		for (const auto& field : ac.settings.channelDataStructure.fields) {
 			for (uint16_t i = 0; i < field.count; ++i) {
 				if (channelIndex >= instances.size()) {
-					Logger::error(_logTag, "updateFromDataStructure() failed, channel %d >= channels size %d", channelIndex, instances.size());
+					ESP_LOGE(_logTag, "updateFromDataStructure() failed, channel %d >= channels size %d", channelIndex, instances.size());
 					return;
 				}
 
@@ -52,14 +51,14 @@ namespace pizda {
 
 	Channel* Channels::getChannel(uint8_t channelIndex) {
 		if (channelIndex >= instances.size()) {
-			Logger::error(_logTag, "getChannel() failed, channel %d >= channels size %d", channelIndex, instances.size());
+			ESP_LOGE(_logTag, "getChannel() failed, channel %d >= channels size %d", channelIndex, instances.size());
 			return nullptr;
 		}
 
 		const auto channel = instances[channelIndex];
 
 		if (!channel) {
-			Logger::error(_logTag, "getChannel() failed, channel %d is not configured", channelIndex);
+			ESP_LOGE(_logTag, "getChannel() failed, channel %d is not configured", channelIndex);
 			return nullptr;
 		}
 
@@ -74,7 +73,7 @@ namespace pizda {
 		const auto channel = getChannel(channelIndex);
 
 		if (channel->getDataType() != dataType) {
-			Logger::error(_logTag, "getChannelAndCheckDataType() failed, channel %d data type %d != requested data type", channelIndex, channel->getDataType(), dataType);
+			ESP_LOGE(_logTag, "getChannelAndCheckDataType() failed, channel %d data type %d != requested data type", channelIndex, channel->getDataType(), dataType);
 			return nullptr;
 		}
 

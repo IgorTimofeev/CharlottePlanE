@@ -2,7 +2,6 @@
 
 #include "aircraft.h"
 #include "hardware/motor.h"
-#include "logger.h"
 
 namespace pizda {
 	bool AircraftPacketParser::onParse(BitStream& stream, PacketType packetType) {
@@ -17,7 +16,7 @@ namespace pizda {
 				return onMotorConfigurationPacket(stream);
 			}
 			default: {
-				Logger::error(_logTag, "unknown packet type: %d", static_cast<uint8_t>(packetType));
+				ESP_LOGE(_logTag, "unknown packet type: %d", static_cast<uint8_t>(packetType));
 
 				return false;
 			}
@@ -29,7 +28,7 @@ namespace pizda {
 
 		const auto valueCount = stream.readUint8(8);
 
-		Logger::info(_logTag, "data type count: %d", valueCount);
+		ESP_LOGI(_logTag, "data type count: %d", valueCount);
 
 		ac.settings.channelDataStructure.fields.clear();
 		ac.settings.channelDataStructure.fields.reserve(valueCount);
@@ -44,7 +43,7 @@ namespace pizda {
 					field.bitDepth = stream.readUint8(5);
 					field.count = stream.readUint8(8);
 
-					Logger::info(_logTag, "data type #%d, type: uint, bit depth: %d, count: %d", i, field.bitDepth, field.count);
+					ESP_LOGI(_logTag, "data type #%d, type: uint, bit depth: %d, count: %d", i, field.bitDepth, field.count);
 
 					break;
 				}
@@ -52,12 +51,12 @@ namespace pizda {
 					field.bitDepth = 1;
 					field.count = stream.readUint8(8);
 
-					Logger::info(_logTag, "data type #%d, type: bool, count: %d", i, field.count);
+					ESP_LOGI(_logTag, "data type #%d, type: bool, count: %d", i, field.count);
 
 					break;
 				}
 				default: {
-					Logger::info(_logTag, "unknown data type");
+					ESP_LOGI(_logTag, "unknown data type");
 					return false;
 				}
 			}
@@ -78,7 +77,7 @@ namespace pizda {
 			return false;
 
 		if (ac.settings.channelDataStructure.fields.empty()) {
-			Logger::error(_logTag, "channel data structure is empty");
+			ESP_LOGE(_logTag, "channel data structure is empty");
 
 			return false;
 		}
@@ -97,7 +96,7 @@ namespace pizda {
 						const auto uintChannel = reinterpret_cast<UintChannel*>(channel);
 						uintChannel->setValue(stream.readUint32(uintChannel->getBitDepth()));
 
-						Logger::info(_logTag, "channel #%d, uint value: %d", channelIndex, uintChannel->getValue());
+						ESP_LOGI(_logTag, "channel #%d, uint value: %d", channelIndex, uintChannel->getValue());
 
 						break;
 					}
@@ -105,7 +104,7 @@ namespace pizda {
 						const auto boolChannel = reinterpret_cast<BoolChannel*>(channel);
 						boolChannel->setValue(stream.readBool());
 
-						Logger::info(_logTag, "channel #%d, bool value: %d", channelIndex, boolChannel->getValue());
+						ESP_LOGI(_logTag, "channel #%d, bool value: %d", channelIndex, boolChannel->getValue());
 
 						break;
 					}
@@ -147,7 +146,7 @@ namespace pizda {
 
 			ac.settings.motors.configurations.push_back(configuration);
 
-			Logger::info(_logTag, "motor index: %d, min: %d, max: %d, startup: %d, offset: %d, reverse: %d", i, configuration.min, configuration.max, configuration.startup, configuration.offset, configuration.reverse);
+			ESP_LOGI(_logTag, "motor index: %d, min: %d, max: %d, startup: %d, offset: %d, reverse: %d", i, configuration.min, configuration.max, configuration.startup, configuration.offset, configuration.reverse);
 		}
 
 		ac.motors.updateConfigurationsFromSettings();

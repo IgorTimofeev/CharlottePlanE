@@ -11,7 +11,6 @@
 #include "hardware/AHRS/MPU9250.h"
 #include "hardware/AHRS/BMP280.h"
 
-#include "logger.h"
 
 namespace pizda {
 	template<typename TUnit>
@@ -43,7 +42,7 @@ namespace pizda {
 				const auto state = i2c_new_master_bus(&i2c_mst_config, &I2CBusHandle);
 
 				if (state != ESP_OK && state != ESP_ERR_INVALID_STATE) {
-					Logger::check(_logTag, state);
+					ESP_ERROR_CHECK(state);
 					return;
 				}
 
@@ -53,7 +52,7 @@ namespace pizda {
 						I2CBusHandle,
 						MPU.address
 					)) {
-						Logger::info(_logTag, "MPU-9250 initialization failed");
+						ESP_LOGI(_logTag, "MPU-9250 initialization failed");
 						return;
 					}
 
@@ -85,7 +84,7 @@ namespace pizda {
 						BMP280Filter::x4,
 						BMP280StandbyDuration::ms125
 					)) {
-						Logger::info(_logTag, "BMP280 initialization failed");
+						ESP_LOGI(_logTag, "BMP280 initialization failed");
 						return;
 					}
 				}
@@ -187,7 +186,7 @@ namespace pizda {
 				_temperature = temperatureSum / _BMPs.size();
 				_altitude = computeAltitude(pressureSum, temperatureSum);
 
-				Logger::info(_logTag, "Avg press: %f, temp: %f, alt: %f", _pressure, _temperature, _altitude);
+				ESP_LOGI(_logTag, "Avg press: %f, temp: %f, alt: %f", _pressure, _temperature, _altitude);
 			}
 
 			void updateMPU() {
@@ -196,9 +195,9 @@ namespace pizda {
 					Vector3F v2 = MPU.unit.readGyroValues();
 					Vector3F v3 = MPU.unit.getMagValues();
 
-					Logger::info(_logTag, "MPU acc: %f x %f x %f", v1.getX(), v1.getY(), v1.getZ());
-					Logger::info(_logTag, "MPU gyr: %f x %f x %f", v2.getX(), v2.getY(), v2.getZ());
-					Logger::info(_logTag, "MPU mag: %f x %f x %f", v3.getX(), v3.getY(), v3.getZ());
+					ESP_LOGI(_logTag, "MPU acc: %f x %f x %f", v1.getX(), v1.getY(), v1.getZ());
+					ESP_LOGI(_logTag, "MPU gyr: %f x %f x %f", v2.getX(), v2.getY(), v2.getZ());
+					ESP_LOGI(_logTag, "MPU mag: %f x %f x %f", v3.getX(), v3.getY(), v3.getZ());
 				}
 			}
 

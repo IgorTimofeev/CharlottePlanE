@@ -1,5 +1,4 @@
 #include "motor.h"
-#include "logger.h"
 
 #include <cmath>
 #include <algorithm>
@@ -20,7 +19,7 @@ namespace pizda {
 		timerConfig.timer_num = LEDC_TIMER_0;
 		timerConfig.freq_hz = frequencyHz;
 		timerConfig.clk_cfg = LEDC_AUTO_CLK;
-		Logger::check(_logTag, ledc_timer_config(&timerConfig));
+		ESP_ERROR_CHECK(ledc_timer_config(&timerConfig));
 
 		ledc_channel_config_t channelConfig {};
 		channelConfig.speed_mode = LEDC_LOW_SPEED_MODE;
@@ -30,12 +29,12 @@ namespace pizda {
 		channelConfig.gpio_num = pin;
 		channelConfig.duty = 0;
 		channelConfig.hpoint = 0;
-		Logger::check(_logTag, ledc_channel_config(&channelConfig));
+		ESP_ERROR_CHECK(ledc_channel_config(&channelConfig));
 	}
 
 	void Motor::setDuty(uint32_t duty) const {
-		Logger::check(_logTag, ledc_set_duty(LEDC_LOW_SPEED_MODE, channel, duty));
-		Logger::check(_logTag, ledc_update_duty(LEDC_LOW_SPEED_MODE, channel));
+		ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, channel, duty));
+		ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, channel));
 	}
 
 	void Motor::setPulseWidth(uint16_t pulseWidth) const {

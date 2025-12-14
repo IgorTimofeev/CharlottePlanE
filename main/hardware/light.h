@@ -3,7 +3,6 @@
 #include <esp_timer.h>
 #include "led_strip_rmt.h"
 #include "led_strip.h"
-#include "logger.h"
 
 namespace pizda {
 	class Light {
@@ -22,7 +21,7 @@ namespace pizda {
 				rmt_config.mem_block_symbols = 0;
 				rmt_config.flags.with_dma = false;
 
-				Logger::check(_logTag, led_strip_new_rmt_device(&strip_config, &rmt_config, &_stripHandle));
+				ESP_ERROR_CHECK(led_strip_new_rmt_device(&strip_config, &rmt_config, &_stripHandle));
 			}
 
 			uint8_t getLength() const {

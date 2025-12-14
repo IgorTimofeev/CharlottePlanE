@@ -8,7 +8,6 @@
 #include <driver/i2c_master.h>
 
 #include "hardware/busStream.h"
-#include "logger.h"
 
 namespace pizda {
 	enum class BMP280I2CAddress : uint8_t {
@@ -102,18 +101,18 @@ namespace pizda {
 				uint8_t chipID = 0;
 
 				if (!readUint8(BMP280Register::chipID, chipID)) {
-					Logger::error(_logTag, "Unable to read chip ID");
+					ESP_LOGE(_logTag, "Unable to read chip ID");
 					return false;
 				}
 
 				if (chipID != BMP280ChipID) {
-					Logger::error(_logTag, "Invalid chip ID: %d", chipID);
+					ESP_LOGE(_logTag, "Invalid chip ID: %d", chipID);
 					return false;
 				}
 
 				// Reading factory-fused calibration data
 				if (!readCalibrationData()) {
-					Logger::error(_logTag, "Unable to read calibration data");
+					ESP_LOGE(_logTag, "Unable to read calibration data");
 					return false;
 				}
 
@@ -179,7 +178,7 @@ namespace pizda {
 				int32_t adc_P = buffer[0] << 12 | buffer[1] << 4 | buffer[2] >> 4;
 				int32_t adc_T = buffer[3] << 12 | buffer[4] << 4 | buffer[5] >> 4;
 
-//				Logger::info(_logTag, "adc_P: %d, adc_T: %d", adc_P, adc_T);
+//				ESP_LOGI(_logTag, "adc_P: %d, adc_T: %d", adc_P, adc_T);
 
 				// Temperature should be processed first for tFine
 				{
@@ -310,18 +309,18 @@ namespace pizda {
 				if (!readInt16LE(BMP280Register::digP9, _calibrationDigP9))
 					return false;
 
-//				Logger::info(_logTag, "_calibrationDigT1: %d", _calibrationDigT1);
-//				Logger::info(_logTag, "_calibrationDigT2: %d", _calibrationDigT2);
-//				Logger::info(_logTag, "_calibrationDigT3: %d", _calibrationDigT3);
-//				Logger::info(_logTag, "_calibrationDigP1: %d", _calibrationDigP1);
-//				Logger::info(_logTag, "_calibrationDigP2: %d", _calibrationDigP2);
-//				Logger::info(_logTag, "_calibrationDigP3: %d", _calibrationDigP3);
-//				Logger::info(_logTag, "_calibrationDigP4: %d", _calibrationDigP4);
-//				Logger::info(_logTag, "_calibrationDigP5: %d", _calibrationDigP5);
-//				Logger::info(_logTag, "_calibrationDigP6: %d", _calibrationDigP6);
-//				Logger::info(_logTag, "_calibrationDigP7: %d", _calibrationDigP7);
-//				Logger::info(_logTag, "_calibrationDigP8: %d", _calibrationDigP8);
-//				Logger::info(_logTag, "_calibrationDigP9: %d", _calibrationDigP9);
+//				ESP_LOGI(_logTag, "_calibrationDigT1: %d", _calibrationDigT1);
+//				ESP_LOGI(_logTag, "_calibrationDigT2: %d", _calibrationDigT2);
+//				ESP_LOGI(_logTag, "_calibrationDigT3: %d", _calibrationDigT3);
+//				ESP_LOGI(_logTag, "_calibrationDigP1: %d", _calibrationDigP1);
+//				ESP_LOGI(_logTag, "_calibrationDigP2: %d", _calibrationDigP2);
+//				ESP_LOGI(_logTag, "_calibrationDigP3: %d", _calibrationDigP3);
+//				ESP_LOGI(_logTag, "_calibrationDigP4: %d", _calibrationDigP4);
+//				ESP_LOGI(_logTag, "_calibrationDigP5: %d", _calibrationDigP5);
+//				ESP_LOGI(_logTag, "_calibrationDigP6: %d", _calibrationDigP6);
+//				ESP_LOGI(_logTag, "_calibrationDigP7: %d", _calibrationDigP7);
+//				ESP_LOGI(_logTag, "_calibrationDigP8: %d", _calibrationDigP8);
+//				ESP_LOGI(_logTag, "_calibrationDigP9: %d", _calibrationDigP9);
 
 				return true;
 			}
