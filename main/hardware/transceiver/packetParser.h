@@ -16,6 +16,8 @@ namespace pizda {
 			virtual void onConnectionRestored() = 0;
 
 		protected:
+			constexpr static const char* _logTag = "PacketParser";
+
 			static uint8_t getCRC8(const uint8_t* buffer, size_t length);
 			static bool validateChecksum(const uint8_t* buffer, size_t dataBitCount);
 			static uint8_t readValueCountAndValidateChecksum(BitStream& bitStream, uint8_t valueCountBitCount, uint8_t valueBitCount);

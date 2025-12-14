@@ -29,6 +29,8 @@ namespace pizda {
 			void updateConfigurationsFromSettings();
 
 		private:
+			constexpr static const char* _logTag = "Motors";
+
 			std::array<std::optional<ConfiguredMotor>, 7> instances {
 				ConfiguredMotor {constants::motors::throttle, LEDC_CHANNEL_0 },
 

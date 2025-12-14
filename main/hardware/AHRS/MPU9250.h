@@ -112,92 +112,6 @@ namespace pizda {
 
 	class MPU9250 {
 		public:
-			/* Registers MPU6500 */
-			static uint8_t constexpr REGISTER_SELF_TEST_X_GYRO = 0x00;
-			static uint8_t constexpr REGISTER_SELF_TEST_Y_GYRO = 0x01;
-			static uint8_t constexpr REGISTER_SELF_TEST_Z_GYRO = 0x02;
-			static uint8_t constexpr REGISTER_SELF_TEST_X_ACCEL = 0x0D;
-			static uint8_t constexpr REGISTER_SELF_TEST_Y_ACCEL = 0x0E;
-			static uint8_t constexpr REGISTER_SELF_TEST_Z_ACCEL = 0x0F;
-			static uint8_t constexpr REGISTER_XG_OFFSET_H = 0x13;
-			static uint8_t constexpr REGISTER_XG_OFFSET_L = 0x14;
-			static uint8_t constexpr REGISTER_YG_OFFSET_H = 0x15;
-			static uint8_t constexpr REGISTER_YG_OFFSET_L = 0x16;
-			static uint8_t constexpr REGISTER_ZG_OFFSET_H = 0x17;
-			static uint8_t constexpr REGISTER_ZG_OFFSET_L = 0x18;
-			static uint8_t constexpr REGISTER_SMPLRT_DIV = 0x19;
-			static uint8_t constexpr REGISTER_CONFIG = 0x1A;
-			static uint8_t constexpr REGISTER_GYRO_CONFIG = 0x1B;
-			static uint8_t constexpr REGISTER_ACCEL_CONFIG = 0x1C;
-			static uint8_t constexpr REGISTER_ACCEL_CONFIG_2 = 0x1D;
-			static uint8_t constexpr REGISTER_LP_ACCEL_ODR = 0x1E;
-			static uint8_t constexpr REGISTER_WOM_THR = 0x1F;
-			static uint8_t constexpr REGISTER_FIFO_EN = 0x23;
-			static uint8_t constexpr REGISTER_I2C_MST_CTRL = 0x24;
-			static uint8_t constexpr REGISTER_I2C_SLV0_ADDR = 0x25;
-			static uint8_t constexpr REGISTER_I2C_SLV0_REG = 0x26;
-			static uint8_t constexpr REGISTER_I2C_SLV0_CTRL = 0x27;
-			static uint8_t constexpr REGISTER_I2C_MST_STATUS = 0x36;
-			static uint8_t constexpr REGISTER_INT_PIN_CFG = 0x37;
-			static uint8_t constexpr REGISTER_INT_ENABLE = 0x38;
-			static uint8_t constexpr REGISTER_INT_STATUS = 0x3A;
-			static uint8_t constexpr REGISTER_ACCEL_OUT = 0x3B; // accel data registers begin
-			static uint8_t constexpr REGISTER_TEMP_OUT = 0x41;
-			static uint8_t constexpr REGISTER_GYRO_OUT = 0x43; // gyro data registers begin
-			static uint8_t constexpr REGISTER_EXT_SLV_SENS_DATA_00 = 0x49;
-			static uint8_t constexpr REGISTER_I2C_SLV0_DO = 0x63;
-			static uint8_t constexpr REGISTER_I2C_MST_DELAY_CTRL = 0x67;
-			static uint8_t constexpr REGISTER_SIGNAL_PATH_RESET = 0x68;
-			static uint8_t constexpr REGISTER_MOT_DET_CTRL = 0x69;
-			static uint8_t constexpr REGISTER_USER_CTRL = 0x6A;
-			static uint8_t constexpr REGISTER_PWR_MGMT_1 = 0x6B;
-			static uint8_t constexpr REGISTER_PWR_MGMT_2 = 0x6C;
-			static uint8_t constexpr REGISTER_FIFO_COUNT = 0x72; // 0x72 is COUNT_H
-			static uint8_t constexpr REGISTER_FIFO_R_W = 0x74;
-			static uint8_t constexpr REGISTER_WHO_AM_I = 0x75;
-			static uint8_t constexpr REGISTER_XA_OFFSET_H = 0x77;
-			static uint8_t constexpr REGISTER_XA_OFFSET_L = 0x78;
-			static uint8_t constexpr REGISTER_YA_OFFSET_H = 0x7A;
-			static uint8_t constexpr REGISTER_YA_OFFSET_L = 0x7B;
-			static uint8_t constexpr REGISTER_ZA_OFFSET_H = 0x7D;
-			static uint8_t constexpr REGISTER_ZA_OFFSET_L = 0x7E;
-
-			/* Register Values */
-			static uint8_t constexpr REGISTER_VALUE_RESET = 0x80;
-			static uint8_t constexpr REGISTER_VALUE_BYPASS_EN = 0x02;
-			static uint8_t constexpr REGISTER_VALUE_I2C_MST_EN = 0x20;
-			static uint8_t constexpr REGISTER_VALUE_CLK_SEL_PLL = 0x01;
-
-			/* Others */
-			static float constexpr ROOM_TEMPERATURE_OFFSET = 0.0f;
-			static float constexpr TEMPERATURE_SENSITIVITY = 333.87f;
-
-			/* Register Values */
-			static uint8_t constexpr REGISTER_VALUE_AK8963_16_BIT = 0x10;
-			static uint8_t constexpr REGISTER_VALUE_AK8963_OVF = 0x08;
-			static uint8_t constexpr REGISTER_VALUE_AK8963_READ = 0x80;
-
-			/* Others */
-			static uint8_t constexpr WHO_AM_I_CODE = 0x71;
-			static uint8_t constexpr MAGNETOMETER_I2C_ADDRESS = 0x0C;
-			static uint8_t constexpr MAGNETOMETER_WHO_AM_I_CODE = 0x48;
-
-			/* Registers AK8963 */
-			static uint8_t constexpr REGISTER_AK8963_WIA = 0x00; // Who am I
-			static uint8_t constexpr REGISTER_AK8963_INFO = 0x01;
-			static uint8_t constexpr REGISTER_AK8963_STATUS_1 = 0x02;
-			static uint8_t constexpr REGISTER_AK8963_HXL = 0x03;
-			static uint8_t constexpr REGISTER_AK8963_HYL = 0x05;
-			static uint8_t constexpr REGISTER_AK8963_HZL = 0x07;
-			static uint8_t constexpr REGISTER_AK8963_STATUS_2 = 0x09;
-			static uint8_t constexpr REGISTER_AK8963_CNTL_1 = 0x0A;
-			static uint8_t constexpr REGISTER_AK8963_CNTL_2 = 0x0B;
-			static uint8_t constexpr REGISTER_AK8963_ASTC = 0x0C; // Self Test
-			static uint8_t constexpr REGISTER_AK8963_I2CDIS = 0x0F;
-			static uint8_t constexpr REGISTER_AK8963_ASAX = 0x10;
-			static uint8_t constexpr REGISTER_AK8963_ASAY = 0x11;
-			static uint8_t constexpr REGISTER_AK8963_ASAZ = 0x12;
-
 			bool setup(i2c_master_bus_handle_t I2CBusHandle, uint8_t I2CAddress);
 
 			uint8_t readWhoAmI();
@@ -393,6 +307,94 @@ namespace pizda {
 			void startMagMeasurement();
 
 		private:
+			constexpr static const char* _logTag = "MPU-9250";
+
+			/* Registers MPU6500 */
+			constexpr static uint8_t REGISTER_SELF_TEST_X_GYRO = 0x00;
+			constexpr static uint8_t REGISTER_SELF_TEST_Y_GYRO = 0x01;
+			constexpr static uint8_t REGISTER_SELF_TEST_Z_GYRO = 0x02;
+			constexpr static uint8_t REGISTER_SELF_TEST_X_ACCEL = 0x0D;
+			constexpr static uint8_t REGISTER_SELF_TEST_Y_ACCEL = 0x0E;
+			constexpr static uint8_t REGISTER_SELF_TEST_Z_ACCEL = 0x0F;
+			constexpr static uint8_t REGISTER_XG_OFFSET_H = 0x13;
+			constexpr static uint8_t REGISTER_XG_OFFSET_L = 0x14;
+			constexpr static uint8_t REGISTER_YG_OFFSET_H = 0x15;
+			constexpr static uint8_t REGISTER_YG_OFFSET_L = 0x16;
+			constexpr static uint8_t REGISTER_ZG_OFFSET_H = 0x17;
+			constexpr static uint8_t REGISTER_ZG_OFFSET_L = 0x18;
+			constexpr static uint8_t REGISTER_SMPLRT_DIV = 0x19;
+			constexpr static uint8_t REGISTER_CONFIG = 0x1A;
+			constexpr static uint8_t REGISTER_GYRO_CONFIG = 0x1B;
+			constexpr static uint8_t REGISTER_ACCEL_CONFIG = 0x1C;
+			constexpr static uint8_t REGISTER_ACCEL_CONFIG_2 = 0x1D;
+			constexpr static uint8_t REGISTER_LP_ACCEL_ODR = 0x1E;
+			constexpr static uint8_t REGISTER_WOM_THR = 0x1F;
+			constexpr static uint8_t REGISTER_FIFO_EN = 0x23;
+			constexpr static uint8_t REGISTER_I2C_MST_CTRL = 0x24;
+			constexpr static uint8_t REGISTER_I2C_SLV0_ADDR = 0x25;
+			constexpr static uint8_t REGISTER_I2C_SLV0_REG = 0x26;
+			constexpr static uint8_t REGISTER_I2C_SLV0_CTRL = 0x27;
+			constexpr static uint8_t REGISTER_I2C_MST_STATUS = 0x36;
+			constexpr static uint8_t REGISTER_INT_PIN_CFG = 0x37;
+			constexpr static uint8_t REGISTER_INT_ENABLE = 0x38;
+			constexpr static uint8_t REGISTER_INT_STATUS = 0x3A;
+			constexpr static uint8_t REGISTER_ACCEL_OUT = 0x3B; // accel data registers begin
+			constexpr static uint8_t REGISTER_TEMP_OUT = 0x41;
+			constexpr static uint8_t REGISTER_GYRO_OUT = 0x43; // gyro data registers begin
+			constexpr static uint8_t REGISTER_EXT_SLV_SENS_DATA_00 = 0x49;
+			constexpr static uint8_t REGISTER_I2C_SLV0_DO = 0x63;
+			constexpr static uint8_t REGISTER_I2C_MST_DELAY_CTRL = 0x67;
+			constexpr static uint8_t REGISTER_SIGNAL_PATH_RESET = 0x68;
+			constexpr static uint8_t REGISTER_MOT_DET_CTRL = 0x69;
+			constexpr static uint8_t REGISTER_USER_CTRL = 0x6A;
+			constexpr static uint8_t REGISTER_PWR_MGMT_1 = 0x6B;
+			constexpr static uint8_t REGISTER_PWR_MGMT_2 = 0x6C;
+			constexpr static uint8_t REGISTER_FIFO_COUNT = 0x72; // 0x72 is COUNT_H
+			constexpr static uint8_t REGISTER_FIFO_R_W = 0x74;
+			constexpr static uint8_t REGISTER_WHO_AM_I = 0x75;
+			constexpr static uint8_t REGISTER_XA_OFFSET_H = 0x77;
+			constexpr static uint8_t REGISTER_XA_OFFSET_L = 0x78;
+			constexpr static uint8_t REGISTER_YA_OFFSET_H = 0x7A;
+			constexpr static uint8_t REGISTER_YA_OFFSET_L = 0x7B;
+			constexpr static uint8_t REGISTER_ZA_OFFSET_H = 0x7D;
+			constexpr static uint8_t REGISTER_ZA_OFFSET_L = 0x7E;
+
+			/* Register Values */
+			constexpr static uint8_t REGISTER_VALUE_RESET = 0x80;
+			constexpr static uint8_t REGISTER_VALUE_BYPASS_EN = 0x02;
+			constexpr static uint8_t REGISTER_VALUE_I2C_MST_EN = 0x20;
+			constexpr static uint8_t REGISTER_VALUE_CLK_SEL_PLL = 0x01;
+
+			/* Others */
+			static float constexpr ROOM_TEMPERATURE_OFFSET = 0.0f;
+			static float constexpr TEMPERATURE_SENSITIVITY = 333.87f;
+
+			/* Register Values */
+			constexpr static uint8_t REGISTER_VALUE_AK8963_16_BIT = 0x10;
+			constexpr static uint8_t REGISTER_VALUE_AK8963_OVF = 0x08;
+			constexpr static uint8_t REGISTER_VALUE_AK8963_READ = 0x80;
+
+			/* Others */
+			constexpr static uint8_t WHO_AM_I_CODE = 0x71;
+			constexpr static uint8_t MAGNETOMETER_I2C_ADDRESS = 0x0C;
+			constexpr static uint8_t MAGNETOMETER_WHO_AM_I_CODE = 0x48;
+
+			/* Registers AK8963 */
+			constexpr static uint8_t REGISTER_AK8963_WIA = 0x00; // Who am I
+			constexpr static uint8_t REGISTER_AK8963_INFO = 0x01;
+			constexpr static uint8_t REGISTER_AK8963_STATUS_1 = 0x02;
+			constexpr static uint8_t REGISTER_AK8963_HXL = 0x03;
+			constexpr static uint8_t REGISTER_AK8963_HYL = 0x05;
+			constexpr static uint8_t REGISTER_AK8963_HZL = 0x07;
+			constexpr static uint8_t REGISTER_AK8963_STATUS_2 = 0x09;
+			constexpr static uint8_t REGISTER_AK8963_CNTL_1 = 0x0A;
+			constexpr static uint8_t REGISTER_AK8963_CNTL_2 = 0x0B;
+			constexpr static uint8_t REGISTER_AK8963_ASTC = 0x0C; // Self Test
+			constexpr static uint8_t REGISTER_AK8963_I2CDIS = 0x0F;
+			constexpr static uint8_t REGISTER_AK8963_ASAX = 0x10;
+			constexpr static uint8_t REGISTER_AK8963_ASAY = 0x11;
+			constexpr static uint8_t REGISTER_AK8963_ASAZ = 0x12;
+
 			Vector3F accOffsetVal;
 			Vector3F gyrOffsetVal;
 			uint8_t accRangeFactor;

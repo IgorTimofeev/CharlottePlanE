@@ -2,6 +2,7 @@
 
 #include "hardware/transceiver/channels.h"
 #include "aircraft.h"
+#include "logger.h"
 
 namespace pizda {
 	void Motors::setup() {
@@ -20,11 +21,11 @@ namespace pizda {
 
 	ConfiguredMotor* Motors::getMotor(uint8_t index) {
 		if (index >= instances.size()) {
-			ESP_LOGI("Motors::getMotor()", "index %d >= motors count %d", index, instances.size());
+			Logger::info(_logTag, "index %d >= motors count %d", index, instances.size());
 			return nullptr;
 		}
 		else if (!instances[index]) {
-			ESP_LOGI("Motors::getMotor()", "motor with index %d is not bound", index);
+			Logger::info(_logTag, "motor with index %d is not bound", index);
 			return nullptr;
 		}
 

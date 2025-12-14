@@ -1,4 +1,5 @@
 #include "packetParser.h"
+#include "logger.h"
 
 namespace pizda {
 	uint8_t PacketParser::getCRC8(const uint8_t* buffer, size_t length) {
@@ -26,7 +27,7 @@ namespace pizda {
 		const auto expectedChecksum = *(buffer + dataByteCount);
 
 		if (checksum != expectedChecksum) {
-			ESP_LOGE("PacketParser", "checksum mismatch: got %d, expected %d", checksum, expectedChecksum);
+			Logger::error(_logTag, "checksum mismatch: got %d, expected %d", checksum, expectedChecksum);
 
 			return false;
 		}
@@ -37,7 +38,7 @@ namespace pizda {
 	uint8_t PacketParser::readValueCountAndValidateChecksum(BitStream& bitStream, uint8_t valueCountBitCount, uint8_t valueBitCount) {
 		auto valueCount = bitStream.readUint8(valueCountBitCount);
 
-		ESP_LOGI("PacketParser", "value count: %d", valueCount);
+		Logger::info(_logTag, "value count: %d", valueCount);
 
 		// CRC check
 		if (!validateChecksum(bitStream.getBuffer(), valueCountBitCount + valueBitCount * valueCount))
@@ -49,14 +50,14 @@ namespace pizda {
 	uint8_t PacketParser::parseOne(uint8_t* buffer) {
 		auto packetPtr = buffer;
 
-		ESP_LOGI("PacketParser", "-------- Begin --------");
+		Logger::info(_logTag, "-------- Begin --------");
 
 		// Header
 		const auto headerValid = memcmp(packetPtr, Packet::header, Packet::headerByteCount) == 0;
 		packetPtr += Packet::headerByteCount;
 
 		if (!headerValid) {
-			ESP_LOGE("PacketParser", "mismatched header: %s", packetPtr);
+			Logger::error(_logTag, "mismatched header: %s", packetPtr);
 
 			return 0;
 		}
@@ -65,11 +66,11 @@ namespace pizda {
 
 		// Type
 		const auto packetType = static_cast<PacketType>(bitStream.readUint16(4));
-		ESP_LOGI("PacketParser", "packet type: %d", static_cast<uint8_t>(packetType));
+		Logger::info(_logTag, "packet type: %d", static_cast<uint8_t>(packetType));
 
 		// Payload parsing
 		if (!onParse(bitStream, packetType)) {
-			ESP_LOGI("PacketParser", "parsing failed");
+			Logger::info(_logTag, "parsing failed");
 			
 			return 0;
 		}
@@ -80,8 +81,8 @@ namespace pizda {
 
 		const auto packetLength = packetPtr - buffer;
 
-		ESP_LOGI("PacketParser", "payload length: %d, total length: %d", payloadLength, packetLength);
-		ESP_LOGI("PacketParser", "-------- End --------");
+		Logger::info(_logTag, "payload length: %d, total length: %d", payloadLength, packetLength);
+		Logger::info(_logTag, "-------- End --------");
 
 		return packetLength;
 	}

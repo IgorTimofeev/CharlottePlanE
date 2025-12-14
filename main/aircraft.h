@@ -33,6 +33,8 @@ namespace pizda {
 			void updateHardwareFromChannels();
 
 		private:
+			constexpr static const char* _logTag = "Aircraft";
+						
 			Aircraft() = default;
 
 			void SPIBusSetup() const;

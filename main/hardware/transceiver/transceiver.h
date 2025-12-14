@@ -22,6 +22,7 @@ namespace pizda {
 			void start();
 
 		private:
+			constexpr static const char* _logTag = "Transceiver";
 			constexpr static uint32_t _connectionLostInterval = 5'000'000;
 
 			PacketParser* _packetParser = nullptr;

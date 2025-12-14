@@ -47,7 +47,7 @@ namespace pizda {
 		busConfig.quadhd_io_num = -1;
 		busConfig.max_transfer_sz = 320 * 240;
 
-		ESP_ERROR_CHECK(spi_bus_initialize(constants::spi::device, &busConfig, SPI_DMA_CH_AUTO));
+		Logger::check(_logTag, spi_bus_initialize(constants::spi::device, &busConfig, SPI_DMA_CH_AUTO));
 	}
 
 	void Aircraft::transceiverSetup() {

@@ -35,6 +35,8 @@ namespace pizda {
 		public:
 			Motor(gpio_num_t pin, ledc_channel_t channel);
 
+			constexpr static const char* _logTag = "Motor";
+
 			constexpr static uint8_t frequencyHz = 50;
 
 			constexpr static uint8_t powerBitCount = 12;

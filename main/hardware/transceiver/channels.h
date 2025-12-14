@@ -103,6 +103,8 @@ namespace pizda {
 			BoolChannel* getBoolChannel(ChannelType channelType);
 
 		private:
+			constexpr static const char* _logTag = "Channels";
+
 			std::array<Channel*, 10> instances {};
 
 			Channel* getChannelAndCheckDataType(uint8_t channelIndex, ChannelDataType dataType);

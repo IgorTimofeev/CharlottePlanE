@@ -1,6 +1,7 @@
 #pragma once
 
 #include <driver/i2c_master.h>
+#include "logger.h"
 
 namespace pizda{
 	class BusStream {
@@ -115,16 +116,9 @@ namespace pizda{
 
 				return true;
 			}
-
+			
 		protected:
-			bool checkState(esp_err_t state) {
-				if (state != ESP_OK) {
-					ESP_ERROR_CHECK_WITHOUT_ABORT(state);
-					return false;
-				}
-
-				return true;
-			}
+			constexpr static const char* _logTag = "BusStream";
 	};
 
 	class I2CBusStream : public BusStream {
@@ -135,15 +129,15 @@ namespace pizda{
 				deviceConfig.device_address = address;
 				deviceConfig.scl_speed_hz = clockSpeedHz;
 
-				return checkState(i2c_master_bus_add_device(bus, &deviceConfig, &_device));
+				return Logger::check(_logTag, i2c_master_bus_add_device(bus, &deviceConfig, &_device));
 			}
 
 			bool write(const uint8_t* buffer, const size_t length) override {
-				return checkState(i2c_master_transmit(_device, buffer, length, -1));
+				return Logger::check(_logTag, i2c_master_transmit(_device, buffer, length, -1));
 			}
 
 			bool read(uint8_t* buffer, const size_t length) override {
-				return checkState(i2c_master_receive(_device, buffer, length, -1));
+				return Logger::check(_logTag, i2c_master_receive(_device, buffer, length, -1));
 			}
 
 			bool write(const uint8_t reg, const uint8_t* buffer, const size_t length) override {

@@ -11,6 +11,8 @@
 #include "hardware/AHRS/MPU9250.h"
 #include "hardware/AHRS/BMP280.h"
 
+#include "logger.h"
+
 namespace pizda {
 	template<typename TUnit>
 	class AHRSUnit {
@@ -37,8 +39,13 @@ namespace pizda {
 				i2c_mst_config.flags.enable_internal_pullup = true;
 
 				i2c_master_bus_handle_t I2CBusHandle;
+
 				const auto state = i2c_new_master_bus(&i2c_mst_config, &I2CBusHandle);
-				assert(state == ESP_OK || state == ESP_ERR_INVALID_STATE);
+
+				if (state != ESP_OK && state != ESP_ERR_INVALID_STATE) {
+					Logger::check(_logTag, state);
+					return;
+				}
 
 				// MPUs
 				for (auto& MPU : _MPUs) {
@@ -46,7 +53,7 @@ namespace pizda {
 						I2CBusHandle,
 						MPU.address
 					)) {
-						ESP_LOGE("AHRS", "MPU initialization failed");
+						Logger::info(_logTag, "MPU-9250 initialization failed");
 						return;
 					}
 
@@ -78,7 +85,7 @@ namespace pizda {
 						BMP280Filter::x4,
 						BMP280StandbyDuration::ms125
 					)) {
-						ESP_LOGE("AHRS", "BMP280 initialization failed");
+						Logger::info(_logTag, "BMP280 initialization failed");
 						return;
 					}
 				}
@@ -108,6 +115,8 @@ namespace pizda {
 			}
 
 		private:
+			constexpr static const char* _logTag = "AHRS";
+			
 			std::array<AHRSUnit<MPU9250>, 1> _MPUs {
 				AHRSUnit<MPU9250> {
 					constants::adiru1::mpu9250Address
@@ -178,7 +187,7 @@ namespace pizda {
 				_temperature = temperatureSum / _BMPs.size();
 				_altitude = computeAltitude(pressureSum, temperatureSum);
 
-				ESP_LOGI("AHRS", "Avg press: %f, temp: %f, alt: %f", _pressure, _temperature, _altitude);
+				Logger::info(_logTag, "Avg press: %f, temp: %f, alt: %f", _pressure, _temperature, _altitude);
 			}
 
 			void updateMPU() {
@@ -187,10 +196,9 @@ namespace pizda {
 					Vector3F v2 = MPU.unit.readGyroValues();
 					Vector3F v3 = MPU.unit.getMagValues();
 
-					ESP_LOGI("AHRS", "MPU acc: %f x %f x %f", v1.getX(), v1.getY(), v1.getZ());
-					ESP_LOGI("AHRS", "MPU gyr: %f x %f x %f", v2.getX(), v2.getY(), v2.getZ());
-					ESP_LOGI("AHRS", "MPU mag: %f x %f x %f", v3.getX(), v3.getY(), v3.getZ());
-
+					Logger::info(_logTag, "MPU acc: %f x %f x %f", v1.getX(), v1.getY(), v1.getZ());
+					Logger::info(_logTag, "MPU gyr: %f x %f x %f", v2.getX(), v2.getY(), v2.getZ());
+					Logger::info(_logTag, "MPU mag: %f x %f x %f", v3.getX(), v3.getY(), v3.getZ());
 				}
 			}
 
