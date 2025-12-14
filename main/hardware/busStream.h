@@ -3,13 +3,13 @@
 #include <driver/i2c_master.h>
 
 namespace pizda{
-	class BusHAL {
+	class BusStream {
 		public:
-			virtual bool write(const uint8_t* buffer, size_t length) = 0;
-			virtual bool read(uint8_t* buffer, size_t length) = 0;
+			virtual bool write(const uint8_t* buffer, const size_t length) = 0;
+			virtual bool read(uint8_t* buffer, const size_t length) = 0;
 
-			virtual bool read(const uint8_t reg, uint8_t* buffer, size_t length) = 0;
-			virtual bool write(const uint8_t reg, uint8_t* buffer, size_t length) = 0;
+			virtual bool read(const uint8_t reg, uint8_t* buffer, const size_t length) = 0;
+			virtual bool write(const uint8_t reg, const uint8_t* buffer, const size_t length) = 0;
 
 			// 8
 			bool writeUint8(const uint8_t reg, uint8_t value) {
@@ -127,33 +127,33 @@ namespace pizda{
 			}
 	};
 
-	class I2CBusHAL : public BusHAL {
+	class I2CBusStream : public BusStream {
 		public:
-			bool setup(const i2c_master_bus_handle_t& bus, const uint8_t address, const uint32_t clockSpeedHz) {
+			bool setup(const i2c_master_bus_handle_t& bus, const uint8_t address, const uint32_t clockSpeedHz, const i2c_addr_bit_len_t addressLength = I2C_ADDR_BIT_LEN_7) {
 				i2c_device_config_t deviceConfig {};
-				deviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
+				deviceConfig.dev_addr_length = addressLength;
 				deviceConfig.device_address = address;
 				deviceConfig.scl_speed_hz = clockSpeedHz;
 
 				return checkState(i2c_master_bus_add_device(bus, &deviceConfig, &_device));
 			}
 
-			bool write(const uint8_t* buffer, size_t length) override {
+			bool write(const uint8_t* buffer, const size_t length) override {
 				return checkState(i2c_master_transmit(_device, buffer, length, -1));
 			}
 
-			bool read(uint8_t* buffer, size_t length) override {
+			bool read(uint8_t* buffer, const size_t length) override {
 				return checkState(i2c_master_receive(_device, buffer, length, -1));
 			}
 
-			bool write(const uint8_t reg, uint8_t* buffer, size_t length) override {
+			bool write(const uint8_t reg, const uint8_t* buffer, const size_t length) override {
 				if (!write(&reg, 1))
 					return false;
 
 				return write(buffer, length);
 			}
 
-			bool read(const uint8_t reg, uint8_t* buffer, size_t length) override {
+			bool read(const uint8_t reg, uint8_t* buffer, const size_t length) override {
 				if (!write(&reg, 1))
 					return false;
 

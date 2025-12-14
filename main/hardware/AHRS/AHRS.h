@@ -12,14 +12,15 @@
 #include "hardware/AHRS/BMP280.h"
 
 namespace pizda {
-	template<typename T>
-	class AHRSUnitAndI2CAddress {
+	template<typename TUnit>
+	class AHRSUnit {
 		public:
-			explicit AHRSUnitAndI2CAddress(uint8_t address) : address(address) {
+			explicit AHRSUnit(uint8_t address) : address(address) {
 
 			}
 
-			T unit {};
+			TUnit unit {};
+			I2CBusStream stream {};
 			uint8_t address;
 	};
 
@@ -66,11 +67,10 @@ namespace pizda {
 
 				// BMPs
 				for (auto& BMP : _BMPs) {
-					auto busHal = new I2CBusHAL();
-					busHal->setup(I2CBusHandle, BMP.address, 1000000);
+					BMP.stream.setup(I2CBusHandle, BMP.address, 1000000);
 
 					if (!BMP.unit.setup(
-						busHal,
+						&BMP.stream,
 
 						BMP280Mode::normal,
 						BMP280Oversampling::x16,
@@ -108,14 +108,14 @@ namespace pizda {
 			}
 
 		private:
-			std::array<AHRSUnitAndI2CAddress<MPU9250>, 1> _MPUs {
-				AHRSUnitAndI2CAddress<MPU9250> {
+			std::array<AHRSUnit<MPU9250>, 1> _MPUs {
+				AHRSUnit<MPU9250> {
 					constants::adiru1::mpu9250Address
 				}
 			};
 
-			std::array<AHRSUnitAndI2CAddress<BMP280>, 1> _BMPs {
-				AHRSUnitAndI2CAddress<BMP280> {
+			std::array<AHRSUnit<BMP280>, 1> _BMPs {
+				AHRSUnit<BMP280> {
 					constants::adiru1::bmp280Address
 				}
 			};

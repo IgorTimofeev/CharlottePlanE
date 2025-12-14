@@ -7,7 +7,7 @@
 #include <driver/spi_master.h>
 #include <driver/i2c_master.h>
 
-#include "hardware/busHAL.h"
+#include "hardware/busStream.h"
 
 namespace pizda {
 	enum class BMP280I2CAddress : uint8_t {
@@ -84,7 +84,7 @@ namespace pizda {
 	class BMP280 {
 		public:
 			bool setup(
-				BusHAL* busHal,
+				BusStream* busStream,
 
 				BMP280Mode mode,
 				BMP280Oversampling pressureOversampling,
@@ -92,7 +92,7 @@ namespace pizda {
 				BMP280Filter filter,
 				BMP280StandbyDuration standbyDuration
 			) {
-				_bus = busHal;
+				_busStream = busStream;
 
 				// Soft reset
 				reset();
@@ -129,7 +129,7 @@ namespace pizda {
 			}
 
 			void reset() {
-				writeToRegister(BMP280Register::softReset, std::to_underlying(BMP280RegisterValues::softReset));
+				writeUint8(BMP280Register::softReset, std::to_underlying(BMP280RegisterValues::softReset));
 
 				delayMs(200);
 			}
@@ -144,7 +144,7 @@ namespace pizda {
 				// t_sb = standbyDuration
 				// filter = filter
 				// spi3w_en = 0
-				writeToRegister(
+				writeUint8(
 					BMP280Register::config,
 					static_cast<uint8_t>(
 						(std::to_underlying(standbyDuration) << 5)
@@ -156,7 +156,7 @@ namespace pizda {
 				// osrs_t = temperatureOversampling
 				// osrs_p = pressureOversampling
 				// mode = mode
-				writeToRegister(
+				writeUint8(
 					BMP280Register::control,
 					static_cast<uint8_t>(
 						(std::to_underlying(temperatureOversampling) << 5)
@@ -164,6 +164,8 @@ namespace pizda {
 						| std::to_underlying(mode)
 					)
 				);
+
+				delayMs(50);
 			}
 
 			// These bitchy formulas has been taken directly from datasheet: https://cdn-shop.adafruit.com/datasheets/BST-BMP280-DS001-11.pdf
@@ -171,12 +173,12 @@ namespace pizda {
 			void readPressureAndTemperature(float& pressure, float& temperature) {
 				// Seems like module allows to read both pressure & temp is one continuous operation
 				uint8_t buffer[6];
-				readFromRegister(BMP280Register::pressureData, buffer, 6);
+				read(BMP280Register::pressureData, buffer, 6);
 
 				int32_t adc_P = buffer[0] << 12 | buffer[1] << 4 | buffer[2] >> 4;
 				int32_t adc_T = buffer[3] << 12 | buffer[4] << 4 | buffer[5] >> 4;
 
-//				ESP_LOGI("BMP", "adc_P: %d, adc_T: %d", adc_P, adc_T);
+//				ESP_LOGI(logTag, "adc_P: %d, adc_T: %d", adc_P, adc_T);
 
 				// Temperature should be processed first for tFine
 				{
@@ -215,7 +217,9 @@ namespace pizda {
 			}
 
 		private:
+			constexpr static const char* logTag = "BMP280";
 			constexpr static uint8_t BMP280ChipID = 0x58;
+			
 
 			// From datasheet:
 			// The variable t_fine (signed 32 bit) carries a fine resolution temperature value over to the
@@ -223,7 +227,7 @@ namespace pizda {
 			int32_t _tFine = -0xFFFF;
 
 			// Bus
-			BusHAL* _bus = nullptr;
+			BusStream* _busStream = nullptr;
 
 			// Calibration data
 			uint16_t _calibrationDigT1 = 0;
@@ -241,8 +245,8 @@ namespace pizda {
 			int16_t _calibrationDigP9 = 0;
 
 			// Writing
-			void writeToRegister(BMP280Register reg, uint8_t value) {
-				_bus->writeUint8(std::to_underlying(reg), value);
+			bool writeUint8(BMP280Register reg, uint8_t value) {
+				return _busStream->writeUint8(std::to_underlying(reg), value);
 			}
 
 			// Reading
@@ -250,63 +254,75 @@ namespace pizda {
 				return static_cast<uint8_t>(std::to_underlying(reg) | 0x80);
 			}
 
-			void readFromRegister(BMP280Register reg, uint8_t* buffer, size_t readSize) {
-				_bus->read(getRegisterValueForReading(reg), buffer, readSize);
+			bool read(BMP280Register reg, uint8_t* buffer, size_t readSize) {
+				return _busStream->read(getRegisterValueForReading(reg), buffer, readSize);
 			}
 
 			bool readUint8(BMP280Register reg, uint8_t& value) {
-				return _bus->readUint8(getRegisterValueForReading(reg), value);
+				return _busStream->readUint8(getRegisterValueForReading(reg), value);
 			}
 
 			bool readUint16LE(BMP280Register reg, uint16_t& value) {
-				return _bus->readUint16LE(getRegisterValueForReading(reg), value);
+				return _busStream->readUint16LE(getRegisterValueForReading(reg), value);
 			}
 
 			bool readInt16LE(BMP280Register reg, int16_t& value) {
-				return _bus->readInt16LE(getRegisterValueForReading(reg), value);
+				return _busStream->readInt16LE(getRegisterValueForReading(reg), value);
 			}
 
 			bool readCalibrationData() {
+				// Temperature
 				if (!readUint16LE(BMP280Register::digT1, _calibrationDigT1))
 					return false;
+
 				if (!readInt16LE(BMP280Register::digT2, _calibrationDigT2))
 					return false;
+
 				if (!readInt16LE(BMP280Register::digT3, _calibrationDigT3))
 					return false;
 
+				// Pressure
 				if (!readUint16LE(BMP280Register::digP1, _calibrationDigP1))
 					return false;
+
 				if (!readInt16LE(BMP280Register::digP2, _calibrationDigP2))
 					return false;
+
 				if (!readInt16LE(BMP280Register::digP3, _calibrationDigP3))
 					return false;
+
 				if (!readInt16LE(BMP280Register::digP4, _calibrationDigP4))
 					return false;
+
 				if (!readInt16LE(BMP280Register::digP5, _calibrationDigP5))
 					return false;
+
 				if (!readInt16LE(BMP280Register::digP6, _calibrationDigP6))
 					return false;
+
 				if (!readInt16LE(BMP280Register::digP7, _calibrationDigP7))
 					return false;
+
 				if (!readInt16LE(BMP280Register::digP8, _calibrationDigP8))
 					return false;
+
 				if (!readInt16LE(BMP280Register::digP9, _calibrationDigP9))
 					return false;
 
-				return true;
+//				ESP_LOGI(logTag, "_calibrationDigT1: %d", _calibrationDigT1);
+//				ESP_LOGI(logTag, "_calibrationDigT2: %d", _calibrationDigT2);
+//				ESP_LOGI(logTag, "_calibrationDigT3: %d", _calibrationDigT3);
+//				ESP_LOGI(logTag, "_calibrationDigP1: %d", _calibrationDigP1);
+//				ESP_LOGI(logTag, "_calibrationDigP2: %d", _calibrationDigP2);
+//				ESP_LOGI(logTag, "_calibrationDigP3: %d", _calibrationDigP3);
+//				ESP_LOGI(logTag, "_calibrationDigP4: %d", _calibrationDigP4);
+//				ESP_LOGI(logTag, "_calibrationDigP5: %d", _calibrationDigP5);
+//				ESP_LOGI(logTag, "_calibrationDigP6: %d", _calibrationDigP6);
+//				ESP_LOGI(logTag, "_calibrationDigP7: %d", _calibrationDigP7);
+//				ESP_LOGI(logTag, "_calibrationDigP8: %d", _calibrationDigP8);
+//				ESP_LOGI(logTag, "_calibrationDigP9: %d", _calibrationDigP9);
 
-//				ESP_LOGI("BMP", "_calibrationDigT1: %d", _calibrationDigT1);
-//				ESP_LOGI("BMP", "_calibrationDigT2: %d", _calibrationDigT2);
-//				ESP_LOGI("BMP", "_calibrationDigT3: %d", _calibrationDigT3);
-//				ESP_LOGI("BMP", "_calibrationDigP1: %d", _calibrationDigP1);
-//				ESP_LOGI("BMP", "_calibrationDigP2: %d", _calibrationDigP2);
-//				ESP_LOGI("BMP", "_calibrationDigP3: %d", _calibrationDigP3);
-//				ESP_LOGI("BMP", "_calibrationDigP4: %d", _calibrationDigP4);
-//				ESP_LOGI("BMP", "_calibrationDigP5: %d", _calibrationDigP5);
-//				ESP_LOGI("BMP", "_calibrationDigP6: %d", _calibrationDigP6);
-//				ESP_LOGI("BMP", "_calibrationDigP7: %d", _calibrationDigP7);
-//				ESP_LOGI("BMP", "_calibrationDigP8: %d", _calibrationDigP8);
-//				ESP_LOGI("BMP", "_calibrationDigP9: %d", _calibrationDigP9);
+				return true;
 			}
 
 			void delayMs(uint32_t ms) {
