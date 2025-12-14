@@ -6,12 +6,12 @@
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
     <sourceRoots>
+      <file path="$PROJECT_DIR$/components" />
       <file path="$PROJECT_DIR$/main" />
     </sourceRoots>
     <excludeRoots>
       <file path="$PROJECT_DIR$/../../../../../../../../Espressif/frameworks/esp-idf-v5.5.1" />
       <file path="$PROJECT_DIR$/build" />
-      <file path="$PROJECT_DIR$/components" />
       <file path="$PROJECT_DIR$/managed_components" />
     </excludeRoots>
   </component>

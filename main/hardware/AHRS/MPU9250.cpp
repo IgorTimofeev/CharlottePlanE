@@ -833,4 +833,8 @@ namespace pizda {
 	uint8_t MPU9250::getStatus2Register() {
 		return readAK8963Register8(REGISTER_AK8963_STATUS_2);
 	}
+
+	void MPU9250::delayMs(uint32_t ms) {
+		vTaskDelay(ms <= portTICK_PERIOD_MS ? portTICK_PERIOD_MS : pdMS_TO_TICKS(ms));
+	}
 }

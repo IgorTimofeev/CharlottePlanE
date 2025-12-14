@@ -169,21 +169,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="pizda1111">
-      <change afterPath="$PROJECT_DIR$/main/hardware/busHAL.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/YOBABitStream" beforeDir="false" afterPath="$PROJECT_DIR$/components/YOBABitStream" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/YOBABitStream/src/YOBABitStream/main.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/YOBABitStream/src/YOBABitStream/main.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dependencies.lock" beforeDir="false" afterPath="$PROJECT_DIR$/dependencies.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/AHRS/AHRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/AHRS/AHRS.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/AHRS/BMP280.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/AHRS/BMP280.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/AHRS/MPU9250.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/AHRS/MPU9250.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/AHRS/MPU9250.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/AHRS/MPU9250.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketParser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketParser.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketParser.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketParser.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packetParser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packetParser.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packetParser.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packetParser.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/transceiver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/transceiver.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sdkconfig" beforeDir="false" afterPath="$PROJECT_DIR$/sdkconfig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/busHAL.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/busHAL.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -1152,7 +1143,7 @@
       <workItem from="1765663544425" duration="3866000" />
       <workItem from="1765723803903" duration="10578000" />
       <workItem from="1765739851225" duration="118000" />
-      <workItem from="1765739982147" duration="305000" />
+      <workItem from="1765739982147" duration="1937000" />
     </task>
     <task id="LOCAL-00001" summary="ппц заебался">
       <option name="closed" value="true" />
@@ -1378,7 +1369,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765668017433</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="pizda1111">
+      <option name="closed" value="true" />
+      <created>1765740607201</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1765740607201</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

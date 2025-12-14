@@ -25,82 +25,93 @@ namespace pizda{
 				return read(reg, &value, 1);
 			}
 
-			// 16 BE
-			bool writeUint16BE(const uint8_t reg, uint16_t& value) {
-				uint8_t buffer[3] {
-					reg,
-					reinterpret_cast<uint8_t*>(value)[0],
-					reinterpret_cast<uint8_t*>(value)[1]
-				};
-
-				return write(buffer, 3);
-			}
-
-			bool readUint16BE(const uint8_t reg, uint16_t& value) {
-				return read(reg, reinterpret_cast<uint8_t*>(&value), 2);
-			}
-
 			// 16 LE
 			bool writeUint16LE(const uint8_t reg, uint16_t& value) {
 				uint8_t buffer[3] {
 					reg,
-					reinterpret_cast<uint8_t*>(value)[1],
-					reinterpret_cast<uint8_t*>(value)[0]
+					reinterpret_cast<uint8_t*>(&value)[0],
+					reinterpret_cast<uint8_t*>(&value)[1]
 				};
 
 				return write(buffer, 3);
 			}
 
 			bool readUint16LE(const uint8_t reg, uint16_t& value) {
-				if (!readUint16BE(reg, value))
+				return read(reg, reinterpret_cast<uint8_t*>(&value), 2);
+			}
+
+			bool readInt16LE(const uint8_t reg, int16_t& value) {
+				uint16_t buffer = 0;
+
+				if (!readUint16LE(reg, buffer))
 					return false;
 
-				value =
-					reinterpret_cast<uint8_t*>(value)[1]
-					| reinterpret_cast<uint8_t*>(value)[0];
+				value = static_cast<int16_t>(buffer);
 
 				return true;
 			}
 
-			// 32 BE
-			bool writeUint32BE(const uint8_t reg, uint32_t& value) {
-				uint8_t buffer[5] {
+			// 16 BE
+			bool writeUint16BE(const uint8_t reg, uint16_t& value) {
+				uint8_t buffer[3] {
 					reg,
-					reinterpret_cast<uint8_t*>(value)[0],
-					reinterpret_cast<uint8_t*>(value)[1],
-					reinterpret_cast<uint8_t*>(value)[2],
-					reinterpret_cast<uint8_t*>(value)[3]
+					reinterpret_cast<uint8_t*>(&value)[1],
+					reinterpret_cast<uint8_t*>(&value)[0]
 				};
 
-				return write(buffer, 5);
+				return write(buffer, 3);
 			}
 
-			bool readUint32BE(const uint8_t reg, uint32_t& value) {
-				return read(reg, reinterpret_cast<uint8_t*>(&value), 4);
+			bool readUint16BE(const uint8_t reg, uint16_t& value) {
+				if (!readUint16LE(reg, value))
+					return false;
+
+				value =
+					reinterpret_cast<uint8_t*>(&value)[1]
+					| reinterpret_cast<uint8_t*>(&value)[0];
+
+				return true;
 			}
 
 			// 32 LE
 			bool writeUint32LE(const uint8_t reg, uint32_t& value) {
 				uint8_t buffer[5] {
 					reg,
-					reinterpret_cast<uint8_t*>(value)[3],
-					reinterpret_cast<uint8_t*>(value)[2],
-					reinterpret_cast<uint8_t*>(value)[1],
-					reinterpret_cast<uint8_t*>(value)[0]
+					reinterpret_cast<uint8_t*>(&value)[0],
+					reinterpret_cast<uint8_t*>(&value)[1],
+					reinterpret_cast<uint8_t*>(&value)[2],
+					reinterpret_cast<uint8_t*>(&value)[3]
 				};
 
 				return write(buffer, 5);
 			}
 
 			bool readUint32LE(const uint8_t reg, uint32_t& value) {
-				if (!readUint32BE(reg, value))
+				return read(reg, reinterpret_cast<uint8_t*>(&value), 4);
+			}
+
+			// 32 BE
+			bool writeUint32BE(const uint8_t reg, uint32_t& value) {
+				uint8_t buffer[5] {
+					reg,
+					reinterpret_cast<uint8_t*>(&value)[3],
+					reinterpret_cast<uint8_t*>(&value)[2],
+					reinterpret_cast<uint8_t*>(&value)[1],
+					reinterpret_cast<uint8_t*>(&value)[0]
+				};
+
+				return write(buffer, 5);
+			}
+
+			bool readUint32BE(const uint8_t reg, uint32_t& value) {
+				if (!readUint32LE(reg, value))
 					return false;
 
 				value =
-					reinterpret_cast<uint8_t*>(value)[3]
-					| reinterpret_cast<uint8_t*>(value)[2]
-					| reinterpret_cast<uint8_t*>(value)[1]
-					| reinterpret_cast<uint8_t*>(value)[0];
+					reinterpret_cast<uint8_t*>(&value)[3]
+					| reinterpret_cast<uint8_t*>(&value)[2]
+					| reinterpret_cast<uint8_t*>(&value)[1]
+					| reinterpret_cast<uint8_t*>(&value)[0];
 
 				return true;
 			}

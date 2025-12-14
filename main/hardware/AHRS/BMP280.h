@@ -98,16 +98,23 @@ namespace pizda {
 				reset();
 
 				// Checking for valid chip ID & proper SPI wiring
-				const auto chipID = readUint8(BMP280Register::chipID);
+				uint8_t chipID = 0;
 
-				if (chipID != BMP280ChipID) {
-					ESP_LOGE("BMP280", "Invalid chip ID: %d", chipID);
-
+				if (!readUint8(BMP280Register::chipID, chipID)) {
+					ESP_LOGE("BMP280", "Unable to read chip ID");
 					return false;
 				}
 
-				// Reading factory-fused calibration offsets
-				readCalibrationData();
+				if (chipID != BMP280ChipID) {
+					ESP_LOGE("BMP280", "Invalid chip ID: %d", chipID);
+					return false;
+				}
+
+				// Reading factory-fused calibration data
+				if (!readCalibrationData()) {
+					ESP_LOGE("BMP280", "Unable to read calibration data");
+					return false;
+				}
 
 				// Configuring sensor to initial state
 				reconfigure(
@@ -124,7 +131,7 @@ namespace pizda {
 			void reset() {
 				writeToRegister(BMP280Register::softReset, std::to_underlying(BMP280RegisterValues::softReset));
 
-				vTaskDelay(pdMS_TO_TICKS(200));
+				delayMs(200);
 			}
 
 			void reconfigure(
@@ -233,46 +240,60 @@ namespace pizda {
 			int16_t _calibrationDigP8 = 0;
 			int16_t _calibrationDigP9 = 0;
 
+			// Writing
 			void writeToRegister(BMP280Register reg, uint8_t value) {
 				_bus->writeUint8(std::to_underlying(reg), value);
 			}
 
+			// Reading
+			uint8_t getRegisterValueForReading(BMP280Register reg) {
+				return static_cast<uint8_t>(std::to_underlying(reg) | 0x80);
+			}
+
 			void readFromRegister(BMP280Register reg, uint8_t* buffer, size_t readSize) {
-				_bus->read(static_cast<uint8_t>(std::to_underlying(reg) | 0x80), buffer, readSize);
+				_bus->read(getRegisterValueForReading(reg), buffer, readSize);
 			}
 
-			uint16_t readUint8(BMP280Register reg) {
-				uint8_t result = 0;
-				readFromRegister(reg, &result, 1);
-
-				return result;
+			bool readUint8(BMP280Register reg, uint8_t& value) {
+				return _bus->readUint8(getRegisterValueForReading(reg), value);
 			}
 
-			uint16_t readUint16LE(BMP280Register reg) {
-				uint8_t buffer[2];
-				readFromRegister(reg, buffer, 2);
-
-				return (static_cast<uint16_t>(buffer[1]) << 8) | static_cast<uint16_t>(buffer[0]);
+			bool readUint16LE(BMP280Register reg, uint16_t& value) {
+				return _bus->readUint16LE(getRegisterValueForReading(reg), value);
 			}
 
-			int16_t readInt16LE(BMP280Register reg) {
-				return static_cast<int16_t>(readUint16LE(reg));
+			bool readInt16LE(BMP280Register reg, int16_t& value) {
+				return _bus->readInt16LE(getRegisterValueForReading(reg), value);
 			}
 
-			void readCalibrationData() {
-				_calibrationDigT1 = readUint16LE(BMP280Register::digT1);
-				_calibrationDigT2 = readInt16LE(BMP280Register::digT2);
-				_calibrationDigT3 = readInt16LE(BMP280Register::digT3);
+			bool readCalibrationData() {
+				if (!readUint16LE(BMP280Register::digT1, _calibrationDigT1))
+					return false;
+				if (!readInt16LE(BMP280Register::digT2, _calibrationDigT2))
+					return false;
+				if (!readInt16LE(BMP280Register::digT3, _calibrationDigT3))
+					return false;
 
-				_calibrationDigP1 = readUint16LE(BMP280Register::digP1);
-				_calibrationDigP2 = readInt16LE(BMP280Register::digP2);
-				_calibrationDigP3 = readInt16LE(BMP280Register::digP3);
-				_calibrationDigP4 = readInt16LE(BMP280Register::digP4);
-				_calibrationDigP5 = readInt16LE(BMP280Register::digP5);
-				_calibrationDigP6 = readInt16LE(BMP280Register::digP6);
-				_calibrationDigP7 = readInt16LE(BMP280Register::digP7);
-				_calibrationDigP8 = readInt16LE(BMP280Register::digP8);
-				_calibrationDigP9 = readInt16LE(BMP280Register::digP9);
+				if (!readUint16LE(BMP280Register::digP1, _calibrationDigP1))
+					return false;
+				if (!readInt16LE(BMP280Register::digP2, _calibrationDigP2))
+					return false;
+				if (!readInt16LE(BMP280Register::digP3, _calibrationDigP3))
+					return false;
+				if (!readInt16LE(BMP280Register::digP4, _calibrationDigP4))
+					return false;
+				if (!readInt16LE(BMP280Register::digP5, _calibrationDigP5))
+					return false;
+				if (!readInt16LE(BMP280Register::digP6, _calibrationDigP6))
+					return false;
+				if (!readInt16LE(BMP280Register::digP7, _calibrationDigP7))
+					return false;
+				if (!readInt16LE(BMP280Register::digP8, _calibrationDigP8))
+					return false;
+				if (!readInt16LE(BMP280Register::digP9, _calibrationDigP9))
+					return false;
+
+				return true;
 
 //				ESP_LOGI("BMP", "_calibrationDigT1: %d", _calibrationDigT1);
 //				ESP_LOGI("BMP", "_calibrationDigT2: %d", _calibrationDigT2);
@@ -286,6 +307,10 @@ namespace pizda {
 //				ESP_LOGI("BMP", "_calibrationDigP7: %d", _calibrationDigP7);
 //				ESP_LOGI("BMP", "_calibrationDigP8: %d", _calibrationDigP8);
 //				ESP_LOGI("BMP", "_calibrationDigP9: %d", _calibrationDigP9);
+			}
+
+			void delayMs(uint32_t ms) {
+				vTaskDelay(ms <= portTICK_PERIOD_MS ? portTICK_PERIOD_MS : pdMS_TO_TICKS(ms));
 			}
 	};
 }

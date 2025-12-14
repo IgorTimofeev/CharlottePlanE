@@ -402,9 +402,7 @@ namespace pizda {
 
 			i2c_master_dev_handle_t _I2CDeviceHandle{};
 
-			void delayMs(uint32_t ms) {
-				vTaskDelay(ms <= portTICK_PERIOD_MS ? portTICK_PERIOD_MS : pdMS_TO_TICKS(ms));
-			}
+			void delayMs(uint32_t ms);
 
 			void correctAccRawValues(Vector3F& rawValues);
 
