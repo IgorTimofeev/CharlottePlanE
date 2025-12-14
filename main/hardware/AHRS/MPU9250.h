@@ -26,6 +26,7 @@
 #include <freertos/task.h>
 
 #include "types/vector3.h"
+#include "hardware/busHAL.h"
 
 namespace pizda {
 	typedef enum MPU9250_BW_WO_DLPF {

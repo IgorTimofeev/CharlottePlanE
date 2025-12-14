@@ -14,11 +14,11 @@ namespace pizda {
 			void onConnectionRestored() override;
 
 		protected:
-			bool onParse(ReadableBitStream& stream, PacketType packetType) override;
+			bool onParse(BitStream& stream, PacketType packetType) override;
 
 		private:
-			bool onChannelDataStructurePacket(ReadableBitStream& stream);
-			bool onChannelDataPacket(ReadableBitStream& stream);
-			bool onMotorConfigurationPacket(ReadableBitStream& stream);
+			bool onChannelDataStructurePacket(BitStream& stream);
+			bool onChannelDataPacket(BitStream& stream);
+			bool onMotorConfigurationPacket(BitStream& stream);
 	};
 }

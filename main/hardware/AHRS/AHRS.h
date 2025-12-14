@@ -66,9 +66,11 @@ namespace pizda {
 
 				// BMPs
 				for (auto& BMP : _BMPs) {
+					auto busHal = new I2CBusHAL();
+					busHal->setup(I2CBusHandle, BMP.address, 1000000);
+
 					if (!BMP.unit.setup(
-						I2CBusHandle,
-						BMP.address,
+						busHal,
 
 						BMP280Mode::normal,
 						BMP280Oversampling::x16,

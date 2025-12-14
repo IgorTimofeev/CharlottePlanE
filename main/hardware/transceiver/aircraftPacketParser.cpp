@@ -4,7 +4,7 @@
 #include "hardware/motor.h"
 
 namespace pizda {
-	bool AircraftPacketParser::onParse(ReadableBitStream& stream, PacketType packetType) {
+	bool AircraftPacketParser::onParse(BitStream& stream, PacketType packetType) {
 		switch (packetType) {
 			case PacketType::RemoteChannelDataStructure: {
 				return onChannelDataStructurePacket(stream);
@@ -23,7 +23,7 @@ namespace pizda {
 		}
 	}
 
-	bool AircraftPacketParser::onChannelDataStructurePacket(ReadableBitStream& stream) {
+	bool AircraftPacketParser::onChannelDataStructurePacket(BitStream& stream) {
 		auto& ac = Aircraft::getInstance();
 
 		const auto valueCount = stream.readUint8(8);
@@ -70,7 +70,7 @@ namespace pizda {
 		return true;
 	}
 
-	bool AircraftPacketParser::onChannelDataPacket(ReadableBitStream& stream) {
+	bool AircraftPacketParser::onChannelDataPacket(BitStream& stream) {
 		auto& ac = Aircraft::getInstance();
 
 		if (!validateChecksum(stream.getBuffer(), ac.settings.channelDataStructure.getRequiredBitCountForChannels()))
@@ -119,7 +119,7 @@ namespace pizda {
 		return true;
 	}
 
-	bool AircraftPacketParser::onMotorConfigurationPacket(ReadableBitStream& stream) {
+	bool AircraftPacketParser::onMotorConfigurationPacket(BitStream& stream) {
 		auto& ac = Aircraft::getInstance();
 
 		const auto motorCount = readValueCountAndValidateChecksum(

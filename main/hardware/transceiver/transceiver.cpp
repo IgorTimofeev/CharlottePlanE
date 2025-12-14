@@ -45,7 +45,7 @@ namespace pizda {
 				continue;
 
 			if (bytesRead > 0) {
-				ESP_LOGI("Transceiver", "bytes read: %d", bytesRead);
+				ESP_LOGI("Transceiver", "bytes readRegister: %d", bytesRead);
 
 				switch (_connectionState) {
 					case TransceiverConnectionState::initial:

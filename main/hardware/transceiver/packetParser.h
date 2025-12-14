@@ -18,9 +18,9 @@ namespace pizda {
 		protected:
 			static uint8_t getCRC8(const uint8_t* buffer, size_t length);
 			static bool validateChecksum(const uint8_t* buffer, size_t dataBitCount);
-			static uint8_t readValueCountAndValidateChecksum(ReadableBitStream& bitStream, uint8_t valueCountBitCount, uint8_t valueBitCount);
+			static uint8_t readValueCountAndValidateChecksum(BitStream& bitStream, uint8_t valueCountBitCount, uint8_t valueBitCount);
 
-			virtual bool onParse(ReadableBitStream& stream, PacketType packetType) = 0;
+			virtual bool onParse(BitStream& stream, PacketType packetType) = 0;
 
 		private:
 			uint8_t parseOne(uint8_t* buffer);

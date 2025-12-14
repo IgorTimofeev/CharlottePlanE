@@ -7,6 +7,8 @@
 #include <driver/spi_master.h>
 #include <driver/i2c_master.h>
 
+#include "hardware/busHAL.h"
+
 namespace pizda {
 	enum class BMP280I2CAddress : uint8_t {
 		// SDO pin is low
@@ -82,8 +84,7 @@ namespace pizda {
 	class BMP280 {
 		public:
 			bool setup(
-				i2c_master_bus_handle_t I2CBusHandle,
-				uint8_t I2CAddress,
+				BusHAL* busHal,
 
 				BMP280Mode mode,
 				BMP280Oversampling pressureOversampling,
@@ -91,11 +92,7 @@ namespace pizda {
 				BMP280Filter filter,
 				BMP280StandbyDuration standbyDuration
 			) {
-				i2c_device_config_t I2CDeviceConfig {};
-				I2CDeviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
-				I2CDeviceConfig.device_address = I2CAddress;
-				I2CDeviceConfig.scl_speed_hz = 1000000;
-				ESP_ERROR_CHECK(i2c_master_bus_add_device(I2CBusHandle, &I2CDeviceConfig, &_I2CDeviceHandle));
+				_bus = busHal;
 
 				// Soft reset
 				reset();
@@ -218,8 +215,8 @@ namespace pizda {
 			// pressure compensation formula and could be implemented as a global variable
 			int32_t _tFine = -0xFFFF;
 
-			// SPI
-			i2c_master_dev_handle_t _I2CDeviceHandle {};
+			// Bus
+			BusHAL* _bus = nullptr;
 
 			// Calibration data
 			uint16_t _calibrationDigT1 = 0;
@@ -237,19 +234,11 @@ namespace pizda {
 			int16_t _calibrationDigP9 = 0;
 
 			void writeToRegister(BMP280Register reg, uint8_t value) {
-				uint8_t buffer[2] {
-					std::to_underlying(reg),
-					value
-				};
-
-				ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, buffer, 2, -1));
+				_bus->writeUint8(std::to_underlying(reg), value);
 			}
 
-			void readFromRegister(BMP280Register reg, uint8_t* buffer, uint32_t readSize) {
-				const auto cmd = static_cast<uint8_t>(std::to_underlying(reg) | 0x80);
-				ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
-
-				ESP_ERROR_CHECK(i2c_master_receive(_I2CDeviceHandle, buffer, readSize, -1));
+			void readFromRegister(BMP280Register reg, uint8_t* buffer, size_t readSize) {
+				_bus->read(static_cast<uint8_t>(std::to_underlying(reg) | 0x80), buffer, readSize);
 			}
 
 			uint16_t readUint8(BMP280Register reg) {
@@ -269,7 +258,6 @@ namespace pizda {
 			int16_t readInt16LE(BMP280Register reg) {
 				return static_cast<int16_t>(readUint16LE(reg));
 			}
-
 
 			void readCalibrationData() {
 				_calibrationDigT1 = readUint16LE(BMP280Register::digT1);

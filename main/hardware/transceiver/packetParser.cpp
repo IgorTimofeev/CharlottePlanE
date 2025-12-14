@@ -34,7 +34,7 @@ namespace pizda {
 		return true;
 	}
 
-	uint8_t PacketParser::readValueCountAndValidateChecksum(ReadableBitStream& bitStream, uint8_t valueCountBitCount, uint8_t valueBitCount) {
+	uint8_t PacketParser::readValueCountAndValidateChecksum(BitStream& bitStream, uint8_t valueCountBitCount, uint8_t valueBitCount) {
 		auto valueCount = bitStream.readUint8(valueCountBitCount);
 
 		ESP_LOGI("PacketParser", "value count: %d", valueCount);
@@ -61,7 +61,7 @@ namespace pizda {
 			return 0;
 		}
 
-		ReadableBitStream bitStream { packetPtr };
+		BitStream bitStream {packetPtr };
 
 		// Type
 		const auto packetType = static_cast<PacketType>(bitStream.readUint16(4));
