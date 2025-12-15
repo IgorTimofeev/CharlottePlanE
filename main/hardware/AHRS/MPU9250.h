@@ -147,7 +147,6 @@ namespace pizda {
 			Vector3F getGyrOffsets();
 
 			/*  Digital Low Pass Filter for the gyroscope must be enabled to choose the level.
-			 *  MPU9250_DPLF_0, MPU9250_DPLF_2, ...... MPU9250_DPLF_7
 			 *
 			 *  DLPF    Bandwidth [Hz]   Delay [ms]   Output Rate [kHz]
 			 *    0         250            0.97             8
@@ -168,7 +167,7 @@ namespace pizda {
 			 *  It can only be applied if the corresponding DLPF is enabled and 0<DLPF<7!
 			 *  Divider is a number 0...255
 			 */
-			void setSampleRateDivider(uint8_t splRateDiv);
+			void setSRD(uint8_t splRateDiv);
 
 			void setGyrRange(MPU9250_gyroRange gyroRange);
 
@@ -190,7 +189,7 @@ namespace pizda {
 			void enableAccDLPF(bool enable);
 
 			/*  Digital low pass filter (DLPF) for the accelerometer (if DLPF enabled)
-			*  MPU9250_DPLF_0, MPU9250_DPLF_2, ...... MPU9250_DPLF_7
+			*
 			*   DLPF     Bandwidth [Hz]      Delay [ms]    Output rate [kHz]
 			*     0           460               1.94           1
 			*     1           184               5.80           1
@@ -221,7 +220,7 @@ namespace pizda {
 
 			Vector3F getCorrectedAccRawValuesFromFifo();
 
-			Vector3F getGValuesFromFifo();
+			Vector3F readGValuesFromFifo();
 
 			float getResultantG(Vector3F gVal);
 
@@ -258,17 +257,30 @@ namespace pizda {
 
 			void setIntPinPolarity(MPU9250_intPinPol pol);
 
+			/*  If latch is enabled the interrupt pin level is held until the interrupt status
+			 *  is cleared. If latch is disabled the interrupt pulse is ~50µs (default).
+			 */
 			void enableIntLatch(bool latch);
 
+			/*  The interrupt can be cleared by any read or it will only be cleared if the interrupt
+			 *  status register is read (default).
+			 */
 			void enableClearIntByAnyRead(bool clearByAnyRead);
 
+			/*  Enable/disable interrupts:
+			 *  MPU9250_DATA_READY
+			 *  MPU9250_FIFO_OVF
+			 *  MPU9250_WOM_INT
+			 *
+			 *  You can enable all interrupts.
+			 */
 			void enableInterrupt(MPU9250_intType intType);
 
 			void disableInterrupt(MPU9250_intType intType);
 
 			bool checkInterrupt(uint8_t source, MPU9250_intType type);
 
-			uint8_t readAndClearInterrupts();
+			uint8_t readAndClearInterruptStatus();
 
 			void setWakeOnMotionThreshold(uint8_t womthresh);
 
@@ -276,29 +288,33 @@ namespace pizda {
 
 			/* FIFO */
 
-			void startFifo(MPU9250_fifo_type fifo);
+			void startFIFO(MPU9250_fifo_type fifo);
 
-			void stopFifo();
+			void stopFIFO();
 
-			void enableFifo(bool fifo);
+			void enableFIFO(bool fifo);
 
-			void resetFifo();
+			void resetFIFO();
 
-			int16_t getFifoCount();
+			int16_t readFIFOCount();
 
-			void setFifoMode(MPU9250_fifoMode mode);
+			void setFIFOMode(MPU9250_fifoMode mode);
 
-			int16_t getNumberOfFifoDataSets();
+			int16_t getFIFODataSetsCount();
 
-			void findFifoBegin();
+			/* This is needed for continuous Fifo mode.
+			 * The Fifo buffer ends with a complete data set, but the start is within a data set. 512/6 or 512/12
+			 *
+			 * Remarks: seems like in cont. mode buffer can start from part of dataset, so we should just skip first values
+			 * to prevent partial data read
+			 * */
+			void findFIFOBegin();
 
 			/* x,y,z results */
-
 			Vector3F getMagValues();
-
 			/* Magnetometer */
 
-			bool initMagnetometer();
+			bool setupMagnetometer();
 
 			uint8_t readWhoAmIMag();
 

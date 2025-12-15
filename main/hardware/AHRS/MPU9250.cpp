@@ -33,13 +33,19 @@ namespace pizda {
 		I2CDeviceConfig.device_address = I2CAddress;
 		I2CDeviceConfig.scl_speed_hz = 400'000;
 
-		ESP_ERROR_CHECK(i2c_master_bus_add_device(I2CBusHandle, &I2CDeviceConfig, &_I2CDeviceHandle));
+		const auto state = i2c_master_bus_add_device(I2CBusHandle, &I2CDeviceConfig, &_I2CDeviceHandle);
+
+		if (state != ESP_OK) {
+			ESP_ERROR_CHECK_WITHOUT_ABORT(state);
+			return false;
+		}
 
 		reset_MPU9250();
 		delayMs(10);
 		writeMPU9250Register(REGISTER_INT_PIN_CFG, REGISTER_VALUE_BYPASS_EN);  // Bypass Enable
 		delayMs(10);
 
+		// Who am I check
 		const auto whoAmI = readWhoAmI();
 
 		if (whoAmI != WHO_AM_I_CODE) {
@@ -61,9 +67,8 @@ namespace pizda {
 		fifoType = MPU9250_FIFO_ACC;
 		sleep(false);
 
-		if (!initMagnetometer()) {
+		if (!setupMagnetometer()) {
 			ESP_LOGE(_logTag, "Mag setup failed");
-
 			return false;
 		}
 
@@ -131,7 +136,7 @@ namespace pizda {
 		writeMPU9250Register(REGISTER_CONFIG, regVal);
 	}
 
-	void MPU9250::setSampleRateDivider(uint8_t splRateDiv) {
+	void MPU9250::setSRD(uint8_t splRateDiv) {
 		writeMPU9250Register(REGISTER_SMPLRT_DIV, splRateDiv);
 	}
 
@@ -232,7 +237,7 @@ namespace pizda {
 		return accRawVal;
 	}
 
-	Vector3F MPU9250::getGValuesFromFifo() {
+	Vector3F MPU9250::readGValuesFromFifo() {
 		Vector3F accRawVal = getCorrectedAccRawValuesFromFifo();
 		return accRawVal * (static_cast<float>(accRangeFactor) / 16384.0f);
 	}
@@ -444,7 +449,7 @@ namespace pizda {
 		return source;
 	}
 
-	uint8_t MPU9250::readAndClearInterrupts() {
+	uint8_t MPU9250::readAndClearInterruptStatus() {
 		uint8_t regVal = readMPU9250Register8(REGISTER_INT_STATUS);
 		return regVal;
 	}
@@ -472,61 +477,67 @@ namespace pizda {
  * Bit 3 = ACCEL (all axes), Bit 2 = SLAVE_2, Bit 1 = SLAVE_1, Bit 0 = SLAVE_0;
  * e.g. 0b11001001 => TEMP, GYRO_X, ACCEL, SLAVE0 are enabled
  */
-	void MPU9250::startFifo(MPU9250_fifo_type fifo) {
+	void MPU9250::startFIFO(MPU9250_fifo_type fifo) {
 		fifoType = fifo;
 		writeMPU9250Register(REGISTER_FIFO_EN, fifoType);
 	}
 
-	void MPU9250::stopFifo() {
+	void MPU9250::stopFIFO() {
 		writeMPU9250Register(REGISTER_FIFO_EN, 0);
 	}
 
-	void MPU9250::enableFifo(bool fifo) {
+	void MPU9250::enableFIFO(bool fifo) {
 		uint8_t regVal = readMPU9250Register8(REGISTER_USER_CTRL);
+
 		if (fifo) {
 			regVal |= 0x40;
-		} else {
+		}
+		else {
 			regVal &= ~(0x40);
 		}
+
 		writeMPU9250Register(REGISTER_USER_CTRL, regVal);
 	}
 
-	void MPU9250::resetFifo() {
+	void MPU9250::resetFIFO() {
 		uint8_t regVal = readMPU9250Register8(REGISTER_USER_CTRL);
 		regVal |= 0x04;
 		writeMPU9250Register(REGISTER_USER_CTRL, regVal);
 	}
 
-	int16_t MPU9250::getFifoCount() {
+	int16_t MPU9250::readFIFOCount() {
 		uint16_t regVal16 = (uint16_t) readMPU9250Register16(REGISTER_FIFO_COUNT);
 		return regVal16;
 	}
 
-	void MPU9250::setFifoMode(MPU9250_fifoMode mode) {
+	void MPU9250::setFIFOMode(MPU9250_fifoMode mode) {
 		uint8_t regVal = readMPU9250Register8(REGISTER_CONFIG);
+
 		if (mode) {
 			regVal |= 0x40;
-		} else {
+		}
+		else {
 			regVal &= ~(0x40);
 		}
-		writeMPU9250Register(REGISTER_CONFIG, regVal);
 
+		writeMPU9250Register(REGISTER_CONFIG, regVal);
 	}
 
-	int16_t MPU9250::getNumberOfFifoDataSets() {
-		int16_t numberOfSets = getFifoCount();
+	int16_t MPU9250::getFIFODataSetsCount() {
+		auto dataSetsCount = readFIFOCount();
 
 		if ((fifoType == MPU9250_FIFO_ACC) || (fifoType == MPU9250_FIFO_GYR)) {
-			numberOfSets /= 6;
-		} else if (fifoType == MPU9250_FIFO_ACC_GYR) {
-			numberOfSets /= 12;
+			dataSetsCount /= 6;
+		}
+		else if (fifoType == MPU9250_FIFO_ACC_GYR) {
+			dataSetsCount /= 12;
 		}
 
-		return numberOfSets;
+		return dataSetsCount;
 	}
 
-	void MPU9250::findFifoBegin() {
-		int16_t count = getFifoCount();
+	void MPU9250::findFIFOBegin() {
+		int16_t count = readFIFOCount();
 
 		if ((fifoType == MPU9250_FIFO_ACC) || (fifoType == MPU9250_FIFO_GYR)) {
 			if (count > 510) {
@@ -534,7 +545,8 @@ namespace pizda {
 					readMPU9250Register8(REGISTER_FIFO_R_W);
 				}
 			}
-		} else if (fifoType == MPU9250_FIFO_ACC_GYR) {
+		}
+		else if (fifoType == MPU9250_FIFO_ACC_GYR) {
 			if (count > 504) {
 				for (int i = 0; i < 8; i++) {
 					readMPU9250Register8(REGISTER_FIFO_R_W);
@@ -705,7 +717,7 @@ namespace pizda {
 
 /************** Magnetometer **************/
 
-	bool MPU9250::initMagnetometer() {
+	bool MPU9250::setupMagnetometer() {
 		enableI2CMaster();
 		resetMagnetometer();
 
