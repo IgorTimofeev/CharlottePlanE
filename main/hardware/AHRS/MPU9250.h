@@ -116,34 +116,6 @@ namespace pizda {
 
 			uint8_t readWhoAmI();
 
-			/* The slope of the curve of acceleration vs measured values fits quite well to the theoretical
-			 * values, e.g. 16384 units/g in the +/- 2g range. But the starting point, if you position the
-			 * MPU9250 flat, is not necessarily 0g/0g/1g for x/y/z. The autoOffset function measures offset
-			 * values. It assumes your MPU9250 is positioned flat with its x,y-plane. The more you deviate
-			 * from this, the less accurate will be your results.
-			 * The function also measures the offset of the gyroscope data. The gyroscope offset does not
-			 * depend on the positioning.
-			 * This function needs to be called at the beginning since it can overwrite your settings!
-			 *
-			 *  There's a more accurate method for calibration. You have to determine the minimum and maximum
-			 *  raw acceleration values of the axes determined in the range +/- 2 g.
-			 *  You call the function as follows: setAccOffsets(xMin,xMax,yMin,yMax,zMin,zMax);
-			 *  Use either autoOffset or setAccOffsets, not both.
-			*/
-			void calibrateAccAndGyr();
-
-			void setAccOffsets(Vector3F offset); // for writing back previous offsets
-
-			/*  The gyroscope data is not zero, even if you don't move the MPU9250.
-			 *  To start at zero, you can apply offset values. These are the gyroscope raw values you obtain
-			 *  using the +/- 250 degrees/s range.
-			 *  Use either autoOffset or setGyrOffsets, not both.
-			 */
-			void setGyrOffsets(Vector3F offset); // for writing back previous offsets
-			Vector3F getAccOffsets();
-
-			Vector3F getGyrOffsets();
-
 			/*  Digital Low Pass Filter for the gyroscope must be enabled to choose the level.
 			 *
 			 *  DLPF    Bandwidth [Hz]   Delay [ms]   Output Rate [kHz]
@@ -209,23 +181,13 @@ namespace pizda {
 
 			/* x,y,z results */
 
-			Vector3F readRawAccValues();
-
 			Vector3F readAccValues();
-
-			Vector3F readRawAccValuesFromFIFO();
-
 			Vector3F readAccValuesFromFIFO();
 
-			float readTemperature();
-
-			Vector3F readRawGyroValues();
-			Vector3F readRawGyroValuesFromFIFO();
-
 			Vector3F readGyroValues();
-
 			Vector3F readGyroValuesFromFIFO();
 
+			float readTemperature();
 
 			/* Angles and Orientation */
 
@@ -404,8 +366,6 @@ namespace pizda {
 			constexpr static uint8_t REGISTER_AK8963_ASAY = 0x11;
 			constexpr static uint8_t REGISTER_AK8963_ASAZ = 0x12;
 
-			Vector3F accOffsetVal {};
-			Vector3F gyrOffsetVal {};
 			float accRangeFactor = 1;
 			float gyrRangeFactor = 1;
 			Vector3F magCorrFactor {1, 1, 1};

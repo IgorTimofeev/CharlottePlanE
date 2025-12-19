@@ -12,7 +12,7 @@
 #include "hardware/transceiver/transceiver.h"
 #include "hardware/transceiver/aircraftPacketParser.h"
 #include "hardware/transceiver/channels.h"
-#include "hardware/AHRS/AHRS.h"
+#include "hardware/AHRS/ADIRS.h"
 
 namespace pizda {
 	class Aircraft {
@@ -26,7 +26,7 @@ namespace pizda {
 			Transceiver transceiver {};
 			AircraftPacketParser packetParser {};
 
-			AHRS ahrs {};
+			ADIRS ahrs {};
 
 			static Aircraft& getInstance();
 			void start();

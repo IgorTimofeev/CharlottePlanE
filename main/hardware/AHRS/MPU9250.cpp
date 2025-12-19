@@ -68,56 +68,40 @@ namespace pizda {
 		return readMPU9250Register8(REGISTER_WHO_AM_I);
 	}
 
-	void MPU9250::calibrateAccAndGyr() {
-		// Highest resolution
-		setGyrRange(MPU9250_GYRO_RANGE_250);
-		setAccRange(MPU9250_ACC_RANGE_2G);
-
-		// Lowest noise
-		enableAccDLPF();
-		setAccDLPF(MPU9250_DLPF_6);
-
-		enableGyrDLPF();
-		setGyrDLPF(MPU9250_DLPF_6);
-
-		delayMs(100);
-
-		// Starting
-		Vector3F accAcc {};
-		Vector3F gyroAcc {};
-
-		constexpr static uint16_t iterations = 100;
-
-		for (uint16_t i = 0; i < iterations; i++) {
-			accAcc += readRawAccValues();
-			gyroAcc += readRawGyroValues();
-
-			delayMs(1);
-		}
-
-		accAcc /= iterations;
-		gyroAcc /= iterations;
-
-
-		accOffsetVal = accAcc;
-		gyrOffsetVal = gyroAcc;
-	}
-
-	void MPU9250::setAccOffsets(Vector3F offset) {
-		accOffsetVal = offset;
-	}
-
-	void MPU9250::setGyrOffsets(Vector3F offset) {
-		gyrOffsetVal = offset;
-	}
-
-	Vector3F MPU9250::getAccOffsets() {
-		return accOffsetVal;
-	}
-
-	Vector3F MPU9250::getGyrOffsets() {
-		return gyrOffsetVal;
-	}
+//	void MPU9250::calibrateAccAndGyr() {
+//		// Highest resolution
+//		setGyrRange(MPU9250_GYRO_RANGE_250);
+//		setAccRange(MPU9250_ACC_RANGE_2G);
+//
+//		// Lowest noise
+//		enableAccDLPF();
+//		setAccDLPF(MPU9250_DLPF_6);
+//
+//		enableGyrDLPF();
+//		setGyrDLPF(MPU9250_DLPF_6);
+//
+//		delayMs(100);
+//
+//		// Starting
+//		Vector3F accAcc {};
+//		Vector3F gyroAcc {};
+//
+//		constexpr static uint16_t iterations = 100;
+//
+//		for (uint16_t i = 0; i < iterations; i++) {
+//			accAcc += readRawAccValues();
+//			gyroAcc += readRawGyroValues();
+//
+//			delayMs(1);
+//		}
+//
+//		accAcc /= iterations;
+//		gyroAcc /= iterations;
+//
+//
+//		accOffsetVal = accAcc;
+//		gyrOffsetVal = gyroAcc;
+//	}
 
 	void MPU9250::setGyrDLPF(MPU9250_dlpf dlpf) {
 		uint8_t regVal = readMPU9250Register8(REGISTER_CONFIG);
@@ -200,7 +184,7 @@ namespace pizda {
 
 /************* x,y,z results *************/
 
-	Vector3F MPU9250::readRawAccValues() {
+	Vector3F MPU9250::readAccValues() {
 		uint8_t values[6];
 		readMPU9250Register3x16(REGISTER_ACCEL_OUT, values);
 
@@ -215,25 +199,11 @@ namespace pizda {
 		};
 	}
 
-	Vector3F MPU9250::readRawAccValuesFromFIFO() {
+	Vector3F MPU9250::readAccValuesFromFIFO() {
 		return readVector3ValueFromFIFO() * accRangeFactor;
 	}
 
-	Vector3F MPU9250::readAccValues() {
-		return readRawAccValues() - accOffsetVal;
-	}
-
-	Vector3F MPU9250::readAccValuesFromFIFO() {
-		return readRawAccValuesFromFIFO() - accOffsetVal;
-	}
-
-	float MPU9250::readTemperature() {
-		int16_t regVal16 = readMPU9250Register16(REGISTER_TEMP_OUT);
-		float tmp = (regVal16 * 1.0 - ROOM_TEMPERATURE_OFFSET) / TEMPERATURE_SENSITIVITY + 21.0;
-		return tmp;
-	}
-
-	Vector3F MPU9250::readRawGyroValues() {
+	Vector3F MPU9250::readGyroValues() {
 		uint8_t values[6];
 		readMPU9250Register3x16(REGISTER_GYRO_OUT, values);
 
@@ -248,20 +218,17 @@ namespace pizda {
 		};
 	}
 
-	Vector3F MPU9250::readRawGyroValuesFromFIFO() {
+	Vector3F MPU9250::readGyroValuesFromFIFO() {
 		return readVector3ValueFromFIFO() * gyrRangeFactor;
 	}
 
-	Vector3F MPU9250::readGyroValues() {
-		return readRawGyroValues() - gyrOffsetVal;
+	float MPU9250::readTemperature() {
+		int16_t regVal16 = readMPU9250Register16(REGISTER_TEMP_OUT);
+		float tmp = (regVal16 * 1.0 - ROOM_TEMPERATURE_OFFSET) / TEMPERATURE_SENSITIVITY + 21.0;
+		return tmp;
 	}
 
-	Vector3F MPU9250::readGyroValuesFromFIFO() {
-		return readRawGyroValuesFromFIFO() - gyrOffsetVal;
-	}
-
-
-/********* Power, Sleep, Standby *********/
+	/********* Power, Sleep, Standby *********/
 
 	void MPU9250::sleep(bool sleep) {
 		uint8_t regVal = readMPU9250Register8(REGISTER_PWR_MGMT_1);
