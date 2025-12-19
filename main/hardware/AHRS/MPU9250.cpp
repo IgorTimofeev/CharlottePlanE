@@ -558,11 +558,11 @@ namespace pizda {
 //    return regValue;
 	}
 
-	void MPU9250::readMPU9250Register3x16(uint8_t reg, uint8_t* buf) {
+	void MPU9250::readMPU9250Register3x16(uint8_t reg, uint8_t* buffer) {
 		const uint8_t cmd = reg | 0x80;
 		ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
 
-		ESP_ERROR_CHECK(i2c_master_receive(_I2CDeviceHandle, buf, 6, -1));
+		ESP_ERROR_CHECK(i2c_master_receive(_I2CDeviceHandle, buffer, 6, -1));
 
 //    if(!useSPI){
 //        _wire->beginTransmission(i2cAddress);

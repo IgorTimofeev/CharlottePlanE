@@ -387,7 +387,7 @@ namespace pizda {
 
 			int16_t readMPU9250Register16(uint8_t reg);
 
-			void readMPU9250Register3x16(uint8_t reg, uint8_t* buf);
+			void readMPU9250Register3x16(uint8_t reg, uint8_t* buffer);
 
 			Vector3F readVector3ValueFromFIFO();
 
