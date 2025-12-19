@@ -54,17 +54,6 @@ namespace pizda {
 			return false;
 		}
 
-		accOffsetVal.setX(0.0);
-		accOffsetVal.setY(0.0);
-		accOffsetVal.setZ(0.0);
-		accRangeFactor = 1;
-
-		gyrOffsetVal.setX(0.0);
-		gyrOffsetVal.setY(0.0);
-		gyrOffsetVal.setZ(0.0);
-		gyrRangeFactor = 1;
-
-		fifoType = MPU9250_FIFO_ACC;
 		sleep(false);
 
 		if (!setupMagnetometer()) {
@@ -80,37 +69,38 @@ namespace pizda {
 	}
 
 	void MPU9250::calibrateAccAndGyr() {
-		enableGyrDLPF();
-		setGyrDLPF(MPU9250_DLPF_6);  // lowest noise
-		setGyrRange(MPU9250_GYRO_RANGE_250); // highest resolution
+		// Highest resolution
+		setGyrRange(MPU9250_GYRO_RANGE_250);
 		setAccRange(MPU9250_ACC_RANGE_2G);
-		enableAccDLPF(true);
+
+		// Lowest noise
+		enableAccDLPF();
 		setAccDLPF(MPU9250_DLPF_6);
+
+		enableGyrDLPF();
+		setGyrDLPF(MPU9250_DLPF_6);
+
 		delayMs(100);
 
-		Vector3F accelerationOffsetAccumulator{0.f, 0.f, 0.f};
-		Vector3F gyroOffsetAccumulator{0.f, 0.f, 0.f};
-		for (int i = 0; i < 500; i++) {
-			// acceleration
-			accelerationOffsetAccumulator += getAccRawValues();
-			// gyro
-			gyroOffsetAccumulator += readGyroRawValues();
+		// Starting
+		Vector3F accAcc {};
+		Vector3F gyroAcc {};
+
+		constexpr static uint16_t iterations = 100;
+
+		for (uint16_t i = 0; i < iterations; i++) {
+			accAcc += readRawAccValues();
+			gyroAcc += readRawGyroValues();
+
 			delayMs(1);
 		}
 
-		// acceleration
-		accelerationOffsetAccumulator /= 500.0f;
-		accelerationOffsetAccumulator.setZ(accelerationOffsetAccumulator.getZ() - 16384.0f);
-		accOffsetVal = accelerationOffsetAccumulator;
-		// gyro
-		gyrOffsetVal = gyroOffsetAccumulator / 500.0f;
+		accAcc /= iterations;
+		gyroAcc /= iterations;
 
-	}
 
-	void MPU9250::setAccOffsets(float xMin, float xMax, float yMin, float yMax, float zMin, float zMax) {
-		accOffsetVal.setX((xMax + xMin) * 0.5);
-		accOffsetVal.setY((yMax + yMin) * 0.5);
-		accOffsetVal.setZ((zMax + zMin) * 0.5);
+		accOffsetVal = accAcc;
+		gyrOffsetVal = gyroAcc;
 	}
 
 	void MPU9250::setAccOffsets(Vector3F offset) {
@@ -145,7 +135,8 @@ namespace pizda {
 		regVal &= 0xE7;
 		regVal |= (gyroRange << 3);
 		writeMPU9250Register(REGISTER_GYRO_CONFIG, regVal);
-		gyrRangeFactor = (1 << gyroRange);
+
+		gyrRangeFactor = static_cast<float>(1 << gyroRange) * 250.f / 32768.0f;
 	}
 
 	void MPU9250::enableGyrDLPF() {
@@ -166,16 +157,19 @@ namespace pizda {
 		regVal &= 0xE7;
 		regVal |= (accRange << 3);
 		writeMPU9250Register(REGISTER_ACCEL_CONFIG, regVal);
-		accRangeFactor = 1 << accRange;
+
+		accRangeFactor = (static_cast<float>(1 << accRange) * 2.f / 32768.0f);
 	}
 
-	void MPU9250::enableAccDLPF(bool enable) {
+	void MPU9250::enableAccDLPF() {
 		uint8_t regVal = readMPU9250Register8(REGISTER_ACCEL_CONFIG_2);
-		if (enable) {
-			regVal &= ~8;
-		} else {
-			regVal |= 8;
-		}
+		regVal &= ~8;
+		writeMPU9250Register(REGISTER_ACCEL_CONFIG_2, regVal);
+	}
+
+	void MPU9250::disableAccDLPF() {
+		uint8_t regVal = readMPU9250Register8(REGISTER_ACCEL_CONFIG_2);
+		regVal |= 8;
 		writeMPU9250Register(REGISTER_ACCEL_CONFIG_2, regVal);
 	}
 
@@ -206,47 +200,31 @@ namespace pizda {
 
 /************* x,y,z results *************/
 
-	Vector3F MPU9250::getAccRawValues() {
-		uint8_t rawData[6];
-		readMPU9250Register3x16(REGISTER_ACCEL_OUT, rawData);
-		int16_t const xRaw = static_cast<int16_t>((rawData[0] << 8) | rawData[1]);
-		int16_t const yRaw = static_cast<int16_t>((rawData[2] << 8) | rawData[3]);
-		int16_t const zRaw = static_cast<int16_t>((rawData[4] << 8) | rawData[5]);
-		return Vector3F{static_cast<float>(xRaw), static_cast<float>(yRaw), static_cast<float>(zRaw)};
+	Vector3F MPU9250::readRawAccValues() {
+		uint8_t values[6];
+		readMPU9250Register3x16(REGISTER_ACCEL_OUT, values);
+
+		const auto x = static_cast<int16_t>((values[0] << 8) | values[1]);
+		const auto y = static_cast<int16_t>((values[2] << 8) | values[3]);
+		const auto z = static_cast<int16_t>((values[4] << 8) | values[5]);
+
+		return Vector3F {
+			static_cast<float>(x) * accRangeFactor,
+			static_cast<float>(y) * accRangeFactor,
+			static_cast<float>(z) * accRangeFactor
+		};
 	}
 
-	Vector3F MPU9250::getCorrectedAccRawValues() {
-		Vector3F rawValue = getAccRawValues();
-		correctAccRawValues(rawValue);
-		return rawValue;
+	Vector3F MPU9250::readRawAccValuesFromFIFO() {
+		return readVector3ValueFromFIFO() * accRangeFactor;
 	}
 
-	Vector3F MPU9250::getGValues() {
-		Vector3F const acceleration = getCorrectedAccRawValues();
-		return acceleration * (static_cast<float>(accRangeFactor) / 16384.0f);
+	Vector3F MPU9250::readAccValues() {
+		return readRawAccValues() - accOffsetVal;
 	}
 
-	Vector3F MPU9250::getAccRawValuesFromFifo() {
-		Vector3F accRawVal = readMPU9250xyzValFromFifo();
-		return accRawVal;
-	}
-
-	Vector3F MPU9250::getCorrectedAccRawValuesFromFifo() {
-		Vector3F accRawVal = getAccRawValuesFromFifo();
-		correctAccRawValues(accRawVal);
-		return accRawVal;
-	}
-
-	Vector3F MPU9250::readGValuesFromFifo() {
-		Vector3F accRawVal = getCorrectedAccRawValuesFromFifo();
-		return accRawVal * (static_cast<float>(accRangeFactor) / 16384.0f);
-	}
-
-	float MPU9250::getResultantG(Vector3F gVal) {
-		float resultant = 0.0;
-		resultant = sqrt(std::sqrt(gVal.getX()) + std::sqrt(gVal.getY()) + std::sqrt(gVal.getZ()));
-
-		return resultant;
+	Vector3F MPU9250::readAccValuesFromFIFO() {
+		return readRawAccValuesFromFIFO() - accOffsetVal;
 	}
 
 	float MPU9250::readTemperature() {
@@ -255,31 +233,33 @@ namespace pizda {
 		return tmp;
 	}
 
-	Vector3F MPU9250::readGyroRawValues() {
-		uint8_t rawData[6];
-		readMPU9250Register3x16(REGISTER_GYRO_OUT, rawData);
-		int16_t const xRaw = static_cast<int16_t>((rawData[0] << 8) | rawData[1]);
-		int16_t const yRaw = static_cast<int16_t>((rawData[2] << 8) | rawData[3]);
-		int16_t const zRaw = static_cast<int16_t>((rawData[4] << 8) | rawData[5]);
-		return Vector3F{static_cast<float>(xRaw), static_cast<float>(yRaw), static_cast<float>(zRaw)};
+	Vector3F MPU9250::readRawGyroValues() {
+		uint8_t values[6];
+		readMPU9250Register3x16(REGISTER_GYRO_OUT, values);
+
+		const auto x = static_cast<int16_t>((values[0] << 8) | values[1]);
+		const auto y = static_cast<int16_t>((values[2] << 8) | values[3]);
+		const auto z = static_cast<int16_t>((values[4] << 8) | values[5]);
+
+		return {
+			static_cast<float>(x) * gyrRangeFactor,
+			static_cast<float>(y) * gyrRangeFactor,
+			static_cast<float>(z) * gyrRangeFactor
+		};
 	}
 
-	Vector3F MPU9250::readCorrectedGyroRawValues() {
-		Vector3F gyrRawVal = readGyroRawValues();
-		correctGyrRawValues(gyrRawVal);
-		return gyrRawVal;
+	Vector3F MPU9250::readRawGyroValuesFromFIFO() {
+		return readVector3ValueFromFIFO() * gyrRangeFactor;
 	}
 
 	Vector3F MPU9250::readGyroValues() {
-		Vector3F const gyroValues = readCorrectedGyroRawValues();
-		return gyroValues * (static_cast<float>(gyrRangeFactor) * 250.f / 32768.0f);
+		return readRawGyroValues() - gyrOffsetVal;
 	}
 
-	Vector3F MPU9250::readGyroValuesFromFifo() {
-		Vector3F gyroValues = readMPU9250xyzValFromFifo();
-		correctGyrRawValues(gyroValues);
-		return gyroValues * (static_cast<float>(gyrRangeFactor) * 250.f / 32768.0f);
+	Vector3F MPU9250::readGyroValuesFromFIFO() {
+		return readRawGyroValuesFromFIFO() - gyrOffsetVal;
 	}
+
 
 /********* Power, Sleep, Standby *********/
 
@@ -318,7 +298,7 @@ namespace pizda {
 
 	Vector3F MPU9250::getAngles() {
 		Vector3F angleVal {};
-		auto gVal = getGValues();
+		auto gVal = readAccValues();
 
 		if (gVal.getX() > 1.0) {
 			gVal.setX(1.0);
@@ -486,16 +466,15 @@ namespace pizda {
 		writeMPU9250Register(REGISTER_FIFO_EN, 0);
 	}
 
-	void MPU9250::enableFIFO(bool fifo) {
+	void MPU9250::enableFIFO() {
 		uint8_t regVal = readMPU9250Register8(REGISTER_USER_CTRL);
+		regVal |= 0x40;
+		writeMPU9250Register(REGISTER_USER_CTRL, regVal);
+	}
 
-		if (fifo) {
-			regVal |= 0x40;
-		}
-		else {
-			regVal &= ~(0x40);
-		}
-
+	void MPU9250::disableFIFO() {
+		uint8_t regVal = readMPU9250Register8(REGISTER_USER_CTRL);
+		regVal &= ~(0x40);
 		writeMPU9250Register(REGISTER_USER_CTRL, regVal);
 	}
 
@@ -523,7 +502,7 @@ namespace pizda {
 		writeMPU9250Register(REGISTER_CONFIG, regVal);
 	}
 
-	int16_t MPU9250::getFIFODataSetsCount() {
+	int16_t MPU9250::readFIFODataSetsCount() {
 		auto dataSetsCount = readFIFOCount();
 
 		if ((fifoType == MPU9250_FIFO_ACC) || (fifoType == MPU9250_FIFO_GYR)) {
@@ -558,18 +537,6 @@ namespace pizda {
 /************************************************
      Private Functions
 *************************************************/
-
-	void MPU9250::correctAccRawValues(Vector3F& rawValues) {
-		rawValues.setX(rawValues.getX() - accOffsetVal.getX() / accRangeFactor);
-		rawValues.setY(rawValues.getY() - accOffsetVal.getY() / accRangeFactor);
-		rawValues.setZ(rawValues.getZ() - accOffsetVal.getZ() / accRangeFactor);
-	}
-
-	void MPU9250::correctGyrRawValues(Vector3F& rawValues) {
-		rawValues.setX(rawValues.getX() - gyrOffsetVal.getX() / gyrRangeFactor);
-		rawValues.setY(rawValues.getY() - gyrOffsetVal.getY() / gyrRangeFactor);
-		rawValues.setZ(rawValues.getZ() - gyrOffsetVal.getZ() / gyrRangeFactor);
-	}
 
 	void MPU9250::reset_MPU9250() {
 		writeMPU9250Register(REGISTER_PWR_MGMT_1, REGISTER_VALUE_RESET);
@@ -654,13 +621,13 @@ namespace pizda {
 //    }
 	}
 
-	Vector3F MPU9250::readMPU9250xyzValFromFifo() {
-		uint8_t fifoTriple[6];
+	Vector3F MPU9250::readVector3ValueFromFIFO() {
+		uint8_t values[6];
 
 		const uint8_t cmd = REGISTER_FIFO_R_W | 0x80;
 		ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
 
-		ESP_ERROR_CHECK(i2c_master_receive(_I2CDeviceHandle, fifoTriple, 6, -1));
+		ESP_ERROR_CHECK(i2c_master_receive(_I2CDeviceHandle, values, 6, -1));
 
 //    if(!useSPI){
 //        _wire->beginTransmission(i2cAddress);
@@ -685,34 +652,11 @@ namespace pizda {
 //        _spi->endTransaction();
 //    }
 
-		Vector3F xyzResult = {0.0, 0.0, 0.0};
-		xyzResult.setX(static_cast<float>((int16_t) ((fifoTriple[0] << 8) + fifoTriple[1])));
-		xyzResult.setY(static_cast<float>((int16_t) ((fifoTriple[2] << 8) + fifoTriple[3])));
-		xyzResult.setZ(static_cast<float>((int16_t) ((fifoTriple[4] << 8) + fifoTriple[5])));
-
-		return xyzResult;
-	}
-
-/************ end ************/
-
-
-/************* x,y,z results *************/
-
-	Vector3F MPU9250::getMagValues() {
-		Vector3F magVal = {0.0, 0.0, 0.0};
-		uint8_t rawData[6];
-		readAK8963Data(rawData);
-		int16_t xRaw = (int16_t) ((rawData[1] << 8) | rawData[0]);
-		int16_t yRaw = (int16_t) ((rawData[3] << 8) | rawData[2]);
-		int16_t zRaw = (int16_t) ((rawData[5] << 8) | rawData[4]);
-
-		float constexpr scaleFactor = 4912.0 / 32760.0;
-
-		magVal.setX(xRaw * scaleFactor * magCorrFactor.getX());
-		magVal.setY(yRaw * scaleFactor * magCorrFactor.getY());
-		magVal.setZ(zRaw * scaleFactor * magCorrFactor.getZ());
-
-		return magVal;
+		return {
+			static_cast<float>((int16_t) ((values[0] << 8) + values[1])),
+			static_cast<float>((int16_t) ((values[2] << 8) + values[3])),
+			static_cast<float>((int16_t) ((values[4] << 8) + values[5]))
+		};
 	}
 
 /************** Magnetometer **************/
@@ -776,6 +720,23 @@ namespace pizda {
 	void MPU9250::resetMagnetometer() {
 		writeAK8963Register(REGISTER_AK8963_CNTL_2, 0x01);
 		delayMs(100);
+	}
+
+	Vector3F MPU9250::readMagValues() {
+		uint8_t rawData[6];
+		readAK8963Data(rawData);
+
+		const auto x = static_cast<int16_t>((rawData[1] << 8) | rawData[0]);
+		const auto y = static_cast<int16_t>((rawData[3] << 8) | rawData[2]);
+		const auto z = static_cast<int16_t>((rawData[5] << 8) | rawData[4]);
+
+		constexpr static float scaleFactor = 4912.0f / 32760.0f;
+
+		return {
+			x * scaleFactor * magCorrFactor.getX(),
+			y * scaleFactor * magCorrFactor.getY(),
+			z * scaleFactor * magCorrFactor.getZ()
+		};
 	}
 
 	void MPU9250::getAsaVals() {

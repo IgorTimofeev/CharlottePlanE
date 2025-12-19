@@ -117,22 +117,20 @@ namespace pizda {
 			uint8_t readWhoAmI();
 
 			/* The slope of the curve of acceleration vs measured values fits quite well to the theoretical
-			   * values, e.g. 16384 units/g in the +/- 2g range. But the starting point, if you position the
-			   * MPU9250 flat, is not necessarily 0g/0g/1g for x/y/z. The autoOffset function measures offset
-			   * values. It assumes your MPU9250 is positioned flat with its x,y-plane. The more you deviate
-			   * from this, the less accurate will be your results.
-			   * The function also measures the offset of the gyroscope data. The gyroscope offset does not
-			   * depend on the positioning.
-			   * This function needs to be called at the beginning since it can overwrite your settings!
-			   */
-			void calibrateAccAndGyr();
-
-			/*  This is a more accurate method for calibration. You have to determine the minimum and maximum
+			 * values, e.g. 16384 units/g in the +/- 2g range. But the starting point, if you position the
+			 * MPU9250 flat, is not necessarily 0g/0g/1g for x/y/z. The autoOffset function measures offset
+			 * values. It assumes your MPU9250 is positioned flat with its x,y-plane. The more you deviate
+			 * from this, the less accurate will be your results.
+			 * The function also measures the offset of the gyroscope data. The gyroscope offset does not
+			 * depend on the positioning.
+			 * This function needs to be called at the beginning since it can overwrite your settings!
+			 *
+			 *  There's a more accurate method for calibration. You have to determine the minimum and maximum
 			 *  raw acceleration values of the axes determined in the range +/- 2 g.
 			 *  You call the function as follows: setAccOffsets(xMin,xMax,yMin,yMax,zMin,zMax);
 			 *  Use either autoOffset or setAccOffsets, not both.
-			 */
-			void setAccOffsets(float xMin, float xMax, float yMin, float yMax, float zMin, float zMax);
+			*/
+			void calibrateAccAndGyr();
 
 			void setAccOffsets(Vector3F offset); // for writing back previous offsets
 
@@ -186,7 +184,8 @@ namespace pizda {
 			/* Enable/disable the digital low pass filter for the accelerometer
 			*  If disabled the bandwidth is 1.13 kHz, delay is 0.75 ms, output rate is 4 kHz
 			*/
-			void enableAccDLPF(bool enable);
+			void enableAccDLPF();
+			void disableAccDLPF();
 
 			/*  Digital low pass filter (DLPF) for the accelerometer (if DLPF enabled)
 			*
@@ -210,29 +209,22 @@ namespace pizda {
 
 			/* x,y,z results */
 
-			Vector3F getAccRawValues();
+			Vector3F readRawAccValues();
 
-			Vector3F getCorrectedAccRawValues();
+			Vector3F readAccValues();
 
-			Vector3F getGValues();
+			Vector3F readRawAccValuesFromFIFO();
 
-			Vector3F getAccRawValuesFromFifo();
-
-			Vector3F getCorrectedAccRawValuesFromFifo();
-
-			Vector3F readGValuesFromFifo();
-
-			float getResultantG(Vector3F gVal);
+			Vector3F readAccValuesFromFIFO();
 
 			float readTemperature();
 
-			Vector3F readGyroRawValues();
-
-			Vector3F readCorrectedGyroRawValues();
+			Vector3F readRawGyroValues();
+			Vector3F readRawGyroValuesFromFIFO();
 
 			Vector3F readGyroValues();
 
-			Vector3F readGyroValuesFromFifo();
+			Vector3F readGyroValuesFromFIFO();
 
 
 			/* Angles and Orientation */
@@ -292,7 +284,8 @@ namespace pizda {
 
 			void stopFIFO();
 
-			void enableFIFO(bool fifo);
+			void enableFIFO();
+			void disableFIFO();
 
 			void resetFIFO();
 
@@ -300,7 +293,7 @@ namespace pizda {
 
 			void setFIFOMode(MPU9250_fifoMode mode);
 
-			int16_t getFIFODataSetsCount();
+			int16_t readFIFODataSetsCount();
 
 			/* This is needed for continuous Fifo mode.
 			 * The Fifo buffer ends with a complete data set, but the start is within a data set. 512/6 or 512/12
@@ -311,7 +304,7 @@ namespace pizda {
 			void findFIFOBegin();
 
 			/* x,y,z results */
-			Vector3F getMagValues();
+			Vector3F readMagValues();
 			/* Magnetometer */
 
 			bool setupMagnetometer();
@@ -411,20 +404,16 @@ namespace pizda {
 			constexpr static uint8_t REGISTER_AK8963_ASAY = 0x11;
 			constexpr static uint8_t REGISTER_AK8963_ASAZ = 0x12;
 
-			Vector3F accOffsetVal;
-			Vector3F gyrOffsetVal;
-			uint8_t accRangeFactor;
-			uint8_t gyrRangeFactor;
-			MPU9250_fifo_type fifoType;
-			Vector3F magCorrFactor;
+			Vector3F accOffsetVal {};
+			Vector3F gyrOffsetVal {};
+			float accRangeFactor = 1;
+			float gyrRangeFactor = 1;
+			Vector3F magCorrFactor {1, 1, 1};
+			MPU9250_fifo_type fifoType = MPU9250_FIFO_ACC;
 
 			i2c_master_dev_handle_t _I2CDeviceHandle{};
 
 			void delayMs(uint32_t ms);
-
-			void correctAccRawValues(Vector3F& rawValues);
-
-			void correctGyrRawValues(Vector3F& rawValues);
 
 			void getAsaVals();
 
@@ -440,7 +429,7 @@ namespace pizda {
 
 			void readMPU9250Register3x16(uint8_t reg, uint8_t* buf);
 
-			Vector3F readMPU9250xyzValFromFifo();
+			Vector3F readVector3ValueFromFIFO();
 
 			void enableMagDataRead(uint8_t reg, uint8_t bytes);
 

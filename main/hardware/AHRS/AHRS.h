@@ -156,34 +156,135 @@ namespace pizda {
 						return false;
 					}
 
-					// Offsets
-					MPU.unit.setAccOffsets(Vector3F(0, 0, 0));
-					MPU.unit.setGyrOffsets(Vector3F(0, 0, 0));
-
-					// LPF
-					MPU.unit.enableGyrDLPF();
-					MPU.unit.setGyrDLPF(MPU9250_DLPF_2);
-
-					MPU.unit.enableAccDLPF(true);
-					MPU.unit.setAccDLPF(MPU9250_DLPF_2);
-
+					// SRD
 					MPU.unit.setSRD(MPUSRD);
 
-					// Range
-					MPU.unit.setAccRange(MPU9250_ACC_RANGE_2G);
-					MPU.unit.setGyrRange(MPU9250_GYRO_RANGE_250);
+//					setMPUOperatingLPFAndRange(MPU.unit);
 
-					// FIFO buffer
-					MPU.unit.setFIFOMode(MPU9250_STOP_WHEN_FULL);
-					MPU.unit.enableFIFO(true);
-
-					// in some cases a delay after enabling Fifo makes sense
-					vTaskDelay(pdMS_TO_TICKS(100));
-
-					MPU.unit.startFIFO(MPU9250_FIFO_ACC_GYR);
+					// Calibration
+					setMPUCalibrationOffsets(MPU.unit);
 				}
 
 				return true;
+			}
+
+			void setMPUOperationalMode(MPU9250& mpu) {
+				// Range
+				mpu.setAccRange(MPU9250_ACC_RANGE_2G);
+				mpu.setGyrRange(MPU9250_GYRO_RANGE_250);
+
+				// LPF
+				mpu.setAccDLPF(MPU9250_DLPF_2);
+				mpu.enableAccDLPF();
+
+				mpu.setGyrDLPF(MPU9250_DLPF_2);
+				mpu.enableGyrDLPF();
+
+				vTaskDelay(pdMS_TO_TICKS(100));
+
+				// FIFO
+				mpu.setFIFOMode(MPU9250_STOP_WHEN_FULL);
+				mpu.enableFIFO();
+
+				// In some cases a delay after enabling FIFO makes sense
+				vTaskDelay(pdMS_TO_TICKS(100));
+
+				mpu.startFIFO(MPU9250_FIFO_ACC_GYR);
+			}
+
+			void calibrateMPU(MPU9250& mpu) {
+				ESP_LOGI(_logTag, "MPU calibration started");
+
+				constexpr static uint16_t iterations = 100;
+
+				// Highest resolution
+				mpu.setGyrRange(MPU9250_GYRO_RANGE_250);
+				mpu.setAccRange(MPU9250_ACC_RANGE_2G);
+
+				// Lowest noise
+				mpu.setAccDLPF(MPU9250_DLPF_6);
+				mpu.enableAccDLPF();
+
+				mpu.setGyrDLPF(MPU9250_DLPF_6);
+				mpu.enableGyrDLPF();
+
+				vTaskDelay(pdMS_TO_TICKS(100));
+
+				// FIFO
+				mpu.disableFIFO();
+
+				Vector3F accAcc {};
+				Vector3F gyrAcc {};
+
+				for (uint16_t i = 0; i < iterations; ++i) {
+					accAcc += mpu.readRawAccValues();
+					gyrAcc += mpu.readRawGyroValues();
+
+					vTaskDelay(std::min(portTICK_PERIOD_MS, pdMS_TO_TICKS(1000 / MPUFrequencyHz)));
+				}
+
+				accAcc /= iterations;
+				gyrAcc /= iterations;
+
+				ESP_LOGI(_logTag, "MPU acc offset: %f x %f x %f", accAcc.getX(), accAcc.getY(), accAcc.getZ());
+				ESP_LOGI(_logTag, "MPU gyr offset: %f x %f x %f", gyrAcc.getX(), gyrAcc.getY(), gyrAcc.getZ());
+
+				mpu.setAccOffsets(accAcc);
+				mpu.setGyrOffsets(gyrAcc);
+
+				setMPUOperationalMode(mpu);
+			}
+
+			void setMPUCalibrationOffsets(MPU9250& mpu) {
+				calibrateMPU(mpu);
+			}
+			
+			void updateMPU() {
+				for (auto& MPU : _MPUs) {
+					const auto dataSetsCount = MPU.unit.readFIFODataSetsCount();
+
+					if (dataSetsCount < 4) {
+						ESP_LOGI(_logTag, "MPU FIFO data sets count is not enough, skipping for more data");
+						continue;
+					}
+					else if (dataSetsCount >= MPUFIFOBufferDangerousBatchesCount) {
+						ESP_LOGI(_logTag, "MPU FIFO data sets count is dangerously big");
+					}
+
+					MPU.unit.stopFIFO();
+					// Only for cont mode
+					// MPU.unit.findFIFOBegin();
+
+					ESP_LOGI(_logTag, "MPU FIFO data sets count: %d", dataSetsCount);
+
+					Vector3F a[MPUFIFOBufferMaxBatchesCount] {};
+					Vector3F g[MPUFIFOBufferMaxBatchesCount] {};
+
+					for (uint32_t i = 0; i < std::min<uint16_t>(MPUFIFOBufferMaxBatchesCount, dataSetsCount); i++) {
+//						as[i] = MPU.unit.readAccValuesFromFIFO();
+//						gs[i] = MPU.unit.readGyroValuesFromFIFO();
+
+						auto v1 = MPU.unit.readAccValuesFromFIFO();
+						auto v2 = MPU.unit.readGyroValuesFromFIFO();
+
+						ESP_LOGI(_logTag, "data set %d, acc: %f x %f x %f", i, v1.getX(), v1.getY(), v1.getZ());
+						ESP_LOGI(_logTag, "data set %d, gyr: %f x %f x %f", i, v2.getX(), v2.getY(), v2.getZ());
+
+						const auto v1 = MPU.unit.readAccValues();
+						const auto v2 = MPU.unit.readGyroValues();
+
+						ESP_LOGI(_logTag, "simple acc: %f x %f x %f", i, v1.getX(), v1.getY(), v1.getZ());
+						ESP_LOGI(_logTag, "simple gyr: %f x %f x %f", i, v2.getX(), v2.getY(), v2.getZ());
+					}
+
+					MPU.unit.resetFIFO();
+					MPU.unit.startFIFO(MPU9250_FIFO_ACC_GYR);
+					MPU.unit.readAndClearInterruptStatus();
+
+					Vector3F v3 = MPU.unit.readMagValues();
+
+					ESP_LOGI(_logTag, "MPU mag: %f x %f x %f", v3.getX(), v3.getY(), v3.getZ());
+				}
 			}
 
 			bool setupBMPs() {
@@ -226,42 +327,6 @@ namespace pizda {
 				_altitude = computeAltitude(pressureSum, temperatureSum);
 
 				ESP_LOGI(_logTag, "Avg press: %f, temp: %f, alt: %f", _pressure, _temperature, _altitude);
-			}
-
-			void updateMPU() {
-				for (auto& MPU : _MPUs) {
-					const auto dataSetsCount = MPU.unit.getFIFODataSetsCount();
-
-					if (dataSetsCount < 4) {
-						ESP_LOGI(_logTag, "MPU FIFO data sets count is not enough, skipping for more data");
-						continue;
-					}
-					else if (dataSetsCount >= MPUFIFOBufferDangerousBatchesCount) {
-						ESP_LOGI(_logTag, "MPU FIFO data sets count is dangerously big");
-					}
-
-					MPU.unit.stopFIFO();
-					// Only for cont mode
-					// MPU.unit.findFIFOBegin();
-
-					ESP_LOGI(_logTag, "MPU FIFO data sets count: %d", dataSetsCount);
-
-					for (uint32_t i = 0; i < dataSetsCount; i++) {
-						auto v1 = MPU.unit.readGValuesFromFifo();
-						auto v2 = MPU.unit.readGyroValuesFromFifo();
-
-						ESP_LOGI(_logTag, "data set %d, acc: %f x %f x %f", i, v1.getX(), v1.getY(), v1.getZ());
-						ESP_LOGI(_logTag, "data set %d, gyr: %f x %f x %f", i, v2.getX(), v2.getY(), v2.getZ());
-					}
-
-					MPU.unit.resetFIFO();
-					MPU.unit.startFIFO(MPU9250_FIFO_ACC_GYR);
-					MPU.unit.readAndClearInterruptStatus();
-
-					Vector3F v3 = MPU.unit.getMagValues();
-
-					ESP_LOGI(_logTag, "MPU mag: %f x %f x %f", v3.getX(), v3.getY(), v3.getZ());
-				}
 			}
 
 			void taskBody() {
