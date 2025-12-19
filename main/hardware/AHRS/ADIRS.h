@@ -67,7 +67,7 @@ namespace pizda {
 			float _temperature = 0;
 			float _altitude = 0;
 
-			i2c_master_bus_handle_t I2CBusHandle {};
+			i2c_master_bus_handle_t _I2CBusHandle {};
 
 			std::array<AHRSUnit<IMU>, 1> _IMUs {
 				AHRSUnit<IMU> {
@@ -126,7 +126,7 @@ namespace pizda {
 				i2c_mst_config.glitch_ignore_cnt = 7;
 				i2c_mst_config.flags.enable_internal_pullup = true;
 
-				const auto state = i2c_new_master_bus(&i2c_mst_config, &I2CBusHandle);
+				const auto state = i2c_new_master_bus(&i2c_mst_config, &_I2CBusHandle);
 
 				if (state != ESP_OK && state != ESP_ERR_INVALID_STATE) {
 					ESP_ERROR_CHECK(state);
@@ -141,7 +141,7 @@ namespace pizda {
 					auto& IMU = _IMUs[i];
 
 					if (!IMU.unit.setup(
-						I2CBusHandle,
+						_I2CBusHandle,
 						IMU.address
 					)) {
 						ESP_LOGE(_logTag, "IMU %d initialization failed", i);
@@ -163,7 +163,7 @@ namespace pizda {
 				for (uint8_t i = 0; i < static_cast<uint8_t>(_BMPs.size()); ++i) {
 					auto& BMP = _BMPs[i];
 
-					BMP.stream.setup(I2CBusHandle, BMP.address, 1000000);
+					BMP.stream.setup(_I2CBusHandle, BMP.address, 1000000);
 
 					if (!BMP.unit.setup(
 						&BMP.stream,

@@ -21,7 +21,7 @@ namespace pizda {
 
 			constexpr static uint8_t MPUSRD = 4;
 			constexpr static uint16_t MPUFrequencyHz = 1000 / (1 + MPUSRD);
-			constexpr static uint32_t MPUTickDurationUs = 1'000'000 / MPUFrequencyHz;
+			constexpr static float MPUTickDurationS = 1.0f / MPUFrequencyHz;
 
 			constexpr static uint16_t MPUFIFOBufferLength = 512;
 			constexpr static uint8_t MPUFIFOBufferBatchLength = 3 * 2 * 2;
@@ -39,10 +39,10 @@ namespace pizda {
 				// SRD
 				MPU.setSRD(MPUSRD);
 
-//				setMPUOperationalMode();
+				setMPUOperationalMode();
 
 				// Calibration
-				calibrate();
+//				calibrate();
 
 				return true;
 			}
@@ -62,15 +62,14 @@ namespace pizda {
 			*  Use either autoOffset or setAccOffsets, not both.
 			*/
 			void calibrate() {
-				ESP_LOGI(_logTag, "MPU calibration started");
+				ESP_LOGI(_logTag, "IMU calibration started");
 
 				constexpr static uint16_t iterations = 512;
 
-				// Highest resolution
+				// Using higher attenuation during calibration process
 				MPU.setGyrRange(MPU9250_GYRO_RANGE_250);
 				MPU.setAccRange(MPU9250_ACC_RANGE_2G);
 
-				// Lowest noise
 				MPU.setAccDLPF(MPU9250_DLPF_6);
 				MPU.enableAccDLPF();
 
@@ -78,10 +77,10 @@ namespace pizda {
 				MPU.enableGyrDLPF();
 
 				vTaskDelay(pdMS_TO_TICKS(100));
-
-				// FIFO
+				
 				MPU.disableFIFO();
 
+				// Accumulating acc/gyr data
 				Vector3F aAcc {};
 				Vector3F gAcc {};
 
@@ -95,43 +94,67 @@ namespace pizda {
 				aAcc /= iterations;
 				gAcc /= iterations;
 
-				ESP_LOGI(_logTag, "MPU acc offset: %f x %f x %f", aAcc.getX(), aAcc.getY(), aAcc.getZ());
-				ESP_LOGI(_logTag, "MPU gyr offset: %f x %f x %f", gAcc.getX(), gAcc.getY(), gAcc.getZ());
+				ESP_LOGI(_logTag, "acc offset: %f x %f x %f", aAcc.getX(), aAcc.getY(), aAcc.getZ());
+				ESP_LOGI(_logTag, "gyr offset: %f x %f x %f", gAcc.getX(), gAcc.getY(), gAcc.getZ());
 
 				accOffset = aAcc;
 				gyrOffset = gAcc;
 
+				// Restoring attenuation to operational
 				setMPUOperationalMode();
 			}
+
+			float rollRad = 0;
+			float pitchRad = 0;
+			float yawRad = 0;
+
+			Vector3F accPos {};
+			Vector3F accVelocity {};
 
 			void tick() {
 				const auto dataSetsCount = MPU.readFIFODataSetsCount();
 
 				if (dataSetsCount < 4) {
-					ESP_LOGI(_logTag, "MPU FIFO data sets count is not enough, skipping for more data");
+					ESP_LOGI(_logTag, "FIFO data sets count is not enough, skipping for more data");
 					return;
 				}
 				else if (dataSetsCount >= MPUFIFOBufferDangerousBatchesCount) {
-					ESP_LOGI(_logTag, "MPU FIFO data sets count is dangerously big");
+					ESP_LOGI(_logTag, "FIFO data sets count is dangerously big");
 				}
 
 				MPU.stopFIFO();
 				// Only for cont mode
 				// mpu.findFIFOBegin();
 
-				ESP_LOGI(_logTag, "MPU FIFO data sets count: %d", dataSetsCount);
-
-				Vector3F a[MPUFIFOBufferMaxBatchesCount] {};
-				Vector3F g[MPUFIFOBufferMaxBatchesCount] {};
+				ESP_LOGI(_logTag, "FIFO data sets count: %d", dataSetsCount);
 
 				const auto batchesToRead = std::min<uint16_t>(MPUFIFOBufferMaxBatchesCount, dataSetsCount);
 
-				for (uint32_t i = 0; i < batchesToRead; i++) {
-					a[i] = MPU.readAccValuesFromFIFO() - accOffset;
-					g[i] = MPU.readGyroValuesFromFIFO() - gyrOffset;
+				float gyrTrustFactor = 0.98;
 
-					ESP_LOGI(_logTag, "data set %d, acc: %f x %f x %f", i, a[i].getX(), a[i].getY(), a[i].getZ());
-					ESP_LOGI(_logTag, "data set %d, gyr: %f x %f x %f", i, g[i].getX(), g[i].getY(), g[i].getZ());
+				for (uint32_t i = 0; i < batchesToRead; i++) {
+					const auto a = MPU.readAccValuesFromFIFO() - accOffset;
+					const auto g = MPU.readGyroValuesFromFIFO() - gyrOffset;
+
+					constexpr static float G = 9.80665f;
+					auto accelerationMs2 = a * G;
+					auto velocityMs = accelerationMs2 * MPUTickDurationS;
+					accVelocity += velocityMs;
+
+					accPos += accVelocity * MPUTickDurationS;
+
+//					ESP_LOGI(_logTag, "data set %d, acc: %f x %f x %f", i, a.getX(), a.getY(), a.getZ());
+//					ESP_LOGI(_logTag, "data set %d, gyr: %f x %f x %f", i, g.getX(), g.getY(), g.getZ());
+
+					// Complimentary filter
+					float aRoll = std::atan2(a.getY(), std::sqrt(a.getX() * a.getX() + a.getZ() * a.getZ()));
+					float aPitch = std::atan2(-a.getX(), std::sqrt(a.getY() * a.getY() + a.getZ() * a.getZ()));
+
+					float gRoll = rollRad + degToRad(g.getX()) * MPUTickDurationS;
+					float gPitch = pitchRad + degToRad(g.getY()) * MPUTickDurationS;
+
+					rollRad = gyrTrustFactor * gRoll + (1.0f - gyrTrustFactor) * aRoll;
+					pitchRad = gyrTrustFactor * gPitch + (1.0f - gyrTrustFactor) * aPitch;
 
 //					auto v1 = MPU.readAccValues() - accOffset;
 //					auto v2 = MPU.readGyroValues() - gyrOffset;
@@ -146,7 +169,17 @@ namespace pizda {
 
 				Vector3F v3 = MPU.readMagValues();
 
-				ESP_LOGI(_logTag, "MPU mag: %f x %f x %f", v3.getX(), v3.getY(), v3.getZ());
+				ESP_LOGI(_logTag, "Mag: %f x %f x %f", v3.getX(), v3.getY(), v3.getZ());
+				ESP_LOGI(_logTag, "Roll pitch yaw: %f x %f x %f", radToDeg(rollRad), radToDeg(pitchRad), radToDeg(yawRad));
+				ESP_LOGI(_logTag, "POs: %f x %f x %f", accPos.getX(), accPos.getY(), accPos.getZ());
+			}
+
+			float degToRad(float deg) {
+				return deg * std::numbers::pi_v<float> / 180.f;
+			}
+
+			float radToDeg(float rad) {
+				return rad * 180.f / std::numbers::pi_v<float>;
 			}
 
 		private:
