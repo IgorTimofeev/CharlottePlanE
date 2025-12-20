@@ -19,14 +19,18 @@ namespace pizda {
 
 			constexpr static const char* _logTag = "IMU";
 
-			constexpr static uint8_t MPUSRD = 4;
-			constexpr static uint16_t MPUFrequencyHz = 1000 / (1 + MPUSRD);
-			constexpr static float MPUTickDurationS = 1.0f / MPUFrequencyHz;
+			constexpr static uint8_t SRD = 4;
+			constexpr static uint16_t sampleRateHz = 1000 / (1 + SRD);
+			constexpr static float sampleIntervalS = 1.0f / sampleRateHz;
 
-			constexpr static uint16_t MPUFIFOBufferLength = 512;
-			constexpr static uint8_t MPUFIFOBufferBatchLength = 3 * 2 * 2;
-			constexpr static uint16_t MPUFIFOBufferMaxBatchesCount = MPUFIFOBufferLength / MPUFIFOBufferBatchLength;
-			constexpr static uint16_t MPUFIFOBufferDangerousBatchesCount = MPUFIFOBufferMaxBatchesCount * 8 / 10;
+			constexpr static uint16_t FIFOBufferLength = 512;
+			// 3 axis * 2 bytes * 2 value types (acc & gyro)
+			constexpr static uint8_t FIFOBufferSampleLength = 3 * 2 * 2;
+			constexpr static uint16_t FIFOBufferMaxSampleCount = FIFOBufferLength / FIFOBufferSampleLength;
+
+			constexpr static uint32_t bytesPerSecond = FIFOBufferSampleLength * sampleRateHz;
+			constexpr static uint32_t minimumReadTaskDelayMs = FIFOBufferLength * 1'000 / bytesPerSecond;
+			constexpr static uint32_t safeReadTaskDelayMs = minimumReadTaskDelayMs * 9 / 10;
 
 			MPU9250 MPU {};
 			Vector3F aBias {};
@@ -38,7 +42,7 @@ namespace pizda {
 					return false;
 
 				// SRD
-				MPU.setSRD(MPUSRD);
+				MPU.setSRD(SRD);
 
 //				setMPUOperationalMode();
 				calibrate();
@@ -76,7 +80,7 @@ namespace pizda {
 					aSum += MPU.readAccValues();
 					gSum += MPU.readGyroValues();
 
-					vTaskDelay(pdMS_TO_TICKS(std::max<uint32_t>(1'000 / MPUFrequencyHz, portTICK_PERIOD_MS)));
+					vTaskDelay(pdMS_TO_TICKS(std::max<uint32_t>(1'000 / sampleRateHz, portTICK_PERIOD_MS)));
 				}
 
 				aSum /= static_cast<float>(iterations);
@@ -103,62 +107,65 @@ namespace pizda {
 			Vector3F accVelocity {};
 
 			void tick() {
-				const auto dataSetsCount = MPU.readFIFODataSetsCount();
+				const auto sampleCount = MPU.readFIFODataSetsCount();
 
-				if (dataSetsCount < 4) {
+				if (sampleCount < 4) {
 					ESP_LOGI(_logTag, "FIFO data sets count is not enough, skipping for more data");
 					return;
 				}
-				else if (dataSetsCount >= MPUFIFOBufferDangerousBatchesCount) {
-					ESP_LOGI(_logTag, "FIFO data sets count is dangerously big");
+				else if (sampleCount >= FIFOBufferMaxSampleCount) {
+					ESP_LOGI(_logTag, "FIFO data sets count exceeds max sample count, data was permanently lost");
 				}
 
 				MPU.stopFIFO();
 				// Only for cont mode
 				// mpu.findFIFOBegin();
 
-				ESP_LOGI(_logTag, "FIFO data sets count: %d", dataSetsCount);
+				ESP_LOGI(_logTag, "FIFO data sets count: %d", sampleCount);
 
-				const auto batchesToRead = std::min<uint16_t>(MPUFIFOBufferMaxBatchesCount, dataSetsCount);
+				const auto samplesToRead = std::min<uint16_t>(FIFOBufferMaxSampleCount, sampleCount);
 
-				for (uint32_t i = 0; i < batchesToRead; i++) {
-					auto a = MPU.readAccValuesFromFIFO() - aBias;
-
+				for (uint32_t i = 0; i < samplesToRead; i++) {
+					const auto a = MPU.readAccValuesFromFIFO() - aBias;
 					const auto g = MPU.readGyroValuesFromFIFO() - gBias;
 
 					constexpr static float G = 9.80665f;
 					auto accelerationMs2 = a * G;
-					auto velocityMs = accelerationMs2 * MPUTickDurationS;
+					auto velocityMs = accelerationMs2 * sampleIntervalS;
 					accVelocity += velocityMs;
 
-					accPos += accVelocity * MPUTickDurationS;
+					accPos += accVelocity * sampleIntervalS;
 
 					// Complimentary filter
-//					float aRoll = std::atan2(a.getZ(), a.getX());
-//					float aPitch = std::atan2(a.getY(), a.getZ());
+					{
+						// float aRoll = std::atan2(a.getZ(), a.getX());
+						// float aPitch = std::atan2(a.getY(), a.getZ());
 
-					float aRoll = -std::atan2(a.getX(), std::sqrt(a.getY() * a.getY() + a.getZ() * a.getZ()));
-					float aPitch = std::atan2(a.getY(), std::sqrt(a.getX() * a.getX() + a.getZ() * a.getZ()));
+						// Axis inversion?
+						float aRoll = -std::atan2(a.getX(), std::sqrt(a.getY() * a.getY() + a.getZ() * a.getZ()));
+						float aPitch = std::atan2(a.getY(), std::sqrt(a.getX() * a.getX() + a.getZ() * a.getZ()));
 
-					float gRoll = rollRad + degToRad(g.getY()) * MPUTickDurationS;
-					float gPitch = pitchRad + degToRad(g.getX()) * MPUTickDurationS;
+						float gRoll = rollRad + degToRad(g.getY()) * sampleIntervalS;
+						float gPitch = pitchRad + degToRad(g.getX()) * sampleIntervalS;
 
-					// More acceleration -> more gyro trust factor
-					constexpr static float gTrustFactorMin = 0.94;
-					constexpr static float gTrustFactorMax = 0.99;
+						// More acceleration -> more gyro trust factor
+						constexpr static float gTrustFactorMin = 0.94;
+						constexpr static float gTrustFactorMax = 0.99;
 
-					const float aMagnitude = a.getLength();
-					// (Acc magnitude - 1G of gravity) / acc range G max
-					const float gTrustFactorAMagnitudeFactor = std::clamp((aMagnitude - 1) / 2, 0.0f, 1.0f);
-					const float gTrustFactor = gTrustFactorMin + (gTrustFactorMax - gTrustFactorMin) * gTrustFactorAMagnitudeFactor;
+						const float aMagnitude = a.getLength();
+						// (Acc magnitude - 1G of gravity) / acc range G max
+						const float gTrustFactorAMagnitudeFactor = std::clamp((aMagnitude - 1) / 2, 0.0f, 1.0f);
+						const float gTrustFactor =
+							gTrustFactorMin + (gTrustFactorMax - gTrustFactorMin) * gTrustFactorAMagnitudeFactor;
 
-					rollRad = gTrustFactor * gRoll + (1.0f - gTrustFactor) * aRoll;
-					pitchRad = gTrustFactor * gPitch + (1.0f - gTrustFactor) * aPitch;
+						rollRad = gTrustFactor * gRoll + (1.0f - gTrustFactor) * aRoll;
+						pitchRad = gTrustFactor * gPitch + (1.0f - gTrustFactor) * aPitch;
 
-					if (i == 0) {
-						ESP_LOGI(_logTag, "data set %d, acc: %f x %f x %f", i, a.getX(), a.getY(), a.getZ());
-						ESP_LOGI(_logTag, "data set %d, gyr: %f x %f x %f", i, g.getX(), g.getY(), g.getZ());
-						ESP_LOGI(_logTag, "aMagnitude: %f, gTrustFactorAMagnitudeFactor: %f, gTrustFactor: %f", aMagnitude, gTrustFactorAMagnitudeFactor, gTrustFactor);
+						if (i == 0) {
+							ESP_LOGI(_logTag, "data set %d, acc: %f x %f x %f", i, a.getX(), a.getY(), a.getZ());
+							ESP_LOGI(_logTag, "data set %d, gyr: %f x %f x %f", i, g.getX(), g.getY(), g.getZ());
+							ESP_LOGI(_logTag, "aMagnitude: %f, gTrustFactorAMagnitudeFactor: %f, gTrustFactor: %f", aMagnitude, gTrustFactorAMagnitudeFactor, gTrustFactor);
+						}
 					}
 				}
 
@@ -166,9 +173,22 @@ namespace pizda {
 				MPU.startFIFO(MPU9250_FIFO_ACC_GYR);
 				MPU.readAndClearInterruptStatus();
 
-				Vector3F v3 = MPU.readMagValues();
+				// Magnetometer
+				auto mag = MPU.readMagValues();
+				{
+					// Компенсация наклона для магнитометра
+					auto collSC = SinAndCos(rollRad);
+					auto pitchSC = SinAndCos(pitchRad);
 
-				ESP_LOGI(_logTag, "Mag: %f x %f x %f", v3.getX(), v3.getY(), v3.getZ());
+					// Поворот магнитного вектора
+					float mX = mag.getX() * pitchSC.getCos() + mag.getZ() * pitchSC.getSin();
+					float mY = mag.getX() * collSC.getSin() * pitchSC.getSin() + mag.getY() * collSC.getCos() - mag.getZ() * collSC.getSin() * pitchSC.getCos();
+
+					// Вычисление курса
+					yawRad = std::atan2(mY, mX);
+				}
+
+				ESP_LOGI(_logTag, "Mag: %f x %f x %f", mag.getX(), mag.getY(), mag.getZ());
 				ESP_LOGI(_logTag, "Roll pitch yaw: %f x %f x %f", radToDeg(rollRad), radToDeg(pitchRad), radToDeg(yawRad));
 				ESP_LOGI(_logTag, "POs: %f x %f x %f", accPos.getX(), accPos.getY(), accPos.getZ());
 			}

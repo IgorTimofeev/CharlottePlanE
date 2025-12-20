@@ -677,8 +677,7 @@ namespace pizda {
 *************************************************/
 
 	void MPU9250::enableMagDataRead(uint8_t reg, uint8_t bytes) {
-		writeMPU9250Register(REGISTER_I2C_SLV0_ADDR,
-			MAGNETOMETER_I2C_ADDRESS | REGISTER_VALUE_AK8963_READ); // read AK8963
+		writeMPU9250Register(REGISTER_I2C_SLV0_ADDR, MAGNETOMETER_I2C_ADDRESS | REGISTER_VALUE_AK8963_READ); // read AK8963
 		writeMPU9250Register(REGISTER_I2C_SLV0_REG, reg); // define AK8963 register to be read
 		writeMPU9250Register(REGISTER_I2C_SLV0_CTRL, 0x80 | bytes); //enable read | number of byte
 		delayMs(10);
