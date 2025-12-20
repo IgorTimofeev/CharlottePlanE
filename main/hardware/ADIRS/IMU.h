@@ -71,15 +71,15 @@ namespace pizda {
 				ESP_LOGI(_logTag, "Acc and gyr calibration started");
 
 				aBias = {
-					0.074326f,
-					0.073331f,
-					-0.220706
+					0.083396,
+					0.073584,
+					-0.209135
 				};
 
 				gBias = {
-					-3.161593f,
-					1.260534f,
-					-0.396624
+					-3.204822,
+					-1.132801,
+					-0.406399
 				};
 
 				setMPUOperationalMode();
@@ -120,9 +120,9 @@ namespace pizda {
 				ESP_LOGI(_logTag, "Mag calibration started");
 
 				mBias = {
-					(2 + 30) / 2,
-					(15 + 40) / 2,
-					(-80 + 28) / 2
+					(-31 + 74) / 2,
+					(-38 + 65) / 2,
+					(-76 + 27) / 2
 				};
 			}
 
@@ -182,8 +182,7 @@ namespace pizda {
 						const float aMagnitude = a.getLength();
 						// (Acc magnitude - 1G of gravity) / acc range G max
 						const float gTrustFactorAMagnitudeFactor = std::clamp((aMagnitude - 1) / 2, 0.0f, 1.0f);
-						const float gTrustFactor =
-							gTrustFactorMin + (gTrustFactorMax - gTrustFactorMin) * gTrustFactorAMagnitudeFactor;
+						const float gTrustFactor = gTrustFactorMin + (gTrustFactorMax - gTrustFactorMin) * gTrustFactorAMagnitudeFactor;
 
 						rollRad = gTrustFactor * gRoll + (1.0f - gTrustFactor) * aRoll;
 						pitchRad = gTrustFactor * gPitch + (1.0f - gTrustFactor) * aPitch;
@@ -207,22 +206,23 @@ namespace pizda {
 
 				// Axis swap, fuck MPU
 				auto magCorr = Vector3F(
-					mag.getX() - mBias.getX(),
 					mag.getY() - mBias.getY(),
-					mag.getZ() - mBias.getZ()
+					mag.getX() - mBias.getX(),
+					-(mag.getZ() - mBias.getZ())
 				);
 
 				ESP_LOGI(_logTag, "Mag corr: %f x %f x %f", magCorr.getX(), magCorr.getY(), magCorr.getZ());
 
-				auto yawRadSimple = std::atan2(magCorr.getY(), magCorr.getX());
+				auto yawRadSimple = std::atan2(magCorr.getX(), magCorr.getY());
+				ESP_LOGI(_logTag, "Yaw simple: %f", radToDeg(yawRadSimple));
 
-				magCorr = magCorr.rotateAroundYAxis(pitchRad);
-				magCorr = magCorr.rotateAroundXAxis(rollRad);
+				magCorr = magCorr.rotateAroundXAxis(pitchRad);
+				magCorr = magCorr.rotateAroundYAxis(rollRad);
 
-				yawRad = std::atan2(magCorr.getY(), magCorr.getX());
+				yawRad = std::atan2(magCorr.getX(), magCorr.getY());
 
 //				ESP_LOGI(_logTag, "Pos: %f x %f x %f", accPos.getX(), accPos.getY(), accPos.getZ());
-				ESP_LOGI(_logTag, "Roll pitch yaw: %f x %f x %f, simple: %f", radToDeg(rollRad), radToDeg(pitchRad), radToDeg(yawRad), radToDeg(yawRadSimple));
+				ESP_LOGI(_logTag, "Roll pitch yaw: %f x %f x %f", radToDeg(rollRad), radToDeg(pitchRad), radToDeg(yawRad));
 			}
 
 			float degToRad(float deg) {
