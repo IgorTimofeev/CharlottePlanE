@@ -8,8 +8,8 @@
 #include <esp_log.h>
 
 #include "constants.h"
-#include "hardware/AHRS/IMU.h"
-#include "hardware/AHRS/BMP280.h"
+#include "hardware/ADIRS/IMU.h"
+#include "hardware/ADIRS/BMP280.h"
 
 namespace pizda {
 	template<typename TUnit>

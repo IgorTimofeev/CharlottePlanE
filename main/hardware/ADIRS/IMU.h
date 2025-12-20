@@ -8,7 +8,7 @@
 #include <esp_log.h>
 
 #include "constants.h"
-#include "hardware/AHRS/MPU9250.h"
+#include "hardware/ADIRS/MPU9250.h"
 
 namespace pizda {
 	class IMU {
@@ -29,8 +29,9 @@ namespace pizda {
 			constexpr static uint16_t MPUFIFOBufferDangerousBatchesCount = MPUFIFOBufferMaxBatchesCount * 8 / 10;
 
 			MPU9250 MPU {};
-			Vector3F accOffset {};
-			Vector3F gyrOffset {};
+			Vector3F aBias {};
+			Vector3F gBias {};
+			Vector3F mBias {};
 
 			bool setup(i2c_master_bus_handle_t I2CBusHandle, uint8_t I2CAddress) {
 				if (!MPU.setup(I2CBusHandle, I2CAddress))
@@ -39,10 +40,8 @@ namespace pizda {
 				// SRD
 				MPU.setSRD(MPUSRD);
 
-				setMPUOperationalMode();
-
-				// Calibration
-//				calibrate();
+//				setMPUOperationalMode();
+				calibrate();
 
 				return true;
 			}
@@ -62,43 +61,35 @@ namespace pizda {
 			*  Use either autoOffset or setAccOffsets, not both.
 			*/
 			void calibrate() {
-				ESP_LOGI(_logTag, "IMU calibration started");
-
 				constexpr static uint16_t iterations = 512;
 
+				ESP_LOGI(_logTag, "IMU calibration started");
+
 				// Using higher attenuation during calibration process
-				MPU.setGyrRange(MPU9250_GYRO_RANGE_250);
-				MPU.setAccRange(MPU9250_ACC_RANGE_2G);
-
-				MPU.setAccDLPF(MPU9250_DLPF_6);
-				MPU.enableAccDLPF();
-
-				MPU.setGyrDLPF(MPU9250_DLPF_6);
-				MPU.enableGyrDLPF();
-
-				vTaskDelay(pdMS_TO_TICKS(100));
-				
-				MPU.disableFIFO();
+				setMPUCalibrationMode();
 
 				// Accumulating acc/gyr data
-				Vector3F aAcc {};
-				Vector3F gAcc {};
+				Vector3F aSum {};
+				Vector3F gSum {};
 
 				for (uint16_t i = 0; i < iterations; ++i) {
-					aAcc += MPU.readAccValues();
-					gAcc += MPU.readGyroValues();
+					aSum += MPU.readAccValues();
+					gSum += MPU.readGyroValues();
 
-					vTaskDelay(pdMS_TO_TICKS(portTICK_PERIOD_MS));
+					vTaskDelay(pdMS_TO_TICKS(std::max<uint32_t>(1'000 / MPUFrequencyHz, portTICK_PERIOD_MS)));
 				}
 
-				aAcc /= iterations;
-				gAcc /= iterations;
+				aSum /= static_cast<float>(iterations);
+				// Z axis - 1G
+				aSum.setZ(aSum.getZ() - 1);
 
-				ESP_LOGI(_logTag, "acc offset: %f x %f x %f", aAcc.getX(), aAcc.getY(), aAcc.getZ());
-				ESP_LOGI(_logTag, "gyr offset: %f x %f x %f", gAcc.getX(), gAcc.getY(), gAcc.getZ());
+				gSum /= static_cast<float>(iterations);
 
-				accOffset = aAcc;
-				gyrOffset = gAcc;
+				ESP_LOGI(_logTag, "acc offset: %f x %f x %f", aSum.getX(), aSum.getY(), aSum.getZ());
+				ESP_LOGI(_logTag, "gyr offset: %f x %f x %f", gSum.getX(), gSum.getY(), gSum.getZ());
+
+				aBias = aSum;
+				gBias = gSum;
 
 				// Restoring attenuation to operational
 				setMPUOperationalMode();
@@ -130,11 +121,10 @@ namespace pizda {
 
 				const auto batchesToRead = std::min<uint16_t>(MPUFIFOBufferMaxBatchesCount, dataSetsCount);
 
-				float gyrTrustFactor = 0.98;
-
 				for (uint32_t i = 0; i < batchesToRead; i++) {
-					const auto a = MPU.readAccValuesFromFIFO() - accOffset;
-					const auto g = MPU.readGyroValuesFromFIFO() - gyrOffset;
+					auto a = MPU.readAccValuesFromFIFO() - aBias;
+
+					const auto g = MPU.readGyroValuesFromFIFO() - gBias;
 
 					constexpr static float G = 9.80665f;
 					auto accelerationMs2 = a * G;
@@ -143,24 +133,33 @@ namespace pizda {
 
 					accPos += accVelocity * MPUTickDurationS;
 
-//					ESP_LOGI(_logTag, "data set %d, acc: %f x %f x %f", i, a.getX(), a.getY(), a.getZ());
-//					ESP_LOGI(_logTag, "data set %d, gyr: %f x %f x %f", i, g.getX(), g.getY(), g.getZ());
-
 					// Complimentary filter
-					float aRoll = std::atan2(a.getY(), std::sqrt(a.getX() * a.getX() + a.getZ() * a.getZ()));
-					float aPitch = std::atan2(-a.getX(), std::sqrt(a.getY() * a.getY() + a.getZ() * a.getZ()));
+//					float aRoll = std::atan2(a.getZ(), a.getX());
+//					float aPitch = std::atan2(a.getY(), a.getZ());
 
-					float gRoll = rollRad + degToRad(g.getX()) * MPUTickDurationS;
-					float gPitch = pitchRad + degToRad(g.getY()) * MPUTickDurationS;
+					float aRoll = -std::atan2(a.getX(), std::sqrt(a.getY() * a.getY() + a.getZ() * a.getZ()));
+					float aPitch = std::atan2(a.getY(), std::sqrt(a.getX() * a.getX() + a.getZ() * a.getZ()));
 
-					rollRad = gyrTrustFactor * gRoll + (1.0f - gyrTrustFactor) * aRoll;
-					pitchRad = gyrTrustFactor * gPitch + (1.0f - gyrTrustFactor) * aPitch;
+					float gRoll = rollRad + degToRad(g.getY()) * MPUTickDurationS;
+					float gPitch = pitchRad + degToRad(g.getX()) * MPUTickDurationS;
 
-//					auto v1 = MPU.readAccValues() - accOffset;
-//					auto v2 = MPU.readGyroValues() - gyrOffset;
-//
-//					ESP_LOGI(_logTag, "simple acc: %f x %f x %f", i, v1.getX(), v1.getY(), v1.getZ());
-//					ESP_LOGI(_logTag, "simple gyr: %f x %f x %f", i, v2.getX(), v2.getY(), v2.getZ());
+					// More acceleration -> more gyro trust factor
+					constexpr static float gTrustFactorMin = 0.94;
+					constexpr static float gTrustFactorMax = 0.99;
+
+					const float aMagnitude = a.getLength();
+					// (Acc magnitude - 1G of gravity) / acc range G max
+					const float gTrustFactorAMagnitudeFactor = std::clamp((aMagnitude - 1) / 2, 0.0f, 1.0f);
+					const float gTrustFactor = gTrustFactorMin + (gTrustFactorMax - gTrustFactorMin) * gTrustFactorAMagnitudeFactor;
+
+					rollRad = gTrustFactor * gRoll + (1.0f - gTrustFactor) * aRoll;
+					pitchRad = gTrustFactor * gPitch + (1.0f - gTrustFactor) * aPitch;
+
+					if (i == 0) {
+						ESP_LOGI(_logTag, "data set %d, acc: %f x %f x %f", i, a.getX(), a.getY(), a.getZ());
+						ESP_LOGI(_logTag, "data set %d, gyr: %f x %f x %f", i, g.getX(), g.getY(), g.getZ());
+						ESP_LOGI(_logTag, "aMagnitude: %f, gTrustFactorAMagnitudeFactor: %f, gTrustFactor: %f", aMagnitude, gTrustFactorAMagnitudeFactor, gTrustFactor);
+					}
 				}
 
 				MPU.resetFIFO();
@@ -183,6 +182,21 @@ namespace pizda {
 			}
 
 		private:
+			void setMPUCalibrationMode() {
+				MPU.setGyrRange(MPU9250_GYRO_RANGE_250);
+				MPU.setAccRange(MPU9250_ACC_RANGE_2G);
+
+				MPU.setAccDLPF(MPU9250_DLPF_6);
+				MPU.enableAccDLPF();
+
+				MPU.setGyrDLPF(MPU9250_DLPF_6);
+				MPU.enableGyrDLPF();
+
+				vTaskDelay(pdMS_TO_TICKS(100));
+
+				MPU.disableFIFO();
+			}
+
 			void setMPUOperationalMode() {
 				// Range
 				MPU.setAccRange(MPU9250_ACC_RANGE_2G);

@@ -12,7 +12,7 @@
 #include "hardware/transceiver/transceiver.h"
 #include "hardware/transceiver/aircraftPacketParser.h"
 #include "hardware/transceiver/channels.h"
-#include "hardware/AHRS/ADIRS.h"
+#include "hardware/ADIRS/ADIRS.h"
 
 namespace pizda {
 	class Aircraft {
