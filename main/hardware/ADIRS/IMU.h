@@ -45,7 +45,8 @@ namespace pizda {
 				MPU.setSRD(SRD);
 
 //				setMPUOperationalMode();
-				calibrate();
+				calibrateAccAndGyr();
+				calibrateMag();
 
 				return true;
 			}
@@ -64,10 +65,10 @@ namespace pizda {
 			*  You call the function as follows: setAccOffsets(xMin,xMax,yMin,yMax,zMin,zMax);
 			*  Use either autoOffset or setAccOffsets, not both.
 			*/
-			void calibrate() {
+			void calibrateAccAndGyr() {
 				constexpr static uint16_t iterations = 512;
 
-				ESP_LOGI(_logTag, "IMU calibration started");
+				ESP_LOGI(_logTag, "Acc and gyr calibration started");
 
 				// Using higher attenuation during calibration process
 				setMPUCalibrationMode();
@@ -99,6 +100,16 @@ namespace pizda {
 				setMPUOperationalMode();
 			}
 
+			void calibrateMag() {
+				ESP_LOGI(_logTag, "Mag calibration started");
+
+				mBias = {
+					(5 + 30) / 2,
+					(10 + 34) / 2,
+					(0 + 0) / 2
+				};
+			}
+
 			float rollRad = 0;
 			float pitchRad = 0;
 			float yawRad = 0;
@@ -114,7 +125,7 @@ namespace pizda {
 					return;
 				}
 				else if (sampleCount >= FIFOBufferMaxSampleCount) {
-					ESP_LOGI(_logTag, "FIFO data sets count exceeds max sample count, data was permanently lost");
+					ESP_LOGW(_logTag, "FIFO data sets count exceeds max sample count, data was permanently lost");
 				}
 
 				MPU.stopFIFO();
@@ -162,9 +173,9 @@ namespace pizda {
 						pitchRad = gTrustFactor * gPitch + (1.0f - gTrustFactor) * aPitch;
 
 						if (i == 0) {
+//							ESP_LOGI(_logTag, "aMagnitude: %f, gTrustFactorAMagnitudeFactor: %f, gTrustFactor: %f", aMagnitude, gTrustFactorAMagnitudeFactor, gTrustFactor);
 							ESP_LOGI(_logTag, "data set %d, acc: %f x %f x %f", i, a.getX(), a.getY(), a.getZ());
 							ESP_LOGI(_logTag, "data set %d, gyr: %f x %f x %f", i, g.getX(), g.getY(), g.getZ());
-							ESP_LOGI(_logTag, "aMagnitude: %f, gTrustFactorAMagnitudeFactor: %f, gTrustFactor: %f", aMagnitude, gTrustFactorAMagnitudeFactor, gTrustFactor);
 						}
 					}
 				}
@@ -176,6 +187,8 @@ namespace pizda {
 				// Magnetometer
 				auto mag = MPU.readMagValues();
 				{
+					mag -= mBias;
+
 					// Компенсация наклона для магнитометра
 					auto collSC = SinAndCos(rollRad);
 					auto pitchSC = SinAndCos(pitchRad);
@@ -186,11 +199,14 @@ namespace pizda {
 
 					// Вычисление курса
 					yawRad = std::atan2(mY, mX);
+
+					yawRad = std::atan2(mag.getY(), mag.getX());
+
 				}
 
 				ESP_LOGI(_logTag, "Mag: %f x %f x %f", mag.getX(), mag.getY(), mag.getZ());
+				ESP_LOGI(_logTag, "Pos: %f x %f x %f", accPos.getX(), accPos.getY(), accPos.getZ());
 				ESP_LOGI(_logTag, "Roll pitch yaw: %f x %f x %f", radToDeg(rollRad), radToDeg(pitchRad), radToDeg(yawRad));
-				ESP_LOGI(_logTag, "POs: %f x %f x %f", accPos.getX(), accPos.getY(), accPos.getZ());
 			}
 
 			float degToRad(float deg) {

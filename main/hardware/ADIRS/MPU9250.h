@@ -403,7 +403,7 @@ namespace pizda {
 
 			void setMagnetometer16Bit();
 
-			uint8_t getStatus2Register();
+			uint8_t getMagnetometerStatus2Register();
 
 			uint8_t const i2cAddress = 0x68;
 	};

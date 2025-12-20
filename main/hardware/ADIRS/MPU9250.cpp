@@ -689,6 +689,15 @@ namespace pizda {
 	}
 
 	Vector3F MPU9250::readMagValues() {
+//		auto pizda = getMagnetometerStatus2Register();
+//
+//		// Checking for HOFL, bit4 = overflow
+//		if (pizda & 0x08) {
+//			ESP_LOGW(_logTag, "Mag data overflow");
+//
+//			return {0, 0, 0};
+//		}
+
 		uint8_t rawData[6];
 		readAK8963Data(rawData);
 
@@ -713,6 +722,8 @@ namespace pizda {
 		magCorrFactor.setY((0.5 * (rawCorr - 128) / 128.0) + 1.0);
 		rawCorr = readAK8963Register8(REGISTER_AK8963_ASAZ);
 		magCorrFactor.setZ((0.5 * (rawCorr - 128) / 128.0) + 1.0);
+
+		ESP_LOGI(_logTag, "ASA vals: %f, %f, %f", magCorrFactor.getX(), magCorrFactor.getY(), magCorrFactor.getZ());
 	}
 
 	void MPU9250::writeAK8963Register(uint8_t reg, uint8_t val) {
@@ -767,7 +778,7 @@ namespace pizda {
 		writeAK8963Register(REGISTER_AK8963_CNTL_1, regVal);
 	}
 
-	uint8_t MPU9250::getStatus2Register() {
+	uint8_t MPU9250::getMagnetometerStatus2Register() {
 		return readAK8963Register8(REGISTER_AK8963_STATUS_2);
 	}
 
