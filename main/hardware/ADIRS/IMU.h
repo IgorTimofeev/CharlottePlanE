@@ -78,8 +78,8 @@ namespace pizda {
 				Vector3F gSum {};
 
 				for (uint16_t i = 0; i < iterations; ++i) {
-					aSum += MPU.readAccValues();
-					gSum += MPU.readGyroValues();
+					aSum += MPU.getAccelData();
+					gSum += MPU.getGyroValues();
 
 					vTaskDelay(pdMS_TO_TICKS(std::max<uint32_t>(1'000 / sampleRateHz, portTICK_PERIOD_MS)));
 				}
@@ -104,9 +104,9 @@ namespace pizda {
 				ESP_LOGI(_logTag, "Mag calibration started");
 
 				mBias = {
-					(5 + 30) / 2,
-					(10 + 34) / 2,
-					(0 + 0) / 2
+					(2 + 30) / 2,
+					(15 + 40) / 2,
+					(-80 + 28) / 2
 				};
 			}
 
@@ -118,27 +118,27 @@ namespace pizda {
 			Vector3F accVelocity {};
 
 			void tick() {
-				const auto sampleCount = MPU.readFIFODataSetsCount();
+				const auto sampleCount = MPU.getFIFOCount() / FIFOBufferSampleLength;
 
 				if (sampleCount < 4) {
-					ESP_LOGI(_logTag, "FIFO data sets count is not enough, skipping for more data");
+					ESP_LOGI(_logTag, "FIFO sample count is not enough, skipping for more data");
 					return;
 				}
 				else if (sampleCount >= FIFOBufferMaxSampleCount) {
-					ESP_LOGW(_logTag, "FIFO data sets count exceeds max sample count, data was permanently lost");
+					ESP_LOGW(_logTag, "FIFO sample count exceeds max sample count, data was permanently lost");
 				}
 
-				MPU.stopFIFO();
+				MPU.setFIFODataSource(MPU9250_FIFO_DATA_SOURCE_NONE);
 				// Only for cont mode
 				// mpu.findFIFOBegin();
 
-				ESP_LOGI(_logTag, "FIFO data sets count: %d", sampleCount);
+				ESP_LOGI(_logTag, "FIFO sample count: %d", sampleCount);
 
 				const auto samplesToRead = std::min<uint16_t>(FIFOBufferMaxSampleCount, sampleCount);
 
 				for (uint32_t i = 0; i < samplesToRead; i++) {
-					const auto a = MPU.readAccValuesFromFIFO() - aBias;
-					const auto g = MPU.readGyroValuesFromFIFO() - gBias;
+					const auto a = MPU.getAccelDataFromFIFO() - aBias;
+					const auto g = MPU.getGyroValuesFromFIFO() - gBias;
 
 					constexpr static float G = 9.80665f;
 					auto accelerationMs2 = a * G;
@@ -181,32 +181,32 @@ namespace pizda {
 				}
 
 				MPU.resetFIFO();
-				MPU.startFIFO(MPU9250_FIFO_ACC_GYR);
+				MPU.setFIFODataSource(MPU9250_FIFO_DATA_SOURCE_ACCEL_GYRO);
 				MPU.readAndClearInterruptStatus();
 
 				// Magnetometer
-				auto mag = MPU.readMagValues();
-				{
-					mag -= mBias;
+				auto mag = MPU.readMagData();
 
-					// Компенсация наклона для магнитометра
-					auto collSC = SinAndCos(rollRad);
-					auto pitchSC = SinAndCos(pitchRad);
+				ESP_LOGI(_logTag, "Mag raw: %f x %f x %f", mag.getX(), mag.getY(), mag.getZ());
 
-					// Поворот магнитного вектора
-					float mX = mag.getX() * pitchSC.getCos() + mag.getZ() * pitchSC.getSin();
-					float mY = mag.getX() * collSC.getSin() * pitchSC.getSin() + mag.getY() * collSC.getCos() - mag.getZ() * collSC.getSin() * pitchSC.getCos();
+				// Axis swap, fuck MPU
+				auto magCorr = Vector3F(
+					mag.getX() - mBias.getX(),
+					mag.getY() - mBias.getY(),
+					mag.getZ() - mBias.getZ()
+				);
 
-					// Вычисление курса
-					yawRad = std::atan2(mY, mX);
+				ESP_LOGI(_logTag, "Mag corr: %f x %f x %f", magCorr.getX(), magCorr.getY(), magCorr.getZ());
 
-					yawRad = std::atan2(mag.getY(), mag.getX());
+				auto yawRadSimple = std::atan2(magCorr.getY(), magCorr.getX());
 
-				}
+				magCorr = magCorr.rotateAroundYAxis(pitchRad);
+				magCorr = magCorr.rotateAroundXAxis(rollRad);
 
-				ESP_LOGI(_logTag, "Mag: %f x %f x %f", mag.getX(), mag.getY(), mag.getZ());
-				ESP_LOGI(_logTag, "Pos: %f x %f x %f", accPos.getX(), accPos.getY(), accPos.getZ());
-				ESP_LOGI(_logTag, "Roll pitch yaw: %f x %f x %f", radToDeg(rollRad), radToDeg(pitchRad), radToDeg(yawRad));
+				yawRad = std::atan2(magCorr.getY(), magCorr.getX());
+
+//				ESP_LOGI(_logTag, "Pos: %f x %f x %f", accPos.getX(), accPos.getY(), accPos.getZ());
+				ESP_LOGI(_logTag, "Roll pitch yaw: %f x %f x %f, simple: %f", radToDeg(rollRad), radToDeg(pitchRad), radToDeg(yawRad), radToDeg(yawRadSimple));
 			}
 
 			float degToRad(float deg) {
@@ -219,14 +219,14 @@ namespace pizda {
 
 		private:
 			void setMPUCalibrationMode() {
-				MPU.setGyrRange(MPU9250_GYRO_RANGE_250);
-				MPU.setAccRange(MPU9250_ACC_RANGE_2G);
+				MPU.setGyroRange(MPU9250_GYRO_RANGE_250);
+				MPU.setAccelRange(MPU9250_ACC_RANGE_2G);
 
-				MPU.setAccDLPF(MPU9250_DLPF_6);
-				MPU.enableAccDLPF();
+				MPU.setAccelDLPF(MPU9250_DLPF_6);
+				MPU.enableAccelDLPF();
 
-				MPU.setGyrDLPF(MPU9250_DLPF_6);
-				MPU.enableGyrDLPF();
+				MPU.setGyroDLPF(MPU9250_DLPF_6);
+				MPU.enableGyroDLPF();
 
 				vTaskDelay(pdMS_TO_TICKS(100));
 
@@ -235,15 +235,15 @@ namespace pizda {
 
 			void setMPUOperationalMode() {
 				// Range
-				MPU.setAccRange(MPU9250_ACC_RANGE_2G);
-				MPU.setGyrRange(MPU9250_GYRO_RANGE_250);
+				MPU.setAccelRange(MPU9250_ACC_RANGE_2G);
+				MPU.setGyroRange(MPU9250_GYRO_RANGE_250);
 
 				// LPF
-				MPU.setAccDLPF(MPU9250_DLPF_2);
-				MPU.enableAccDLPF();
+				MPU.setAccelDLPF(MPU9250_DLPF_2);
+				MPU.enableAccelDLPF();
 
-				MPU.setGyrDLPF(MPU9250_DLPF_2);
-				MPU.enableGyrDLPF();
+				MPU.setGyroDLPF(MPU9250_DLPF_2);
+				MPU.enableGyroDLPF();
 
 				vTaskDelay(pdMS_TO_TICKS(100));
 
@@ -254,7 +254,7 @@ namespace pizda {
 				// In some cases a delay after enabling FIFO makes sense
 				vTaskDelay(pdMS_TO_TICKS(100));
 
-				MPU.startFIFO(MPU9250_FIFO_ACC_GYR);
+				MPU.setFIFODataSource(MPU9250_FIFO_DATA_SOURCE_ACCEL_GYRO);
 			}
 	};
 }

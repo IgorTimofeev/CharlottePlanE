@@ -170,6 +170,7 @@
   <component name="ChangeListManager">
     <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="pizda1111">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/IMU.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/IMU.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/MPU9250.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/MPU9250.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/MPU9250.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/MPU9250.h" afterDir="false" />
@@ -731,11 +732,6 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="apidoc" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="apidoc" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -1147,7 +1143,8 @@
       <workItem from="1765761813815" duration="4199000" />
       <workItem from="1766129913655" duration="10360000" />
       <workItem from="1766226089964" duration="2078000" />
-      <workItem from="1766228198954" duration="17770000" />
+      <workItem from="1766228198954" duration="18907000" />
+      <workItem from="1766254181778" duration="7727000" />
     </task>
     <task id="LOCAL-00001" summary="ппц заебался">
       <option name="closed" value="true" />
@@ -1461,7 +1458,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766242435112</updated>
     </task>
-    <option name="localTasksCounter" value="40" />
+    <task id="LOCAL-00040" summary="pizda1111">
+      <option name="closed" value="true" />
+      <created>1766246904091</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1766246904091</updated>
+    </task>
+    <option name="localTasksCounter" value="41" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

@@ -13,9 +13,9 @@
 
 namespace pizda {
 	template<typename TUnit>
-	class AHRSUnit {
+	class ADIRSUnit {
 		public:
-			explicit AHRSUnit(uint8_t address) : address(address) {
+			explicit ADIRSUnit(uint8_t address) : address(address) {
 
 			}
 
@@ -69,14 +69,14 @@ namespace pizda {
 
 			i2c_master_bus_handle_t _I2CBusHandle {};
 
-			std::array<AHRSUnit<IMU>, 1> _IMUs {
-				AHRSUnit<IMU> {
+			std::array<ADIRSUnit<IMU>, 1> _IMUs {
+				ADIRSUnit<IMU> {
 					constants::adiru1::mpu9250Address
 				}
 			};
 
-			std::array<AHRSUnit<BMP280>, 1> _BMPs {
-				AHRSUnit<BMP280> {
+			std::array<ADIRSUnit<BMP280>, 1> _BMPs {
+				ADIRSUnit<BMP280> {
 					constants::adiru1::bmp280Address
 				}
 			};
@@ -198,9 +198,10 @@ namespace pizda {
 
 				_pressure = pressureSum / _BMPs.size();
 				_temperature = temperatureSum / _BMPs.size();
-				_altitude = computeAltitude(pressureSum, temperatureSum);
 
-				ESP_LOGI(_logTag, "Avg press: %f, temp: %f, alt: %f", _pressure, _temperature, _altitude);
+				_altitude = computeAltitude(_pressure, _temperature);
+
+//				ESP_LOGI(_logTag, "Avg press: %f, temp: %f, alt: %f", _pressure, _temperature, _altitude);
 			}
 
 			void taskBody() {
@@ -208,8 +209,8 @@ namespace pizda {
 					updateIMUs();
 					updateBMPs();
 
-//					vTaskDelay(pdMS_TO_TICKS(IMU::safeReadTaskDelayMs));
-					vTaskDelay(pdMS_TO_TICKS(1000));
+					vTaskDelay(pdMS_TO_TICKS(IMU::safeReadTaskDelayMs));
+//					vTaskDelay(pdMS_TO_TICKS(1000));
 				}
 			}
 	};

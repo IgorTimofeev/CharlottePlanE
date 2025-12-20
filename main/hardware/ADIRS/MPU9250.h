@@ -82,15 +82,6 @@ namespace pizda {
 		MPU9250_ENABLE_000,  // all axes disabled
 	} MPU9250_xyzEn;
 
-	typedef enum MPU9250_ORIENTATION {
-		MPU9250_FLAT,
-		MPU9250_FLAT_1,
-		MPU9250_XY,
-		MPU9250_XY_1,
-		MPU9250_YX,
-		MPU9250_YX_1,
-	} MPU9250_orientation;
-
 	typedef enum MPU9250_FIFO_MODE {
 		MPU9250_CONTINUOUS,
 		MPU9250_STOP_WHEN_FULL
@@ -101,6 +92,29 @@ namespace pizda {
 		MPU9250_FIFO_GYR = 0x70,
 		MPU9250_FIFO_ACC_GYR = 0x78
 	} MPU9250_fifo_type;
+
+	/* FIFO is a byte which defines the data stored in the FIFO
+	 * It is structured as:
+	 * Bit 7 = TEMP,              Bit 6 = GYRO_X,  Bit 5 = GYRO_Y   Bit 4 = GYRO_Z,
+	 * Bit 3 = ACCEL (all axes), Bit 2 = SLAVE_2, Bit 1 = SLAVE_1, Bit 0 = SLAVE_0;
+	 * e.g. 0b11001001 => TEMP, GYRO_X, ACCEL, SLAVE0 are enabled
+	 */
+	typedef enum MPU9250_FIFO_DATA_SOURCE {
+		MPU9250_FIFO_DATA_SOURCE_SLAVE_0 = 0b00000001,
+		MPU9250_FIFO_DATA_SOURCE_SLAVE_1 = 0b00000010,
+		MPU9250_FIFO_DATA_SOURCE_SLAVE_2 = 0b00000100,
+		MPU9250_FIFO_DATA_SOURCE_ACCEL   = 0b00001000,
+		MPU9250_FIFO_DATA_SOURCE_GYRO_Z  = 0b00010000,
+		MPU9250_FIFO_DATA_SOURCE_GYRO_Y  = 0b00100000,
+		MPU9250_FIFO_DATA_SOURCE_GYRO_X  = 0b01000000,
+		MPU9250_FIFO_DATA_SOURCE_TEMP    = 0b10000000,
+
+		MPU9250_FIFO_DATA_SOURCE_NONE = 0,
+		MPU9250_FIFO_DATA_SOURCE_SLAVE = MPU9250_FIFO_DATA_SOURCE_SLAVE_0 | MPU9250_FIFO_DATA_SOURCE_SLAVE_1 | MPU9250_FIFO_DATA_SOURCE_SLAVE_2,
+		MPU9250_FIFO_DATA_SOURCE_GYRO = MPU9250_FIFO_DATA_SOURCE_GYRO_X | MPU9250_FIFO_DATA_SOURCE_GYRO_Y | MPU9250_FIFO_DATA_SOURCE_GYRO_Z,
+		MPU9250_FIFO_DATA_SOURCE_ACCEL_GYRO = MPU9250_FIFO_DATA_SOURCE_ACCEL | MPU9250_FIFO_DATA_SOURCE_GYRO,
+		MPU9250_FIFO_DATA_SOURCE_SLAVE_ACCEL_GYRO = MPU9250_FIFO_DATA_SOURCE_SLAVE | MPU9250_FIFO_DATA_SOURCE_ACCEL | MPU9250_FIFO_DATA_SOURCE_GYRO,
+	} MPU9250_fifo_data_source;
 
 	typedef enum AK8963_OP_MODE {
 		AK8963_PWR_DOWN = 0x00,
@@ -114,7 +128,14 @@ namespace pizda {
 		public:
 			bool setup(i2c_master_bus_handle_t I2CBusHandle, uint8_t I2CAddress);
 
-			uint8_t readWhoAmI();
+			uint8_t getWhoAmI();
+
+			/*  Sample rate divider divides the output rate of the gyroscope and accelerometer.
+			 *  Sample rate = Internal sample rate / (1 + divider)
+			 *  It can only be applied if the corresponding DLPF is enabled and 0<DLPF<7!
+			 *  Divider is a number 0...255
+			 */
+			void setSRD(uint8_t splRateDiv);
 
 			/*  Digital Low Pass Filter for the gyroscope must be enabled to choose the level.
 			 *
@@ -128,18 +149,10 @@ namespace pizda {
 			 *    6           5           33.48             1
 			 *    7        3600            0.17             8
 			 *
-			 *    You achieve lowest noise using level 6
+			 *    You achieve the lowest noise using level 6
 			 */
-			void setGyrDLPF(MPU9250_dlpf dlpf);
-
-			/*  Sample rate divider divides the output rate of the gyroscope and accelerometer.
-			 *  Sample rate = Internal sample rate / (1 + divider)
-			 *  It can only be applied if the corresponding DLPF is enabled and 0<DLPF<7!
-			 *  Divider is a number 0...255
-			 */
-			void setSRD(uint8_t splRateDiv);
-
-			void setGyrRange(MPU9250_gyroRange gyroRange);
+			void setGyroDLPF(MPU9250_dlpf dlpf);
+			void setGyroRange(MPU9250_gyroRange gyroRange);
 
 			/*  You can enable or disable the digital low pass filter (DLPF). If you disable the DLPF, you
 		  *  need to select the bandwidth, which can be either 8800 or 3600 Hz. 8800 Hz has a shorter delay,
@@ -147,17 +160,17 @@ namespace pizda {
 		  *  MPU9250_BW_WO_DLPF_3600
 		  *  MPU9250_BW_WO_DLPF_8800
 		  */
-			void enableGyrDLPF();
+			void enableGyroDLPF();
 
-			void disableGyrDLPF(MPU9250_bw_wo_dlpf bw);
+			void disableGyroDLPF(MPU9250_bw_wo_dlpf bw);
 
-			void setAccRange(MPU9250_accRange accRange);
+			void setAccelRange(MPU9250_accRange accRange);
 
 			/* Enable/disable the digital low pass filter for the accelerometer
 			*  If disabled the bandwidth is 1.13 kHz, delay is 0.75 ms, output rate is 4 kHz
 			*/
-			void enableAccDLPF();
-			void disableAccDLPF();
+			void enableAccelDLPF();
+			void disableAccelDLPF();
 
 			/*  Digital low pass filter (DLPF) for the accelerometer (if DLPF enabled)
 			*
@@ -171,41 +184,31 @@ namespace pizda {
 			*     6             5              66.96           1
 			*     7           460               1.94           1
 			*/
-			void setAccDLPF(MPU9250_dlpf dlpf);
+			void setAccelDLPF(MPU9250_dlpf dlpf);
 
-			void setLowPowerAccDataRate(MPU9250_lpAccODR lpaodr);
+			void setLowPowerAccelDataRate(MPU9250_lpAccODR lpaodr);
 
-			void enableAccAxes(MPU9250_xyzEn enable);
+			void enableAccelAxes(MPU9250_xyzEn enable);
 
-			void enableGyrAxes(MPU9250_xyzEn enable);
+			void enableGyroAxes(MPU9250_xyzEn enable);
 
 			/* x,y,z results */
 
-			Vector3F readAccValues();
-			Vector3F readAccValuesFromFIFO();
+			Vector3F getAccelData();
+			Vector3F getAccelDataFromFIFO();
 
-			Vector3F readGyroValues();
-			Vector3F readGyroValuesFromFIFO();
+			Vector3F getGyroValues();
+			Vector3F getGyroValuesFromFIFO();
 
-			float readTemperature();
-
-			/* Angles and Orientation */
-
-			Vector3F getAngles();
-
-			MPU9250_orientation getOrientation();
-
-			float getPitch();
-
-			float getRoll();
+			float getTemperature();
 
 			/* Power, Sleep, Standby */
 
-			void sleep(bool sleep);
+			void setSleepPowerMode(bool sleep);
 
-			void enableCycle(bool cycle);
+			void setCyclePowerMode(bool cycle);
 
-			void enableGyrStandby(bool gyroStandby);
+			void setStandbyPowerMode(bool gyroStandby);
 
 			/* Interrupts */
 
@@ -240,42 +243,21 @@ namespace pizda {
 
 			void enableWakeOnMotion(MPU9250_womEn womEn, MPU9250_womCompEn womCompEn);
 
-			/* FIFO */
-
-			void startFIFO(MPU9250_fifo_type fifo);
-
-			void stopFIFO();
+			void setFIFODataSource(MPU9250_fifo_data_source dataSourceBitMask);
 
 			void enableFIFO();
 			void disableFIFO();
 
 			void resetFIFO();
 
-			int16_t readFIFOCount();
-
+			int16_t getFIFOCount();
 			void setFIFOMode(MPU9250_fifoMode mode);
 
-			int16_t readFIFODataSetsCount();
-
-			/* This is needed for continuous Fifo mode.
-			 * The Fifo buffer ends with a complete data set, but the start is within a data set. 512/6 or 512/12
-			 *
-			 * Remarks: seems like in cont. mode buffer can start from part of dataset, so we should just skip first values
-			 * to prevent partial data read
-			 * */
-			void findFIFOBegin();
-
-			/* x,y,z results */
-			Vector3F readMagValues();
-			/* Magnetometer */
-
-			bool setupMagnetometer();
+			Vector3F readMagData();
 
 			uint8_t readWhoAmIMag();
 
 			void setMagOpMode(AK8963_opMode opMode);
-
-			void startMagMeasurement();
 
 		private:
 			constexpr static const char* _logTag = "MPU-9250";
@@ -368,19 +350,17 @@ namespace pizda {
 
 			float accRangeFactor = 1;
 			float gyrRangeFactor = 1;
-			Vector3F magCorrFactor {1, 1, 1};
-			MPU9250_fifo_type fifoType = MPU9250_FIFO_ACC;
+			Vector3F magASAFactor { 1, 1, 1 };
 
-			i2c_master_dev_handle_t _I2CDeviceHandle{};
+			i2c_master_dev_handle_t _I2CDeviceHandle {};
 
 			void delayMs(uint32_t ms);
+			void resetMPU9250();
 
-			void getAsaVals();
+			bool setupMagnetometer();
 
-			void reset_MPU9250();
-
+			void raedAK8963ASAVals();
 			void enableI2CMaster();
-
 			void writeMPU9250Register(uint8_t reg, uint8_t val);
 
 			uint8_t readMPU9250Register8(uint8_t reg);
@@ -389,22 +369,17 @@ namespace pizda {
 
 			void readMPU9250Register3x16(uint8_t reg, uint8_t* buffer);
 
-			Vector3F readVector3ValueFromFIFO();
+			Vector3F readMPU9250Vector3FromFIFO();
 
-			void enableMagDataRead(uint8_t reg, uint8_t bytes);
+			void enableAK8963DataRead(uint8_t reg, uint8_t bytes);
 
-			void resetMagnetometer();
+			void resetAK8963();
 
 			void writeAK8963Register(uint8_t reg, uint8_t val);
-
 			uint8_t readAK8963Register8(uint8_t reg);
 
 			void readAK8963Data(uint8_t* buf);
-
-			void setMagnetometer16Bit();
-
-			uint8_t getMagnetometerStatus2Register();
-
-			uint8_t const i2cAddress = 0x68;
+			void setAK896316Bit();
+			uint8_t readAK8963Status2Register();
 	};
 }
