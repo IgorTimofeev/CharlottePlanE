@@ -70,6 +70,22 @@ namespace pizda {
 
 				ESP_LOGI(_logTag, "Acc and gyr calibration started");
 
+				aBias = {
+					0.074326f,
+					0.073331f,
+					-0.220706
+				};
+
+				gBias = {
+					-3.161593f,
+					1.260534f,
+					-0.396624
+				};
+
+				setMPUOperationalMode();
+
+				return;
+
 				// Using higher attenuation during calibration process
 				setMPUCalibrationMode();
 

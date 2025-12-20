@@ -513,7 +513,7 @@ namespace pizda {
 		delayMs(10);
 		setAK896316Bit();
 		delayMs(10);
-		setMagOpMode(AK8963_CONT_MODE_8HZ);
+		setMagOpMode(AK8963_CONT_MODE_100HZ);
 		delayMs(10);
 
 		return true;
