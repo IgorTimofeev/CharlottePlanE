@@ -27,7 +27,7 @@ namespace pizda {
 			// 3 axis * 2 bytes
 			constexpr static uint8_t FIFOBufferSampleDataTypeLength = 3 * 2;
 			// Aacc + gyro + mag
-			constexpr static uint8_t FIFOBufferSampleDataTypes = 3;
+			constexpr static uint8_t FIFOBufferSampleDataTypes = 2;
 			constexpr static uint8_t FIFOBufferSampleLength = FIFOBufferSampleDataTypeLength * FIFOBufferSampleDataTypes;
 			constexpr static uint16_t FIFOBufferMaxSampleCount = FIFOBufferLength / FIFOBufferSampleLength;
 
@@ -153,14 +153,14 @@ namespace pizda {
 
 				const auto samplesToRead = std::min<uint16_t>(FIFOBufferMaxSampleCount, sampleCount);
 
-//				const auto mRaw = MPU.getMagData();
-//
-//				// Axis swap, fuck MPU
-//				auto m = Vector3F(
-//					mRaw.getY() - mBias.getY(),
-//					mRaw.getX() - mBias.getX(),
-//					-(mRaw.getZ() - mBias.getZ())
-//				);
+				const auto mRaw = MPU.getMagData();
+
+				// Axis swap, fuck MPU
+				auto m = Vector3F(
+					mRaw.getY() - mBias.getY(),
+					mRaw.getX() - mBias.getX(),
+					-(mRaw.getZ() - mBias.getZ())
+				);
 
 				for (uint32_t i = 0; i < samplesToRead; i++) {
 					uint8_t FIFOSampleBuffer[FIFOBufferSampleLength] {};
@@ -168,14 +168,14 @@ namespace pizda {
 
 					const auto a = MPU.getAccelData(FIFOSampleBuffer) - aBias;
 					const auto g = MPU.getGyroData(FIFOSampleBuffer + FIFOBufferSampleDataTypeLength) - gBias;
-					const auto mRaw = MPU.getMagData(FIFOSampleBuffer + FIFOBufferSampleDataTypeLength);
+//					const auto mRaw = MPU.getMagData(FIFOSampleBuffer + FIFOBufferSampleDataTypeLength);
 
-					// Axis swap, fuck MPU
-					auto m = Vector3F(
-						mRaw.getY() - mBias.getY(),
-						mRaw.getX() - mBias.getX(),
-						-(mRaw.getZ() - mBias.getZ())
-					);
+//					// Axis swap, fuck MPU
+//					auto m = Vector3F(
+//						mRaw.getY() - mBias.getY(),
+//						mRaw.getX() - mBias.getX(),
+//						-(mRaw.getZ() - mBias.getZ())
+//					);
 
 					constexpr static float G = 9.80665f;
 					auto accelerationMs2 = a * G;
@@ -231,7 +231,7 @@ namespace pizda {
 				}
 
 				MPU.resetFIFO();
-				MPU.setFIFODataSource(MPU9250_FIFO_DATA_SOURCE_MAG_ACCEL_GYRO);
+				MPU.setFIFODataSource(MPU9250_FIFO_DATA_SOURCE_ACCEL_GYRO);
 				MPU.readAndClearInterruptStatus();
 			}
 
@@ -280,7 +280,7 @@ namespace pizda {
 				// In some cases a delay after enabling FIFO makes sense
 				vTaskDelay(pdMS_TO_TICKS(100));
 
-				MPU.setFIFODataSource(MPU9250_FIFO_DATA_SOURCE_MAG_ACCEL_GYRO);
+				MPU.setFIFODataSource(MPU9250_FIFO_DATA_SOURCE_ACCEL_GYRO);
 			}
 	};
 }
