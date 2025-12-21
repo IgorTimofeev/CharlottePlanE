@@ -55,11 +55,9 @@ namespace pizda {
 				pitchRad = applyGyroTrustFactor(gyroPitch, accelPitch, gyroTrustFactor);
 
 				// Mag tilt compensation using computed pitch/roll
-				auto magDataTilt = magData;
-				float magYawSimple = std::atan2(magDataTilt.getX(), magDataTilt.getY());
-				magDataTilt = magDataTilt.rotateAroundXAxis(pitchRad);
-				magDataTilt = magDataTilt.rotateAroundYAxis(rollRad);
+				float magYawWithoutTilt = std::atan2(magData.getX(), magData.getY());
 
+				const auto magDataTilt = applyTiltCompensation(magData, rollRad, pitchRad);
 				float magYaw = std::atan2(magDataTilt.getX(), magDataTilt.getY());
 
 				// For mag, we're using other gyro trust factor, because mag produces a lot of noise
@@ -71,10 +69,16 @@ namespace pizda {
 					ESP_LOGI("Compl", "gyr: %f x %f x %f", gyroData.getX(), gyroData.getY(), gyroData.getZ());
 					ESP_LOGI("Compl", "mag: %f x %f x %f", magData.getX(), magData.getY(), magData.getZ());
 					ESP_LOGI("Compl", "mag cor: %f x %f x %f", magDataTilt.getX(), magDataTilt.getY(), magDataTilt.getZ());
-					ESP_LOGI("Compl", "mag yaw simple: %f", toDegrees(magYawSimple));
+					ESP_LOGI("Compl", "mag yaw no tilt: %f", toDegrees(magYawWithoutTilt));
 					ESP_LOGI("Compl", "mag yaw: %f", toDegrees(magYaw));
 				}
 			}
+
+			static Vector3F applyTiltCompensation(const Vector3F& vec, float rollRad, float pitchRad) {
+				auto result = vec.rotateAroundXAxis(pitchRad);
+				return result.rotateAroundYAxis(rollRad);
+			}
+
 		private:
 			static float getGyroTrustFactor(float trustFactorMin, float trustFactorMax, float accelMagnitude) {
 				// Normally accel magnitude should ~= 1G
@@ -288,18 +292,17 @@ namespace pizda {
 					);
 
 					// Position
-					constexpr static float G = 9.80665f;
-
-					auto accelTilt = accelData.rotateAroundXAxis(pitchRad);
-					accelTilt = accelTilt.rotateAroundYAxis(rollRad);
+					auto accelTilt = AdaptiveComplimentaryFiler::applyTiltCompensation(accelData, rollRad, pitchRad);
 					// Subtracting 1G
 					accelTilt.setZ(accelTilt.getZ() - 1);
 
-					auto accelerationMs2 = accelTilt * G;
+					constexpr static float GMs2 = 9.80665f;
+					auto accelerationMs2 = accelTilt * GMs2;
 					auto velocityMs = accelerationMs2 * FIFOSampleIntervalS;
 					accelVelocityMs += velocityMs;
 
-					accelPosM += accelVelocityMs * FIFOSampleIntervalS;
+					auto accelPositionOffsetM = accelVelocityMs * FIFOSampleIntervalS;
+					accelPosM += accelPositionOffsetM;
 				}
 
 				ESP_LOGI(_logTag, "Pos: %f x %f x %f", accelPosM.getX(), accelPosM.getY(), accelPosM.getZ());
