@@ -65,7 +65,7 @@ namespace pizda {
 				yawRad = applyGyroTrustFactor(gyroYaw, magYaw, gyroTrustFactor);
 
 				if (log) {
-					ESP_LOGI("Compl", "acc: %f x %f x %f", accelData.getX(), accelData.getY(), accelData.getZ());
+					ESP_LOGI("Compl", "acc: %f x %f x %f, magni: %f", accelData.getX(), accelData.getY(), accelData.getZ(), accelMagnitude);
 					ESP_LOGI("Compl", "gyr: %f x %f x %f", gyroData.getX(), gyroData.getY(), gyroData.getZ());
 					ESP_LOGI("Compl", "mag: %f x %f x %f", magData.getX(), magData.getY(), magData.getZ());
 					ESP_LOGI("Compl", "mag cor: %f x %f x %f", magDataTilt.getX(), magDataTilt.getY(), magDataTilt.getZ());
@@ -83,7 +83,7 @@ namespace pizda {
 			static float getGyroTrustFactor(float trustFactorMin, float trustFactorMax, float accelMagnitude) {
 				// Normally accel magnitude should ~= 1G
 				const float accelError = std::abs(accelMagnitude - 1);
-				// Let it also be 1G
+				// Let error threshold also be 1G
 				const float accelErrorThreshold = 1;
 				const float accelMagnitudeFactor = std::clamp(accelError / accelErrorThreshold, 0.0f, 1.0f);
 
@@ -234,7 +234,7 @@ namespace pizda {
 				if (esp_timer_get_time() >= magSampleTimeUs) {
 					const auto magData = MPU.getMagData();
 
-					ESP_LOGI(_logTag, "Mag raw: %f x %f x %f", magData.getX(), magData.getY(), magData.getZ());
+					ESP_LOGI(_logTag, "mag: %f x %f x %f", magData.getX(), magData.getY(), magData.getZ());
 
 					// Axis swap, fuck MPU
 					lastMagData = {
@@ -249,16 +249,16 @@ namespace pizda {
 				const auto sampleCount = MPU.getFIFOCount() / FIFOSampleLength;
 
 				if (sampleCount < 8) {
-					ESP_LOGI(_logTag, "FIFO sample count is not enough, skipping for more data");
+					ESP_LOGI(_logTag, "FIFO sample count %d is not enough, skipping for more data", sampleCount);
 					return;
 				}
 				else if (sampleCount >= FIFOMaxSampleCount) {
-					ESP_LOGW(_logTag, "FIFO sample count exceeds max sample count, data was permanently lost");
+					ESP_LOGW(_logTag, "FIFO sample count %d exceeds max sample count, data was permanently lost", sampleCount);
 				}
 
 				MPU.setFIFODataSource(MPU9250_FIFO_DATA_SOURCE_NONE);
 
-				ESP_LOGI(_logTag, "FIFO sample count: %d", sampleCount);
+//				ESP_LOGI(_logTag, "FIFO sample count: %d", sampleCount);
 
 				const auto samplesToRead = std::min<uint16_t>(FIFOMaxSampleCount, sampleCount);
 
@@ -305,6 +305,7 @@ namespace pizda {
 					accelPosM += accelPositionOffsetM;
 				}
 
+				ESP_LOGI(_logTag, "Velocity: %f x %f x %f", accelVelocityMs.getX(), accelVelocityMs.getY(), accelVelocityMs.getZ());
 				ESP_LOGI(_logTag, "Pos: %f x %f x %f", accelPosM.getX(), accelPosM.getY(), accelPosM.getZ());
 				ESP_LOGI(_logTag, "Roll pitch yaw: %f x %f x %f", toDegrees(rollRad), toDegrees(pitchRad), toDegrees(yawRad));
 
