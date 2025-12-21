@@ -380,8 +380,41 @@ namespace pizda {
 	void MPU9250::enableI2CMaster() {
 		uint8_t regVal = readMPU9250Register8(REGISTER_USER_CTRL);
 		regVal |= REGISTER_VALUE_I2C_MST_EN;
-		writeMPU9250Register(REGISTER_USER_CTRL, regVal); //enable I2C master
-		writeMPU9250Register(REGISTER_I2C_MST_CTRL, 0x00); // set I2C clock to 400 kHz
+
+		// Enable I2C master
+		writeMPU9250Register(REGISTER_USER_CTRL, regVal);
+
+		// Set I2C slave clock
+		// Value | Clock speed | Clock divider
+		// 0     | 348 kHz     | 23
+		// 1     | 333 kHz     | 24
+		// 2     | 320 kHz     | 25
+		// 3     | 308 kHz     | 26
+		// 4     | 296 kHz     | 27
+		// 5     | 286 kHz     | 28
+		// 6     | 276 kHz     | 29
+		// 7     | 267 kHz     | 30
+		// 8     | 258 kHz     | 31
+		// 9     | 500 kHz     | 16
+		// 10    | 471 kHz     | 17
+		// 11    | 444 kHz     | 18
+		// 12    | 421 kHz     | 19
+		// 13    | 400 kHz     | 20
+		// 14    | 381 kHz     | 21
+		// 15    | 364 kHz     | 22
+		writeMPU9250Register(REGISTER_I2C_MST_CTRL, 0);
+
+		// Enable I2C slave 0 read delay
+		// Bit 0 = I2C_SLV0_DLY_EN
+		// Bit 1 = I2C_SLV1_DLY_EN
+		writeMPU9250Register(REGISTER_I2C_MST_DELAY_CTRL, 0b00000001);
+
+		// Set all slaves delay for 4 periods (20 ms with 200 Hz master sample rate)
+		// SLV4 is common controls channel for slaves 0-3
+		// Enabled | delay in periods
+		uint8_t delayValue = 4;
+		writeMPU9250Register(REGISTER_I2C_SLV4_CTRL, 0b1000'0000 | delayValue);
+
 		delayMs(10);
 	}
 
@@ -456,40 +489,16 @@ namespace pizda {
 	}
 
 	Vector3F MPU9250::readMPU9250Vector3FromFIFO() {
-		uint8_t values[6];
+		uint8_t rawData[6];
 
 		const uint8_t cmd = REGISTER_FIFO_R_W | 0x80;
 		ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
-
-		ESP_ERROR_CHECK(i2c_master_receive(_I2CDeviceHandle, values, 6, -1));
-
-//    if(!useSPI){
-//        _wire->beginTransmission(i2cAddress);
-//        _wire->write(REGISTER_FIFO_R_W);
-//        _wire->endTransmission(false);
-//        _wire->requestFrom(i2cAddress,(uint8_t)6);
-//        if(_wire->available()){
-//            for(int i=0; i<6; i++){
-//                fifoTriple[i] = _wire->read();
-//            }
-//        }
-//    }
-//    else{
-//        uint8_t reg = REGISTER_FIFO_R_W | 0x80;
-//        _spi->beginTransaction(mySPISettings);
-//        digitalWrite(csPin, LOW);
-//        _spi->transfer(reg);
-//        for(int i=0; i<6; i++){
-//                fifoTriple[i] = _spi->transfer(0x00);
-//        }
-//        digitalWrite(csPin, HIGH);
-//        _spi->endTransaction();
-//    }
+		ESP_ERROR_CHECK(i2c_master_receive(_I2CDeviceHandle, rawData, 6, -1));
 
 		return {
-			static_cast<float>((int16_t) ((values[0] << 8) + values[1])),
-			static_cast<float>((int16_t) ((values[2] << 8) + values[3])),
-			static_cast<float>((int16_t) ((values[4] << 8) + values[5]))
+			static_cast<float>((int16_t) ((rawData[0] << 8) + rawData[1])),
+			static_cast<float>((int16_t) ((rawData[2] << 8) + rawData[3])),
+			static_cast<float>((int16_t) ((rawData[4] << 8) + rawData[5]))
 		};
 	}
 
@@ -519,6 +528,10 @@ namespace pizda {
 		return true;
 	}
 
+	void pizda() {
+
+	}
+
 	uint8_t MPU9250::readWhoAmIMag() {
 		return readAK8963Register8(REGISTER_AK8963_WIA);
 	}
@@ -534,14 +547,14 @@ namespace pizda {
 		}
 	}
 
-/************************************************
+/************************************************1
      Private Functions
 *************************************************/
 
 	void MPU9250::enableAK8963DataRead(uint8_t reg, uint8_t bytes) {
 		writeMPU9250Register(REGISTER_I2C_SLV0_ADDR, MAGNETOMETER_I2C_ADDRESS | REGISTER_VALUE_AK8963_READ); // read AK8963
 		writeMPU9250Register(REGISTER_I2C_SLV0_REG, reg); // define AK8963 register to be read
-		writeMPU9250Register(REGISTER_I2C_SLV0_CTRL, 0x80 | bytes); //enable read | number of byte
+		writeMPU9250Register(REGISTER_I2C_SLV0_CTRL, 0b1000'0000 | bytes); // Enable read | number of byte
 		delayMs(10);
 	}
 
@@ -550,7 +563,7 @@ namespace pizda {
 		delayMs(100);
 	}
 
-	Vector3F MPU9250::readMagData() {
+	Vector3F MPU9250::getMagData() {
 		uint8_t rawData[6];
 		readAK8963Data(rawData);
 
@@ -558,13 +571,32 @@ namespace pizda {
 		const auto y = static_cast<int16_t>((rawData[3] << 8) | rawData[2]);
 		const auto z = static_cast<int16_t>((rawData[5] << 8) | rawData[4]);
 
-		constexpr static float scaleFactor = 4912.0f / 32760.0f;
+		return {
+			x * magASAFactor.getX() * magScaleFactor,
+			y * magASAFactor.getY() * magScaleFactor,
+			z * magASAFactor.getZ() * magScaleFactor
+		};
+	}
+
+	Vector3F MPU9250::getMagDataFromFIFO() {
+		uint8_t rawData[6];
+
+		const uint8_t cmd = REGISTER_FIFO_R_W | 0x80;
+		ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
+
+		ESP_ERROR_CHECK(i2c_master_receive(_I2CDeviceHandle, rawData, 6, -1));
+
+		const auto x = static_cast<int16_t>((rawData[1] << 8) | rawData[0]);
+		const auto y = static_cast<int16_t>((rawData[3] << 8) | rawData[2]);
+		const auto z = static_cast<int16_t>((rawData[5] << 8) | rawData[4]);
 
 		return {
-			x * scaleFactor * magASAFactor.getX(),
-			y * scaleFactor * magASAFactor.getY(),
-			z * scaleFactor * magASAFactor.getZ()
+			x * magASAFactor.getX() * magScaleFactor,
+			y * magASAFactor.getY() * magScaleFactor,
+			z * magASAFactor.getZ() * magScaleFactor
 		};
+
+		return readMPU9250Vector3FromFIFO() * magASAFactor * magScaleFactor;
 	}
 
 	void MPU9250::raedAK8963ASAVals() {

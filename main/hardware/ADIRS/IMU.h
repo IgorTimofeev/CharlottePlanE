@@ -24,8 +24,10 @@ namespace pizda {
 			constexpr static float sampleIntervalS = 1.0f / sampleRateHz;
 
 			constexpr static uint16_t FIFOBufferLength = 512;
-			// 3 axis * 2 bytes * 2 value types (acc & gyro)
-			constexpr static uint8_t FIFOBufferSampleLength = 3 * 2 * 2;
+			// 3 axis * 2 bytes * 3 value types (acc + gyro + mag)
+			constexpr static uint8_t FIFOBufferSampleDataTypes = 2;
+			// 3 axis * 2 bytes * dataTypes
+			constexpr static uint8_t FIFOBufferSampleLength = 3 * 2 * FIFOBufferSampleDataTypes;
 			constexpr static uint16_t FIFOBufferMaxSampleCount = FIFOBufferLength / FIFOBufferSampleLength;
 
 			constexpr static uint32_t bytesPerSecond = FIFOBufferSampleLength * sampleRateHz;
@@ -136,7 +138,7 @@ namespace pizda {
 			void tick() {
 				const auto sampleCount = MPU.getFIFOCount() / FIFOBufferSampleLength;
 
-				if (sampleCount < 4) {
+				if (sampleCount < 8) {
 					ESP_LOGI(_logTag, "FIFO sample count is not enough, skipping for more data");
 					return;
 				}
@@ -152,9 +154,27 @@ namespace pizda {
 
 				const auto samplesToRead = std::min<uint16_t>(FIFOBufferMaxSampleCount, sampleCount);
 
+				const auto mRaw = MPU.getMagData();
+
+				// Axis swap, fuck MPU
+				auto m = Vector3F(
+					mRaw.getY() - mBias.getY(),
+					mRaw.getX() - mBias.getX(),
+					-(mRaw.getZ() - mBias.getZ())
+				);
+
 				for (uint32_t i = 0; i < samplesToRead; i++) {
 					const auto a = MPU.getAccelDataFromFIFO() - aBias;
 					const auto g = MPU.getGyroValuesFromFIFO() - gBias;
+
+//					const auto mRaw = MPU.getMagDataFromFIFO();
+//
+//					// Axis swap, fuck MPU
+//					auto m = Vector3F(
+//						mRaw.getY() - mBias.getY(),
+//						mRaw.getX() - mBias.getX(),
+//						-(mRaw.getZ() - mBias.getZ())
+//					);
 
 					constexpr static float G = 9.80665f;
 					auto accelerationMs2 = a * G;
@@ -164,65 +184,52 @@ namespace pizda {
 					accPos += accVelocity * sampleIntervalS;
 
 					// Complimentary filter
-					{
-						// float aRoll = std::atan2(a.getZ(), a.getX());
-						// float aPitch = std::atan2(a.getY(), a.getZ());
+					// float aRoll = std::atan2(a.getZ(), a.getX());
+					// float aPitch = std::atan2(a.getY(), a.getZ());
 
-						// Axis inversion?
-						float aRoll = -std::atan2(a.getX(), std::sqrt(a.getY() * a.getY() + a.getZ() * a.getZ()));
-						float aPitch = std::atan2(a.getY(), std::sqrt(a.getX() * a.getX() + a.getZ() * a.getZ()));
+					float aRoll = -std::atan2(a.getX(), std::sqrt(a.getY() * a.getY() + a.getZ() * a.getZ()));
+					float aPitch = std::atan2(a.getY(), std::sqrt(a.getX() * a.getX() + a.getZ() * a.getZ()));
 
-						float gRoll = rollRad + degToRad(g.getY()) * sampleIntervalS;
-						float gPitch = pitchRad + degToRad(g.getX()) * sampleIntervalS;
+					float gRoll = rollRad + degToRad(g.getY()) * sampleIntervalS;
+					float gPitch = pitchRad + degToRad(g.getX()) * sampleIntervalS;
 
-						// More acceleration -> more gyro trust factor
-						constexpr static float gTrustFactorMin = 0.94;
-						constexpr static float gTrustFactorMax = 0.99;
+					// More acceleration -> more gyro trust factor
+					constexpr static float gTrustFactorMin = 0.94;
+					constexpr static float gTrustFactorMax = 0.99;
 
-						const float aMagnitude = a.getLength();
-						// (Acc magnitude - 1G of gravity) / acc range G max
-						const float gTrustFactorAMagnitudeFactor = std::clamp((aMagnitude - 1) / 2, 0.0f, 1.0f);
-						const float gTrustFactor = gTrustFactorMin + (gTrustFactorMax - gTrustFactorMin) * gTrustFactorAMagnitudeFactor;
+					const float aMagnitude = a.getLength();
+					// (Acc magnitude - 1G of gravity) / acc range G max
+					const float gTrustFactorAMagnitudeFactor = std::clamp((aMagnitude - 1) / 2, 0.0f, 1.0f);
+					const float gTrustFactor = gTrustFactorMin + (gTrustFactorMax - gTrustFactorMin) * gTrustFactorAMagnitudeFactor;
 
-						rollRad = gTrustFactor * gRoll + (1.0f - gTrustFactor) * aRoll;
-						pitchRad = gTrustFactor * gPitch + (1.0f - gTrustFactor) * aPitch;
+					rollRad = gTrustFactor * gRoll + (1.0f - gTrustFactor) * aRoll;
+					pitchRad = gTrustFactor * gPitch + (1.0f - gTrustFactor) * aPitch;
 
-						if (i == 0) {
+					// Magnetometer
+					auto yawRadSimple = std::atan2(m.getX(), m.getY());
+
+					m = m.rotateAroundXAxis(pitchRad);
+					m = m.rotateAroundYAxis(rollRad);
+
+					yawRad = std::atan2(m.getX(), m.getY());
+
+					if (i == 0) {
+//				ESP_LOGI(_logTag, "Pos: %f x %f x %f", accPos.getX(), accPos.getY(), accPos.getZ());
+
+						ESP_LOGI(_logTag, "Mag raw: %f x %f x %f", mRaw.getX(), mRaw.getY(), mRaw.getZ());
+						ESP_LOGI(_logTag, "Mag cor: %f x %f x %f", m.getX(), m.getY(), m.getZ());
+						ESP_LOGI(_logTag, "Yaw simple: %f", radToDeg(yawRadSimple));
+
 //							ESP_LOGI(_logTag, "aMagnitude: %f, gTrustFactorAMagnitudeFactor: %f, gTrustFactor: %f", aMagnitude, gTrustFactorAMagnitudeFactor, gTrustFactor);
-							ESP_LOGI(_logTag, "data set %d, acc: %f x %f x %f", i, a.getX(), a.getY(), a.getZ());
-							ESP_LOGI(_logTag, "data set %d, gyr: %f x %f x %f", i, g.getX(), g.getY(), g.getZ());
-						}
+						ESP_LOGI(_logTag, "data set %d, acc: %f x %f x %f", i, a.getX(), a.getY(), a.getZ());
+						ESP_LOGI(_logTag, "data set %d, gyr: %f x %f x %f", i, g.getX(), g.getY(), g.getZ());
+						ESP_LOGI(_logTag, "Roll pitch yaw: %f x %f x %f", radToDeg(rollRad), radToDeg(pitchRad), radToDeg(yawRad));
 					}
 				}
 
 				MPU.resetFIFO();
 				MPU.setFIFODataSource(MPU9250_FIFO_DATA_SOURCE_ACCEL_GYRO);
 				MPU.readAndClearInterruptStatus();
-
-				// Magnetometer
-				auto mag = MPU.readMagData();
-
-				ESP_LOGI(_logTag, "Mag raw: %f x %f x %f", mag.getX(), mag.getY(), mag.getZ());
-
-				// Axis swap, fuck MPU
-				auto magCorr = Vector3F(
-					mag.getY() - mBias.getY(),
-					mag.getX() - mBias.getX(),
-					-(mag.getZ() - mBias.getZ())
-				);
-
-				ESP_LOGI(_logTag, "Mag corr: %f x %f x %f", magCorr.getX(), magCorr.getY(), magCorr.getZ());
-
-				auto yawRadSimple = std::atan2(magCorr.getX(), magCorr.getY());
-				ESP_LOGI(_logTag, "Yaw simple: %f", radToDeg(yawRadSimple));
-
-				magCorr = magCorr.rotateAroundXAxis(pitchRad);
-				magCorr = magCorr.rotateAroundYAxis(rollRad);
-
-				yawRad = std::atan2(magCorr.getX(), magCorr.getY());
-
-//				ESP_LOGI(_logTag, "Pos: %f x %f x %f", accPos.getX(), accPos.getY(), accPos.getZ());
-				ESP_LOGI(_logTag, "Roll pitch yaw: %f x %f x %f", radToDeg(rollRad), radToDeg(pitchRad), radToDeg(yawRad));
 			}
 
 			float degToRad(float deg) {

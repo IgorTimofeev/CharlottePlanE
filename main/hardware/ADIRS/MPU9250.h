@@ -110,10 +110,10 @@ namespace pizda {
 		MPU9250_FIFO_DATA_SOURCE_TEMP    = 0b10000000,
 
 		MPU9250_FIFO_DATA_SOURCE_NONE = 0,
-		MPU9250_FIFO_DATA_SOURCE_SLAVE = MPU9250_FIFO_DATA_SOURCE_SLAVE_0 | MPU9250_FIFO_DATA_SOURCE_SLAVE_1 | MPU9250_FIFO_DATA_SOURCE_SLAVE_2,
+		MPU9250_FIFO_DATA_SOURCE_MAG = MPU9250_FIFO_DATA_SOURCE_SLAVE_0 | MPU9250_FIFO_DATA_SOURCE_SLAVE_1 | MPU9250_FIFO_DATA_SOURCE_SLAVE_2,
 		MPU9250_FIFO_DATA_SOURCE_GYRO = MPU9250_FIFO_DATA_SOURCE_GYRO_X | MPU9250_FIFO_DATA_SOURCE_GYRO_Y | MPU9250_FIFO_DATA_SOURCE_GYRO_Z,
 		MPU9250_FIFO_DATA_SOURCE_ACCEL_GYRO = MPU9250_FIFO_DATA_SOURCE_ACCEL | MPU9250_FIFO_DATA_SOURCE_GYRO,
-		MPU9250_FIFO_DATA_SOURCE_SLAVE_ACCEL_GYRO = MPU9250_FIFO_DATA_SOURCE_SLAVE | MPU9250_FIFO_DATA_SOURCE_ACCEL | MPU9250_FIFO_DATA_SOURCE_GYRO,
+		MPU9250_FIFO_DATA_SOURCE_MAG_ACCEL_GYRO = MPU9250_FIFO_DATA_SOURCE_MAG | MPU9250_FIFO_DATA_SOURCE_ACCEL | MPU9250_FIFO_DATA_SOURCE_GYRO,
 	} MPU9250_fifo_data_source;
 
 	typedef enum AK8963_OP_MODE {
@@ -253,7 +253,8 @@ namespace pizda {
 			int16_t getFIFOCount();
 			void setFIFOMode(MPU9250_fifoMode mode);
 
-			Vector3F readMagData();
+			Vector3F getMagData();
+			Vector3F getMagDataFromFIFO();
 
 			uint8_t readWhoAmIMag();
 
@@ -287,6 +288,7 @@ namespace pizda {
 			constexpr static uint8_t REGISTER_I2C_SLV0_ADDR = 0x25;
 			constexpr static uint8_t REGISTER_I2C_SLV0_REG = 0x26;
 			constexpr static uint8_t REGISTER_I2C_SLV0_CTRL = 0x27;
+			constexpr static uint8_t REGISTER_I2C_SLV4_CTRL = 0x34;
 			constexpr static uint8_t REGISTER_I2C_MST_STATUS = 0x36;
 			constexpr static uint8_t REGISTER_INT_PIN_CFG = 0x37;
 			constexpr static uint8_t REGISTER_INT_ENABLE = 0x38;
@@ -350,6 +352,8 @@ namespace pizda {
 
 			float accRangeFactor = 1;
 			float gyrRangeFactor = 1;
+
+			constexpr static float magScaleFactor = 4912.0f / 32760.0f;
 			Vector3F magASAFactor { 1, 1, 1 };
 
 			i2c_master_dev_handle_t _I2CDeviceHandle {};

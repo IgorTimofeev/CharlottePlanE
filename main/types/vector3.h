@@ -38,9 +38,11 @@ namespace pizda {
 			Vector3 operator-() const;
 			Vector3<T>& operator-=(const Vector3& right);
 			Vector3 operator*(T factor) const;
+			Vector3 operator*(const Vector3& factor) const;
 			Vector3 operator*=(T factor);
 			Vector3& operator*=(const Vector3& right);
 			Vector3 operator/(T factor) const;
+			Vector3 operator/(const Vector3& factor) const;
 			Vector3 operator/=(T factor);;
 			Vector3& operator/=(const Vector3& right);
 			bool operator==(const Vector3 &right) const;
@@ -215,6 +217,15 @@ namespace pizda {
 	}
 
 	template<typename T>
+	Vector3<T> Vector3<T>::operator*(const Vector3& factor) const {
+		return {
+			x * factor.x,
+			y * factor.y,
+			z * factor.z
+		};
+	}
+
+	template<typename T>
 	Vector3<T> Vector3<T>::operator*=(T factor) {
 		x *= factor;
 		y *= factor;
@@ -238,6 +249,15 @@ namespace pizda {
 			x / factor,
 			y / factor,
 			z / factor
+		};
+	}
+
+	template<typename T>
+	Vector3<T> Vector3<T>::operator/(const Vector3& factor) const {
+		return {
+			x / factor.x,
+			y / factor.y,
+			z / factor.z
 		};
 	}
 
