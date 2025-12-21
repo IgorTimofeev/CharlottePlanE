@@ -24,21 +24,9 @@
 #include <cmath>
 #include <esp_log.h>
 
-
 namespace pizda {
-	bool MPU9250::setup(i2c_master_bus_handle_t I2CBusHandle, uint8_t I2CAddress) {
-		// I2C
-		i2c_device_config_t I2CDeviceConfig {};
-		I2CDeviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
-		I2CDeviceConfig.device_address = I2CAddress;
-		I2CDeviceConfig.scl_speed_hz = 400'000;
-
-		const auto state = i2c_master_bus_add_device(I2CBusHandle, &I2CDeviceConfig, &_I2CDeviceHandle);
-
-		if (state != ESP_OK) {
-			ESP_ERROR_CHECK_WITHOUT_ABORT(state);
-			return false;
-		}
+	bool MPU9250::setup(BusStream* bus) {
+		_bus = bus;
 
 		resetMPU9250();
 		delayMs(10);
@@ -196,7 +184,7 @@ namespace pizda {
 
 	Vector3F MPU9250::getAccelData() {
 		uint8_t buffer[6];
-		readMPU9250Register3x16(REGISTER_ACCEL_OUT, buffer);
+		_bus->read(REGISTER_ACCEL_OUT | 0x80, buffer, 6);
 
 		return getAccelData(buffer);
 	}
@@ -215,15 +203,16 @@ namespace pizda {
 
 	Vector3F MPU9250::getGyroData() {
 		uint8_t buffer[6];
-		readMPU9250Register3x16(REGISTER_GYRO_OUT, buffer);
+		_bus->read(REGISTER_GYRO_OUT | 0x80, buffer, 6);
 
 		return getGyroData(buffer);
 	}
 
 	float MPU9250::getTemperature() {
-		int16_t regVal16 = readMPU9250Register16(REGISTER_TEMP_OUT);
-		float tmp = (regVal16 * 1.0 - ROOM_TEMPERATURE_OFFSET) / TEMPERATURE_SENSITIVITY + 21.0;
-		return tmp;
+		int16_t value = 0;
+		_bus->readInt16BE(REGISTER_TEMP_OUT | 0x80, value);
+
+		return (value * 1.0 - ROOM_TEMPERATURE_OFFSET) / TEMPERATURE_SENSITIVITY + 21.0;
 	}
 
 	/********* Power, Sleep, Standby *********/
@@ -352,9 +341,11 @@ namespace pizda {
 		writeMPU9250Register(REGISTER_USER_CTRL, regVal);
 	}
 
-	int16_t MPU9250::getFIFOCount() {
-		uint16_t regVal16 = (uint16_t) readMPU9250Register16(REGISTER_FIFO_COUNT);
-		return regVal16;
+	uint16_t MPU9250::getFIFOCount() {
+		uint16_t value = 0;
+		_bus->readUint16BE(REGISTER_FIFO_COUNT | 0x80, value);
+
+		return value;
 	}
 
 	void MPU9250::setFIFOMode(MPU9250_fifoMode mode) {
@@ -417,73 +408,15 @@ namespace pizda {
 	}
 
 	void MPU9250::writeMPU9250Register(uint8_t reg, uint8_t val) {
-		uint8_t buffer[2]{
-			reg,
-			val
-		};
-
-		ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, buffer, 2, -1));
+		_bus->writeUint8(reg, val);
 	}
 
 	uint8_t MPU9250::readMPU9250Register8(uint8_t reg) {
-		const uint8_t cmd = reg | 0x80;
-		ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
-
 		uint8_t result = 0;
-		ESP_ERROR_CHECK(i2c_master_receive(_I2CDeviceHandle, &result, 1, -1));
+
+		_bus->readUint8(reg | 0x80, result);
 
 		return result;
-	}
-
-	int16_t MPU9250::readMPU9250Register16(uint8_t reg) {
-		const uint8_t cmd = reg | 0x80;
-		ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
-
-		uint8_t result[2];
-		ESP_ERROR_CHECK(i2c_master_receive(_I2CDeviceHandle, result, 2, -1));
-
-		return (result[0] << 8) | result[0];
-
-//	reg |= 0x80;
-//	_spi->beginTransaction(mySPISettings);
-//	digitalWrite(csPin, LOW);
-//	_spi->transfer(reg);
-//	MSByte = _spi->transfer(0x00);
-//	LSByte = _spi->transfer(0x00);
-//	digitalWrite(csPin, HIGH);
-//	_spi->endTransaction();
-//    regValue = (MSByte<<8) + LSByte;
-//    return regValue;
-	}
-
-	void MPU9250::readMPU9250Register3x16(uint8_t reg, uint8_t* buffer) {
-		const uint8_t cmd = reg | 0x80;
-		ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
-
-		ESP_ERROR_CHECK(i2c_master_receive(_I2CDeviceHandle, buffer, 6, -1));
-
-//    if(!useSPI){
-//        _wire->beginTransmission(i2cAddress);
-//        _wire->write(reg);
-//        _wire->endTransmission(false);
-//        _wire->requestFrom(i2cAddress,(uint8_t)6);
-//        if(_wire->available()){
-//            for(int i=0; i<6; i++){
-//                buf[i] = _wire->read();
-//            }
-//        }
-//    }
-//    else{
-//        reg |= 0x80;
-//        _spi->beginTransaction(mySPISettings);
-//        digitalWrite(csPin, LOW);
-//        _spi->transfer(reg);
-//        for(int i=0; i<6; i++){
-//                buf[i] = _spi->transfer(0x00);
-//        }
-//        digitalWrite(csPin, HIGH);
-//        _spi->endTransaction();
-//    }
 	}
 
 /************** Magnetometer **************/
@@ -567,10 +500,7 @@ namespace pizda {
 	}
 
 	void MPU9250::getFIFOData(uint8_t* buffer, uint16_t count) {
-		const uint8_t cmd = REGISTER_FIFO_R_W | 0x80;
-		ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
-		ESP_ERROR_CHECK(i2c_master_receive(_I2CDeviceHandle, buffer, count, -1));
-
+		_bus->read(REGISTER_FIFO_R_W | 0x80, buffer, count);
 	}
 
 	void MPU9250::raedAK8963ASAVals() {
@@ -600,12 +530,7 @@ namespace pizda {
 	}
 
 	void MPU9250::readAK8963Data(uint8_t* buf) {
-		// Write
-		const uint8_t cmd = REGISTER_EXT_SLV_SENS_DATA_00 | 0x80;
-		ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
-
-		// Read
-		ESP_ERROR_CHECK(i2c_master_receive(_I2CDeviceHandle, buf, 6, -1));
+		_bus->read(REGISTER_EXT_SLV_SENS_DATA_00 | 0x80, buf, 6);
 
 //	if(!useSPI){
 //		_wire->beginTransmission(i2cAddress);

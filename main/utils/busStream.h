@@ -67,8 +67,19 @@ namespace pizda{
 					return false;
 
 				value =
-					reinterpret_cast<uint8_t*>(&value)[1]
-					| reinterpret_cast<uint8_t*>(&value)[0];
+					(reinterpret_cast<uint8_t*>(&value)[0] << 8)
+					| reinterpret_cast<uint8_t*>(&value)[1];
+
+				return true;
+			}
+
+			bool readInt16BE(const uint8_t reg, int16_t& value) {
+				uint16_t buffer = 0;
+
+				if (!readUint16BE(reg, buffer))
+					return false;
+
+				value = static_cast<int16_t>(buffer);
 
 				return true;
 			}
@@ -108,10 +119,10 @@ namespace pizda{
 					return false;
 
 				value =
-					reinterpret_cast<uint8_t*>(&value)[3]
-					| reinterpret_cast<uint8_t*>(&value)[2]
-					| reinterpret_cast<uint8_t*>(&value)[1]
-					| reinterpret_cast<uint8_t*>(&value)[0];
+					(reinterpret_cast<uint8_t*>(&value)[0] << 24)
+					| (reinterpret_cast<uint8_t*>(&value)[1] << 16)
+					| (reinterpret_cast<uint8_t*>(&value)[2] << 8)
+					| reinterpret_cast<uint8_t*>(&value)[3];
 
 				return true;
 			}
@@ -161,8 +172,9 @@ namespace pizda{
 
 				return read(buffer, length);
 			}
+			i2c_master_dev_handle_t _device {};
+
 
 		private:
-			i2c_master_dev_handle_t _device {};
 	};
 }

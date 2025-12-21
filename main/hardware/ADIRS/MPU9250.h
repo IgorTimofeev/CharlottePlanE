@@ -26,7 +26,7 @@
 #include <freertos/task.h>
 
 #include "utils/vector3.h"
-#include "hardware/busStream.h"
+#include "utils/busStream.h"
 
 namespace pizda {
 	typedef enum MPU9250_BW_WO_DLPF {
@@ -127,7 +127,7 @@ namespace pizda {
 
 	class MPU9250 {
 		public:
-			bool setup(i2c_master_bus_handle_t I2CBusHandle, uint8_t I2CAddress);
+			bool setup(BusStream* bus);
 
 			uint8_t getWhoAmI();
 
@@ -251,7 +251,7 @@ namespace pizda {
 
 			void resetFIFO();
 
-			int16_t getFIFOCount();
+			uint16_t getFIFOCount();
 			void getFIFOData(uint8_t* buffer, uint16_t count);
 
 			void setFIFOMode(MPU9250_fifoMode mode);
@@ -359,7 +359,7 @@ namespace pizda {
 			constexpr static float magScaleFactor = 4912.0f / 32760.0f;
 			Vector3F magASAFactor { 1, 1, 1 };
 
-			i2c_master_dev_handle_t _I2CDeviceHandle {};
+			BusStream* _bus = nullptr;
 
 			void delayMs(uint32_t ms);
 			void resetMPU9250();
@@ -371,10 +371,6 @@ namespace pizda {
 			void writeMPU9250Register(uint8_t reg, uint8_t val);
 
 			uint8_t readMPU9250Register8(uint8_t reg);
-
-			int16_t readMPU9250Register16(uint8_t reg);
-
-			void readMPU9250Register3x16(uint8_t reg, uint8_t* buffer);
 
 			void enableAK8963DataRead(uint8_t reg, uint8_t bytes);
 

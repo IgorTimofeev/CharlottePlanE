@@ -170,13 +170,11 @@
   <component name="ChangeListManager">
     <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="pizda1111">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/YOBANVS" beforeDir="false" afterPath="$PROJECT_DIR$/components/YOBANVS" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/YOBANVS/src/YOBANVS/settings.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/YOBANVS/src/YOBANVS/settings.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/YOBANVS/src/YOBANVS/stream.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/YOBANVS/src/YOBANVS/stream.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/BMP280.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/BMP280.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/IMU.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/IMU.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/MPU9250.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/MPU9250.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/busStream.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/utils/busStream.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/settings/settings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/settings/settings.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/MPU9250.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/MPU9250.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/utils/busStream.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/utils/busStream.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -189,7 +187,7 @@
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/components/YOBANVS" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -236,7 +234,7 @@
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "master",
     "last_opened_file_path": "C:/Users/Igor/Documents/Code/MCU/ESP32/Charlotte/PlanE/main/hardware/AHRS",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -1155,14 +1153,6 @@
       <workItem from="1766254181778" duration="16454000" />
       <workItem from="1766305392582" duration="24208000" />
     </task>
-    <task id="LOCAL-00002" summary="ппц заебался">
-      <option name="closed" value="true" />
-      <created>1765210319805</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1765210319805</updated>
-    </task>
     <task id="LOCAL-00003" summary="получше">
       <option name="closed" value="true" />
       <created>1765240491208</created>
@@ -1547,7 +1537,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766328191787</updated>
     </task>
-    <option name="localTasksCounter" value="51" />
+    <task id="LOCAL-00051" summary="pizda1111">
+      <option name="closed" value="true" />
+      <created>1766352032548</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1766352032548</updated>
+    </task>
+    <option name="localTasksCounter" value="52" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

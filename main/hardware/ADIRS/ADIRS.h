@@ -140,10 +140,9 @@ namespace pizda {
 				for (uint8_t i = 0; i < static_cast<uint8_t>(_IMUs.size()); ++i) {
 					auto& IMU = _IMUs[i];
 
-					if (!IMU.unit.setup(
-						_I2CBusHandle,
-						IMU.address
-					)) {
+					IMU.stream.setup(_I2CBusHandle, IMU.address, 400'000);
+
+					if (!IMU.unit.setup(&IMU.stream)) {
 						ESP_LOGE(_logTag, "IMU %d initialization failed", i);
 						return false;
 					}

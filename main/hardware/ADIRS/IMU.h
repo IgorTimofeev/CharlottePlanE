@@ -140,8 +140,8 @@ namespace pizda {
 			Vector3F accelPosM {};
 			Vector3F accelVelocityMs {};
 
-			bool setup(i2c_master_bus_handle_t I2CBusHandle, uint8_t I2CAddress) {
-				if (!MPU.setup(I2CBusHandle, I2CAddress))
+			bool setup(BusStream* busStream) {
+				if (!MPU.setup(busStream))
 					return false;
 
 				// SRD
@@ -247,6 +247,8 @@ namespace pizda {
 				}
 
 				const auto sampleCount = MPU.getFIFOCount() / FIFOSampleLength;
+
+//				ESP_LOGI(_logTag, "FIFO sample count %d", sampleCount);
 
 				if (sampleCount < 8) {
 					ESP_LOGI(_logTag, "FIFO sample count %d is not enough, skipping for more data", sampleCount);
