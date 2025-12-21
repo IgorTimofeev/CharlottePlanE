@@ -1,6 +1,7 @@
 #pragma once
 
 #include <driver/i2c_master.h>
+#include <bit>
 
 namespace pizda{
 	class BusStream {
@@ -27,108 +28,120 @@ namespace pizda{
 
 			// 16 LE
 			bool writeUint16LE(const uint8_t reg, uint16_t& value) {
-				uint8_t buffer[3] {
-					reg,
-					reinterpret_cast<uint8_t*>(&value)[0],
-					reinterpret_cast<uint8_t*>(&value)[1]
-				};
-
-				return write(buffer, 3);
+				return writeUintLE<uint16_t>(reg, value);
 			}
 
 			bool readUint16LE(const uint8_t reg, uint16_t& value) {
-				return read(reg, reinterpret_cast<uint8_t*>(&value), 2);
+				return readUintLE<uint16_t>(reg, value);
 			}
 
 			bool readInt16LE(const uint8_t reg, int16_t& value) {
-				uint16_t buffer = 0;
-
-				if (!readUint16LE(reg, buffer))
-					return false;
-
-				value = static_cast<int16_t>(buffer);
-
-				return true;
+				return readIntLE<uint16_t, int16_t>(reg, value);
 			}
 
 			// 16 BE
 			bool writeUint16BE(const uint8_t reg, uint16_t& value) {
-				uint8_t buffer[3] {
-					reg,
-					reinterpret_cast<uint8_t*>(&value)[1],
-					reinterpret_cast<uint8_t*>(&value)[0]
-				};
-
-				return write(buffer, 3);
+				return writeUintBE<uint16_t>(reg, value);
 			}
 
 			bool readUint16BE(const uint8_t reg, uint16_t& value) {
-				if (!readUint16LE(reg, value))
-					return false;
-
-				value =
-					(reinterpret_cast<uint8_t*>(&value)[0] << 8)
-					| reinterpret_cast<uint8_t*>(&value)[1];
-
-				return true;
+				return readUintBE<uint16_t>(reg, value);
 			}
 
 			bool readInt16BE(const uint8_t reg, int16_t& value) {
-				uint16_t buffer = 0;
-
-				if (!readUint16BE(reg, buffer))
-					return false;
-
-				value = static_cast<int16_t>(buffer);
-
-				return true;
+				return readIntBE<uint16_t, int16_t>(reg, value);
 			}
 
 			// 32 LE
 			bool writeUint32LE(const uint8_t reg, uint32_t& value) {
-				uint8_t buffer[5] {
-					reg,
-					reinterpret_cast<uint8_t*>(&value)[0],
-					reinterpret_cast<uint8_t*>(&value)[1],
-					reinterpret_cast<uint8_t*>(&value)[2],
-					reinterpret_cast<uint8_t*>(&value)[3]
-				};
-
-				return write(buffer, 5);
+				return writeUintLE<uint32_t>(reg, value);
 			}
 
 			bool readUint32LE(const uint8_t reg, uint32_t& value) {
-				return read(reg, reinterpret_cast<uint8_t*>(&value), 4);
+				return readUintLE<uint32_t>(reg, value);
 			}
 
 			// 32 BE
 			bool writeUint32BE(const uint8_t reg, uint32_t& value) {
-				uint8_t buffer[5] {
-					reg,
-					reinterpret_cast<uint8_t*>(&value)[3],
-					reinterpret_cast<uint8_t*>(&value)[2],
-					reinterpret_cast<uint8_t*>(&value)[1],
-					reinterpret_cast<uint8_t*>(&value)[0]
-				};
-
-				return write(buffer, 5);
+				return writeUintBE<uint32_t>(reg, value);
 			}
 
 			bool readUint32BE(const uint8_t reg, uint32_t& value) {
-				if (!readUint32LE(reg, value))
-					return false;
-
-				value =
-					(reinterpret_cast<uint8_t*>(&value)[0] << 24)
-					| (reinterpret_cast<uint8_t*>(&value)[1] << 16)
-					| (reinterpret_cast<uint8_t*>(&value)[2] << 8)
-					| reinterpret_cast<uint8_t*>(&value)[3];
-
-				return true;
+				return readUintBE<uint32_t>(reg, value);
 			}
 			
 		protected:
 			constexpr static const char* _logTag = "BusStream";
+
+		private:
+			template<std::unsigned_integral T>
+			bool writeUintLE(const uint8_t reg, T& value) {
+				#pragma pack(push, 1)
+					struct {
+						uint8_t reg;
+						T value;
+					} data = {
+						reg,
+						value
+					};
+				#pragma pack(pop)
+
+				return write(reinterpret_cast<uint8_t*>(&data), sizeof(data));
+			}
+
+			template<typename T>
+			bool writeUintBE(const uint8_t reg, T& value) {
+				#pragma pack(push, 1)
+					struct {
+						uint8_t reg;
+						T value;
+					} data = {
+						reg,
+						std::byteswap(value)
+					};
+				#pragma pack(pop)
+
+				return write(reinterpret_cast<uint8_t*>(&data), sizeof(data));
+			}
+
+			template<std::unsigned_integral T>
+			bool readUintLE(const uint8_t reg, T& value) {
+				return read(reg, reinterpret_cast<uint8_t*>(&value), sizeof(T));
+			}
+
+			template<std::unsigned_integral T>
+			bool readUintBE(const uint8_t reg, T& value) {
+				if (!readUintLE<T>(reg, value))
+					return false;
+
+				value = std::byteswap(value);
+
+				return true;
+			}
+
+			template<std::unsigned_integral UT, std::signed_integral ST>
+			bool readIntLE(const uint8_t reg, ST& value) {
+				UT unsignedValue = 0;
+
+				if (!readUintLE<UT>(reg, unsignedValue))
+					return false;
+
+				value = static_cast<ST>(unsignedValue);
+
+				return true;
+			}
+
+			template<std::unsigned_integral UT, std::signed_integral ST>
+			bool readIntBE(const uint8_t reg, ST& value) {
+				UT unsignedValue = 0;
+
+				if (!readUintBE<UT>(reg, unsignedValue))
+					return false;
+
+				value = static_cast<ST>(unsignedValue);
+
+				return true;
+			}
 	};
 
 	class I2CBusStream : public BusStream {
@@ -176,5 +189,7 @@ namespace pizda{
 
 
 		private:
+
+
 	};
 }
