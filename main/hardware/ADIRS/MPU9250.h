@@ -25,7 +25,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
-#include "types/vector3.h"
+#include "utils/vector3.h"
 #include "hardware/busStream.h"
 
 namespace pizda {

@@ -9,8 +9,88 @@
 
 #include "constants.h"
 #include "hardware/ADIRS/MPU9250.h"
+#include "utils/math.h"
 
 namespace pizda {
+	class AdaptiveComplimentaryFiler {
+		public:
+			static void apply(
+				const Vector3F& accelData,
+				const Vector3F& gyroData,
+				const Vector3F& magData,
+
+				float deltaTimeS,
+
+				float accelGyroTrustFactorMin,
+				float accelGyroTrustFactorMax,
+
+				float magGyroTrustFactorMin,
+				float magGyroTrustFactorMax,
+
+				float& rollRad,
+				float& pitchRad,
+				float& yawRad,
+
+				bool log
+			) {
+				const float accelMagnitude = accelData.getLength();
+
+				// float aRoll = std::atan2(a.getZ(), a.getX());
+				// float aPitch = std::atan2(a.getY(), a.getZ());
+
+				float accelRoll = -std::atan2(accelData.getX(), std::sqrt(accelData.getY() * accelData.getY() + accelData.getZ() * accelData.getZ()));
+				float accelPitch = std::atan2(accelData.getY(), std::sqrt(accelData.getX() * accelData.getX() + accelData.getZ() * accelData.getZ()));
+
+				float gyroRoll = rollRad + toRadians(gyroData.getY()) * deltaTimeS;
+				float gyroPitch = pitchRad + toRadians(gyroData.getX()) * deltaTimeS;
+				float gyroYaw = yawRad + toRadians(gyroData.getX()) * deltaTimeS;
+
+				// Filter itself
+
+				// More acceleration -> more gyro trust factor
+				float gyroTrustFactor = getGyroTrustFactor(accelGyroTrustFactorMin, accelGyroTrustFactorMax, accelMagnitude);
+//					const gTrustFactor = 0;
+
+				rollRad = applyGyroTrustFactor(gyroRoll, accelRoll, gyroTrustFactor);
+				pitchRad = applyGyroTrustFactor(gyroPitch, accelPitch, gyroTrustFactor);
+
+				// Mag tilt compensation using computed pitch/roll
+				auto magDataTilt = magData;
+				float magYawSimple = std::atan2(magDataTilt.getX(), magDataTilt.getY());
+				magDataTilt = magDataTilt.rotateAroundXAxis(pitchRad);
+				magDataTilt = magDataTilt.rotateAroundYAxis(rollRad);
+
+				float magYaw = std::atan2(magDataTilt.getX(), magDataTilt.getY());
+
+				// For mag, we're using other gyro trust factor, because mag produces a lot of noise
+				gyroTrustFactor = getGyroTrustFactor(magGyroTrustFactorMin, magGyroTrustFactorMax, accelMagnitude);
+				yawRad = applyGyroTrustFactor(gyroYaw, magYaw, gyroTrustFactor);
+
+				if (log) {
+					ESP_LOGI("Compl", "acc: %f x %f x %f", accelData.getX(), accelData.getY(), accelData.getZ());
+					ESP_LOGI("Compl", "gyr: %f x %f x %f", gyroData.getX(), gyroData.getY(), gyroData.getZ());
+					ESP_LOGI("Compl", "mag: %f x %f x %f", magData.getX(), magData.getY(), magData.getZ());
+					ESP_LOGI("Compl", "mag cor: %f x %f x %f", magDataTilt.getX(), magDataTilt.getY(), magDataTilt.getZ());
+					ESP_LOGI("Compl", "mag yaw simple: %f", toDegrees(magYawSimple));
+					ESP_LOGI("Compl", "mag yaw: %f", toDegrees(magYaw));
+				}
+			}
+		private:
+			static float getGyroTrustFactor(float trustFactorMin, float trustFactorMax, float accelMagnitude) {
+				// Normally accel magnitude should ~= 1G
+				const float accelError = std::abs(accelMagnitude - 1);
+				// Let it also be 1G
+				const float accelErrorThreshold = 1;
+				const float accelMagnitudeFactor = std::clamp(accelError / accelErrorThreshold, 0.0f, 1.0f);
+
+				return trustFactorMin + (trustFactorMax - trustFactorMin) * accelMagnitudeFactor;
+			}
+
+			static float applyGyroTrustFactor(float gyroValue, float nonGyroValue, float gyroTrustFactor) {
+				return gyroTrustFactor * gyroValue + (1.0f - gyroTrustFactor) * nonGyroValue;
+			}
+	};
+
 	class IMU {
 		public:
 			IMU() {
@@ -53,8 +133,8 @@ namespace pizda {
 			float pitchRad = 0;
 			float yawRad = 0;
 
-			Vector3F accPos {};
-			Vector3F accVelocity {};
+			Vector3F accelPosM {};
+			Vector3F accelVelocityMs {};
 
 			bool setup(i2c_master_bus_handle_t I2CBusHandle, uint8_t I2CAddress) {
 				if (!MPU.setup(I2CBusHandle, I2CAddress))
@@ -89,21 +169,21 @@ namespace pizda {
 
 				ESP_LOGI(_logTag, "Acc and gyr calibration started");
 
-				accelBias = {
-					0.080503,
-					0.092216,
-					-0.210539
-				};
-
-				gyroBias = {
-					-3.064394,
-					-1.297578,
-					-0.379190
-				};
-
-				setMPUOperationalMode();
-
-				return;
+//				accelBias = {
+//					0.080503,
+//					0.092216,
+//					-0.210539
+//				};
+//
+//				gyroBias = {
+//					-3.064394,
+//					-1.297578,
+//					-0.379190
+//				};
+//
+//				setMPUOperationalMode();
+//
+//				return;
 
 				// Using higher attenuation during calibration process
 				setMPUCalibrationMode();
@@ -143,20 +223,6 @@ namespace pizda {
 					(-38 + 65) / 2,
 					(-76 + 27) / 2
 				};
-			}
-
-			float getComplimentaryGyroTrustFactor(float trustFactorMin, float trustFactorMax, float accelMagnitude) {
-				// Normally accel magnitude should ~= 1G
-				const float error = std::abs(accelMagnitude - 1);
-				// Let it also be 1G
-				const float threshold = 1;
-				const float accelMagnitudeFactor = std::clamp(error / threshold, 0.0f, 1.0f);
-
-				return trustFactorMin + (trustFactorMax - trustFactorMin) * accelMagnitudeFactor;
-			}
-
-			float applyComplimentaryGyroTrustFactor(float gyroValue, float nonGyroValue, float gyroTrustFactor) {
-				return gyroTrustFactor * gyroValue + (1.0f - gyroTrustFactor) * nonGyroValue;
 			}
 
 			void tick() {
@@ -200,75 +266,48 @@ namespace pizda {
 					const auto accelData = MPU.getAccelData(sample) - accelBias;
 					const auto gyroData = MPU.getGyroData(sample + FIFOSampleDataTypeLength) - gyroBias;
 
-					const float accelMagnitude = accelData.getLength();
-
-					constexpr static float G = 9.80665f;
-					auto accelerationMs2 = accelData * G;
-					auto velocityMs = accelerationMs2 * FIFOSampleIntervalS;
-					accVelocity += velocityMs;
-
-					accPos += accVelocity * FIFOSampleIntervalS;
-
-					// float aRoll = std::atan2(a.getZ(), a.getX());
-					// float aPitch = std::atan2(a.getY(), a.getZ());
-
-					float accelRoll = -std::atan2(accelData.getX(), std::sqrt(accelData.getY() * accelData.getY() + accelData.getZ() * accelData.getZ()));
-					float accelPitch = std::atan2(accelData.getY(), std::sqrt(accelData.getX() * accelData.getX() + accelData.getZ() * accelData.getZ()));
-
-					float gyroRoll = rollRad + degToRad(gyroData.getY()) * FIFOSampleIntervalS;
-					float gyroPitch = pitchRad + degToRad(gyroData.getX()) * FIFOSampleIntervalS;
-					float gyroYaw = yawRad + degToRad(gyroData.getX()) * FIFOSampleIntervalS;
-
-					auto magData = lastMagData;
-					float magYawSimple = std::atan2(magData.getX(), magData.getY());
-
-					// Mag tilt compensation
-					magData = magData.rotateAroundXAxis(pitchRad);
-					magData = magData.rotateAroundYAxis(rollRad);
-
-					float magYaw = std::atan2(magData.getX(), magData.getY());
-
 					// Applying adaptive complimentary filter
+					AdaptiveComplimentaryFiler::apply(
+						accelData,
+						gyroData,
+						lastMagData,
 
-					// More acceleration -> more gyro trust factor
-					float gyroTrustFactor = getComplimentaryGyroTrustFactor(0.8, 0.95, accelMagnitude);
-//					const gTrustFactor = 0;
+						FIFOSampleIntervalS,
 
-					rollRad = applyComplimentaryGyroTrustFactor(gyroRoll, accelRoll, gyroTrustFactor);
-					pitchRad = applyComplimentaryGyroTrustFactor(gyroPitch, accelPitch, gyroTrustFactor);
+						0.8,
+						0.95,
 
-					// For mag, we're using other gyro trust factor, because mag produces a lot of noise
-					gyroTrustFactor = getComplimentaryGyroTrustFactor(0.95, 0.99, accelMagnitude);
-					yawRad = applyComplimentaryGyroTrustFactor(gyroYaw, magYaw, gyroTrustFactor);
+						0.95,
+						0.99,
 
-					if (i == 0) {
-						ESP_LOGI(_logTag, "Accel magnitude: %f", accelMagnitude);
-						ESP_LOGI(_logTag, "Mag cor: %f x %f x %f", magData.getX(), magData.getY(), magData.getZ());
-						ESP_LOGI(_logTag, "Mag yaw simple: %f", radToDeg(magYawSimple));
-						ESP_LOGI(_logTag, "Mag yaw: %f", radToDeg(magYaw));
+						rollRad,
+						pitchRad,
+						yawRad,
 
-//						ESP_LOGI(_logTag, "Pos: %f x %f x %f", accPos.getX(), accPos.getY(), accPos.getZ());
-//						ESP_LOGI(_logTag, "G roll pitch: %f, %f", radToDeg(gRoll), radToDeg(gPitch));
+						i == 0
+					);
 
-//							ESP_LOGI(_logTag, "aMagnitude: %f, gTrustFactorAMagnitudeFactor: %f, gTrustFactor: %f", aMagnitude, gTrustFactorAMagnitudeFactor, gTrustFactor);
-						ESP_LOGI(_logTag, "sample %d, acc: %f x %f x %f", i, accelData.getX(), accelData.getY(), accelData.getZ());
-						ESP_LOGI(_logTag, "sample %d, gyr: %f x %f x %f", i, gyroData.getX(), gyroData.getY(), gyroData.getZ());
-					}
+					// Position
+					constexpr static float G = 9.80665f;
+
+					auto accelTilt = accelData.rotateAroundXAxis(pitchRad);
+					accelTilt = accelTilt.rotateAroundYAxis(rollRad);
+					// Subtracting 1G
+					accelTilt.setZ(accelTilt.getZ() - 1);
+
+					auto accelerationMs2 = accelTilt * G;
+					auto velocityMs = accelerationMs2 * FIFOSampleIntervalS;
+					accelVelocityMs += velocityMs;
+
+					accelPosM += accelVelocityMs * FIFOSampleIntervalS;
 				}
+
+				ESP_LOGI(_logTag, "Pos: %f x %f x %f", accelPosM.getX(), accelPosM.getY(), accelPosM.getZ());
+				ESP_LOGI(_logTag, "Roll pitch yaw: %f x %f x %f", toDegrees(rollRad), toDegrees(pitchRad), toDegrees(yawRad));
 
 				MPU.resetFIFO();
 				MPU.setFIFODataSource(FIFODataSource);
 				MPU.readAndClearInterruptStatus();
-
-				ESP_LOGI(_logTag, "Roll pitch yaw: %f x %f x %f", radToDeg(rollRad), radToDeg(pitchRad), radToDeg(yawRad));
-			}
-
-			float degToRad(float deg) {
-				return deg * std::numbers::pi_v<float> / 180.f;
-			}
-
-			float radToDeg(float rad) {
-				return rad * 180.f / std::numbers::pi_v<float>;
 			}
 
 		private:

@@ -1,4 +1,5 @@
 #include "packetParser.h"
+#include "utils/math.h"
 
 namespace pizda {
 	uint8_t PacketParser::getCRC8(const uint8_t* buffer, size_t length) {
@@ -20,8 +21,7 @@ namespace pizda {
 	}
 
 	bool PacketParser::validateChecksum(const uint8_t* buffer, size_t dataBitCount) {
-		const uint8_t dataByteCount = (Packet::typeBitCount + dataBitCount + 7) / 8;
-
+		const uint8_t dataByteCount = divideCeiling<uint8_t>(Packet::typeBitCount + dataBitCount, 8);
 		const auto checksum = getCRC8(buffer, dataByteCount);
 		const auto expectedChecksum = *(buffer + dataByteCount);
 
