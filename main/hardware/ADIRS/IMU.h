@@ -20,25 +20,33 @@ namespace pizda {
 			constexpr static const char* _logTag = "IMU";
 
 			constexpr static uint8_t SRD = 4;
-			constexpr static uint16_t sampleRateHz = 1000 / (1 + SRD);
-			constexpr static float sampleIntervalS = 1.0f / sampleRateHz;
+
+			constexpr static uint16_t FIFOBufferSampleRateHz = 1000 / (1 + SRD);
+			constexpr static float FIFOBufferSampleIntervalS = 1.0f / FIFOBufferSampleRateHz;
 
 			constexpr static uint16_t FIFOBufferLength = 512;
 			// 3 axis * 2 bytes
 			constexpr static uint8_t FIFOBufferSampleDataTypeLength = 3 * 2;
-			// Aacc + gyro + mag
+			// Aacc + gyro
 			constexpr static uint8_t FIFOBufferSampleDataTypes = 2;
 			constexpr static uint8_t FIFOBufferSampleLength = FIFOBufferSampleDataTypeLength * FIFOBufferSampleDataTypes;
 			constexpr static uint16_t FIFOBufferMaxSampleCount = FIFOBufferLength / FIFOBufferSampleLength;
 
-			constexpr static uint32_t bytesPerSecond = FIFOBufferSampleLength * sampleRateHz;
+			constexpr static uint32_t bytesPerSecond = FIFOBufferSampleLength * FIFOBufferSampleRateHz;
 			constexpr static uint32_t minimumReadTaskDelayMs = FIFOBufferLength * 1'000 / bytesPerSecond;
 			constexpr static uint32_t safeReadTaskDelayMs = minimumReadTaskDelayMs * 9 / 10;
 
 			MPU9250 MPU {};
-			Vector3F aBias {};
-			Vector3F gBias {};
-			Vector3F mBias {};
+			Vector3F accelBias {};
+			Vector3F gyroBias {};
+
+			// Mag
+			constexpr static uint32_t magSampleRateHz = 100;
+			constexpr static uint32_t magSampleIntervalUs = 1'000'000 / magSampleRateHz;
+
+			uint32_t magSampleTimeUs = 0;
+			Vector3F magBias {};
+			Vector3F magValue {};
 
 			bool setup(i2c_master_bus_handle_t I2CBusHandle, uint8_t I2CAddress) {
 				if (!MPU.setup(I2CBusHandle, I2CAddress))
@@ -73,16 +81,16 @@ namespace pizda {
 
 				ESP_LOGI(_logTag, "Acc and gyr calibration started");
 
-				aBias = {
-					0.083396,
-					0.073584,
-					-0.209135
+				accelBias = {
+					0.080503,
+					0.092216,
+					-0.210539
 				};
 
-				gBias = {
-					-3.204822,
-					-1.132801,
-					-0.406399
+				gyroBias = {
+					-3.064394,
+					-1.297578,
+					-0.379190
 				};
 
 				setMPUOperationalMode();
@@ -100,7 +108,7 @@ namespace pizda {
 					aSum += MPU.getAccelData();
 					gSum += MPU.getGyroData();
 
-					vTaskDelay(pdMS_TO_TICKS(std::max<uint32_t>(1'000 / sampleRateHz, portTICK_PERIOD_MS)));
+					vTaskDelay(pdMS_TO_TICKS(std::max<uint32_t>(1'000 / FIFOBufferSampleRateHz, portTICK_PERIOD_MS)));
 				}
 
 				aSum /= static_cast<float>(iterations);
@@ -112,8 +120,8 @@ namespace pizda {
 				ESP_LOGI(_logTag, "acc offset: %f x %f x %f", aSum.getX(), aSum.getY(), aSum.getZ());
 				ESP_LOGI(_logTag, "gyr offset: %f x %f x %f", gSum.getX(), gSum.getY(), gSum.getZ());
 
-				aBias = aSum;
-				gBias = gSum;
+				accelBias = aSum;
+				gyroBias = gSum;
 
 				// Restoring attenuation to operational
 				setMPUOperationalMode();
@@ -122,7 +130,7 @@ namespace pizda {
 			void calibrateMag() {
 				ESP_LOGI(_logTag, "Mag calibration started");
 
-				mBias = {
+				magBias = {
 					(-31 + 74) / 2,
 					(-38 + 65) / 2,
 					(-76 + 27) / 2
@@ -153,36 +161,37 @@ namespace pizda {
 
 				const auto samplesToRead = std::min<uint16_t>(FIFOBufferMaxSampleCount, sampleCount);
 
-				const auto mRaw = MPU.getMagData();
+				// Mag update should be separated from FIFO
+				if (esp_timer_get_time() >= magSampleTimeUs) {
+					const auto m = MPU.getMagData();
 
-				// Axis swap, fuck MPU
-				auto m = Vector3F(
-					mRaw.getY() - mBias.getY(),
-					mRaw.getX() - mBias.getX(),
-					-(mRaw.getZ() - mBias.getZ())
-				);
+					// Axis swap, fuck MPU
+					magValue = {
+						m.getY() - magBias.getY(),
+						m.getX() - magBias.getX(),
+						-(m.getZ() - magBias.getZ())
+					};
+
+					magSampleTimeUs = esp_timer_get_time() + magSampleIntervalUs;
+
+					ESP_LOGI(_logTag, "Mag raw: %f x %f x %f", m.getX(), m.getY(), m.getZ());
+					ESP_LOGI(_logTag, "Mag cor: %f x %f x %f", magValue.getX(), magValue.getY(), magValue.getZ());
+				}
+
+				uint8_t FIFOSample[FIFOBufferSampleLength] {};
 
 				for (uint32_t i = 0; i < samplesToRead; i++) {
-					uint8_t FIFOSampleBuffer[FIFOBufferSampleLength] {};
-					MPU.getFIFOData(FIFOSampleBuffer, FIFOBufferSampleLength);
+					MPU.getFIFOData(FIFOSample, FIFOBufferSampleLength);
 
-					const auto a = MPU.getAccelData(FIFOSampleBuffer) - aBias;
-					const auto g = MPU.getGyroData(FIFOSampleBuffer + FIFOBufferSampleDataTypeLength) - gBias;
-//					const auto mRaw = MPU.getMagData(FIFOSampleBuffer + FIFOBufferSampleDataTypeLength);
-
-//					// Axis swap, fuck MPU
-//					auto m = Vector3F(
-//						mRaw.getY() - mBias.getY(),
-//						mRaw.getX() - mBias.getX(),
-//						-(mRaw.getZ() - mBias.getZ())
-//					);
+					const auto a = MPU.getAccelData(FIFOSample) - accelBias;
+					const auto g = MPU.getGyroData(FIFOSample + FIFOBufferSampleDataTypeLength) - gyroBias;
 
 					constexpr static float G = 9.80665f;
 					auto accelerationMs2 = a * G;
-					auto velocityMs = accelerationMs2 * sampleIntervalS;
+					auto velocityMs = accelerationMs2 * FIFOBufferSampleIntervalS;
 					accVelocity += velocityMs;
 
-					accPos += accVelocity * sampleIntervalS;
+					accPos += accVelocity * FIFOBufferSampleIntervalS;
 
 					// Complimentary filter
 					// float aRoll = std::atan2(a.getZ(), a.getX());
@@ -191,8 +200,8 @@ namespace pizda {
 					float aRoll = -std::atan2(a.getX(), std::sqrt(a.getY() * a.getY() + a.getZ() * a.getZ()));
 					float aPitch = std::atan2(a.getY(), std::sqrt(a.getX() * a.getX() + a.getZ() * a.getZ()));
 
-					float gRoll = rollRad + degToRad(g.getY()) * sampleIntervalS;
-					float gPitch = pitchRad + degToRad(g.getX()) * sampleIntervalS;
+					float gRoll = rollRad + degToRad(g.getY()) * FIFOBufferSampleIntervalS;
+					float gPitch = pitchRad + degToRad(g.getX()) * FIFOBufferSampleIntervalS;
 
 					// More acceleration -> more gyro trust factor
 					constexpr static float gTrustFactorMin = 0.94;
@@ -202,25 +211,23 @@ namespace pizda {
 					// (Acc magnitude - 1G of gravity) / acc range G max
 					const float gTrustFactorAMagnitudeFactor = std::clamp((aMagnitude - 1) / 2, 0.0f, 1.0f);
 					float gTrustFactor = gTrustFactorMin + (gTrustFactorMax - gTrustFactorMin) * gTrustFactorAMagnitudeFactor;
-
-					gTrustFactor = 0;
+//					gTrustFactor = 0;
 
 					rollRad = gTrustFactor * gRoll + (1.0f - gTrustFactor) * aRoll;
 					pitchRad = gTrustFactor * gPitch + (1.0f - gTrustFactor) * aPitch;
 
 					// Magnetometer
-					auto yawRadSimple = std::atan2(m.getX(), m.getY());
+					auto yawRadSimple = std::atan2(magValue.getX(), magValue.getY());
 
-					m = m.rotateAroundXAxis(pitchRad);
-					m = m.rotateAroundYAxis(rollRad);
+					magValue = magValue.rotateAroundXAxis(pitchRad);
+					magValue = magValue.rotateAroundYAxis(rollRad);
 
-					yawRad = std::atan2(m.getX(), m.getY());
+					yawRad = std::atan2(magValue.getX(), magValue.getY());
 
 					if (i == 0) {
-//				ESP_LOGI(_logTag, "Pos: %f x %f x %f", accPos.getX(), accPos.getY(), accPos.getZ());
+//						ESP_LOGI(_logTag, "Pos: %f x %f x %f", accPos.getX(), accPos.getY(), accPos.getZ());
+//						ESP_LOGI(_logTag, "G roll pitch: %f, %f", radToDeg(gRoll), radToDeg(gPitch));
 
-						ESP_LOGI(_logTag, "Mag raw: %f x %f x %f", mRaw.getX(), mRaw.getY(), mRaw.getZ());
-						ESP_LOGI(_logTag, "Mag cor: %f x %f x %f", m.getX(), m.getY(), m.getZ());
 						ESP_LOGI(_logTag, "Yaw simple: %f", radToDeg(yawRadSimple));
 
 //							ESP_LOGI(_logTag, "aMagnitude: %f, gTrustFactorAMagnitudeFactor: %f, gTrustFactor: %f", aMagnitude, gTrustFactorAMagnitudeFactor, gTrustFactor);

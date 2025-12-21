@@ -120,7 +120,7 @@ namespace pizda {
 		regVal |= (gyroRange << 3);
 		writeMPU9250Register(REGISTER_GYRO_CONFIG, regVal);
 
-		gyrRangeFactor = static_cast<float>(1 << gyroRange) * 250.f / 32768.0f;
+		gyroScaleFactor = static_cast<float>(1 << gyroRange) * 250.f / 32768.0f;
 	}
 
 	void MPU9250::enableGyroDLPF() {
@@ -142,7 +142,7 @@ namespace pizda {
 		regVal |= (accRange << 3);
 		writeMPU9250Register(REGISTER_ACCEL_CONFIG, regVal);
 
-		accRangeFactor = (static_cast<float>(1 << accRange) * 2.f / 32768.0f);
+		accelScaleFactor = (static_cast<float>(1 << accRange) * 2.f / 32768.0f);
 	}
 
 	void MPU9250::enableAccelDLPF() {
@@ -190,9 +190,9 @@ namespace pizda {
 		const auto z = static_cast<int16_t>((buffer[4] << 8) | buffer[5]);
 
 		return Vector3F {
-			static_cast<float>(x) * accRangeFactor,
-			static_cast<float>(y) * accRangeFactor,
-			static_cast<float>(z) * accRangeFactor
+			static_cast<float>(x) * accelScaleFactor,
+			static_cast<float>(y) * accelScaleFactor,
+			static_cast<float>(z) * accelScaleFactor
 		};
 	}
 
@@ -209,9 +209,9 @@ namespace pizda {
 		const auto z = static_cast<int16_t>((buffer[4] << 8) | buffer[5]);
 
 		return {
-			static_cast<float>(x) * gyrRangeFactor,
-			static_cast<float>(y) * gyrRangeFactor,
-			static_cast<float>(z) * gyrRangeFactor
+			static_cast<float>(x) * gyroScaleFactor,
+			static_cast<float>(y) * gyroScaleFactor,
+			static_cast<float>(z) * gyroScaleFactor
 		};
 	}
 
@@ -404,16 +404,16 @@ namespace pizda {
 		// 15    | 364 kHz     | 22
 		writeMPU9250Register(REGISTER_I2C_MST_CTRL, 0);
 
-		// Enable I2C slave 0 read delay
-		// Bit 0 = I2C_SLV0_DLY_EN
-		// Bit 1 = I2C_SLV1_DLY_EN
-		writeMPU9250Register(REGISTER_I2C_MST_DELAY_CTRL, 0b00000001);
-
-		// Set all slaves delay for 4 periods (20 ms with 200 Hz master sample rate)
-		// SLV4 is common controls channel for slaves 0-3
-		// Enabled | delay in periods
-		uint8_t delayValue = 4;
-		writeMPU9250Register(REGISTER_I2C_SLV4_CTRL, 0b1000'0000 | delayValue);
+//		// Enable I2C slave 0 read delay
+//		// Bit 0 = I2C_SLV0_DLY_EN
+//		// Bit 1 = I2C_SLV1_DLY_EN
+//		writeMPU9250Register(REGISTER_I2C_MST_DELAY_CTRL, 0b00000001);
+//
+//		// Set all slaves delay for 4 periods (20 ms with 200 Hz master sample rate)
+//		// SLV4 is common controls channel for slaves 0-3
+//		// Enabled | delay in periods
+//		uint8_t delayValue = 2;
+//		writeMPU9250Register(REGISTER_I2C_SLV4_CTRL, 0b1000'0000 | delayValue);
 
 		delayMs(10);
 	}
@@ -555,9 +555,9 @@ namespace pizda {
 		const auto z = static_cast<int16_t>((buffer[5] << 8) | buffer[4]);
 
 		return {
-			x * magASAFactor.getX() * magScaleFactor,
-			y * magASAFactor.getY() * magScaleFactor,
-			z * magASAFactor.getZ() * magScaleFactor
+			x * magScaleFactor * magASAFactor.getX(),
+			y * magScaleFactor * magASAFactor.getY(),
+			z * magScaleFactor * magASAFactor.getZ()
 		};
 	}
 
