@@ -57,7 +57,7 @@ namespace pizda {
 		setSleepPowerMode(false);
 
 		if (!setupMagnetometer()) {
-			ESP_LOGE(_logTag, "Mag setup failed");
+			ESP_LOGE(_logTag, "Mag initialize failed");
 			return false;
 		}
 
@@ -181,8 +181,6 @@ namespace pizda {
 		regVal |= enable;
 		writeMPU9250Register(REGISTER_PWR_MGMT_2, regVal);
 	}
-
-/************* x,y,z results *************/
 
 	Vector3F MPU9250::getAccelData(uint8_t* buffer) {
 		const auto x = static_cast<int16_t>((buffer[0] << 8) | buffer[1]);

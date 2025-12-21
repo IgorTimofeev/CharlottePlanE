@@ -7,7 +7,7 @@
 #include <driver/spi_master.h>
 #include <driver/i2c_master.h>
 
-#include "hardware/busStream.h"
+#include "utils/busStream.h"
 
 namespace pizda {
 	enum class BMP280I2CAddress : uint8_t {
@@ -77,10 +77,6 @@ namespace pizda {
 		temperatureData = 0xFA
 	};
 
-	enum class BMP280RegisterValues : uint8_t {
-		softReset = 0xB6
-	};
-
 	class BMP280 {
 		public:
 			bool setup(
@@ -129,7 +125,8 @@ namespace pizda {
 			}
 
 			void reset() {
-				writeUint8(BMP280Register::softReset, std::to_underlying(BMP280RegisterValues::softReset));
+				// Magical constant, only B6 will put to reset, who knows why
+				writeUint8(BMP280Register::softReset, 0xB6);
 
 				delayMs(200);
 			}

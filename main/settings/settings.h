@@ -20,13 +20,13 @@ namespace pizda {
 			}
 
 			void onRead(const NVSStream& stream) override {
-				const auto readSize = stream.getObjectLength<MotorConfiguration>(_configurations);
+				const auto readSize = stream.readObjectLength<MotorConfiguration>(_configurations);
 
 				configurations.clear();
 
 				if (readSize > 0) {
 					configurations.resize(readSize);
-					stream.getObject<MotorConfiguration>(_configurations, configurations.data(), readSize);
+					stream.readObject<MotorConfiguration>(_configurations, configurations.data(), readSize);
 
 					for (auto& configuration : configurations) {
 						configuration.sanitize();
@@ -39,7 +39,7 @@ namespace pizda {
 					stream.erase(_configurations);
 				}
 				else {
-					stream.setObject<MotorConfiguration>(_configurations, configurations.data(), configurations.size());
+					stream.writeObject<MotorConfiguration>(_configurations, configurations.data(), configurations.size());
 				}
 			}
 
@@ -75,13 +75,13 @@ namespace pizda {
 			}
 
 			void onRead(const NVSStream& stream) override {
-				const auto readSize = stream.getObjectLength<ChannelDataStructureSettingsField>(_fields);
+				const auto readLength = stream.readObjectLength<ChannelDataStructureSettingsField>(_fields);
 
 				fields.clear();
 
-				if (readSize > 0) {
-					fields.resize(readSize);
-					stream.getObject<ChannelDataStructureSettingsField>(_fields, fields.data(), readSize);
+				if (readLength > 0) {
+					fields.resize(readLength);
+					stream.readObject<ChannelDataStructureSettingsField>(_fields, fields.data(), readLength);
 				}
 			}
 
@@ -90,7 +90,7 @@ namespace pizda {
 					stream.erase(_fields);
 				}
 				else {
-					stream.setObject<ChannelDataStructureSettingsField>(_fields, fields.data(), fields.size());
+					stream.writeObject<ChannelDataStructureSettingsField>(_fields, fields.data(), fields.size());
 				}
 			}
 
@@ -105,8 +105,6 @@ namespace pizda {
 			MotorSettings motors {};
 
 			void setup() {
-				NVSSettings::setup();
-
 				channelDataStructure.read();
 				motors.read();
 			}
