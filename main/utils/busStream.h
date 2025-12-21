@@ -69,6 +69,10 @@ namespace pizda{
 			bool readUint32BE(const uint8_t reg, uint32_t& value) {
 				return readUintBE<uint32_t>(reg, value);
 			}
+
+			bool readInt32BE(const uint8_t reg, int32_t& value) {
+				return readIntBE<uint32_t, int32_t>(reg, value);
+			}
 			
 		protected:
 			constexpr static const char* _logTag = "BusStream";
@@ -89,6 +93,23 @@ namespace pizda{
 				return write(reinterpret_cast<uint8_t*>(&data), sizeof(data));
 			}
 
+			template<std::unsigned_integral T>
+			bool readUintLE(const uint8_t reg, T& value) {
+				return read(reg, reinterpret_cast<uint8_t*>(&value), sizeof(T));
+			}
+
+			template<std::unsigned_integral UT, std::signed_integral ST>
+			bool readIntLE(const uint8_t reg, ST& value) {
+				UT unsignedValue = 0;
+
+				if (!readUintLE<UT>(reg, unsignedValue))
+					return false;
+
+				value = static_cast<ST>(unsignedValue);
+
+				return true;
+			}
+
 			template<typename T>
 			bool writeUintBE(const uint8_t reg, T& value) {
 				#pragma pack(push, 1)
@@ -105,28 +126,11 @@ namespace pizda{
 			}
 
 			template<std::unsigned_integral T>
-			bool readUintLE(const uint8_t reg, T& value) {
-				return read(reg, reinterpret_cast<uint8_t*>(&value), sizeof(T));
-			}
-
-			template<std::unsigned_integral T>
 			bool readUintBE(const uint8_t reg, T& value) {
 				if (!readUintLE<T>(reg, value))
 					return false;
 
 				value = std::byteswap(value);
-
-				return true;
-			}
-
-			template<std::unsigned_integral UT, std::signed_integral ST>
-			bool readIntLE(const uint8_t reg, ST& value) {
-				UT unsignedValue = 0;
-
-				if (!readUintLE<UT>(reg, unsignedValue))
-					return false;
-
-				value = static_cast<ST>(unsignedValue);
 
 				return true;
 			}

@@ -251,8 +251,8 @@ namespace pizda {
 				return static_cast<uint8_t>(std::to_underlying(reg) | 0x80);
 			}
 
-			bool read(BMP280Register reg, uint8_t* buffer, size_t readSize) {
-				return _busStream->read(getRegisterValueForReading(reg), buffer, readSize);
+			bool read(BMP280Register reg, uint8_t* buffer, size_t length) {
+				return _busStream->read(getRegisterValueForReading(reg), buffer, length);
 			}
 
 			bool readUint8(BMP280Register reg, uint8_t& value) {
