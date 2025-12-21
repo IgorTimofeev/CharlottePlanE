@@ -24,10 +24,11 @@ namespace pizda {
 			constexpr static float sampleIntervalS = 1.0f / sampleRateHz;
 
 			constexpr static uint16_t FIFOBufferLength = 512;
-			// 3 axis * 2 bytes * 3 value types (acc + gyro + mag)
-			constexpr static uint8_t FIFOBufferSampleDataTypes = 2;
-			// 3 axis * 2 bytes * dataTypes
-			constexpr static uint8_t FIFOBufferSampleLength = 3 * 2 * FIFOBufferSampleDataTypes;
+			// 3 axis * 2 bytes
+			constexpr static uint8_t FIFOBufferSampleDataTypeLength = 3 * 2;
+			// Aacc + gyro + mag
+			constexpr static uint8_t FIFOBufferSampleDataTypes = 3;
+			constexpr static uint8_t FIFOBufferSampleLength = FIFOBufferSampleDataTypeLength * FIFOBufferSampleDataTypes;
 			constexpr static uint16_t FIFOBufferMaxSampleCount = FIFOBufferLength / FIFOBufferSampleLength;
 
 			constexpr static uint32_t bytesPerSecond = FIFOBufferSampleLength * sampleRateHz;
@@ -97,7 +98,7 @@ namespace pizda {
 
 				for (uint16_t i = 0; i < iterations; ++i) {
 					aSum += MPU.getAccelData();
-					gSum += MPU.getGyroValues();
+					gSum += MPU.getGyroData();
 
 					vTaskDelay(pdMS_TO_TICKS(std::max<uint32_t>(1'000 / sampleRateHz, portTICK_PERIOD_MS)));
 				}
@@ -147,34 +148,34 @@ namespace pizda {
 				}
 
 				MPU.setFIFODataSource(MPU9250_FIFO_DATA_SOURCE_NONE);
-				// Only for cont mode
-				// mpu.findFIFOBegin();
 
 				ESP_LOGI(_logTag, "FIFO sample count: %d", sampleCount);
 
 				const auto samplesToRead = std::min<uint16_t>(FIFOBufferMaxSampleCount, sampleCount);
 
-				const auto mRaw = MPU.getMagData();
-
-				// Axis swap, fuck MPU
-				auto m = Vector3F(
-					mRaw.getY() - mBias.getY(),
-					mRaw.getX() - mBias.getX(),
-					-(mRaw.getZ() - mBias.getZ())
-				);
+//				const auto mRaw = MPU.getMagData();
+//
+//				// Axis swap, fuck MPU
+//				auto m = Vector3F(
+//					mRaw.getY() - mBias.getY(),
+//					mRaw.getX() - mBias.getX(),
+//					-(mRaw.getZ() - mBias.getZ())
+//				);
 
 				for (uint32_t i = 0; i < samplesToRead; i++) {
-					const auto a = MPU.getAccelDataFromFIFO() - aBias;
-					const auto g = MPU.getGyroValuesFromFIFO() - gBias;
+					uint8_t FIFOSampleBuffer[FIFOBufferSampleLength] {};
+					MPU.getFIFOData(FIFOSampleBuffer, FIFOBufferSampleLength);
 
-//					const auto mRaw = MPU.getMagDataFromFIFO();
-//
-//					// Axis swap, fuck MPU
-//					auto m = Vector3F(
-//						mRaw.getY() - mBias.getY(),
-//						mRaw.getX() - mBias.getX(),
-//						-(mRaw.getZ() - mBias.getZ())
-//					);
+					const auto a = MPU.getAccelData(FIFOSampleBuffer) - aBias;
+					const auto g = MPU.getGyroData(FIFOSampleBuffer + FIFOBufferSampleDataTypeLength) - gBias;
+					const auto mRaw = MPU.getMagData(FIFOSampleBuffer + FIFOBufferSampleDataTypeLength);
+
+					// Axis swap, fuck MPU
+					auto m = Vector3F(
+						mRaw.getY() - mBias.getY(),
+						mRaw.getX() - mBias.getX(),
+						-(mRaw.getZ() - mBias.getZ())
+					);
 
 					constexpr static float G = 9.80665f;
 					auto accelerationMs2 = a * G;
@@ -200,7 +201,9 @@ namespace pizda {
 					const float aMagnitude = a.getLength();
 					// (Acc magnitude - 1G of gravity) / acc range G max
 					const float gTrustFactorAMagnitudeFactor = std::clamp((aMagnitude - 1) / 2, 0.0f, 1.0f);
-					const float gTrustFactor = gTrustFactorMin + (gTrustFactorMax - gTrustFactorMin) * gTrustFactorAMagnitudeFactor;
+					float gTrustFactor = gTrustFactorMin + (gTrustFactorMax - gTrustFactorMin) * gTrustFactorAMagnitudeFactor;
+
+					gTrustFactor = 0;
 
 					rollRad = gTrustFactor * gRoll + (1.0f - gTrustFactor) * aRoll;
 					pitchRad = gTrustFactor * gPitch + (1.0f - gTrustFactor) * aPitch;
@@ -228,7 +231,7 @@ namespace pizda {
 				}
 
 				MPU.resetFIFO();
-				MPU.setFIFODataSource(MPU9250_FIFO_DATA_SOURCE_ACCEL_GYRO);
+				MPU.setFIFODataSource(MPU9250_FIFO_DATA_SOURCE_MAG_ACCEL_GYRO);
 				MPU.readAndClearInterruptStatus();
 			}
 
@@ -277,7 +280,7 @@ namespace pizda {
 				// In some cases a delay after enabling FIFO makes sense
 				vTaskDelay(pdMS_TO_TICKS(100));
 
-				MPU.setFIFODataSource(MPU9250_FIFO_DATA_SOURCE_ACCEL_GYRO);
+				MPU.setFIFODataSource(MPU9250_FIFO_DATA_SOURCE_MAG_ACCEL_GYRO);
 			}
 	};
 }

@@ -173,7 +173,6 @@
       <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/IMU.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/IMU.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/MPU9250.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/MPU9250.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/MPU9250.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/MPU9250.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/types/vector3.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/vector3.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -1150,7 +1149,7 @@
       <workItem from="1766226089964" duration="2078000" />
       <workItem from="1766228198954" duration="18907000" />
       <workItem from="1766254181778" duration="16454000" />
-      <workItem from="1766305392582" duration="6168000" />
+      <workItem from="1766305392582" duration="8276000" />
     </task>
     <task id="LOCAL-00001" summary="ппц заебался">
       <option name="closed" value="true" />
@@ -1496,7 +1495,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766270905350</updated>
     </task>
-    <option name="localTasksCounter" value="44" />
+    <task id="LOCAL-00044" summary="pizda1111">
+      <option name="closed" value="true" />
+      <created>1766311719369</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1766311719369</updated>
+    </task>
+    <option name="localTasksCounter" value="45" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

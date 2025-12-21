@@ -184,13 +184,10 @@ namespace pizda {
 
 /************* x,y,z results *************/
 
-	Vector3F MPU9250::getAccelData() {
-		uint8_t values[6];
-		readMPU9250Register3x16(REGISTER_ACCEL_OUT, values);
-
-		const auto x = static_cast<int16_t>((values[0] << 8) | values[1]);
-		const auto y = static_cast<int16_t>((values[2] << 8) | values[3]);
-		const auto z = static_cast<int16_t>((values[4] << 8) | values[5]);
+	Vector3F MPU9250::getAccelData(uint8_t* buffer) {
+		const auto x = static_cast<int16_t>((buffer[0] << 8) | buffer[1]);
+		const auto y = static_cast<int16_t>((buffer[2] << 8) | buffer[3]);
+		const auto z = static_cast<int16_t>((buffer[4] << 8) | buffer[5]);
 
 		return Vector3F {
 			static_cast<float>(x) * accRangeFactor,
@@ -199,17 +196,17 @@ namespace pizda {
 		};
 	}
 
-	Vector3F MPU9250::getAccelDataFromFIFO() {
-		return readMPU9250Vector3FromFIFO() * accRangeFactor;
+	Vector3F MPU9250::getAccelData() {
+		uint8_t buffer[6];
+		readMPU9250Register3x16(REGISTER_ACCEL_OUT, buffer);
+
+		return getAccelData(buffer);
 	}
 
-	Vector3F MPU9250::getGyroValues() {
-		uint8_t values[6];
-		readMPU9250Register3x16(REGISTER_GYRO_OUT, values);
-
-		const auto x = static_cast<int16_t>((values[0] << 8) | values[1]);
-		const auto y = static_cast<int16_t>((values[2] << 8) | values[3]);
-		const auto z = static_cast<int16_t>((values[4] << 8) | values[5]);
+	Vector3F MPU9250::getGyroData(uint8_t* buffer) {
+		const auto x = static_cast<int16_t>((buffer[0] << 8) | buffer[1]);
+		const auto y = static_cast<int16_t>((buffer[2] << 8) | buffer[3]);
+		const auto z = static_cast<int16_t>((buffer[4] << 8) | buffer[5]);
 
 		return {
 			static_cast<float>(x) * gyrRangeFactor,
@@ -218,8 +215,11 @@ namespace pizda {
 		};
 	}
 
-	Vector3F MPU9250::getGyroValuesFromFIFO() {
-		return readMPU9250Vector3FromFIFO() * gyrRangeFactor;
+	Vector3F MPU9250::getGyroData() {
+		uint8_t buffer[6];
+		readMPU9250Register3x16(REGISTER_GYRO_OUT, buffer);
+
+		return getGyroData(buffer);
 	}
 
 	float MPU9250::getTemperature() {
@@ -488,20 +488,6 @@ namespace pizda {
 //    }
 	}
 
-	Vector3F MPU9250::readMPU9250Vector3FromFIFO() {
-		uint8_t rawData[6];
-
-		const uint8_t cmd = REGISTER_FIFO_R_W | 0x80;
-		ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
-		ESP_ERROR_CHECK(i2c_master_receive(_I2CDeviceHandle, rawData, 6, -1));
-
-		return {
-			static_cast<float>((int16_t) ((rawData[0] << 8) + rawData[1])),
-			static_cast<float>((int16_t) ((rawData[2] << 8) + rawData[3])),
-			static_cast<float>((int16_t) ((rawData[4] << 8) + rawData[5]))
-		};
-	}
-
 /************** Magnetometer **************/
 
 	bool MPU9250::setupMagnetometer() {
@@ -563,13 +549,10 @@ namespace pizda {
 		delayMs(100);
 	}
 
-	Vector3F MPU9250::getMagData() {
-		uint8_t rawData[6];
-		readAK8963Data(rawData);
-
-		const auto x = static_cast<int16_t>((rawData[1] << 8) | rawData[0]);
-		const auto y = static_cast<int16_t>((rawData[3] << 8) | rawData[2]);
-		const auto z = static_cast<int16_t>((rawData[5] << 8) | rawData[4]);
+	Vector3F MPU9250::getMagData(uint8_t* buffer) {
+		const auto x = static_cast<int16_t>((buffer[1] << 8) | buffer[0]);
+		const auto y = static_cast<int16_t>((buffer[3] << 8) | buffer[2]);
+		const auto z = static_cast<int16_t>((buffer[5] << 8) | buffer[4]);
 
 		return {
 			x * magASAFactor.getX() * magScaleFactor,
@@ -578,25 +561,18 @@ namespace pizda {
 		};
 	}
 
-	Vector3F MPU9250::getMagDataFromFIFO() {
+	Vector3F MPU9250::getMagData() {
 		uint8_t rawData[6];
+		readAK8963Data(rawData);
 
+		return getMagData(rawData);
+	}
+
+	void MPU9250::getFIFOData(uint8_t* buffer, uint16_t count) {
 		const uint8_t cmd = REGISTER_FIFO_R_W | 0x80;
 		ESP_ERROR_CHECK(i2c_master_transmit(_I2CDeviceHandle, &cmd, 1, -1));
+		ESP_ERROR_CHECK(i2c_master_receive(_I2CDeviceHandle, buffer, count, -1));
 
-		ESP_ERROR_CHECK(i2c_master_receive(_I2CDeviceHandle, rawData, 6, -1));
-
-		const auto x = static_cast<int16_t>((rawData[1] << 8) | rawData[0]);
-		const auto y = static_cast<int16_t>((rawData[3] << 8) | rawData[2]);
-		const auto z = static_cast<int16_t>((rawData[5] << 8) | rawData[4]);
-
-		return {
-			x * magASAFactor.getX() * magScaleFactor,
-			y * magASAFactor.getY() * magScaleFactor,
-			z * magASAFactor.getZ() * magScaleFactor
-		};
-
-		return readMPU9250Vector3FromFIFO() * magASAFactor * magScaleFactor;
 	}
 
 	void MPU9250::raedAK8963ASAVals() {
