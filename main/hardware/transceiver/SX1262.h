@@ -18,11 +18,11 @@ namespace pizda {
 			bool setup(
 				spi_host_device_t SPIHostDevice,
 				gpio_num_t ssPin,
-				gpio_num_t rstPin,
 				gpio_num_t busyPin,
 				gpio_num_t dio1Pin,
+				gpio_num_t rstPin,
 				
-				uint32_t frequency,
+				uint32_t frequencyHz,
 				float bandwidth,
 				uint8_t spreadingFactor,
 				uint8_t codingRate,
@@ -33,9 +33,9 @@ namespace pizda {
 				bool useLDORegulator = false
 			) {
 				_ssPin = ssPin;
-				_rstPin = rstPin;
 				_busyPin = busyPin;
 				_dio1Pin = dio1Pin;
+				_rstPin = rstPin;
 				
 				// BW in kHz and SF are required in order to calculate LDRO for setModulationParams
 				// set the defaults, this will get overwritten later anyway
@@ -159,7 +159,7 @@ namespace pizda {
 				if (!setBandwidth(bandwidth))
 					return false;
 				
-				if (!setFrequency(frequency))
+				if (!setFrequency(frequencyHz))
 					return false;
 				
 				if (!fixPaClamping(true))
@@ -284,7 +284,7 @@ namespace pizda {
 					return write(data, 3);
 				}
 				
-				// if nothing matched, try custom calibration - the may or may not work
+				// if nothing matched, try custom calibration - they may or may not work
 				ESP_LOGW(_logTag, "failed to match predefined frequency range, trying custom");
 				return calibrateImageRejection(freq - 4.0f, freq + 4.0f);
 			}
@@ -730,9 +730,9 @@ namespace pizda {
 			spi_device_handle_t _SPIDevice {};
 			
 			gpio_num_t _ssPin = GPIO_NUM_NC;
-			gpio_num_t _rstPin = GPIO_NUM_NC;
 			gpio_num_t _busyPin = GPIO_NUM_NC;
 			gpio_num_t _dio1Pin = GPIO_NUM_NC;
+			gpio_num_t _rstPin = GPIO_NUM_NC;
 			
 			uint32_t _frequencyHz = 0;
 			uint8_t _spreadingFactor = 0;
@@ -886,7 +886,7 @@ namespace pizda {
 			
 			inline static uint32_t getTimeoutValue(uint32_t timeoutUs) {
 				// From datasheet: timeoutUs = timeoutValue * 15.625 µs
-				return timeoutUs / 15.625;
+				return timeoutUs / 15.625f;
 			}
 			
 			bool setRxOrTx(uint8_t command, uint32_t timeoutUs) {
@@ -1212,7 +1212,7 @@ namespace pizda {
 			constexpr static uint8_t CAL_IMG_863_MHZ_2                       = 0xDB;
 			constexpr static uint8_t CAL_IMG_902_MHZ_1                       = 0xE1;
 			constexpr static uint8_t CAL_IMG_902_MHZ_2                       = 0xE9;
-			constexpr static uint8_t CAL_IMG_FREQ_TRIG_MHZ                   = 20.0f;
+			constexpr static uint8_t CAL_IMG_FREQ_TRIG_MHZ                   = 20;
 			
 			// CMD_SET_PA_CONFIG
 			constexpr static uint8_t PA_CONFIG_HP_MAX                        = 0x07;
