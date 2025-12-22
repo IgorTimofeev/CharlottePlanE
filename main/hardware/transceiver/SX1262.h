@@ -37,12 +37,6 @@ namespace pizda {
 				_busyPin = busyPin;
 				_dio1Pin = dio1Pin;
 				
-				_frequency = frequency;
-				_codingRate = codingRate;
-				_syncWord = syncWord;
-				_power = power;
-				_preambleLength = preambleLength;
-				
 				// BW in kHz and SF are required in order to calculate LDRO for setModulationParams
 				// set the defaults, this will get overwritten later anyway
 				_bandwidthKHz = 500.0;
@@ -52,11 +46,11 @@ namespace pizda {
 				_bandwidth = LORA_BW_500_0;  // initialized to 500 kHz, since lower values will interfere with LLCC68
 				_codingRate = LORA_CR_4_7;
 				_ldrOptimize = false;
-//				_crcTypeLoRa = LORA_CRC_ON;
-//				_preambleLengthLoRa = preambleLength;
-//				_tcxoDelay = 0;
-//				_headerType = LORA_HEADER_EXPLICIT;
-//				_implicitLen = 0xFF;
+				_crcType = LORA_CRC_ON;
+				_preambleLength = preambleLength;
+				_tcxoDelay = 0;
+				_headerType = LORA_HEADER_EXPLICIT;
+				_implicitLen = 0xFF;
 				
 				// -------------------------------- GPIO --------------------------------
 				
@@ -96,7 +90,7 @@ namespace pizda {
 					return false;
 				
 				// TCXO configuration should be here
-//				if(!XTAL && tcxoVoltage > 0.0f) {
+//				if (!XTAL && tcxoVoltage > 0.0f) {
 //					setTCXO(tcxoVoltage);
 //				}
 				
@@ -138,28 +132,26 @@ namespace pizda {
 				
 				// -------------------------------- Publicly accessible settings --------------------------------
 				
-				state = setCodingRate(cr);
-				RADIOLIB_ASSERT(state);
+				if (!setCodingRate(codingRate))
+					return false;
 				
-				state = setSyncWord(syncWord);
-				RADIOLIB_ASSERT(state);
+				if (!setSyncWord(syncWord))
+					return false;
 				
-				state = setPreambleLength(preambleLength);
-				RADIOLIB_ASSERT(state);
+				if (!setPreambleLength(preambleLength))
+					return false;
 				
-				state = setCurrentLimit(60.0);
-				RADIOLIB_ASSERT(state);
+				if (!setCurrentLimit(60.0))
+					return false;
 				
-				state = setDio2AsRfSwitch(true);
-				RADIOLIB_ASSERT(state);
+				if (!setDio2AsRfSwitch(true))
+					return false;
 				
-				state = setCRC(2);
-				RADIOLIB_ASSERT(state);
+				if (!setCRC(2))
+					return false;
 				
-				state = invertIQ(false);
-				RADIOLIB_ASSERT(state);
-				
-				// Configure publicly accessible settings
+				if (!invertIQ(false))
+					return false;
 				
 				if (!setSpreadingFactor(spreadingFactor))
 					return false;
@@ -170,7 +162,7 @@ namespace pizda {
 				if (!setFrequency(frequency))
 					return false;
 				
-				if (!SX126x::fixPaClamping())
+				if (!fixPaClamping(true))
 					return false;
 					
 				if (!setOutputPower(power))
@@ -227,7 +219,89 @@ namespace pizda {
 				return false;
 			}
 			
-			bool setFrequency(uint32_t frequencyHz) {
+			/*!
+			  \brief Perform image rejection calibration for the specified frequency band.
+			  WARNING: Use at your own risk! Setting incorrect values may lead to decreased performance
+			  \param freqMin Frequency band lower bound.
+			  \param freqMax Frequency band upper bound.
+			  \returns \ref status_codes
+			*/
+			bool calibrateImageRejection(uint32_t freqMin, uint32_t freqMax) {
+				// calculate the calibration coefficients and calibrate image
+				uint8_t data[3] = {
+					CMD_CALIBRATE_IMAGE,
+					(uint8_t)floor((freqMin - 1.0f) / 4.0f),
+					(uint8_t)ceil((freqMax + 1.0f) / 4.0f)
+				};
+				
+				data[0] = (data[0] % 2) ? data[0] : data[0] - 1;
+				data[1] = (data[1] % 2) ? data[1] : data[1] + 1;
+				
+				return write(data, 3);
+			}
+			
+			
+			/*!
+			  \brief Perform image rejection calibration for the specified frequency.
+			  Will try to use Semtech-defined presets first, and if none of them matches,
+			  custom iamge calibration will be attempted using calibrateImageRejection.
+			  \param freq Frequency to perform the calibration for.
+			  \returns \ref status_codes
+			*/
+			bool calibrateImage(uint32_t freq) {
+				uint8_t data[3] = {
+					CMD_CALIBRATE_IMAGE,
+					0,
+					0
+				};
+				
+				// try to match the frequency ranges
+				int freqBand = freq;
+				
+				if ((freqBand >= 902) && (freqBand <= 928)) {
+					data[1] = CAL_IMG_902_MHZ_1;
+					data[2] = CAL_IMG_902_MHZ_2;
+				}
+				else if ((freqBand >= 863) && (freqBand <= 870)) {
+					data[1] = CAL_IMG_863_MHZ_1;
+					data[2] = CAL_IMG_863_MHZ_2;
+				}
+				else if ((freqBand >= 779) && (freqBand <= 787)) {
+					data[1] = CAL_IMG_779_MHZ_1;
+					data[2] = CAL_IMG_779_MHZ_2;
+				}
+				else if ((freqBand >= 470) && (freqBand <= 510)) {
+					data[1] = CAL_IMG_470_MHZ_1;
+					data[2] = CAL_IMG_470_MHZ_2;
+				}
+				else if ((freqBand >= 430) && (freqBand <= 440)) {
+					data[1] = CAL_IMG_430_MHZ_1;
+					data[2] = CAL_IMG_430_MHZ_2;
+				}
+				
+				// matched with predefined ranges, do the calibration
+				if (data[1]) {
+					return write(data, 3);
+				}
+				
+				// if nothing matched, try custom calibration - the may or may not work
+				ESP_LOGW(_logTag, "failed to match predefined frequency range, trying custom");
+				return calibrateImageRejection(freq - 4.0f, freq + 4.0f);
+			}
+			
+			bool setFrequency(uint32_t frequencyHz, bool skipCalibration = false) {
+				if (frequencyHz < 120 || frequencyHz > 960) {
+					ESP_LOGW(_logTag, "failed to set frequency: value %d is out of range [120; 960]");
+					return false;
+				}
+				
+				// check if we need to recalibrate image
+				if (!skipCalibration && (std::fabs(static_cast<int32_t>(frequencyHz) - static_cast<int32_t>(_frequencyHz)) >= CAL_IMG_FREQ_TRIG_MHZ)) {
+					if (!calibrateImage(frequencyHz)) {
+						return false;
+					}
+				}
+				
 				// From SX1262 datasheet:
 				// frequencyHz = regValue * crystalFreqHz / divider
 				//
@@ -256,6 +330,8 @@ namespace pizda {
 					ESP_LOGE(_logTag, "failed to set frequency to %d", frequencyHz);
 					return false;
 				}
+				
+				_frequencyHz = frequencyHz;
 				
 				return true;
 			}
@@ -447,7 +523,7 @@ namespace pizda {
 				
 				updateLDROptimize(_ldrOptimize);
 				
-				return setModulationParams();
+				return updateModulationParams();
 			}
 			
 			bool setBandwidth(float bandwidth) {
@@ -504,10 +580,150 @@ namespace pizda {
 				
 				updateLDROptimize(_ldrOptimize);
 				
-				return setModulationParams();
+				return updateModulationParams();
 			}
-		
-		
+			
+			/*!
+			 \brief Sets LoRa sync word.
+			 
+			 \param syncWord LoRa sync word to be set.
+			 \param controlBits Undocumented control bits, required for compatibility purposes.
+			 
+			 \returns \ref status_codes
+		   */
+			bool setSyncWord(uint8_t syncWord, uint8_t controlBits = 0x44) {
+				if (!checkForLoRaPacketType())
+					return false;
+				
+				uint8_t data[] {
+					0,
+					0,
+					0,
+					static_cast<uint8_t>((syncWord & 0xF0) | ((controlBits & 0xF0) >> 4)),
+					static_cast<uint8_t>(((syncWord & 0x0F) << 4) | (controlBits & 0x0F))
+				};
+				
+				if (!writeReg(REG_LORA_SYNC_WORD_MSB, data, 5)) {
+					ESP_LOGW(_logTag, "failed to set sync word");
+					return false;
+				}
+				
+				return true;
+			}
+			
+			/*!
+			  \brief Sets preamble length for LoRa or FSK modem. Allowed values range from 1 to 65535.
+			  \param preambleLength Preamble length to be set in symbols (LoRa) or bits (FSK).
+			  NOTE: In FSK mode, sync word length limits the preamble detector length
+			  (the number of preamble bits that must be detected to start receiving packet).
+			  For details, see the note in SX1261 datasheet, Rev 2.1, section 6.2.2.1, page 45.
+			  Preamble detector length is adjusted automatically each time this method is called.
+			  \returns \ref status_codes
+			*/
+			bool setPreambleLength(uint16_t preambleLength) {
+				if (!checkForLoRaPacketType())
+					return false;
+				
+				_preambleLength = preambleLength;
+				
+				return updatePacketParams();
+			}
+			
+			/*!
+			 \brief Sets current protection limit. Can be set in 2.5 mA steps.
+			 \param currentLimit current protection limit to be set in mA. Allowed values range from 0 to 140.
+			 \returns \ref status_codes
+		   */
+			bool setCurrentLimit(float currentLimit) {
+				// check allowed range
+				if (currentLimit < 0 || currentLimit > 140) {
+					ESP_LOGW(_logTag, "failed to set current limit: value %f is out of range [0; 140]", currentLimit);
+					return false;
+				}
+				
+				// calculate raw value
+				uint8_t rawLimit = static_cast<uint8_t>(currentLimit / 2.5f);
+				
+				uint8_t data[] {
+					0,
+					0,
+					0,
+					rawLimit
+				};
+				
+				return writeReg(REG_OCP_CONFIGURATION, data, 4);
+			}
+			
+			/*!
+			  \brief Set DIO2 to function as RF switch (default in Semtech example designs).
+			  \returns \ref status_codes
+			*/
+			bool setDio2AsRfSwitch(bool enable) {
+				return writeCommandAndUint8(CMD_SET_DIO2_AS_RF_SWITCH_CTRL, enable ? DIO2_AS_RF_SWITCH : DIO2_AS_IRQ);
+			}
+			
+			/*!
+			  \brief Sets CRC configuration.
+			  \param len CRC length in bytes, Allowed values are 1 or 2, set to 0 to disable CRC.
+			  \param initial Initial CRC value. FSK only. Defaults to 0x1D0F (CCIT CRC).
+			  \param polynomial Polynomial for CRC calculation. FSK only. Defaults to 0x1021 (CCIT CRC).
+			  \param inverted Invert CRC bytes. FSK only. Defaults to true (CCIT CRC).
+			  \returns \ref status_codes
+			*/
+			bool setCRC(uint8_t len, uint16_t initial = 0x1D0F, uint16_t polynomial = 0x1021, bool inverted = true) {
+				if (!checkForLoRaPacketType())
+					return false;
+				
+				// LoRa CRC doesn't allow to set CRC polynomial, initial value, or inversion
+				
+				if (len) {
+					_crcType = LORA_CRC_ON;
+				}
+				else {
+					_crcType = LORA_CRC_OFF;
+				}
+				
+				return updatePacketParams();
+			}
+			
+			/*!
+			 \brief Enable/disable inversion of the I and Q signals
+			 \param enable IQ inversion enabled (true) or disabled (false);
+			 \returns \ref status_codes
+		   */
+			bool invertIQ(bool enable) {
+				if (!checkForLoRaPacketType())
+					return false;
+				
+				if (enable) {
+					_invertIQ = LORA_IQ_INVERTED;
+				}
+				else {
+					_invertIQ = LORA_IQ_STANDARD;
+				}
+				
+				return updatePacketParams();
+			}
+			
+			/*!
+			 \brief Sets LoRa spreading factor. Allowed values range from 5 to 12.
+			 \param sf LoRa spreading factor to be set.
+			 \returns \ref status_codes
+		   */
+			bool setSpreadingFactor(uint8_t sf) {
+				if (!checkForLoRaPacketType())
+					return false;
+				
+				if (sf < 5 || sf > 12) {
+					ESP_LOGW(_logTag, "failed to set spreading factor: value %d is out of range [5; 12]", sf);
+					return false;
+				}
+				
+				_spreadingFactor = sf;
+				
+				return updateModulationParams();
+			}
+			
 		private:
 			constexpr static const char* _logTag = "SX1262";
 
@@ -518,18 +734,22 @@ namespace pizda {
 			gpio_num_t _busyPin = GPIO_NUM_NC;
 			gpio_num_t _dio1Pin = GPIO_NUM_NC;
 			
-			uint32_t _frequency = 0;
+			uint32_t _frequencyHz = 0;
 			uint8_t _spreadingFactor = 0;
 			uint8_t _codingRate = 0;
 			uint8_t _bandwidth = 0;
 			float _bandwidthKHz = 0;
-			uint8_t _syncWord = 0;
 			int8_t _power = 0;
 			uint16_t _preambleLength = 0;
+			uint8_t _crcType = 0;
+			uint8_t _headerType = 0;
+			uint32_t _tcxoDelay = 0;
+			uint8_t _implicitLen = 0xFF;
+			uint8_t _invertIQ = LORA_IQ_STANDARD;
 			
 			// LoRa low data rate optimization
 			bool _ldrOptimize = false;
-			bool ldroAuto = true;
+			bool _ldrOptimizeAuto = true;
 			
 			inline void setSSPin(bool value) {
 				gpio_set_level(_ssPin, value);
@@ -574,8 +794,9 @@ namespace pizda {
 				// Writing
 				spi_transaction_t transaction {};
 				transaction.tx_data[0] = CMD_READ_REGISTER;
-				transaction.tx_data[1] = reg;
-				transaction.length = 8 * 2;
+				transaction.tx_data[1] = (reg >> 8) & 0xFF; // Reg MSB
+				transaction.tx_data[2] = reg & 0xFF;        // Reg LSB
+				transaction.length = 8 * 3;
 				transaction.flags = SPI_TRANS_USE_TXDATA;
 				
 				setSSPin(false);
@@ -633,6 +854,16 @@ namespace pizda {
 				return write(&transaction);
 			}
 			
+			// Buffer data should be shifted by 3 first bytes
+			// 0x00, 0x00, 0x00, Data0, Data2, ...
+			bool writeReg(const uint16_t reg, uint8_t* buffer, size_t length) {
+				buffer[0] = CMD_WRITE_REGISTER;
+				buffer[1] = (reg >> 8) & 0xFF; // Reg MSB
+				buffer[2] = reg & 0xFF;        // Reg LSB
+				
+				return write(buffer, length);
+			}
+			
 			// -------------------------------- Auxiliary --------------------------------
 			
 			
@@ -687,7 +918,7 @@ namespace pizda {
 			
 			void updateLDROptimize(bool value) {
 				// calculate symbol length and enable low data rate optimization, if autoconfiguration is enabled
-				if (ldroAuto) {
+				if (_ldrOptimizeAuto) {
 					float symbolLength = (float) (uint32_t(1) << _spreadingFactor) / (float) _bandwidthKHz;
 					
 					if (symbolLength >= 16.0f) {
@@ -702,7 +933,7 @@ namespace pizda {
 				}
 			}
 			
-			bool setModulationParams() {
+			bool updateModulationParams() {
 				// 500/9/8  - 0x09 0x04 0x03 0x00 - SF9, BW125, 4/8
 				// 500/11/8 - 0x0B 0x04 0x03 0x00 - SF11 BW125, 4/7
 				const uint8_t data[5] = {
@@ -715,7 +946,151 @@ namespace pizda {
 				
 				return write(data, 5);
 			}
-		
+			
+			bool fixInvertedIQ(uint8_t iqConfig) {
+				// fixes IQ configuration for inverted IQ
+				// see SX1262/SX1268 datasheet, chapter 15 Known Limitations, section 15.4 for details
+				
+				// read current IQ configuration
+				uint8_t iqConfigCurrent = 0;
+				
+				if (!readReg(REG_IQ_CONFIG, &iqConfigCurrent, 1))
+					return false;
+								
+				// set correct IQ configuration
+				if (iqConfig == LORA_IQ_INVERTED) {
+					iqConfigCurrent &= 0xFB;
+				}
+				else {
+					iqConfigCurrent |= 0x04;
+				}
+				
+				// update with the new value
+				uint8_t buffer[] {
+					0,
+					0,
+					0,
+					iqConfigCurrent
+				};
+				
+				return writeReg(REG_IQ_CONFIG, buffer, 4);
+			}
+			
+			bool updatePacketParams() {
+				if (!fixInvertedIQ(_invertIQ))
+					return false;
+				
+				const uint8_t data[7] = {
+					CMD_SET_PACKET_PARAMS,
+					(uint8_t)((_preambleLength >> 8) & 0xFF),
+					(uint8_t)(_preambleLength & 0xFF),
+					_headerType,
+					_implicitLen,
+					_crcType,
+					_invertIQ
+				};
+				
+				return write(data, 7);
+			}
+			
+			bool fixPaClamping(bool enable = true) {
+				// fixes overly eager PA clamping
+				// see SX1262/SX1268 datasheet, chapter 15 Known Limitations, section 15.2 for details
+				
+				// read current clamping configuration
+				uint8_t clampConfig = 0;
+				
+				if (!readReg(REG_TX_CLAMP_CONFIG, &clampConfig, 1))
+					return false;
+				
+				// apply or undo workaround
+				if (enable) {
+					clampConfig |= 0x1E;
+				}
+				else {
+					clampConfig = (clampConfig & ~0x1E) | 0x08;
+				}
+				
+				uint8_t data[] {
+					0,
+					0,
+					0,
+					clampConfig
+				};
+				
+				return writeReg(REG_TX_CLAMP_CONFIG, data, 4);
+			}
+			
+			/*!
+			 \brief Set the PA configuration. Allows user to optimize PA for a specific output power
+			 and matching network. Any calls to this method must be done after calling begin/beginFSK and/or setOutputPower.
+			 WARNING: Use at your own risk! Setting invalid values can and will lead to permanent damage!
+			 \param paDutyCycle PA duty cycle raw value.
+			 \param deviceSel Device select, usually PA_CONFIG_SX1261,
+			 PA_CONFIG_SX1262 or PA_CONFIG_SX1268.
+			 \param hpMax hpMax raw value.
+			 \param paLut paLut PA lookup table raw value.
+			 \returns \ref status_codes
+		   */
+			bool setPaConfig(uint8_t paDutyCycle, uint8_t deviceSel, uint8_t hpMax = PA_CONFIG_HP_MAX, uint8_t paLut = PA_CONFIG_PA_LUT) {
+				const uint8_t data[5] = {
+					CMD_SET_PA_CONFIG,
+					paDutyCycle,
+					hpMax,
+					deviceSel,
+					paLut
+				};
+				
+				return write(data, 5);
+			}
+			
+			bool setTxParams(uint8_t pwr, uint8_t rampTime) {
+				const uint8_t data[] = {
+					CMD_SET_TX_PARAMS,
+					pwr,
+					rampTime
+				};
+				
+				if (!write(data, 3))
+					return false;
+				
+				_power = pwr;
+				
+				return true;
+			}
+			
+			bool setOutputPower(int8_t power) {
+				if (power < -9 || power > 22) {
+					ESP_LOGW(_logTag, "set output power failed: value %d is out of range [-9; 22]", power);
+					return false;
+				}
+				
+				// get current OCP configuration
+				uint8_t ocp = 0;
+				
+				if (!readReg(REG_OCP_CONFIGURATION, &ocp, 1)) {
+					ESP_LOGW(_logTag, "set output power failed: unable to read OCP configuration");
+					return false;
+				}
+				
+				// set PA config
+				if (!setPaConfig(0x04, PA_CONFIG_SX1262))
+					return false;
+				
+				// set output power with default 200us ramp
+				if (!setTxParams(power, PA_RAMP_200U))
+					return false;
+					
+				// restore OCP configuration
+				uint8_t data[] = {
+					0,
+					0,
+					0,
+					ocp
+				};
+				
+				return writeReg(REG_OCP_CONFIGURATION, data, 4);
+			}
 		
 		public:
 		
@@ -837,7 +1212,7 @@ namespace pizda {
 			constexpr static uint8_t CAL_IMG_863_MHZ_2                       = 0xDB;
 			constexpr static uint8_t CAL_IMG_902_MHZ_1                       = 0xE1;
 			constexpr static uint8_t CAL_IMG_902_MHZ_2                       = 0xE9;
-			constexpr static float CAL_IMG_FREQ_TRIG_MHZ                     = (20.0f);
+			constexpr static uint8_t CAL_IMG_FREQ_TRIG_MHZ                   = 20.0f;
 			
 			// CMD_SET_PA_CONFIG
 			constexpr static uint8_t PA_CONFIG_HP_MAX                        = 0x07;
