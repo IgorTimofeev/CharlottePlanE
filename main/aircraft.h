@@ -13,6 +13,7 @@
 #include "hardware/transceiver/aircraftPacketParser.h"
 #include "hardware/transceiver/channels.h"
 #include "hardware/ADIRS/ADIRS.h"
+#include "hardware/transceiver/SX1262.h"
 
 namespace pizda {
 	class Aircraft {
@@ -28,6 +29,8 @@ namespace pizda {
 
 			ADIRS ahrs {};
 
+			SX1262 sx1262 {};
+			
 			static Aircraft& getInstance();
 			void start();
 			void updateHardwareFromChannels();

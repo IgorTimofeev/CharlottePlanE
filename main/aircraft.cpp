@@ -21,15 +21,29 @@ namespace pizda {
 
 		SPIBusSetup();
 
-		motors.setup();
-
-		lights.setup();
-		lights.start();
-
-		transceiverSetup();
-		channels.setup();
-
-		ahrs.setup();
+//		motors.setup();
+//
+//		lights.setup();
+//		lights.start();
+//
+//		transceiverSetup();
+//		channels.setup();
+//
+//		ahrs.setup();
+		
+		sx1262.setup(
+			constants::spi::device,
+			constants::transceiver::ss,
+			constants::transceiver::busy,
+			constants::transceiver::dio1
+		);
+		
+		
+		sx1262.setBufferBaseAddress(0x00, 0x00);
+		sx1262.setPacketType(SX1262::PACKET_TYPE_LORA);
+		
+		sx1262.setStandby(SX1262::STANDBY_RC);
+		sx1262.setRxTxFallbackMode(SX1262::RX_TX_FALLBACK_MODE_STDBY_RC);
 
 		while (true) {
 //			ESP_LOGI("Main", "Pizda");

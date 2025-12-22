@@ -91,7 +91,7 @@ namespace pizda {
 				public:
 					constexpr static gpio_num_t ss = GPIO_NUM_NC;
 					constexpr static gpio_num_t busy = GPIO_NUM_NC;
-					constexpr static gpio_num_t dio0 = GPIO_NUM_NC;
+					constexpr static gpio_num_t dio1 = GPIO_NUM_NC;
 			};
 
 			class gnss {
