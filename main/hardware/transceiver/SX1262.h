@@ -18,22 +18,50 @@ namespace pizda {
 			bool setup(
 				spi_host_device_t SPIHostDevice,
 				gpio_num_t ssPin,
+				gpio_num_t rstPin,
 				gpio_num_t busyPin,
 				gpio_num_t dio1Pin,
 				
-				float frequency,
+				uint32_t frequency,
 				float bandwidth,
 				uint8_t spreadingFactor,
 				uint8_t codingRate,
 				uint8_t syncWord,
 				int8_t power,
 				uint16_t preambleLength,
-				float tcxoVoltage,
-				bool useRegulatorLDO
+				
+				bool useLDORegulator = false
 			) {
-				// GPIO
+				_ssPin = ssPin;
+				_rstPin = rstPin;
+				_busyPin = busyPin;
+				_dio1Pin = dio1Pin;
+				
+				_frequency = frequency;
+				_codingRate = codingRate;
+				_syncWord = syncWord;
+				_power = power;
+				_preambleLength = preambleLength;
+				
+				// BW in kHz and SF are required in order to calculate LDRO for setModulationParams
+				// set the defaults, this will get overwritten later anyway
+				_bandwidthKHz = 500.0;
+				_spreadingFactor = 9;
+				
+				// initialize configuration variables (will be overwritten during public settings configuration)
+				_bandwidth = LORA_BW_500_0;  // initialized to 500 kHz, since lower values will interfere with LLCC68
+				_codingRate = LORA_CR_4_7;
+				_ldrOptimize = false;
+//				_crcTypeLoRa = LORA_CRC_ON;
+//				_preambleLengthLoRa = preambleLength;
+//				_tcxoDelay = 0;
+//				_headerType = LORA_HEADER_EXPLICIT;
+//				_implicitLen = 0xFF;
+				
+				// -------------------------------- GPIO --------------------------------
+				
 				gpio_config_t GPIOConfig {};
-				GPIOConfig.pin_bit_mask = 1ULL << ssPin;
+				GPIOConfig.pin_bit_mask = (1ULL << _ssPin) | (1ULL << _rstPin);
 				GPIOConfig.mode = GPIO_MODE_OUTPUT;
 				GPIOConfig.pull_up_en = GPIO_PULLUP_DISABLE;
 				GPIOConfig.pull_down_en = GPIO_PULLDOWN_DISABLE;
@@ -41,14 +69,13 @@ namespace pizda {
 				gpio_config(&GPIOConfig);
 
 				// Setting SS to high just in case
-				gpio_set_level(ssPin, true);
-
-				// SPI interface
+				setSSPin(true);
+				
+				// -------------------------------- SPI --------------------------------
+				
 				spi_device_interface_config_t SPIInterfaceConfig {};
-				// CPOL = 0, CPHA = 0
-				SPIInterfaceConfig.mode = 0;
-				// Max allowed freq = 16 MHz
-				SPIInterfaceConfig.clock_speed_hz = 10'000'000;
+				SPIInterfaceConfig.mode = 0;                         // CPOL = 0, CPHA = 0
+				SPIInterfaceConfig.clock_speed_hz = 10'000'000;      // Max allowed freq = 16 MHz
 				SPIInterfaceConfig.spics_io_num = -1;
 				SPIInterfaceConfig.queue_size = 1;
 				
@@ -56,25 +83,61 @@ namespace pizda {
 				
 				if (!errorCheck(error))
 					return false;
-					
-				// Interrupts
 				
-				// Initialization sequence
-				
-				// Find the SX126x chip - this will also reset the module and verify it
-				if(!SX126x::findChip(this->chipType)) {
-					RADIOLIB_DEBUG_BASIC_PRINTLN("No SX126x found!");
-					this->mod->term();
-					return(RADIOLIB_ERR_CHIP_NOT_FOUND);
-				}
-				RADIOLIB_DEBUG_BASIC_PRINTLN("M\tSX126x");
+				// -------------------------------- Interrupts --------------------------------
 				
 				
-				// set module properties and perform initial setup
-				int16_t state = this->modSetup(tcxoVoltage, useRegulatorLDO, RADIOLIB_SX126X_PACKET_TYPE_LORA);
-				RADIOLIB_ASSERT(state);
+				// -------------------------------- Initialization --------------------------------
 				
-				// configure publicly accessible settings
+				if (!reset())
+					return false;
+				
+				if (!validateChip())
+					return false;
+				
+				// TCXO configuration should be here
+//				if(!XTAL && tcxoVoltage > 0.0f) {
+//					setTCXO(tcxoVoltage);
+//				}
+				
+				// Reset buffer base address
+				if (!setBufferBaseAddress(0x00, 0x00))
+					return false;
+				
+				// Packet type
+				if (!setPacketType(PACKET_TYPE_LORA))
+					return false;
+				
+				// Set Rx/Tx fallback mode to STDBY_RC
+				if (!setRxTxFallbackMode(RX_TX_FALLBACK_MODE_STDBY_RC))
+					return false;
+				
+				// Set some CAD parameters - will be overwritten when calling CAD anyway
+				if (!setCADParams())
+					return false;
+				
+				// Clear IRQ
+				if (!clearIRQStatus())
+					return false;
+				
+				if (!setDioIRQParams())
+					return false;
+		
+				// Calibrate all blocks
+				if (!calibrate(CALIBRATE_ALL))
+					return false;
+				
+				// Wait for calibration completion
+				delayMs(5);
+				
+				while (getBusyPin())
+					delayMs(5);
+
+				if (!setRegulatorMode(useLDORegulator ? REGULATOR_LDO : REGULATOR_DC_DC))
+					return false;
+				
+				// -------------------------------- Publicly accessible settings --------------------------------
+				
 				state = setCodingRate(cr);
 				RADIOLIB_ASSERT(state);
 				
@@ -84,7 +147,6 @@ namespace pizda {
 				state = setPreambleLength(preambleLength);
 				RADIOLIB_ASSERT(state);
 				
-				// set publicly accessible settings that are not a part of begin method
 				state = setCurrentLimit(60.0);
 				RADIOLIB_ASSERT(state);
 				
@@ -115,6 +177,54 @@ namespace pizda {
 					return false;
 				
 				return true;
+			}
+			
+			bool reset() {
+				// Toggling RST GPIO
+				setRstPin(false);
+				delayMs(1);
+				setRstPin(true);
+				
+				// Trying to set mode to standby - SX126x often refuses first few commands after reset
+				auto start = esp_timer_get_time();
+				
+				while (true) {
+					if (setStandby())
+						return true;
+					
+					// standby command failed, check timeout and try again
+					if (esp_timer_get_time() - start >= 1'000'000) {
+						// timed out, possibly incorrect wiring
+						break;
+					}
+					
+					// wait a bit to not spam the module
+					delayMs(10);
+				}
+				
+				return false;
+			}
+			
+			bool validateChip() {
+				for (uint8_t i = 0; i < 10; ++i) {
+					char version[16] = { 0 };
+					
+					readReg(REG_VERSION_STRING, reinterpret_cast<uint8_t*>(version), 16);
+					
+					if (strncmp(VERSION_STRING, version, 6) == 0) {
+						ESP_LOGI(_logTag, "REG_VERSION_STRING value: %s", version);
+						
+						return true;
+					}
+					else {
+						ESP_LOGE(_logTag, "REG_VERSION_STRING mismatch: attempt %d, value: %s", i, version);
+						
+						delayMs(1);
+						i++;
+					}
+				}
+				
+				return false;
 			}
 			
 			bool setFrequency(uint32_t frequencyHz) {
@@ -186,6 +296,26 @@ namespace pizda {
 				return true;
 			}
 			
+			bool setCADParams() {
+				const uint8_t data[] = {
+					CMD_SET_CAD_PARAMS,
+					CAD_ON_8_SYMB,
+					static_cast<uint8_t>(_spreadingFactor + 13),
+					CAD_PARAM_DET_MIN,
+					CAD_GOTO_STDBY,
+					0x00,
+					0x00,
+					0x00
+				};
+				
+				if (!write(data, 8)) {
+					ESP_LOGE(_logTag, "failed to set CAD params");
+					return false;
+				}
+				
+				return true;
+			}
+			
 			bool setBufferBaseAddress(uint8_t rxAddress = 0x00, uint8_t txAddress = 0x00) {
 				const uint8_t data[] = {
 					CMD_SET_BUFFER_BASE_ADDRESS,
@@ -201,6 +331,16 @@ namespace pizda {
 				return true;
 			}
 			
+			bool getPacketType(uint8_t& packetType) {
+				if (!readCommand(CMD_GET_PACKET_TYPE, &packetType, 1)) {
+					ESP_LOGE(_logTag, "failed to get packet type");
+					
+					return false;
+				}
+				
+				return true;
+			}
+			
 			bool setPacketType(uint8_t packetType) {
 				if (writeCommandAndUint8(CMD_SET_PACKET_TYPE, packetType)) {
 					ESP_LOGE(_logTag, "failed to set packet type");
@@ -210,30 +350,212 @@ namespace pizda {
 				return true;
 			}
 			
+			bool setRegulatorMode(uint8_t mode) {
+				if (!setRxOrTx(CMD_SET_REGULATOR_MODE, mode)) {
+					ESP_LOGE(_logTag, "failed to set regulator mode");
+					return false;
+				}
+				
+				return true;
+			}
+			
+			bool clearIRQStatus(uint16_t status = IRQ_ALL) {
+				const uint8_t data[] = {
+					CMD_CLEAR_IRQ_STATUS,
+					(uint8_t)((status >> 8) & 0xFF),
+					(uint8_t)(status & 0xFF)
+				};
+				
+				if (!write(data, 3)) {
+					ESP_LOGE(_logTag, "failed to clear IRQ status");
+					return false;
+				}
+				
+				return true;
+			}
+			
+			bool setDioIRQParams(uint16_t irqMask = IRQ_NONE, uint16_t dio1Mask = IRQ_NONE, uint16_t dio2Mask = IRQ_NONE, uint16_t dio3Mask = IRQ_NONE) {
+				const uint8_t data[] = {
+					CMD_SET_DIO_IRQ_PARAMS,
+					
+					static_cast<uint8_t>((irqMask >> 8) & 0xFF),
+					static_cast<uint8_t>(irqMask & 0xFF),
+					
+					static_cast<uint8_t>((dio1Mask >> 8) & 0xFF),
+					static_cast<uint8_t>(dio1Mask & 0xFF),
+					
+					static_cast<uint8_t>((dio2Mask >> 8) & 0xFF),
+					static_cast<uint8_t>(dio2Mask & 0xFF),
+					
+					static_cast<uint8_t>((dio3Mask >> 8) & 0xFF),
+					static_cast<uint8_t>(dio3Mask & 0xFF)
+				};
+				
+				if (!write(data, 9)) {
+					ESP_LOGE(_logTag, "failed to set DIO IRQ params");
+					return false;
+				}
+				
+				return true;
+			}
+			
+			bool calibrate(uint8_t value) {
+				return writeCommandAndUint8(CMD_CALIBRATE, value);
+			}
+			
+			/*!
+			  \brief Sets LoRa coding rate denominator. Allowed values range from 4 to 8. Note that a value of 4 means no coding,
+			  is undocumented and not recommended without your own FEC.
+			  
+			  \param codingRate LoRa coding rate denominator to be set.
+			  \param longInterleave Enable long interleaver when set to true.
+			  Note that with long interleaver enabled, CR 4/7 is not possible, there are packet length restrictions,
+			  and it is not compatible with SX127x radios.
+			  
+			  \returns \ref status_codes
+			*/
+			bool setCodingRate(uint8_t codingRate, bool longInterleave = false) {
+				if (!checkForLoRaPacketType())
+					return false;
+				
+				if (codingRate < 4 || codingRate > 8) {
+					ESP_LOGW(_logTag, "failed to set coding rate: value %d is out of range [4; 8]", codingRate);
+					return false;
+				}
+				
+				if (longInterleave) {
+					switch(codingRate) {
+						case 4:
+							_codingRate = 0;
+							break;
+						case 5:
+						case 6:
+							_codingRate = codingRate;
+							break;
+						case 8:
+							_codingRate = codingRate - 1;
+							break;
+						default:
+							ESP_LOGW(_logTag, "failed to set coding rate: value %d is invalid", codingRate);
+							
+							return false;
+					}
+				}
+				else {
+					_codingRate = codingRate - 4;
+				}
+				
+				updateLDROptimize(_ldrOptimize);
+				
+				return setModulationParams();
+			}
+			
+			bool setBandwidth(float bandwidth) {
+				if (!checkForLoRaPacketType())
+					return false;
+				
+				// Ensure byte conversion doesn't overflow
+				if (bandwidth < 0 || bandwidth > 510) {
+					ESP_LOGW(_logTag, "failed to set bandwidth: value %f is out of range [0; 510]", bandwidth);
+					return false;
+				}
+				
+				// check allowed bandwidth values
+				uint8_t bandWidthDiv2 = bandwidth / 2 + 0.01f;
+				
+				switch (bandWidthDiv2)  {
+					case 3: // 7.8:
+						_bandwidth = LORA_BW_7_8;
+						break;
+					case 5: // 10.4:
+						_bandwidth = LORA_BW_10_4;
+						break;
+					case 7: // 15.6:
+						_bandwidth = LORA_BW_15_6;
+						break;
+					case 10: // 20.8:
+						_bandwidth = LORA_BW_20_8;
+						break;
+					case 15: // 31.25:
+						_bandwidth = LORA_BW_31_25;
+						break;
+					case 20: // 41.7:
+						_bandwidth = LORA_BW_41_7;
+						break;
+					case 31: // 62.5:
+						_bandwidth = LORA_BW_62_5;
+						break;
+					case 62: // 125.0:
+						_bandwidth = LORA_BW_125_0;
+						break;
+					case 125: // 250.0
+						_bandwidth = LORA_BW_250_0;
+						break;
+					case 250: // 500.0
+						_bandwidth = LORA_BW_500_0;
+						break;
+					default: {
+						ESP_LOGW(_logTag, "failed to set bandwidth: value %f is invalid ", bandwidth);
+						return false;
+					}
+				}
+				
+				_bandwidthKHz = bandwidth;
+				
+				updateLDROptimize(_ldrOptimize);
+				
+				return setModulationParams();
+			}
+		
+		
 		private:
 			constexpr static const char* _logTag = "SX1262";
 
 			spi_device_handle_t _SPIDevice {};
-			gpio_num_t _ssPin = GPIO_NUM_NC;
 			
-			inline void setSS(bool value) {
+			gpio_num_t _ssPin = GPIO_NUM_NC;
+			gpio_num_t _rstPin = GPIO_NUM_NC;
+			gpio_num_t _busyPin = GPIO_NUM_NC;
+			gpio_num_t _dio1Pin = GPIO_NUM_NC;
+			
+			uint32_t _frequency = 0;
+			uint8_t _spreadingFactor = 0;
+			uint8_t _codingRate = 0;
+			uint8_t _bandwidth = 0;
+			float _bandwidthKHz = 0;
+			uint8_t _syncWord = 0;
+			int8_t _power = 0;
+			uint16_t _preambleLength = 0;
+			
+			// LoRa low data rate optimization
+			bool _ldrOptimize = false;
+			bool ldroAuto = true;
+			
+			inline void setSSPin(bool value) {
 				gpio_set_level(_ssPin, value);
+			}
+			
+			inline void setRstPin(bool value) {
+				gpio_set_level(_rstPin, value);
+			}
+			
+			inline bool getBusyPin() {
+				return gpio_get_level(_busyPin);
 			}
 			
 			// -------------------------------- Reading --------------------------------
 			
-			bool read(const uint8_t command, const uint16_t reg, const uint8_t* buffer, size_t length) {
+			bool readCommand(uint8_t command, uint8_t* buffer, size_t length) {
 				// Writing
 				spi_transaction_t transaction {};
 				transaction.tx_data[0] = command;
-				transaction.tx_data[1] = reg;
-				transaction.length = 8 * 2;
+				transaction.length = 8 * 1;
 				transaction.flags = SPI_TRANS_USE_TXDATA;
 				
-				setSS(false);
+				setSSPin(false);
 				
 				if (!errorCheck(spi_device_transmit(_SPIDevice, &transaction))) {
-					setSS(true);
+					setSSPin(true);
 					return false;
 				}
 				
@@ -243,18 +565,43 @@ namespace pizda {
 				transaction.length = 8 * length;
 				
 				const auto state = errorCheck(spi_device_transmit(_SPIDevice, &transaction));
-				setSS(true);
+				setSSPin(true);
 				
 				return state;
 			}
 			
+			bool readReg(const uint16_t reg, uint8_t* buffer, size_t length) {
+				// Writing
+				spi_transaction_t transaction {};
+				transaction.tx_data[0] = CMD_READ_REGISTER;
+				transaction.tx_data[1] = reg;
+				transaction.length = 8 * 2;
+				transaction.flags = SPI_TRANS_USE_TXDATA;
+				
+				setSSPin(false);
+				
+				if (!errorCheck(spi_device_transmit(_SPIDevice, &transaction))) {
+					setSSPin(true);
+					return false;
+				}
+				
+				// Reading
+				transaction = {};
+				transaction.tx_buffer = buffer;
+				transaction.length = 8 * length;
+				
+				const auto state = errorCheck(spi_device_transmit(_SPIDevice, &transaction));
+				setSSPin(true);
+				
+				return state;
+			}
 			
 			// -------------------------------- Writing --------------------------------
 			
 			bool write(spi_transaction_t* transaction) {
-				setSS(false);
+				setSSPin(false);
 				const auto state = errorCheck(spi_device_transmit(_SPIDevice, transaction));
-				setSS(true);
+				setSSPin(true);
 				
 				return state;
 			}
@@ -288,6 +635,24 @@ namespace pizda {
 			
 			// -------------------------------- Auxiliary --------------------------------
 			
+			
+			bool errorCheck(esp_err_t error) {
+				if (error != ESP_OK) {
+					ESP_ERROR_CHECK_WITHOUT_ABORT(error);
+					return false;
+				}
+				
+				return true;
+			}
+			
+			void delayBusyWaitUs(uint32_t us) {
+				esp_rom_delay_us(us);
+			}
+			
+			void delayMs(uint32_t ms) {
+				vTaskDelay(pdMS_TO_TICKS(std::max<uint32_t>(ms, portTICK_PERIOD_MS)));
+			}
+			
 			inline static uint32_t getTimeoutValue(uint32_t timeoutUs) {
 				// From datasheet: timeoutUs = timeoutValue * 15.625 µs
 				return timeoutUs / 15.625;
@@ -306,25 +671,62 @@ namespace pizda {
 				return write(data, 4);
 			}
 			
-			bool errorCheck(esp_err_t error) {
-				if (error != ESP_OK) {
-					ESP_ERROR_CHECK_WITHOUT_ABORT(error);
+			bool checkForLoRaPacketType() {
+				uint8_t packetType = 0;
+				
+				if (!getPacketType(packetType))
+					return false;
+				
+				if (packetType != PACKET_TYPE_LORA) {
+					ESP_LOGW(_logTag, "failed to set coding rate: packet type %d is not LoRa", packetType);
 					return false;
 				}
 				
 				return true;
 			}
 			
-		public:
+			void updateLDROptimize(bool value) {
+				// calculate symbol length and enable low data rate optimization, if autoconfiguration is enabled
+				if (ldroAuto) {
+					float symbolLength = (float) (uint32_t(1) << _spreadingFactor) / (float) _bandwidthKHz;
+					
+					if (symbolLength >= 16.0f) {
+						_ldrOptimize = LORA_LOW_DATA_RATE_OPTIMIZE_ON;
+					}
+					else {
+						_ldrOptimize = LORA_LOW_DATA_RATE_OPTIMIZE_OFF;
+					}
+				}
+				else {
+					_ldrOptimize = value;
+				}
+			}
 			
+			bool setModulationParams() {
+				// 500/9/8  - 0x09 0x04 0x03 0x00 - SF9, BW125, 4/8
+				// 500/11/8 - 0x0B 0x04 0x03 0x00 - SF11 BW125, 4/7
+				const uint8_t data[5] = {
+					CMD_SET_MODULATION_PARAMS,
+					_spreadingFactor,
+					_bandwidth,
+					_codingRate,
+					_ldrOptimize
+				};
+				
+				return write(data, 5);
+			}
+		
+		
+		public:
+		
 			// -------------------------------- Module properties --------------------------------
 			
 			constexpr static uint32_t RF_CRYSTAL_FREQUENCY_HZ = 32'000'000.f;
 			constexpr static uint32_t RF_DIVIDER = 1ULL << 25;
-			
+
 			// -------------------------------- Commands --------------------------------
 
-			// operational modes commands
+			// Operational modes commands
 			constexpr static uint8_t CMD_NOP                                 = 0x00;
 			constexpr static uint8_t CMD_SET_SLEEP                           = 0x84;
 			constexpr static uint8_t CMD_SET_STANDBY                         = 0x80;
@@ -440,6 +842,7 @@ namespace pizda {
 			// CMD_SET_PA_CONFIG
 			constexpr static uint8_t PA_CONFIG_HP_MAX                        = 0x07;
 			constexpr static uint8_t PA_CONFIG_PA_LUT                        = 0x01;
+			constexpr static uint8_t PA_CONFIG_SX1262                        = 0x00;
 			constexpr static uint8_t PA_CONFIG_SX1262_8                      = 0x00;
 			
 			// CMD_SET_RX_TX_FALLBACK_MODE
@@ -694,7 +1097,12 @@ namespace pizda {
 			constexpr static uint16_t REG_EVENT_MASK                         = 0x0944;
 			constexpr static uint16_t REG_PATCH_MEMORY_BASE                  = 0x8000;
 			
-			// SX126X SPI register variables
+			// SX126X register variables
+			
+			// REG_VERSION_STRING
+			// Note: this should really be "2", however, it seems that all SX1262 devices report as SX1261
+			constexpr static const char* VERSION_STRING           =  "SX1261";
+			
 			// REG_HOPPING_ENABLE                                          MSB   LSB   DESCRIPTION
 			constexpr static uint8_t HOPPING_ENABLED                        = 0b00000001;  //  0     0   intra-packet hopping for LR-FHSS: enabled
 			constexpr static uint8_t HOPPING_DISABLED                       = 0b00000000;  //  0     0                                     (disabled)

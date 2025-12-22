@@ -169,13 +169,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="pizda1111">
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main/hardware/transceiver/SX1262.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/project.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dictionaries/project.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/aircraft.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/aircraft.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/constants.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/constants.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/BMP280.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/BMP280.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/SX1262.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/SX1262.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -1153,15 +1149,7 @@
       <workItem from="1766228198954" duration="18907000" />
       <workItem from="1766254181778" duration="16454000" />
       <workItem from="1766305392582" duration="24208000" />
-      <workItem from="1766413127173" duration="10902000" />
-    </task>
-    <task id="LOCAL-00006" summary="pizda">
-      <option name="closed" value="true" />
-      <created>1765289941190</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1765289941190</updated>
+      <workItem from="1766413127173" duration="22563000" />
     </task>
     <task id="LOCAL-00007" summary="pizda">
       <option name="closed" value="true" />
@@ -1547,7 +1535,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766357732701</updated>
     </task>
-    <option name="localTasksCounter" value="55" />
+    <task id="LOCAL-00055" summary="pizda1111">
+      <option name="closed" value="true" />
+      <created>1766424607502</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1766424607503</updated>
+    </task>
+    <option name="localTasksCounter" value="56" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
