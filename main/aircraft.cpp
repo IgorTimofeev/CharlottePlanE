@@ -38,7 +38,7 @@ namespace pizda {
 			constants::transceiver::dio1,
 			constants::transceiver::rst,
 			
-			915'000'000,
+			915,
 			500,
 			6,
 			5,
@@ -49,6 +49,7 @@ namespace pizda {
 		
 		while (true) {
 //			ESP_LOGI("Main", "Pizda");
+			
 
 			vTaskDelay(pdMS_TO_TICKS(1000));
 		}

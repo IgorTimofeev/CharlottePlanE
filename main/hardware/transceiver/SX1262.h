@@ -22,8 +22,8 @@ namespace pizda {
 				gpio_num_t dio1Pin,
 				gpio_num_t rstPin,
 				
-				uint32_t frequencyHz,
-				float bandwidth,
+				uint16_t frequencyMHz,
+				float bandwidthKHz,
 				uint8_t spreadingFactor,
 				uint8_t codingRate,
 				uint8_t syncWord,
@@ -156,10 +156,10 @@ namespace pizda {
 				if (!setSpreadingFactor(spreadingFactor))
 					return false;
 				
-				if (!setBandwidth(bandwidth))
+				if (!setBandwidth(bandwidthKHz))
 					return false;
 				
-				if (!setFrequency(frequencyHz))
+				if (!setFrequency(frequencyMHz))
 					return false;
 				
 				if (!fixPaClamping(true))
@@ -226,7 +226,7 @@ namespace pizda {
 			  \param freqMax Frequency band upper bound.
 			  \returns \ref status_codes
 			*/
-			bool calibrateImageRejection(uint32_t freqMin, uint32_t freqMax) {
+			bool calibrateImageRejection(uint16_t freqMin, uint16_t freqMax) {
 				// calculate the calibration coefficients and calibrate image
 				uint8_t data[3] = {
 					CMD_CALIBRATE_IMAGE,
@@ -245,10 +245,10 @@ namespace pizda {
 			  \brief Perform image rejection calibration for the specified frequency.
 			  Will try to use Semtech-defined presets first, and if none of them matches,
 			  custom iamge calibration will be attempted using calibrateImageRejection.
-			  \param freq Frequency to perform the calibration for.
+			  \param frequencyMHz Frequency to perform the calibration for.
 			  \returns \ref status_codes
 			*/
-			bool calibrateImage(uint32_t freq) {
+			bool calibrateImage(uint16_t frequencyMHz) {
 				uint8_t data[3] = {
 					CMD_CALIBRATE_IMAGE,
 					0,
@@ -256,25 +256,23 @@ namespace pizda {
 				};
 				
 				// try to match the frequency ranges
-				int freqBand = freq;
-				
-				if ((freqBand >= 902) && (freqBand <= 928)) {
+				if ((frequencyMHz >= 902) && (frequencyMHz <= 928)) {
 					data[1] = CAL_IMG_902_MHZ_1;
 					data[2] = CAL_IMG_902_MHZ_2;
 				}
-				else if ((freqBand >= 863) && (freqBand <= 870)) {
+				else if ((frequencyMHz >= 863) && (frequencyMHz <= 870)) {
 					data[1] = CAL_IMG_863_MHZ_1;
 					data[2] = CAL_IMG_863_MHZ_2;
 				}
-				else if ((freqBand >= 779) && (freqBand <= 787)) {
+				else if ((frequencyMHz >= 779) && (frequencyMHz <= 787)) {
 					data[1] = CAL_IMG_779_MHZ_1;
 					data[2] = CAL_IMG_779_MHZ_2;
 				}
-				else if ((freqBand >= 470) && (freqBand <= 510)) {
+				else if ((frequencyMHz >= 470) && (frequencyMHz <= 510)) {
 					data[1] = CAL_IMG_470_MHZ_1;
 					data[2] = CAL_IMG_470_MHZ_2;
 				}
-				else if ((freqBand >= 430) && (freqBand <= 440)) {
+				else if ((frequencyMHz >= 430) && (frequencyMHz <= 440)) {
 					data[1] = CAL_IMG_430_MHZ_1;
 					data[2] = CAL_IMG_430_MHZ_2;
 				}
@@ -286,18 +284,18 @@ namespace pizda {
 				
 				// if nothing matched, try custom calibration - they may or may not work
 				ESP_LOGW(_logTag, "failed to match predefined frequency range, trying custom");
-				return calibrateImageRejection(freq - 4.0f, freq + 4.0f);
+				return calibrateImageRejection(frequencyMHz - 4, frequencyMHz + 4);
 			}
 			
-			bool setFrequency(uint32_t frequencyHz, bool skipCalibration = false) {
-				if (frequencyHz < 120 || frequencyHz > 960) {
-					ESP_LOGW(_logTag, "failed to set frequency: value %d is out of range [120; 960]");
+			bool setFrequency(uint16_t frequencyMHz, bool skipCalibration = false) {
+				if (frequencyMHz < 120 || frequencyMHz > 960) {
+					ESP_LOGE(_logTag, "failed to set frequency: value %d is out of range [120; 960]");
 					return false;
 				}
 				
 				// check if we need to recalibrate image
-				if (!skipCalibration && (std::fabs(static_cast<int32_t>(frequencyHz) - static_cast<int32_t>(_frequencyHz)) >= CAL_IMG_FREQ_TRIG_MHZ)) {
-					if (!calibrateImage(frequencyHz)) {
+				if (!skipCalibration && (std::fabs(static_cast<int32_t>(frequencyMHz) - static_cast<int32_t>(_frequencyMHz)) >= CAL_IMG_FREQ_TRIG_MHZ)) {
+					if (!calibrateImage(frequencyMHz)) {
 						return false;
 					}
 				}
@@ -316,7 +314,7 @@ namespace pizda {
 				// regValue = frequencyHz * divider / crystalFreqHz
 				// regValue = frequencyHz * 2^25 / 32'000'000 Hz
 				
-				const auto regValue = static_cast<uint32_t>(static_cast<uint64_t>(frequencyHz) * static_cast<uint64_t>(RF_DIVIDER) / static_cast<uint64_t>(RF_CRYSTAL_FREQUENCY_HZ));
+				const auto regValue = static_cast<uint32_t>(static_cast<uint64_t>(frequencyMHz) * static_cast<uint64_t>(RF_DIVIDER) / static_cast<uint64_t>(RF_CRYSTAL_FREQUENCY_MHZ));
 				
 				const uint8_t data[] = {
 					CMD_SET_RF_FREQUENCY,
@@ -327,11 +325,11 @@ namespace pizda {
 				};
 			
 				if (!write(data, 5)) {
-					ESP_LOGE(_logTag, "failed to set frequency to %d", frequencyHz);
+					ESP_LOGE(_logTag, "failed to set frequency to %d", frequencyMHz);
 					return false;
 				}
 				
-				_frequencyHz = frequencyHz;
+				_frequencyMHz = frequencyMHz;
 				
 				return true;
 			}
@@ -495,7 +493,7 @@ namespace pizda {
 					return false;
 				
 				if (codingRate < 4 || codingRate > 8) {
-					ESP_LOGW(_logTag, "failed to set coding rate: value %d is out of range [4; 8]", codingRate);
+					ESP_LOGE(_logTag, "failed to set coding rate: value %d is out of range [4; 8]", codingRate);
 					return false;
 				}
 				
@@ -512,7 +510,7 @@ namespace pizda {
 							_codingRate = codingRate - 1;
 							break;
 						default:
-							ESP_LOGW(_logTag, "failed to set coding rate: value %d is invalid", codingRate);
+							ESP_LOGE(_logTag, "failed to set coding rate: value %d is invalid", codingRate);
 							
 							return false;
 					}
@@ -532,7 +530,7 @@ namespace pizda {
 				
 				// Ensure byte conversion doesn't overflow
 				if (bandwidth < 0 || bandwidth > 510) {
-					ESP_LOGW(_logTag, "failed to set bandwidth: value %f is out of range [0; 510]", bandwidth);
+					ESP_LOGE(_logTag, "failed to set bandwidth: value %f is out of range [0; 510]", bandwidth);
 					return false;
 				}
 				
@@ -571,7 +569,7 @@ namespace pizda {
 						_bandwidth = LORA_BW_500_0;
 						break;
 					default: {
-						ESP_LOGW(_logTag, "failed to set bandwidth: value %f is invalid ", bandwidth);
+						ESP_LOGE(_logTag, "failed to set bandwidth: value %f is invalid ", bandwidth);
 						return false;
 					}
 				}
@@ -595,7 +593,7 @@ namespace pizda {
 				if (!checkForLoRaPacketType())
 					return false;
 				
-				uint8_t data[] {
+				uint8_t data[5] {
 					0,
 					0,
 					0,
@@ -604,7 +602,7 @@ namespace pizda {
 				};
 				
 				if (!writeReg(REG_LORA_SYNC_WORD_MSB, data, 5)) {
-					ESP_LOGW(_logTag, "failed to set sync word");
+					ESP_LOGE(_logTag, "failed to set sync word");
 					return false;
 				}
 				
@@ -637,14 +635,14 @@ namespace pizda {
 			bool setCurrentLimit(float currentLimit) {
 				// check allowed range
 				if (currentLimit < 0 || currentLimit > 140) {
-					ESP_LOGW(_logTag, "failed to set current limit: value %f is out of range [0; 140]", currentLimit);
+					ESP_LOGE(_logTag, "failed to set current limit: value %f is out of range [0; 140]", currentLimit);
 					return false;
 				}
 				
 				// calculate raw value
 				uint8_t rawLimit = static_cast<uint8_t>(currentLimit / 2.5f);
 				
-				uint8_t data[] {
+				uint8_t data[4] {
 					0,
 					0,
 					0,
@@ -715,7 +713,7 @@ namespace pizda {
 					return false;
 				
 				if (sf < 5 || sf > 12) {
-					ESP_LOGW(_logTag, "failed to set spreading factor: value %d is out of range [5; 12]", sf);
+					ESP_LOGE(_logTag, "failed to set spreading factor: value %d is out of range [5; 12]", sf);
 					return false;
 				}
 				
@@ -734,7 +732,7 @@ namespace pizda {
 			gpio_num_t _dio1Pin = GPIO_NUM_NC;
 			gpio_num_t _rstPin = GPIO_NUM_NC;
 			
-			uint32_t _frequencyHz = 0;
+			uint16_t _frequencyMHz = 0;
 			uint8_t _spreadingFactor = 0;
 			uint8_t _codingRate = 0;
 			uint8_t _bandwidth = 0;
@@ -835,14 +833,6 @@ namespace pizda {
 				return write(&transaction);
 			}
 			
-			bool writeCommand(uint8_t command) {
-				spi_transaction_t transaction {};
-				transaction.tx_data[0] = command;
-				transaction.length = 8 * 1;
-				transaction.flags = SPI_TRANS_USE_TXDATA;
-				
-				return write(&transaction);
-			}
 			
 			bool writeCommandAndUint8(uint8_t command, uint8_t data) {
 				spi_transaction_t transaction {};
@@ -909,7 +899,7 @@ namespace pizda {
 					return false;
 				
 				if (packetType != PACKET_TYPE_LORA) {
-					ESP_LOGW(_logTag, "failed to set coding rate: packet type %d is not LoRa", packetType);
+					ESP_LOGE(_logTag, "failed to set coding rate: packet type %d is not LoRa", packetType);
 					return false;
 				}
 				
@@ -966,7 +956,7 @@ namespace pizda {
 				}
 				
 				// update with the new value
-				uint8_t buffer[] {
+				uint8_t buffer[4] {
 					0,
 					0,
 					0,
@@ -1011,7 +1001,7 @@ namespace pizda {
 					clampConfig = (clampConfig & ~0x1E) | 0x08;
 				}
 				
-				uint8_t data[] {
+				uint8_t data[4] {
 					0,
 					0,
 					0,
@@ -1061,7 +1051,7 @@ namespace pizda {
 			
 			bool setOutputPower(int8_t power) {
 				if (power < -9 || power > 22) {
-					ESP_LOGW(_logTag, "set output power failed: value %d is out of range [-9; 22]", power);
+					ESP_LOGE(_logTag, "set output power failed: value %d is out of range [-9; 22]", power);
 					return false;
 				}
 				
@@ -1069,7 +1059,7 @@ namespace pizda {
 				uint8_t ocp = 0;
 				
 				if (!readReg(REG_OCP_CONFIGURATION, &ocp, 1)) {
-					ESP_LOGW(_logTag, "set output power failed: unable to read OCP configuration");
+					ESP_LOGE(_logTag, "set output power failed: unable to read OCP configuration");
 					return false;
 				}
 				
@@ -1082,7 +1072,7 @@ namespace pizda {
 					return false;
 					
 				// restore OCP configuration
-				uint8_t data[] = {
+				uint8_t data[4] = {
 					0,
 					0,
 					0,
@@ -1096,7 +1086,7 @@ namespace pizda {
 		
 			// -------------------------------- Module properties --------------------------------
 			
-			constexpr static uint32_t RF_CRYSTAL_FREQUENCY_HZ = 32'000'000.f;
+			constexpr static uint32_t RF_CRYSTAL_FREQUENCY_MHZ = 32;
 			constexpr static uint32_t RF_DIVIDER = 1ULL << 25;
 
 			// -------------------------------- Commands --------------------------------
