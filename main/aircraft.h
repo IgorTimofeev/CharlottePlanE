@@ -16,7 +16,8 @@
 #include "SX1262.h"
 
 namespace pizda {
-	
+	using namespace YOBA;
+
 	class Aircraft {
 		public:
 			Settings settings {};
