@@ -170,26 +170,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="pizda1111">
-      <change afterPath="$PROJECT_DIR$/components/ESP-IDF-BitStream" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/components/ESP-IDF-NVSExtensions" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitmodules" beforeDir="false" afterPath="$PROJECT_DIR$/.gitmodules" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-BitStream/src/YOBABitStream/main.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-NVSExtensions/src/YOBANVS/main.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-NVSExtensions/src/YOBANVS/settings.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-NVSExtensions/src/YOBANVS/stream.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/YOBABitStream" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/YOBANVS" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dependencies.lock" beforeDir="false" afterPath="$PROJECT_DIR$/dependencies.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/main/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/aircraft.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketParser.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketParser.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packet.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packet.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packetParser.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packetParser.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/transceiver.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/transceiver.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/settings/settings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/settings/settings.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -202,7 +185,7 @@
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/components/ESP-IDF-SX1262" />
     <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -1181,15 +1164,7 @@
       <workItem from="1766513931178" duration="2018000" />
       <workItem from="1766516011045" duration="763000" />
       <workItem from="1766517066787" duration="334000" />
-      <workItem from="1766517483102" duration="332000" />
-    </task>
-    <task id="LOCAL-00018" summary="pizda1111">
-      <option name="closed" value="true" />
-      <created>1765558452684</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
-      <option name="project" value="LOCAL" />
-      <updated>1765558452684</updated>
+      <workItem from="1766517483102" duration="4312000" />
     </task>
     <task id="LOCAL-00019" summary="pizda1111">
       <option name="closed" value="true" />
@@ -1575,7 +1550,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766516706404</updated>
     </task>
-    <option name="localTasksCounter" value="67" />
+    <task id="LOCAL-00067" summary="pizda1111">
+      <option name="closed" value="true" />
+      <created>1766517875916</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1766517875916</updated>
+    </task>
+    <option name="localTasksCounter" value="68" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
