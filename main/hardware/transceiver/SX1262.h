@@ -790,22 +790,24 @@ namespace pizda {
 				spi_transaction_t t {};
 				t.tx_data[0] = command;
 				t.tx_data[1] = CMD_NOP;
-				
-				t.rx_data[0] = 0x00; // Ignored (status will be here)
-				t.rx_data[1] = 0x00; // Result
-				
-				t.length = 8 * 2;
+				t.tx_data[2] = 0x00;
+
+				t.rx_data[0] = 0x00; // Ignored (status from command)
+				t.rx_data[1] = 0x00; // Ignored (status from CMD_NOP)
+				t.rx_data[2] = 0x00; // Result
+
+				t.length = 8 * 3;
 				t.flags = SPI_TRANS_USE_TXDATA | SPI_TRANS_USE_RXDATA;
-				
+
 				setSSPinLevel(false);
 				const auto state = errorCheck(spi_device_transmit(_SPIDevice, &t));
 				setSSPinLevel(true);
-				
+
 				if (state)
-					data = t.rx_data[1];
+					data = t.rx_data[2];
 				
-				for (int i = 0; i < 4; ++i) {
-					ESP_LOGI("PIZDA", "rxData[%d]: %d", i, t.rx_data[i]);
+				for (int i = 0; i < 3; ++i) {
+					ESP_LOGI("PIZDA", "readCommandUint8 buffer[%d]: %d", i, t.rx_data[i]);
 				}
 				
 				return state;
@@ -833,6 +835,10 @@ namespace pizda {
 				setSSPinLevel(false);
 				const auto state = errorCheck(spi_device_transmit(_SPIDevice, &t));
 				setSSPinLevel(true);
+				
+				for (int i = 0; i < length; ++i) {
+					ESP_LOGI("PIZDA", "readReg buffer[%d]: %d", i, buffer[i]);
+				}
 				
 				return state;
 			}
