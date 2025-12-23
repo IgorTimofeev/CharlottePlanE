@@ -1,8 +1,8 @@
 #pragma once
 
 #include <cmath>
+
 #include "settings/settings.h"
-#include "YOBABitStream/main.h"
 
 namespace pizda {
 	enum class PacketType : uint8_t {

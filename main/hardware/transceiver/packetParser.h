@@ -3,7 +3,7 @@
 #include <cmath>
 #include <functional>
 
-#include <YOBABitStream/main.h>
+#include <bitStream.h>
 
 #include "packet.h"
 

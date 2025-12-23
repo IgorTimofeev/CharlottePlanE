@@ -7,7 +7,7 @@
 #include "constants.h"
 #include "esp_console.h"
 
-#include <YOBABitStream/main.h>
+#include <bitStream.h>
 
 namespace pizda {
 	Aircraft& Aircraft::getInstance() {

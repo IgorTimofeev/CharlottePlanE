@@ -2,8 +2,8 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/components/ESP-IDF-BitStream" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/components/ESP-IDF-NVSExtensions" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/components/ESP-IDF-SX1262" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/components/YOBABitStream" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/components/YOBANVS" vcs="Git" />
   </component>
 </project>

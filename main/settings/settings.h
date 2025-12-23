@@ -2,7 +2,8 @@
 
 #include <vector>
 
-#include <YOBANVS/main.h>
+#include <NVSSettings.h>
+#include <NVSStream.h>
 
 #include "hardware/motor.h"
 #include "hardware/transceiver/channels.h"

@@ -1,9 +1,9 @@
-[submodule "components/YOBANVS"]
-	path = components/YOBANVS
-	url = https://github.com/IgorTimofeev/YOBANVS.git
-[submodule "components/YOBABitStream"]
-	path = components/YOBABitStream
-	url = https://github.com/IgorTimofeev/YOBABitStream.git
 [submodule "components/ESP-IDF-SX1262"]
 	path = components/ESP-IDF-SX1262
 	url = https://github.com/IgorTimofeev/ESP-IDF-SX1262.git
+[submodule "components/ESP-IDF-BitStream"]
+	path = components/ESP-IDF-BitStream
+	url = https://github.com/IgorTimofeev/ESP-IDF-BitStream.git
+[submodule "components/ESP-IDF-NVSExtensions"]
+	path = components/ESP-IDF-NVSExtensions
+	url = https://github.com/IgorTimofeev/ESP-IDF-NVSExtensions.git

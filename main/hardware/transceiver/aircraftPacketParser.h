@@ -1,11 +1,11 @@
 #pragma once
 
+#include "packetParser.h"
+
 #include <cmath>
 #include <functional>
 
-#include "packetParser.h"
-
-#include <YOBABitStream/main.h>
+#include <bitStream.h>
 
 namespace pizda {
 	class AircraftPacketParser : public PacketParser {
