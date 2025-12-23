@@ -4,3 +4,6 @@
 [submodule "components/YOBABitStream"]
 	path = components/YOBABitStream
 	url = https://github.com/IgorTimofeev/YOBABitStream.git
+[submodule "components/ESP-IDF-SX1262"]
+	path = components/ESP-IDF-SX1262
+	url = https://github.com/IgorTimofeev/ESP-IDF-SX1262.git
