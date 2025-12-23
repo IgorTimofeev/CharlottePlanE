@@ -13,7 +13,7 @@ namespace pizda {
 		public:
 			class common {
 				public:
-					constexpr static gpio_num_t reset = GPIO_NUM_NC;
+					constexpr static gpio_num_t reset = GPIO_NUM_4;
 			};
 
 			class spi {
@@ -89,10 +89,9 @@ namespace pizda {
 
 			class transceiver {
 				public:
-					constexpr static gpio_num_t ss = GPIO_NUM_NC;
-					constexpr static gpio_num_t busy = GPIO_NUM_NC;
-					constexpr static gpio_num_t dio1 = GPIO_NUM_NC;
-					constexpr static gpio_num_t rst = GPIO_NUM_NC;
+					constexpr static gpio_num_t ss = GPIO_NUM_5;
+					constexpr static gpio_num_t busy = GPIO_NUM_6;
+					constexpr static gpio_num_t dio1 = GPIO_NUM_7;
 			};
 
 			class gnss {

@@ -22,13 +22,13 @@ namespace pizda {
 		SPIBusSetup();
 
 //		motors.setup();
-//
+
 //		lights.setup();
 //		lights.start();
-//
+
 //		transceiverSetup();
 //		channels.setup();
-//
+
 //		ahrs.setup();
 		
 		sx1262.setup(
@@ -36,8 +36,8 @@ namespace pizda {
 			constants::transceiver::ss,
 			constants::transceiver::busy,
 			constants::transceiver::dio1,
-			constants::transceiver::rst,
-			
+			constants::common::reset,
+
 			915,
 			500,
 			6,
@@ -49,9 +49,8 @@ namespace pizda {
 		
 		while (true) {
 //			ESP_LOGI("Main", "Pizda");
-			
 
-			vTaskDelay(pdMS_TO_TICKS(1000));
+			vTaskDelay(pdMS_TO_TICKS(10));
 		}
 	}
 

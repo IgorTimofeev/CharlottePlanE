@@ -55,7 +55,12 @@ namespace pizda {
 				// -------------------------------- GPIO --------------------------------
 				
 				gpio_config_t GPIOConfig {};
-				GPIOConfig.pin_bit_mask = (1ULL << _ssPin) | (1ULL << _rstPin);
+				GPIOConfig.pin_bit_mask = (1ULL << _ssPin);
+				
+				// RST may be set to NotConnected
+				if (_rstPin != GPIO_NUM_NC)
+					GPIOConfig.pin_bit_mask |= 1ULL << _rstPin;
+				
 				GPIOConfig.mode = GPIO_MODE_OUTPUT;
 				GPIOConfig.pull_up_en = GPIO_PULLUP_DISABLE;
 				GPIOConfig.pull_down_en = GPIO_PULLDOWN_DISABLE;
@@ -63,13 +68,13 @@ namespace pizda {
 				gpio_config(&GPIOConfig);
 
 				// Setting SS to high just in case
-				setSSPin(true);
+				setSSPinLevel(true);
 				
 				// -------------------------------- SPI --------------------------------
 				
 				spi_device_interface_config_t SPIInterfaceConfig {};
 				SPIInterfaceConfig.mode = 0;                         // CPOL = 0, CPHA = 0
-				SPIInterfaceConfig.clock_speed_hz = 10'000'000;      // Max allowed freq = 16 MHz
+				SPIInterfaceConfig.clock_speed_hz = 1'000'000;      // Max allowed freq = 16 MHz
 				SPIInterfaceConfig.spics_io_num = -1;
 				SPIInterfaceConfig.queue_size = 1;
 				
@@ -124,8 +129,7 @@ namespace pizda {
 				// Wait for calibration completion
 				delayMs(5);
 				
-				while (getBusyPin())
-					delayMs(5);
+				waitForBusy();
 
 				if (!setRegulatorMode(useLDORegulator ? REGULATOR_LDO : REGULATOR_DC_DC))
 					return false;
@@ -172,10 +176,14 @@ namespace pizda {
 			}
 			
 			bool reset() {
+				if (_rstPin == GPIO_NUM_NC)
+					return true;
+				
 				// Toggling RST GPIO
-				setRstPin(false);
-				delayMs(1);
-				setRstPin(true);
+				setRstPinLevel(false);
+				delayMs(10);
+				setRstPinLevel(true);
+				delayMs(10);
 				
 				// Trying to set mode to standby - SX126x often refuses first few commands after reset
 				auto start = esp_timer_get_time();
@@ -197,22 +205,24 @@ namespace pizda {
 				return false;
 			}
 			
+			
 			bool validateChip() {
 				for (uint8_t i = 0; i < 10; ++i) {
-					char version[16] = { 0 };
+					constexpr static uint8_t bufferLength = 4 + 16;
+					uint8_t buffer[bufferLength] = { 0 };
+					readReg(REG_VERSION_STRING, buffer, bufferLength);
 					
-					readReg(REG_VERSION_STRING, reinterpret_cast<uint8_t*>(version), 16);
+					auto data = buffer + 4;
 					
-					if (strncmp(VERSION_STRING, version, 6) == 0) {
-						ESP_LOGI(_logTag, "REG_VERSION_STRING value: %s", version);
+					if (strncmp(VERSION_STRING, reinterpret_cast<char*>(data), 6) == 0) {
+						ESP_LOGI(_logTag, "REG_VERSION_STRING value: %s", data);
 						
 						return true;
 					}
 					else {
-						ESP_LOGE(_logTag, "REG_VERSION_STRING mismatch: attempt %d, value: %s", i, version);
+						ESP_LOGE(_logTag, "REG_VERSION_STRING mismatch: attempt %d, value: %s", i, data);
 						
-						delayMs(1);
-						i++;
+						delayMs(10);
 					}
 				}
 				
@@ -405,8 +415,18 @@ namespace pizda {
 				return true;
 			}
 			
+			bool getStatus(uint8_t& status) {
+				if (!readCommandUint8(CMD_GET_STATUS, status)) {
+					ESP_LOGE(_logTag, "failed to get status");
+					
+					return false;
+				}
+				
+				return true;
+			}
+			
 			bool getPacketType(uint8_t& packetType) {
-				if (!readCommand(CMD_GET_PACKET_TYPE, &packetType, 1)) {
+				if (!readCommandUint8(CMD_GET_PACKET_TYPE, packetType)) {
 					ESP_LOGE(_logTag, "failed to get packet type");
 					
 					return false;
@@ -416,7 +436,7 @@ namespace pizda {
 			}
 			
 			bool setPacketType(uint8_t packetType) {
-				if (writeCommandAndUint8(CMD_SET_PACKET_TYPE, packetType)) {
+				if (!writeCommandAndUint8(CMD_SET_PACKET_TYPE, packetType)) {
 					ESP_LOGE(_logTag, "failed to set packet type");
 					return false;
 				}
@@ -749,78 +769,100 @@ namespace pizda {
 			bool _ldrOptimize = false;
 			bool _ldrOptimizeAuto = true;
 			
-			inline void setSSPin(bool value) {
+			void setSSPinLevel(bool value) {
 				gpio_set_level(_ssPin, value);
 			}
 			
-			inline void setRstPin(bool value) {
+			void setRstPinLevel(bool value) {
 				gpio_set_level(_rstPin, value);
 			}
 			
-			inline bool getBusyPin() {
+			bool getBusyPinLevel() {
 				return gpio_get_level(_busyPin);
 			}
 			
 			// -------------------------------- Reading --------------------------------
 			
-			bool readCommand(uint8_t command, uint8_t* buffer, size_t length) {
-				// Writing
-				spi_transaction_t transaction {};
-				transaction.tx_data[0] = command;
-				transaction.length = 8 * 1;
-				transaction.flags = SPI_TRANS_USE_TXDATA;
-				
-				setSSPin(false);
-				
-				if (!errorCheck(spi_device_transmit(_SPIDevice, &transaction))) {
-					setSSPin(true);
+			bool readCommandUint8(uint8_t command, uint8_t& data) {
+				if (!waitForBusy())
 					return false;
+				
+				spi_transaction_t t {};
+				t.tx_data[0] = command;
+				t.tx_data[1] = CMD_NOP;
+				
+				t.rx_data[0] = 0x00; // Ignored (status will be here)
+				t.rx_data[1] = 0x00; // Result
+				
+				t.length = 8 * 2;
+				t.flags = SPI_TRANS_USE_TXDATA | SPI_TRANS_USE_RXDATA;
+				
+				setSSPinLevel(false);
+				const auto state = errorCheck(spi_device_transmit(_SPIDevice, &t));
+				setSSPinLevel(true);
+				
+				if (state)
+					data = t.rx_data[1];
+				
+				for (int i = 0; i < 4; ++i) {
+					ESP_LOGI("PIZDA", "rxData[%d]: %d", i, t.rx_data[i]);
 				}
-				
-				// Reading
-				transaction = {};
-				transaction.tx_buffer = buffer;
-				transaction.length = 8 * length;
-				
-				const auto state = errorCheck(spi_device_transmit(_SPIDevice, &transaction));
-				setSSPin(true);
 				
 				return state;
 			}
 			
-			bool readReg(const uint16_t reg, uint8_t* buffer, size_t length) {
-				// Writing
-				spi_transaction_t transaction {};
-				transaction.tx_data[0] = CMD_READ_REGISTER;
-				transaction.tx_data[1] = (reg >> 8) & 0xFF; // Reg MSB
-				transaction.tx_data[2] = reg & 0xFF;        // Reg LSB
-				transaction.length = 8 * 3;
-				transaction.flags = SPI_TRANS_USE_TXDATA;
-				
-				setSSPin(false);
-				
-				if (!errorCheck(spi_device_transmit(_SPIDevice, &transaction))) {
-					setSSPin(true);
+			// Buffer length should be > 4
+			// First 3 values will be overwritten with command and register address
+			// So read value can be obtained with buffer + 4
+			bool readReg(const uint16_t reg, uint8_t* buffer, const size_t length) {
+				if (!waitForBusy())
 					return false;
-				}
 				
-				// Reading
-				transaction = {};
-				transaction.tx_buffer = buffer;
-				transaction.length = 8 * length;
+				buffer[0] = CMD_READ_REGISTER;
+				buffer[1] = (reg >> 8) & 0xFF; // Reg MSB
+				buffer[2] = reg & 0xFF;        // Reg LSB
+				buffer[3] = CMD_NOP;           // NOP
 				
-				const auto state = errorCheck(spi_device_transmit(_SPIDevice, &transaction));
-				setSSPin(true);
+				spi_transaction_t t {};
+		
+				t.tx_buffer = buffer;
+				t.rx_buffer = buffer;
+				
+				t.length = 8 * length;
+				
+				setSSPinLevel(false);
+				const auto state = errorCheck(spi_device_transmit(_SPIDevice, &t));
+				setSSPinLevel(true);
 				
 				return state;
+			}
+			
+			bool readRegUint8(const uint16_t reg, uint8_t& data) {
+				uint8_t buffer[5] {
+					0x00,
+					0x00,
+					0x00,
+					0x00,
+					0x00
+				};
+				
+				if (!readReg(reg, buffer, 5))
+					return false;
+				
+				data = buffer[4];
+				
+				return true;
 			}
 			
 			// -------------------------------- Writing --------------------------------
 			
 			bool write(spi_transaction_t* transaction) {
-				setSSPin(false);
+				if (!waitForBusy())
+					return false;
+				
+				setSSPinLevel(false);
 				const auto state = errorCheck(spi_device_transmit(_SPIDevice, transaction));
-				setSSPin(true);
+				setSSPinLevel(true);
 				
 				return state;
 			}
@@ -832,7 +874,6 @@ namespace pizda {
 			
 				return write(&transaction);
 			}
-			
 			
 			bool writeCommandAndUint8(uint8_t command, uint8_t data) {
 				spi_transaction_t transaction {};
@@ -872,6 +913,21 @@ namespace pizda {
 			
 			void delayMs(uint32_t ms) {
 				vTaskDelay(pdMS_TO_TICKS(std::max<uint32_t>(ms, portTICK_PERIOD_MS)));
+			}
+			
+			bool waitForBusy() {
+				auto deadline = esp_timer_get_time() + 1'000;
+				
+				while (getBusyPinLevel()) {
+					taskYIELD();
+					
+					if (esp_timer_get_time() >= deadline) {
+						ESP_LOGE(_logTag, "busy pin was kept in high state too long");
+						return false;
+					}
+				}
+				
+				return true;
 			}
 			
 			inline static uint32_t getTimeoutValue(uint32_t timeoutUs) {
@@ -944,7 +1000,7 @@ namespace pizda {
 				// read current IQ configuration
 				uint8_t iqConfigCurrent = 0;
 				
-				if (!readReg(REG_IQ_CONFIG, &iqConfigCurrent, 1))
+				if (!readRegUint8(REG_IQ_CONFIG, iqConfigCurrent))
 					return false;
 								
 				// set correct IQ configuration
@@ -990,7 +1046,7 @@ namespace pizda {
 				// read current clamping configuration
 				uint8_t clampConfig = 0;
 				
-				if (!readReg(REG_TX_CLAMP_CONFIG, &clampConfig, 1))
+				if (!readRegUint8(REG_TX_CLAMP_CONFIG, clampConfig))
 					return false;
 				
 				// apply or undo workaround
@@ -1058,7 +1114,7 @@ namespace pizda {
 				// get current OCP configuration
 				uint8_t ocp = 0;
 				
-				if (!readReg(REG_OCP_CONFIGURATION, &ocp, 1)) {
+				if (!readRegUint8(REG_OCP_CONFIGURATION, ocp)) {
 					ESP_LOGE(_logTag, "set output power failed: unable to read OCP configuration");
 					return false;
 				}
