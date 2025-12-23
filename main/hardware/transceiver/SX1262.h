@@ -74,7 +74,7 @@ namespace pizda {
 				
 				spi_device_interface_config_t SPIInterfaceConfig {};
 				SPIInterfaceConfig.mode = 0;                         // CPOL = 0, CPHA = 0
-				SPIInterfaceConfig.clock_speed_hz = 1'000'000;      // Max allowed freq = 16 MHz
+				SPIInterfaceConfig.clock_speed_hz = 8'000'000;      // Max allowed freq = 16 MHz
 				SPIInterfaceConfig.spics_io_num = -1;
 				SPIInterfaceConfig.queue_size = 1;
 				
@@ -99,15 +99,12 @@ namespace pizda {
 //					setTCXO(tcxoVoltage);
 //				}
 				
-				// Reset buffer base address
 				if (!setBufferBaseAddress(0x00, 0x00))
 					return false;
 				
-				// Packet type
 				if (!setPacketType(PACKET_TYPE_LORA))
 					return false;
 				
-				// Set Rx/Tx fallback mode to STDBY_RC
 				if (!setRxTxFallbackMode(RX_TX_FALLBACK_MODE_STDBY_RC))
 					return false;
 				
@@ -115,14 +112,12 @@ namespace pizda {
 				if (!setCADParams())
 					return false;
 				
-				// Clear IRQ
 				if (!clearIRQStatus())
 					return false;
 				
 				if (!setDioIRQParams())
 					return false;
 		
-				// Calibrate all blocks
 				if (!calibrate(CALIBRATE_ALL))
 					return false;
 				
@@ -215,16 +210,18 @@ namespace pizda {
 					auto data = buffer + 4;
 					
 					if (strncmp(VERSION_STRING, reinterpret_cast<char*>(data), 6) == 0) {
-						ESP_LOGI(_logTag, "REG_VERSION_STRING value: %s", data);
+						ESP_LOGI(_logTag, "chip version: %s", data);
 						
 						return true;
 					}
 					else {
-						ESP_LOGE(_logTag, "REG_VERSION_STRING mismatch: attempt %d, value: %s", i, data);
+						ESP_LOGE(_logTag, "failed to validate chip: version mismatch, attempt is %d, value is %s", i, data);
 						
 						delayMs(10);
 					}
 				}
+				
+				ESP_LOGE(_logTag, "failed to validate chip: maximum attempts exceeded");
 				
 				return false;
 			}
@@ -789,11 +786,11 @@ namespace pizda {
 				
 				spi_transaction_t t {};
 				t.tx_data[0] = command;
-				t.tx_data[1] = CMD_NOP;
+				t.tx_data[1] = 0x00;
 				t.tx_data[2] = 0x00;
 
-				t.rx_data[0] = 0x00; // Ignored (status from command)
-				t.rx_data[1] = 0x00; // Ignored (status from CMD_NOP)
+				t.rx_data[0] = 0x00; // Status 1 (can be ignored)
+				t.rx_data[1] = 0x00; // Status 2 (can be ignored)
 				t.rx_data[2] = 0x00; // Result
 
 				t.length = 8 * 3;
@@ -813,9 +810,11 @@ namespace pizda {
 				return state;
 			}
 			
-			// Buffer length should be > 4
-			// First 3 values will be overwritten with command and register address
-			// So read value can be obtained with buffer + 4
+			// Buffer length should be "4 + readDataLength". To access data after reading, use "buffer + 4"
+			//
+			// Explanation:
+			// During writing, first 3 bytes of buffer will be overwritten with uint8 command and uint16 register address
+			// During reading, first 4 bytes will contain module status, and the rest will contain requested data
 			bool readReg(const uint16_t reg, uint8_t* buffer, const size_t length) {
 				if (!waitForBusy())
 					return false;
@@ -823,7 +822,6 @@ namespace pizda {
 				buffer[0] = CMD_READ_REGISTER;
 				buffer[1] = (reg >> 8) & 0xFF; // Reg MSB
 				buffer[2] = reg & 0xFF;        // Reg LSB
-				buffer[3] = CMD_NOP;           // NOP
 				
 				spi_transaction_t t {};
 		
