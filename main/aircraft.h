@@ -13,9 +13,11 @@
 #include "hardware/transceiver/aircraftPacketParser.h"
 #include "hardware/transceiver/channels.h"
 #include "hardware/ADIRS/ADIRS.h"
-#include "hardware/transceiver/SX1262.h"
+#include "SX1262.h"
 
 namespace pizda {
+	using namespace YOBA;
+	
 	class Aircraft {
 		public:
 			Settings settings {};
