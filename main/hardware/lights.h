@@ -2,7 +2,7 @@
 
 #include <esp_timer.h>
 
-#include "constants.h"
+#include "config.h"
 #include "hardware/light.h"
 #include "hardware/transceiver/channels.h"
 #include "settings/settings.h"
@@ -34,8 +34,8 @@ namespace pizda {
 //			};
 
 			Light leftWing {
-				constants::lights::leftWing::pin,
-				constants::lights::leftWing::length
+				config::lights::leftWing::pin,
+				config::lights::leftWing::length
 			};
 
 			bool navigationEnabled = false;

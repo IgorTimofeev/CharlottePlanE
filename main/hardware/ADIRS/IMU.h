@@ -7,7 +7,7 @@
 #include <driver/gpio.h>
 #include <esp_log.h>
 
-#include "constants.h"
+#include "config.h"
 #include "hardware/ADIRS/MPU9250.h"
 #include "utils/math.h"
 

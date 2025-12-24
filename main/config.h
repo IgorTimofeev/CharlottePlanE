@@ -9,7 +9,7 @@
 #include <driver/i2c_master.h>
 
 namespace pizda {
-	class constants {
+	class config {
 		public:
 			class common {
 				public:

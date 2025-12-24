@@ -7,7 +7,7 @@
 #include <driver/gpio.h>
 #include <esp_log.h>
 
-#include "constants.h"
+#include "config.h"
 #include "hardware/ADIRS/IMU.h"
 #include "hardware/ADIRS/BMP280.h"
 
@@ -71,13 +71,13 @@ namespace pizda {
 
 			std::array<ADIRSUnit<IMU>, 1> _IMUs {
 				ADIRSUnit<IMU> {
-					constants::adiru1::mpu9250Address
+					config::adiru1::mpu9250Address
 				}
 			};
 
 			std::array<ADIRSUnit<BMP280>, 1> _BMPs {
 				ADIRSUnit<BMP280> {
-					constants::adiru1::bmp280Address
+					config::adiru1::bmp280Address
 				}
 			};
 
@@ -121,8 +121,8 @@ namespace pizda {
 				i2c_master_bus_config_t i2c_mst_config {};
 				i2c_mst_config.clk_source = I2C_CLK_SRC_DEFAULT;
 				i2c_mst_config.i2c_port = I2C_NUM_0;
-				i2c_mst_config.scl_io_num = constants::i2c::scl;
-				i2c_mst_config.sda_io_num = constants::i2c::sda;
+				i2c_mst_config.scl_io_num = config::i2c::scl;
+				i2c_mst_config.sda_io_num = config::i2c::sda;
 				i2c_mst_config.glitch_ignore_cnt = 7;
 				i2c_mst_config.flags.enable_internal_pullup = true;
 

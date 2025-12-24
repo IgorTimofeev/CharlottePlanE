@@ -3,7 +3,7 @@
 #include <array>
 #include <optional>
 
-#include "constants.h"
+#include "config.h"
 #include "hardware/motor.h"
 #include <utility>
 
@@ -32,15 +32,15 @@ namespace pizda {
 			constexpr static const char* _logTag = "Motors";
 
 			std::array<std::optional<ConfiguredMotor>, 7> instances {
-				ConfiguredMotor {constants::motors::throttle, LEDC_CHANNEL_0 },
+				ConfiguredMotor { config::motors::throttle, LEDC_CHANNEL_0 },
 
-				ConfiguredMotor {constants::motors::leftWingAileron, LEDC_CHANNEL_2 },
+				ConfiguredMotor { config::motors::leftWingAileron, LEDC_CHANNEL_2 },
 				std::nullopt,
 
 				std::nullopt,
 				std::nullopt,
 
-				ConfiguredMotor {constants::motors::leftWingFlap, LEDC_CHANNEL_3 },
+				ConfiguredMotor { config::motors::leftWingFlap, LEDC_CHANNEL_3 },
 				std::nullopt,
 			};
 

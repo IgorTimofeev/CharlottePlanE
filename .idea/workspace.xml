@@ -171,9 +171,13 @@
   <component name="ChangeListManager">
     <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="так-то лучше ебана">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262Ex.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262Ex.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/aircraft.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/aircraft.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/constants.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/config.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/IMU.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/IMU.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/lights.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/lights.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/motors.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -186,7 +190,7 @@
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/components/ESP-IDF-SX1262" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -265,11 +269,6 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.CharlottePlanE.elf">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="CharlottePlanE.elf" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="CharlottePlanE.elf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="CharlottePlanE" RUN_TARGET_NAME="CharlottePlanE.elf">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -1167,15 +1166,8 @@
       <workItem from="1766517066787" duration="334000" />
       <workItem from="1766517483102" duration="15448000" />
       <workItem from="1766566692040" duration="6917000" />
-      <workItem from="1766573778851" duration="10837000" />
-    </task>
-    <task id="LOCAL-00026" summary="pizda1111">
-      <option name="closed" value="true" />
-      <created>1765656679026</created>
-      <option name="number" value="00026" />
-      <option name="presentableId" value="LOCAL-00026" />
-      <option name="project" value="LOCAL" />
-      <updated>1765656679026</updated>
+      <workItem from="1766573778851" duration="11757000" />
+      <workItem from="1766587458479" duration="615000" />
     </task>
     <task id="LOCAL-00027" summary="pizda1111">
       <option name="closed" value="true" />
@@ -1561,7 +1553,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766578928423</updated>
     </task>
-    <option name="localTasksCounter" value="75" />
+    <task id="LOCAL-00075" summary="так-то лучше ебана">
+      <option name="closed" value="true" />
+      <created>1766587225301</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1766587225301</updated>
+    </task>
+    <option name="localTasksCounter" value="76" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

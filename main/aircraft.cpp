@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include "esp_log.h"
-#include "constants.h"
+#include "config.h"
 #include "esp_console.h"
 
 #include <bitStream.h>
@@ -32,13 +32,13 @@ namespace pizda {
 //		ahrs.setup();
 		
 		const auto sxSetupValid = sx1262.setup(
-			constants::spi::device,
-			constants::transceiver::SPIFrequencyHz,
+			config::spi::device,
+			config::transceiver::SPIFrequencyHz,
 			
-			constants::transceiver::ss,
-			constants::transceiver::busy,
-			constants::common::reset,
-			constants::transceiver::dio1,
+			config::transceiver::ss,
+			config::transceiver::busy,
+			config::common::reset,
+			config::transceiver::dio1,
 			
 			915,
 			500,
@@ -69,14 +69,14 @@ namespace pizda {
 
 	void Aircraft::SPIBusSetup() const {
 		spi_bus_config_t busConfig {};
-		busConfig.mosi_io_num = constants::spi::mosi;
-		busConfig.miso_io_num = constants::spi::miso;
-		busConfig.sclk_io_num = constants::spi::sck;
+		busConfig.mosi_io_num = config::spi::mosi;
+		busConfig.miso_io_num = config::spi::miso;
+		busConfig.sclk_io_num = config::spi::sck;
 		busConfig.quadwp_io_num = -1;
 		busConfig.quadhd_io_num = -1;
 		busConfig.max_transfer_sz = 320 * 240;
 
-		ESP_ERROR_CHECK(spi_bus_initialize(constants::spi::device, &busConfig, SPI_DMA_CH_AUTO));
+		ESP_ERROR_CHECK(spi_bus_initialize(config::spi::device, &busConfig, SPI_DMA_CH_AUTO));
 	}
 
 	void Aircraft::transceiverSetup() {
