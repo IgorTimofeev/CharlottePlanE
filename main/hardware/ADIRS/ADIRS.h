@@ -194,7 +194,7 @@ namespace pizda {
 					_rollRad += IMU.unit.rollRad;
 					_pitchRad += IMU.unit.pitchRad;
 					_yawRad += IMU.unit.yawRad;
-					_accelVelocityMs += IMU.unit.accelVelocityMs.getLength();
+					_accelVelocityMs += IMU.unit.accelVelocityMs.getY();
 				}
 				
 				_rollRad /= _IMUs.size();
