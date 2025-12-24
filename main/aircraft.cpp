@@ -31,7 +31,7 @@ namespace pizda {
 
 //		ahrs.setup();
 		
-		sx1262.setup(
+		const auto sxSetupValid = sx1262.setup(
 			constants::spi::device,
 			constants::transceiver::ss,
 			constants::transceiver::busy,
@@ -48,9 +48,20 @@ namespace pizda {
 		);
 		
 		while (true) {
+			if (sxSetupValid) {
+				const uint8_t pizda[] {
+					0xAA, 0xBB, 0xCC
+				};
+				
+				const auto state = sx1262.transmit(pizda, 3);
+				
+				ESP_LOGI("Main", "transmit state: %d", state);
+				
+			}
+	
 //			ESP_LOGI("Main", "Pizda");
 
-			vTaskDelay(pdMS_TO_TICKS(10));
+			vTaskDelay(pdMS_TO_TICKS(1000));
 		}
 	}
 
