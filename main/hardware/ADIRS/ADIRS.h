@@ -47,25 +47,42 @@ namespace pizda {
 					nullptr
 				);
 			}
-
-			float getPressure() const {
-				return _pressure;
+			
+			float getRollRad() const {
+				return _rollRad;
 			}
-
-			float getTemperature() const {
-				return _temperature;
+			
+			float getPitchRad() const {
+				return _pitchRad;
 			}
-
-			float getAltitude() const {
-				return _altitude;
+			
+			float getYawRad() const {
+				return _yawRad;
 			}
-
+			
+			
+			float getPressurePa() const {
+				return _pressurePa;
+			}
+			
+			float getTemperatureC() const {
+				return _temperatureC;
+			}
+			
+			float getAltitudeM() const {
+				return _altitudeM;
+			}
+			
 		private:
 			constexpr static const char* _logTag = "AHRS";
-
-			float _pressure = 0;
-			float _temperature = 0;
-			float _altitude = 0;
+			
+			float _rollRad = 0;
+			float _pitchRad = 0;
+			float _yawRad = 0;
+			
+			float _pressurePa = 0;
+			float _temperatureC = 0;
+			float _altitudeM = 0;
 
 			i2c_master_bus_handle_t _I2CBusHandle {};
 
@@ -151,11 +168,22 @@ namespace pizda {
 				return true;
 			}
 
-
 			void updateIMUs() {
+				_rollRad = 0;
+				_pitchRad = 0;
+				_yawRad = 0;
+				
 				for (auto& IMU : _IMUs) {
 					IMU.unit.tick();
+					
+					_rollRad += IMU.unit.rollRad;
+					_pitchRad += IMU.unit.pitchRad;
+					_yawRad += IMU.unit.yawRad;
 				}
+				
+				_rollRad /= _IMUs.size();
+				_pitchRad /= _IMUs.size();
+				_yawRad /= _IMUs.size();
 			}
 
 			bool setupBMPs() {
@@ -194,11 +222,11 @@ namespace pizda {
 					pressureSum += pressure;
 					temperatureSum += temperature;
 				}
-
-				_pressure = pressureSum / _BMPs.size();
-				_temperature = temperatureSum / _BMPs.size();
-
-				_altitude = computeAltitude(_pressure, _temperature);
+				
+				_pressurePa = pressureSum / _BMPs.size();
+				_temperatureC = temperatureSum / _BMPs.size();
+				
+				_altitudeM = computeAltitude(_pressurePa, _temperatureC);
 
 //				ESP_LOGI(_logTag, "Avg press: %f, temp: %f, alt: %f", _pressure, _temperature, _altitude);
 			}

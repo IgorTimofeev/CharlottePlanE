@@ -21,7 +21,7 @@ namespace pizda {
 	}
 
 	bool PacketParser::validateChecksum(const uint8_t* buffer, size_t dataBitCount) {
-		const uint8_t dataByteCount = divideCeiling<uint8_t>(Packet::typeBitCount + dataBitCount, 8);
+		const uint8_t dataByteCount = divideCeiling<uint8_t>(Packet::typeLengthBits + dataBitCount, 8);
 		const auto checksum = getCRC8(buffer, dataByteCount);
 		const auto expectedChecksum = *(buffer + dataByteCount);
 
@@ -52,8 +52,8 @@ namespace pizda {
 		ESP_LOGI(_logTag, "-------- Begin --------");
 
 		// Header
-		const auto headerValid = memcmp(packetPtr, Packet::header, Packet::headerByteCount) == 0;
-		packetPtr += Packet::headerByteCount;
+		const auto headerValid = memcmp(packetPtr, Packet::header, Packet::headerLengthBytes) == 0;
+		packetPtr += Packet::headerLengthBytes;
 
 		if (!headerValid) {
 			ESP_LOGE(_logTag, "mismatched header: %s", packetPtr);
@@ -75,7 +75,7 @@ namespace pizda {
 		}
 
 		// Total length = header + payload + CRC
-		const auto payloadLength = bitStream.getBytesRead();
+		const auto payloadLength = bitStream.getBytesProcessed();
 		packetPtr += payloadLength + 1;
 
 		const auto packetLength = packetPtr - buffer;

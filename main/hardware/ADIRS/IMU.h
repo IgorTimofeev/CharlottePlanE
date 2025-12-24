@@ -65,12 +65,12 @@ namespace pizda {
 				yawRad = applyGyroTrustFactor(gyroYaw, magYaw, gyroTrustFactor);
 
 				if (log) {
-					ESP_LOGI("Compl", "acc: %f x %f x %f, magni: %f", accelData.getX(), accelData.getY(), accelData.getZ(), accelMagnitude);
-					ESP_LOGI("Compl", "gyr: %f x %f x %f", gyroData.getX(), gyroData.getY(), gyroData.getZ());
-					ESP_LOGI("Compl", "mag: %f x %f x %f", magData.getX(), magData.getY(), magData.getZ());
-					ESP_LOGI("Compl", "mag cor: %f x %f x %f", magDataTilt.getX(), magDataTilt.getY(), magDataTilt.getZ());
-					ESP_LOGI("Compl", "mag yaw no tilt: %f", toDegrees(magYawWithoutTilt));
-					ESP_LOGI("Compl", "mag yaw: %f", toDegrees(magYaw));
+//					ESP_LOGI("Compl", "acc: %f x %f x %f, magni: %f", accelData.getX(), accelData.getY(), accelData.getZ(), accelMagnitude);
+//					ESP_LOGI("Compl", "gyr: %f x %f x %f", gyroData.getX(), gyroData.getY(), gyroData.getZ());
+//					ESP_LOGI("Compl", "mag: %f x %f x %f", magData.getX(), magData.getY(), magData.getZ());
+//					ESP_LOGI("Compl", "mag cor: %f x %f x %f", magDataTilt.getX(), magDataTilt.getY(), magDataTilt.getZ());
+//					ESP_LOGI("Compl", "mag yaw no tilt: %f", toDegrees(magYawWithoutTilt));
+//					ESP_LOGI("Compl", "mag yaw: %f", toDegrees(magYaw));
 				}
 			}
 
@@ -234,7 +234,7 @@ namespace pizda {
 				if (esp_timer_get_time() >= magSampleTimeUs) {
 					const auto magData = MPU.getMagData();
 
-					ESP_LOGI(_logTag, "mag: %f x %f x %f", magData.getX(), magData.getY(), magData.getZ());
+//					ESP_LOGI(_logTag, "mag: %f x %f x %f", magData.getX(), magData.getY(), magData.getZ());
 
 					// Axis swap, fuck MPU
 					lastMagData = {
@@ -307,9 +307,9 @@ namespace pizda {
 					accelPosM += accelPositionOffsetM;
 				}
 
-				ESP_LOGI(_logTag, "Velocity: %f x %f x %f", accelVelocityMs.getX(), accelVelocityMs.getY(), accelVelocityMs.getZ());
-				ESP_LOGI(_logTag, "Pos: %f x %f x %f", accelPosM.getX(), accelPosM.getY(), accelPosM.getZ());
-				ESP_LOGI(_logTag, "Roll pitch yaw: %f x %f x %f", toDegrees(rollRad), toDegrees(pitchRad), toDegrees(yawRad));
+//				ESP_LOGI(_logTag, "Velocity: %f x %f x %f", accelVelocityMs.getX(), accelVelocityMs.getY(), accelVelocityMs.getZ());
+//				ESP_LOGI(_logTag, "Pos: %f x %f x %f", accelPosM.getX(), accelPosM.getY(), accelPosM.getZ());
+//				ESP_LOGI(_logTag, "Roll pitch yaw: %f x %f x %f", toDegrees(rollRad), toDegrees(pitchRad), toDegrees(yawRad));
 
 				MPU.resetFIFO();
 				MPU.setFIFODataSource(FIFODataSource);

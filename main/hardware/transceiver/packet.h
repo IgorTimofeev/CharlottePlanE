@@ -15,10 +15,10 @@ namespace pizda {
 
 	class Packet {
 		public:
-			constexpr static uint8_t headerByteCount = 2;
+			constexpr static uint8_t headerLengthBytes = 2;
 			constexpr static const char* header = "cy";
 
-			constexpr static uint8_t typeBitCount = 4;
+			constexpr static uint8_t typeLengthBits = 4;
 
 		private:
 

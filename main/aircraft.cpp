@@ -26,45 +26,13 @@ namespace pizda {
 //		lights.setup();
 //		lights.start();
 
-//		transceiverSetup();
 //		channels.setup();
 
-//		ahrs.setup();
+		ahrs.setup();
 		
-		const auto sxSetupValid = sx1262.setup(
-			config::spi::device,
-			config::transceiver::SPIFrequencyHz,
-			
-			config::transceiver::SS,
-			config::common::RST,
-			config::transceiver::busy,
-			config::transceiver::DIO1,
-			
-			config::transceiver::RFFrequencyMHz,
-			config::transceiver::bandwidthKHz,
-			config::transceiver::spreadingFactor,
-			config::transceiver::codingRate,
-			config::transceiver::syncWord,
-			config::transceiver::powerDBm,
-			config::transceiver::preambleLength
-		);
-		
-		if (!sxSetupValid) {
-			ESP_LOGE("Main", "SX1262 setup failed");
-		}
+		transceiverSetup();
 		
 		while (true) {
-			if (sxSetupValid) {
-				uint8_t pizdaBuffer[255] {};
-				std::memset(pizdaBuffer, 0, 255);
-				
-				uint8_t length = 0;
-				
-				if (sx1262.receive(pizdaBuffer, length, 1'000'000)) {
-					ESP_LOGI("Main", "receive length: %d, data: %s", length, pizdaBuffer);
-				}
-			}
-	
 //			ESP_LOGI("Main", "Pizda");
 
 			vTaskDelay(pdMS_TO_TICKS(1000));
