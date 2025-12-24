@@ -35,30 +35,34 @@ namespace pizda {
 			config::spi::device,
 			config::transceiver::SPIFrequencyHz,
 			
-			config::transceiver::ss,
+			config::transceiver::SS,
+			config::common::RST,
 			config::transceiver::busy,
-			config::common::reset,
-			config::transceiver::dio1,
+			config::transceiver::DIO1,
 			
-			915,
-			500,
-			6,
-			5,
-			0x34,
-			2,
-			20
+			config::transceiver::RFFrequencyMHz,
+			config::transceiver::bandwidthKHz,
+			config::transceiver::spreadingFactor,
+			config::transceiver::codingRate,
+			config::transceiver::syncWord,
+			config::transceiver::powerDBm,
+			config::transceiver::preambleLength
 		);
+		
+		if (!sxSetupValid) {
+			ESP_LOGE("Main", "SX1262 setup failed");
+		}
 		
 		while (true) {
 			if (sxSetupValid) {
-				const uint8_t pizda[] {
-					0xAA, 0xBB, 0xCC
-				};
+				uint8_t pizdaBuffer[255] {};
+				std::memset(pizdaBuffer, 0, 255);
 				
-				const auto state = sx1262.transmit(pizda, 3);
+				uint8_t length = 0;
 				
-				ESP_LOGI("Main", "transmit state: %d", state);
-				
+				if (sx1262.receive(pizdaBuffer, length, 1'000)) {
+					ESP_LOGI("Main", "receive length: %d", length);
+				}
 			}
 	
 //			ESP_LOGI("Main", "Pizda");
@@ -69,9 +73,9 @@ namespace pizda {
 
 	void Aircraft::SPIBusSetup() const {
 		spi_bus_config_t busConfig {};
-		busConfig.mosi_io_num = config::spi::mosi;
-		busConfig.miso_io_num = config::spi::miso;
-		busConfig.sclk_io_num = config::spi::sck;
+		busConfig.mosi_io_num = config::spi::MOSI;
+		busConfig.miso_io_num = config::spi::MISO;
+		busConfig.sclk_io_num = config::spi::SCK;
 		busConfig.quadwp_io_num = -1;
 		busConfig.quadhd_io_num = -1;
 		busConfig.max_transfer_sz = 320 * 240;
