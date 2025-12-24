@@ -173,7 +173,6 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/aircraft.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -1165,15 +1164,7 @@
       <workItem from="1766513931178" duration="2018000" />
       <workItem from="1766516011045" duration="763000" />
       <workItem from="1766517066787" duration="334000" />
-      <workItem from="1766517483102" duration="11621000" />
-    </task>
-    <task id="LOCAL-00020" summary="pizda1111">
-      <option name="closed" value="true" />
-      <created>1765569548005</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1765569548005</updated>
+      <workItem from="1766517483102" duration="13760000" />
     </task>
     <task id="LOCAL-00021" summary="pizda1111">
       <option name="closed" value="true" />
@@ -1559,7 +1550,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766527919868</updated>
     </task>
-    <option name="localTasksCounter" value="69" />
+    <task id="LOCAL-00069" summary="pizda1111">
+      <option name="closed" value="true" />
+      <created>1766534757140</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1766534757140</updated>
+    </task>
+    <option name="localTasksCounter" value="70" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
