@@ -169,7 +169,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="pizda1111">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="так-то лучше ебана">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262.h" afterDir="false" />
@@ -1164,15 +1164,7 @@
       <workItem from="1766513931178" duration="2018000" />
       <workItem from="1766516011045" duration="763000" />
       <workItem from="1766517066787" duration="334000" />
-      <workItem from="1766517483102" duration="14436000" />
-    </task>
-    <task id="LOCAL-00022" summary="pizda1111">
-      <option name="closed" value="true" />
-      <created>1765578288061</created>
-      <option name="number" value="00022" />
-      <option name="presentableId" value="LOCAL-00022" />
-      <option name="project" value="LOCAL" />
-      <updated>1765578288061</updated>
+      <workItem from="1766517483102" duration="15429000" />
     </task>
     <task id="LOCAL-00023" summary="pizda1111">
       <option name="closed" value="true" />
@@ -1558,7 +1550,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766537766820</updated>
     </task>
-    <option name="localTasksCounter" value="71" />
+    <task id="LOCAL-00071" summary="так-то лучше ебана">
+      <option name="closed" value="true" />
+      <created>1766538201566</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1766538201566</updated>
+    </task>
+    <option name="localTasksCounter" value="72" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1574,7 +1574,8 @@
     <MESSAGE value="получше" />
     <MESSAGE value="pizda" />
     <MESSAGE value="pizda1111" />
-    <option name="LAST_COMMIT_MESSAGE" value="pizda1111" />
+    <MESSAGE value="так-то лучше ебана" />
+    <option name="LAST_COMMIT_MESSAGE" value="так-то лучше ебана" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
