@@ -48,6 +48,14 @@ namespace pizda {
 				);
 			}
 			
+			float getReferencePressurePa() const {
+				return _referencePressurePa;
+			}
+			
+			void setReferencePressurePa(float value) {
+				_referencePressurePa = value;
+			}
+			
 			float getRollRad() const {
 				return _rollRad;
 			}
@@ -60,6 +68,9 @@ namespace pizda {
 				return _yawRad;
 			}
 			
+			float getAccelVelocityMs() const {
+				return _accelVelocityMs;
+			}
 			
 			float getPressurePa() const {
 				return _pressurePa;
@@ -79,10 +90,13 @@ namespace pizda {
 			float _rollRad = 0;
 			float _pitchRad = 0;
 			float _yawRad = 0;
+			float _accelVelocityMs = 0;
 			
 			float _pressurePa = 0;
-			float _temperatureC = 0;
 			float _altitudeM = 0;
+			float _temperatureC = 0;
+			
+			float _referencePressurePa = 101325;
 
 			i2c_master_bus_handle_t _I2CBusHandle {};
 
@@ -101,7 +115,7 @@ namespace pizda {
 			static float computeAltitude(
 				float pressurePa,
 				float temperatureC,
-				float referencePressurePa = 101325.0f,
+				float referencePressurePa,
 				float lapseRateKpm = -0.0065f
 			) {
 				// Physical constants
@@ -172,6 +186,7 @@ namespace pizda {
 				_rollRad = 0;
 				_pitchRad = 0;
 				_yawRad = 0;
+				_accelVelocityMs = 0;
 				
 				for (auto& IMU : _IMUs) {
 					IMU.unit.tick();
@@ -179,11 +194,13 @@ namespace pizda {
 					_rollRad += IMU.unit.rollRad;
 					_pitchRad += IMU.unit.pitchRad;
 					_yawRad += IMU.unit.yawRad;
+					_accelVelocityMs += IMU.unit.accelVelocityMs.getLength();
 				}
 				
 				_rollRad /= _IMUs.size();
 				_pitchRad /= _IMUs.size();
 				_yawRad /= _IMUs.size();
+				_accelVelocityMs /= _IMUs.size();
 			}
 
 			bool setupBMPs() {
@@ -226,7 +243,7 @@ namespace pizda {
 				_pressurePa = pressureSum / _BMPs.size();
 				_temperatureC = temperatureSum / _BMPs.size();
 				
-				_altitudeM = computeAltitude(_pressurePa, _temperatureC);
+				_altitudeM = computeAltitude(_pressurePa, _temperatureC, _referencePressurePa);
 
 //				ESP_LOGI(_logTag, "Avg press: %f, temp: %f, alt: %f", _pressure, _temperature, _altitude);
 			}

@@ -29,6 +29,7 @@ namespace pizda {
 //		channels.setup();
 
 		ahrs.setup();
+		ahrs.setReferencePressurePa(102200);
 		
 		transceiverSetup();
 		

@@ -69,7 +69,7 @@ namespace pizda {
 			std::memset(_buffer, 0, _bufferLength);
 			
 			// Copying header
-			std::memcpy(_buffer, &Packet::header, Packet::headerLengthBytes);
+			std::memcpy(_buffer, Packet::header, Packet::headerLengthBytes);
 			
 			BitStream stream { _buffer + Packet::headerLengthBytes };
 
@@ -77,20 +77,20 @@ namespace pizda {
 			stream.writeUint8(static_cast<uint8_t>(PacketType::AircraftAHRS), Packet::typeLengthBits);
 			
 			// Payload
-			ESP_LOGI(_logTag, "rollRad: %f", ac.ahrs.getRollRad());
-			ESP_LOGI(_logTag, "pitchRad: %f", ac.ahrs.getPitchRad());
-			ESP_LOGI(_logTag, "yawRad: %f", ac.ahrs.getYawRad());
-			ESP_LOGI(_logTag, "altitudeM: %f", ac.ahrs.getAltitudeM());
-			
 			stream.writeFloat(ac.ahrs.getRollRad());
 			stream.writeFloat(ac.ahrs.getPitchRad());
 			stream.writeFloat(ac.ahrs.getYawRad());
+			stream.writeFloat(ac.ahrs.getAccelVelocityMs());
 			stream.writeFloat(ac.ahrs.getAltitudeM());
 			
 			// Transmitting
 			const auto packetLength = Packet::headerLengthBytes + stream.getBytesProcessed();
 			
-			ESP_LOGI(_logTag, "packetLength: %d", packetLength);
+//			ESP_LOGI(_logTag, "packetLength: %d", packetLength);
+//
+//			for (int i = 0; i < packetLength; ++i) {
+//				ESP_LOGI(_logTag, "buffer[%d]: %d", i, _buffer[i]);
+//			}
 			
 			if (sx1262.transmit(_buffer, packetLength, 1'000'000)) {
 			
@@ -99,7 +99,7 @@ namespace pizda {
 				ESP_LOGE(_logTag, "transmit failed");
 			}
 			
-			vTaskDelay(pdMS_TO_TICKS(1'000));
+			vTaskDelay(pdMS_TO_TICKS(30));
 			
 //			if (bytesRead > 0) {
 //				ESP_LOGI(_logTag, "bytes readRegister: %d", bytesRead);
