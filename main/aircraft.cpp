@@ -60,8 +60,8 @@ namespace pizda {
 				
 				uint8_t length = 0;
 				
-				if (sx1262.receive(pizdaBuffer, length, 1'000)) {
-					ESP_LOGI("Main", "receive length: %d", length);
+				if (sx1262.receive(pizdaBuffer, length, 1'000'000)) {
+					ESP_LOGI("Main", "receive length: %d, data: %s", length, pizdaBuffer);
 				}
 			}
 	

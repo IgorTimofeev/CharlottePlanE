@@ -169,14 +169,12 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="так-то лучше ебана">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="ЧОТА ЧИТАЕТ!111 но пока один раз">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262Ex.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262Ex.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/aircraft.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/config.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -189,7 +187,7 @@
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/components/ESP-IDF-SX1262" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -268,6 +266,11 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.CharlottePlanE.elf">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="CharlottePlanE.elf" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="CharlottePlanE.elf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="CharlottePlanE" RUN_TARGET_NAME="CharlottePlanE.elf">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -1169,15 +1172,7 @@
       <workItem from="1766587458479" duration="765000" />
       <workItem from="1766590472339" duration="496000" />
       <workItem from="1766591035166" duration="4007000" />
-      <workItem from="1766595902745" duration="4499000" />
-    </task>
-    <task id="LOCAL-00028" summary="pizda1111">
-      <option name="closed" value="true" />
-      <created>1765668017433</created>
-      <option name="number" value="00028" />
-      <option name="presentableId" value="LOCAL-00028" />
-      <option name="project" value="LOCAL" />
-      <updated>1765668017433</updated>
+      <workItem from="1766595902745" duration="8195000" />
     </task>
     <task id="LOCAL-00029" summary="pizda1111">
       <option name="closed" value="true" />
@@ -1563,7 +1558,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766590314243</updated>
     </task>
-    <option name="localTasksCounter" value="77" />
+    <task id="LOCAL-00077" summary="ЧОТА ЧИТАЕТ!111 но пока один раз">
+      <option name="closed" value="true" />
+      <created>1766600659855</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1766600659855</updated>
+    </task>
+    <option name="localTasksCounter" value="78" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1591,7 +1594,8 @@
     <MESSAGE value="pizda" />
     <MESSAGE value="pizda1111" />
     <MESSAGE value="так-то лучше ебана" />
-    <option name="LAST_COMMIT_MESSAGE" value="так-то лучше ебана" />
+    <MESSAGE value="ЧОТА ЧИТАЕТ!111 но пока один раз" />
+    <option name="LAST_COMMIT_MESSAGE" value="ЧОТА ЧИТАЕТ!111 но пока один раз" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
