@@ -89,6 +89,9 @@ namespace pizda {
 
 			class transceiver {
 				public:
+					// SX1262 supports up to 16 MHz, but with long wires (10+ cm) there will be troubles, so
+					constexpr static uint32_t SPIFrequencyHz = 5'000'000;
+					
 					constexpr static gpio_num_t ss = GPIO_NUM_5;
 					constexpr static gpio_num_t busy = GPIO_NUM_6;
 					constexpr static gpio_num_t dio1 = GPIO_NUM_7;

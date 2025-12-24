@@ -97,7 +97,7 @@ namespace pizda {
 				uint8_t chipID = 0;
 
 				if (!readUint8(BMP280Register::chipID, chipID)) {
-					ESP_LOGE(_logTag, "Unable to readReg chip ID");
+					ESP_LOGE(_logTag, "Unable to SPIReadRegister chip ID");
 					return false;
 				}
 
@@ -108,7 +108,7 @@ namespace pizda {
 
 				// Reading factory-fused calibration data
 				if (!readCalibrationData()) {
-					ESP_LOGE(_logTag, "Unable to readReg calibration data");
+					ESP_LOGE(_logTag, "Unable to SPIReadRegister calibration data");
 					return false;
 				}
 

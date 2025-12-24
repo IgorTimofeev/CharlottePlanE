@@ -13,7 +13,7 @@
 #include "hardware/transceiver/aircraftPacketParser.h"
 #include "hardware/transceiver/channels.h"
 #include "hardware/ADIRS/ADIRS.h"
-#include "SX1262.h"
+#include "SX1262Ex.h"
 
 namespace pizda {
 	using namespace YOBA;
@@ -30,8 +30,8 @@ namespace pizda {
 			AircraftPacketParser packetParser {};
 
 			ADIRS ahrs {};
-
-			SX1262 sx1262 {};
+			
+			SX1262Ex sx1262 {};
 			
 			static Aircraft& getInstance();
 			void start();

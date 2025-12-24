@@ -33,11 +33,13 @@ namespace pizda {
 		
 		const auto sxSetupValid = sx1262.setup(
 			constants::spi::device,
+			constants::transceiver::SPIFrequencyHz,
+			
 			constants::transceiver::ss,
 			constants::transceiver::busy,
-			constants::transceiver::dio1,
 			constants::common::reset,
-
+			constants::transceiver::dio1,
+			
 			915,
 			500,
 			6,
