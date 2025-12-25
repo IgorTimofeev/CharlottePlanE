@@ -16,9 +16,6 @@ namespace pizda {
 
 	class Packet {
 		public:
-			constexpr static uint8_t headerLengthBytes = 2;
-			constexpr static uint8_t header[] { 'c', 'y' };
-
 			constexpr static uint8_t typeLengthBits = 4;
 			constexpr static uint8_t checksumLengthBytes = 1;
 			

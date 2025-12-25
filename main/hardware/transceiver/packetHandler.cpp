@@ -49,26 +49,19 @@ namespace pizda {
 //		ESP_LOGI(_logTag, "-------- Begin --------");
 		
 		// Length check
-		if (length < Packet::headerLengthBytes + 1) {
+		if (length < 1) {
 			ESP_LOGE(_logTag, "failed to read packet: length %d is too small to fit any data", length);
 			
 			return false;
 		}
 		
-		// Header
-		if (std::memcmp(buffer, Packet::header, Packet::headerLengthBytes) != 0) {
-			ESP_LOGE(_logTag, "failed to read packet: mismatched header %s", buffer);
-			
-			return false;
-		}
-		
-		BitStream stream { buffer + Packet::headerLengthBytes };
+		BitStream stream { buffer };
 		
 		// Type
 		const auto packetType = static_cast<PacketType>(stream.readUint16(Packet::typeLengthBits));
 		
-		// Payload length = totalLength - headerLength - checksumLength
-		const uint8_t payloadLength = length - Packet::headerLengthBytes - Packet::checksumLengthBytes;
+		// Payload length = totalLength  - checksumLength
+		const uint8_t payloadLength = length - Packet::checksumLengthBytes;
 		
 		if (!readPacket(stream, packetType, payloadLength))
 			return false;
@@ -77,10 +70,7 @@ namespace pizda {
 	}
 	
 	bool PacketHandler::write(uint8_t* buffer, PacketType packetType, uint8_t& length) {
-		// Header
-		std::memcpy(buffer, Packet::header, Packet::headerLengthBytes);
-		
-		BitStream stream { buffer + Packet::headerLengthBytes };
+		BitStream stream { buffer };
 		
 		// Type
 		stream.writeUint8(static_cast<uint8_t>(packetType), Packet::typeLengthBits);
@@ -96,7 +86,7 @@ namespace pizda {
 		stream.nextByte();
 		stream.writeUint8(checksum, Packet::checksumLengthBytes * 8);
 		
-		length = static_cast<uint8_t>(Packet::headerLengthBytes + payloadLength + Packet::checksumLengthBytes);
+		length = static_cast<uint8_t>(payloadLength + Packet::checksumLengthBytes);
 		
 		return true;
 	}

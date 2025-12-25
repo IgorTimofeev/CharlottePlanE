@@ -201,11 +201,18 @@ namespace pizda {
 		auto& ac = Aircraft::getInstance();
 		
 		// Payload
-		stream.writeFloat(ac.ahrs.getRollRad());
-		stream.writeFloat(ac.ahrs.getPitchRad());
-		stream.writeFloat(ac.ahrs.getYawRad());
-		stream.writeFloat(ac.ahrs.getAccelVelocityMs());
-		stream.writeFloat(ac.ahrs.getAltitudeM());
+		auto writeEbanina = [&stream](float value, uint8_t bits) {
+			const auto uintValue = static_cast<uint16_t>((value / (2.f * std::numbers::pi_v<float>) + 0.5f) * (1 << bits));
+			
+			stream.writeUint16(uintValue, bits);
+		};
+		
+		writeEbanina(ac.ahrs.getRollRad(), 12);
+		writeEbanina(ac.ahrs.getPitchRad(), 12);
+		writeEbanina(ac.ahrs.getYawRad(), 12);
+		
+		stream.writeUint8(static_cast<uint8_t>(ac.ahrs.getAccelVelocityMs()), 8);
+		stream.writeInt16(static_cast<int16_t>(ac.ahrs.getAltitudeM()), 16);
 		
 		return true;
 	}

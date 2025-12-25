@@ -27,7 +27,7 @@ namespace pizda {
 			bool writeAircraftADIRSPacket(BitStream& stream);
 			
 			template<typename T>
-			float sanitizeValue(T value, T min, T max) {
+			static float sanitizeValue(T value, T min, T max) {
 				if (value < min) {
 					ESP_LOGW(_logTag, "value %f is out of range [%f, %f]", static_cast<float>(value), static_cast<float>(min), static_cast<float>(max));
 					
