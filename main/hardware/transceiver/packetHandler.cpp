@@ -60,7 +60,6 @@ namespace pizda {
 		// Type
 		const auto packetType = static_cast<PacketType>(stream.readUint16(Packet::typeLengthBits));
 		
-		// Payload length = totalLength  - checksumLength
 		const uint8_t payloadLength = length - Packet::checksumLengthBytes;
 		
 		if (!readPacket(stream, packetType, payloadLength))
@@ -79,11 +78,10 @@ namespace pizda {
 		if (!writePacket(stream, packetType))
 			return false;
 		
-		const auto payloadLength = stream.getBytesProcessed();
-		
 		// Checksum
+		const auto payloadLength = stream.getBytesProcessed();
 		const auto checksum = getCRC8(stream.getBuffer(), payloadLength);
-		stream.nextByte();
+		stream.finishByte();
 		stream.writeUint8(checksum, Packet::checksumLengthBytes * 8);
 		
 		length = static_cast<uint8_t>(payloadLength + Packet::checksumLengthBytes);

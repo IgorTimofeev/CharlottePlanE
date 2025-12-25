@@ -174,12 +174,14 @@ namespace pizda {
 		
 		if (!validatePayloadChecksumAndLength(
 			stream,
-			sizeof(uint32_t) * 1 * 8,
+			16,
 			payloadLength
 		))
 			return false;
 		
-		ac.ahrs.setReferencePressurePa(sanitizeValue<uint32_t>(stream.readUint32(), 900'00, 1100'00));
+		const auto referencePressureKPa = stream.readUint16();
+		
+		ac.ahrs.setReferencePressurePa(sanitizeValue<uint32_t>(static_cast<uint32_t>(referencePressureKPa) * 10, 900'00, 1100'00));
 		
 		return true;
 	}
@@ -210,9 +212,16 @@ namespace pizda {
 		writeEbanina(ac.ahrs.getRollRad(), 12);
 		writeEbanina(ac.ahrs.getPitchRad(), 12);
 		writeEbanina(ac.ahrs.getYawRad(), 12);
-		
+
 		stream.writeUint8(static_cast<uint8_t>(ac.ahrs.getAccelVelocityMs()), 8);
 		stream.writeInt16(static_cast<int16_t>(ac.ahrs.getAltitudeM()), 16);
+
+//		stream.writeUint16(2048, 12);
+//		stream.writeUint16(2048, 12);
+//		stream.writeUint16(2048, 12);
+//
+//		stream.writeUint8(125, 8);
+//		stream.writeInt16(100, 16);
 		
 		return true;
 	}

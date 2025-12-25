@@ -169,14 +169,11 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="чота медленновато пока">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="сука хз">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ESP-IDF-BitStream" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-BitStream" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ESP-IDF-BitStream/src/bitStream.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-BitStream/src/bitStream.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/config.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packetHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packetHandler.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -190,7 +187,7 @@
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/components/ESP-IDF-BitStream" />
     <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -1178,23 +1175,7 @@
       <workItem from="1766595902745" duration="16926000" />
       <workItem from="1766657447447" duration="12450000" />
       <workItem from="1766671015069" duration="8230000" />
-      <workItem from="1766684210566" duration="10213000" />
-    </task>
-    <task id="LOCAL-00038" summary="pizda1111">
-      <option name="closed" value="true" />
-      <created>1766239394209</created>
-      <option name="number" value="00038" />
-      <option name="presentableId" value="LOCAL-00038" />
-      <option name="project" value="LOCAL" />
-      <updated>1766239394209</updated>
-    </task>
-    <task id="LOCAL-00039" summary="pizda1111">
-      <option name="closed" value="true" />
-      <created>1766242435112</created>
-      <option name="number" value="00039" />
-      <option name="presentableId" value="LOCAL-00039" />
-      <option name="project" value="LOCAL" />
-      <updated>1766242435112</updated>
+      <workItem from="1766684210566" duration="13170000" />
     </task>
     <task id="LOCAL-00040" summary="pizda1111">
       <option name="closed" value="true" />
@@ -1572,7 +1553,23 @@
       <option name="project" value="LOCAL" />
       <updated>1766695788972</updated>
     </task>
-    <option name="localTasksCounter" value="87" />
+    <task id="LOCAL-00087" summary="по ходу надо покомпактнее паковать дату">
+      <option name="closed" value="true" />
+      <created>1766698757528</created>
+      <option name="number" value="00087" />
+      <option name="presentableId" value="LOCAL-00087" />
+      <option name="project" value="LOCAL" />
+      <updated>1766698757528</updated>
+    </task>
+    <task id="LOCAL-00088" summary="сука хз">
+      <option name="closed" value="true" />
+      <created>1766700044109</created>
+      <option name="number" value="00088" />
+      <option name="presentableId" value="LOCAL-00088" />
+      <option name="project" value="LOCAL" />
+      <updated>1766700044110</updated>
+    </task>
+    <option name="localTasksCounter" value="89" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1608,7 +1605,9 @@
     <MESSAGE value="все, заебумба, можно делать 2-стороннюю отсылку" />
     <MESSAGE value="сука ФЛОАТЫ" />
     <MESSAGE value="чота медленновато пока" />
-    <option name="LAST_COMMIT_MESSAGE" value="чота медленновато пока" />
+    <MESSAGE value="по ходу надо покомпактнее паковать дату" />
+    <MESSAGE value="сука хз" />
+    <option name="LAST_COMMIT_MESSAGE" value="сука хз" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
