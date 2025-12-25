@@ -10,7 +10,7 @@
 #include "hardware/lights.h"
 #include "hardware/motors.h"
 #include "hardware/transceiver/transceiver.h"
-#include "hardware/transceiver/aircraftPacketParser.h"
+#include "hardware/transceiver/aircraftPacketHandler.h"
 #include "hardware/transceiver/channels.h"
 #include "hardware/ADIRS/ADIRS.h"
 
@@ -26,7 +26,7 @@ namespace pizda {
 			Channels channels {};
 
 			Transceiver transceiver {};
-			AircraftPacketParser packetParser {};
+			AircraftPacketHandler packetHandler {};
 
 			ADIRS ahrs {};
 			
@@ -40,6 +40,7 @@ namespace pizda {
 			Aircraft() = default;
 
 			void SPIBusSetup() const;
-			void transceiverSetup();
+			
+			void startErrorLoop(const char* error);
 	};
 }

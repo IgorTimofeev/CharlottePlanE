@@ -31,7 +31,11 @@ namespace pizda {
 		ahrs.setup();
 		ahrs.setReferencePressurePa(102200);
 		
-		transceiverSetup();
+		if (!transceiver.setup())
+			startErrorLoop("failed to setup XCVR");
+		
+		transceiver.setPacketHandler(&packetHandler);
+		transceiver.start();
 		
 		while (true) {
 //			ESP_LOGI("Main", "Pizda");
@@ -50,12 +54,6 @@ namespace pizda {
 		busConfig.max_transfer_sz = 320 * 240;
 
 		ESP_ERROR_CHECK(spi_bus_initialize(config::spi::device, &busConfig, SPI_DMA_CH_AUTO));
-	}
-
-	void Aircraft::transceiverSetup() {
-		transceiver.setup();
-		transceiver.setPacketParser(&packetParser);
-		transceiver.start();
 	}
 
 	void Aircraft::updateHardwareFromChannels() {
@@ -108,6 +106,14 @@ namespace pizda {
 
 			if ((boolChannel = channels.getBoolChannel(ChannelType::landingLights)))
 				lights.setLandingEnabled(boolChannel->getValue());
+		}
+	}
+	
+	void Aircraft::startErrorLoop(const char* error) {
+		ESP_LOGE(_logTag, "%s", error);
+		
+		while (true) {
+			vTaskDelay(pdMS_TO_TICKS(1'000));
 		}
 	}
 }

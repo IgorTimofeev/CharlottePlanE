@@ -7,7 +7,7 @@
 #include <SX1262Ex.h>
 
 #include "packet.h"
-#include "packetParser.h"
+#include "packetHandler.h"
 
 namespace pizda {
 	using namespace YOBA;
@@ -20,26 +20,32 @@ namespace pizda {
 
 	class Transceiver {
 		public:
-			void setup();
-			void setPacketParser(PacketParser* packetParser);
+			bool setup();
+			void setPacketHandler(PacketHandler* value);
 			void start();
+			float getRSSI() const;
 
 		private:
 			constexpr static const char* _logTag = "XCVR";
 			constexpr static uint32_t _connectionLostInterval = 5'000'000;
 			
-			SX1262Ex sx1262 {};
+			SX1262Ex _SX {};
 			
-			bool _sxSetup = false;
+			PacketHandler* _packetHandler = nullptr;
 			
-			PacketParser* _packetParser = nullptr;
-			uint32_t _connectionLostTime = 0;
-			TransceiverConnectionState _connectionState = TransceiverConnectionState::initial;
-
+			float _RSSI = 0;
+			
+			bool _reading = false;
+			
 			constexpr static uint16_t _bufferLength = 255;
 			uint8_t _buffer[_bufferLength] {};
-
-			void onStart();
+			
+			uint32_t _connectionLostTime = 0;
+			TransceiverConnectionState _connectionState = TransceiverConnectionState::initial;
+			
 			void updateConnectionLostTime();
-	};;
+			void onStart();
+			bool write();
+			bool read();
+	};
 }

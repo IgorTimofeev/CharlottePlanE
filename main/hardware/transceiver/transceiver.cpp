@@ -4,10 +4,7 @@
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-#include <freertos/queue.h>
-#include "freertos/event_groups.h"
 
-#include <driver/uart.h>
 #include <esp_log.h>
 #include <esp_timer.h>
 
@@ -15,13 +12,15 @@
 #include "aircraft.h"
 
 namespace pizda {
-	void Transceiver::setup() {
-		_sxSetup = sx1262.setup(
+	bool Transceiver::setup() {
+		_reading = false;
+		
+		auto state = _SX.setup(
 			config::spi::device,
 			config::transceiver::SPIFrequencyHz,
 			
 			config::transceiver::SS,
-			config::common::RST,
+			config::transceiver::RST,
 			config::transceiver::busy,
 			config::transceiver::DIO1,
 			
@@ -34,9 +33,17 @@ namespace pizda {
 			config::transceiver::preambleLength
 		);
 		
-		if (!_sxSetup) {
-			ESP_LOGE("Main", "SX1262 setup failed");
+		if (!state) {
+			ESP_LOGE(_logTag, "SX1262 setup failed");
+			
+			return false;
 		}
+		
+		return true;
+	}
+	
+	void Transceiver::setPacketHandler(PacketHandler* value) {
+		_packetHandler = value;
 	}
 	
 	void Transceiver::start() {
@@ -52,88 +59,99 @@ namespace pizda {
 		);
 	}
 	
-	void Transceiver::setPacketParser(PacketParser* value) {
-		_packetParser = value;
+	float Transceiver::getRSSI() const {
+		return _RSSI;
 	}
 
 	void Transceiver::onStart() {
-		auto& ac = Aircraft::getInstance();
-		
 		ESP_LOGI(_logTag, "started");
 
 		while (true) {
-			if (!_packetParser || !_sxSetup)
+			if (!_packetHandler)
 				continue;
 			
-			// Clearing buffer
-			std::memset(_buffer, 0, _bufferLength);
+			bool state = false;
 			
-			// Copying header
-			std::memcpy(_buffer, Packet::header, Packet::headerLengthBytes);
-			
-			BitStream stream { _buffer + Packet::headerLengthBytes };
-
-			// Packet type
-			stream.writeUint8(static_cast<uint8_t>(PacketType::AircraftAHRS), Packet::typeLengthBits);
-			
-			// Payload
-			stream.writeFloat(ac.ahrs.getRollRad());
-			stream.writeFloat(ac.ahrs.getPitchRad());
-			stream.writeFloat(ac.ahrs.getYawRad());
-			stream.writeFloat(ac.ahrs.getAccelVelocityMs());
-			stream.writeFloat(ac.ahrs.getAltitudeM());
-			
-			// Transmitting
-			const auto packetLength = Packet::headerLengthBytes + stream.getBytesProcessed();
-			
-//			ESP_LOGI(_logTag, "packetLength: %d", packetLength);
-//
-//			for (int i = 0; i < packetLength; ++i) {
-//				ESP_LOGI(_logTag, "buffer[%d]: %d", i, _buffer[i]);
-//			}
-			
-			if (sx1262.transmit(_buffer, packetLength, 1'000'000)) {
-			
+			if (_reading) {
+				state = read();
+				
+				if (state) {
+					switch (_connectionState) {
+						case TransceiverConnectionState::initial:
+							_connectionState = TransceiverConnectionState::normal;
+							
+							break;
+						
+						case TransceiverConnectionState::lost:
+							_connectionState = TransceiverConnectionState::normal;
+							_packetHandler->onConnectionRestored();
+							
+							break;
+						
+						default:
+							break;
+					}
+					
+					updateConnectionLostTime();
+					
+					// RSSI
+					_SX.getRSSI(_RSSI);
+				}
+				else {
+					if (_connectionState == TransceiverConnectionState::normal) {
+						if (esp_timer_get_time() >= _connectionLostTime) {
+							_connectionState = TransceiverConnectionState::lost;
+							_packetHandler->onConnectionLost();
+						}
+					}
+				}
 			}
 			else {
-				ESP_LOGE(_logTag, "transmit failed");
+				state = write();
 			}
-			
-			vTaskDelay(pdMS_TO_TICKS(30));
-			
-//			if (bytesRead > 0) {
-//				ESP_LOGI(_logTag, "bytes readRegister: %d", bytesRead);
-//
-//				switch (_connectionState) {
-//					case TransceiverConnectionState::initial:
-//						_connectionState = TransceiverConnectionState::normal;
-//						break;
-//
-//					case TransceiverConnectionState::lost:
-//						_connectionState = TransceiverConnectionState::normal;
-//						_packetParser->onConnectionRestored();
-//						break;
-//
-//					default:
-//						break;
-//				}
-//
-//				_packetParser->parse(_readingBuffer, bytesRead);
-//
-//				updateConnectionLostTime();
-//			}
-//			else {
-//				if (_connectionState == TransceiverConnectionState::normal) {
-//					if (esp_timer_get_time() >= _connectionLostTime) {
-//						_connectionState = TransceiverConnectionState::lost;
-//						_packetParser->onConnectionLost();
-//					}
-//				}
-//			}
+
+			vTaskDelay(pdMS_TO_TICKS(1'000 / config::transceiver::tickRateHz));
+//			vTaskDelay(pdMS_TO_TICKS(1'000));
 		}
 	}
-
+	
 	void Transceiver::updateConnectionLostTime() {
 		_connectionLostTime = esp_timer_get_time() + _connectionLostInterval;
+	}
+	
+	bool Transceiver::write() {
+		uint8_t length = 0;
+		
+		if (!_packetHandler->write(_buffer, PacketType::aircraftADIRS, length))
+			return false;
+		
+//		ESP_LOGI(_logTag, "write length: %d", length);
+//
+//		for (int i = 0; i < length; ++i) {
+//			ESP_LOGI(_logTag, "write buffer[%d]: %d", i, _buffer[i]);
+//		}
+
+		if (!_SX.transmit(_buffer, length, 1'000'000))
+			return false;
+		
+		return true;
+	}
+	
+	bool Transceiver::read() {
+		uint8_t length = 0;
+		
+		if (!_SX.receive(_buffer, length, 1'000'000))
+			return false;
+		
+//		ESP_LOGI(_logTag, "read length: %d", length);
+//
+//		for (int i = 0; i < length; ++i) {
+//			ESP_LOGI(_logTag, "read buffer[%d]: %d", i, _buffer[i]);
+//		}
+		
+		if (!_packetHandler->read(_buffer, length))
+			return false;
+		
+		return true;
 	}
 }

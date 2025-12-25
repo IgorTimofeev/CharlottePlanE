@@ -1,29 +1,34 @@
-#include "aircraftPacketParser.h"
+#include "aircraftPacketHandler.h"
+
+#include <utility>
+
+#include <esp_timer.h>
 
 #include "aircraft.h"
 #include "hardware/motor.h"
 
 namespace pizda {
-	bool AircraftPacketParser::onParse(BitStream& stream, PacketType packetType) {
+	// -------------------------------- Reading --------------------------------
+	
+	bool AircraftPacketHandler::readPacket(BitStream& stream, PacketType packetType, uint8_t payloadLength) {
 		switch (packetType) {
-			case PacketType::RemoteChannelDataStructure: {
-				return onChannelDataStructurePacket(stream);
+			case PacketType::remoteChannelDataStructure: {
+				return readChannelDataStructurePacket(stream, payloadLength);
 			}
-			case PacketType::RemoteChannelData: {
-				return onChannelDataPacket(stream);
+			case PacketType::remoteChannelData: {
+				return readChannelDataPacket(stream, payloadLength);
 			}
-			case PacketType::RemoteMotorConfiguration: {
-				return onMotorConfigurationPacket(stream);
+			case PacketType::remoteMotorConfiguration: {
+				return readMotorConfigurationPacket(stream, payloadLength);
 			}
 			default: {
-				ESP_LOGE(_logTag, "unknown packet type: %d", static_cast<uint8_t>(packetType));
-
+				ESP_LOGE(_logTag, "failed to read packet: unsupported type %d", std::to_underlying(packetType));
 				return false;
 			}
 		}
 	}
 
-	bool AircraftPacketParser::onChannelDataStructurePacket(BitStream& stream) {
+	bool AircraftPacketHandler::readChannelDataStructurePacket(BitStream& stream, uint8_t payloadLength) {
 		auto& ac = Aircraft::getInstance();
 
 		const auto valueCount = stream.readUint8(8);
@@ -70,10 +75,14 @@ namespace pizda {
 		return true;
 	}
 
-	bool AircraftPacketParser::onChannelDataPacket(BitStream& stream) {
+	bool AircraftPacketHandler::readChannelDataPacket(BitStream& stream, uint8_t payloadLength) {
 		auto& ac = Aircraft::getInstance();
 
-		if (!validateChecksum(stream.getBuffer(), ac.settings.channelDataStructure.getRequiredBitCountForChannels()))
+		if (!validatePayloadChecksumAndLength(
+			stream,
+			ac.settings.channelDataStructure.getRequiredBitCountForChannels(),
+			payloadLength
+		))
 			return false;
 
 		if (ac.settings.channelDataStructure.fields.empty()) {
@@ -119,18 +128,20 @@ namespace pizda {
 		return true;
 	}
 
-	bool AircraftPacketParser::onMotorConfigurationPacket(BitStream& stream) {
+	bool AircraftPacketHandler::readMotorConfigurationPacket(BitStream& stream, uint8_t payloadLength) {
 		auto& ac = Aircraft::getInstance();
+		
+		const auto motorCount = stream.readUint8(4);
+		
+		ESP_LOGI(_logTag, "motor count: %d", motorCount);
 
-		const auto motorCount = readValueCountAndValidateChecksum(
+		if (!validatePayloadChecksumAndLength(
 			stream,
-			4,
-			Motor::powerBitCount * 4 + 1
-		);
-
-		if (!motorCount)
+			4 + (Motor::powerBitCount * 4 + 1) * motorCount,
+			payloadLength
+		))
 			return false;
-
+		
 		ac.settings.motors.configurations.clear();
 		ac.settings.motors.configurations.reserve(motorCount);
 
@@ -154,14 +165,40 @@ namespace pizda {
 
 		return true;
 	}
-
-	void AircraftPacketParser::onConnectionLost() {
+	
+	// -------------------------------- Writing --------------------------------
+	
+	bool AircraftPacketHandler::writePacket(BitStream& stream, PacketType packetType) {
+		switch (packetType) {
+			case PacketType::aircraftADIRS:
+				return writeAircraftADIRSPacket(stream);
+			
+			default:
+				ESP_LOGE(_logTag, "failed to write packet: unsupported type %d", std::to_underlying(packetType));
+				return false;
+		}
+	}
+	
+	bool AircraftPacketHandler::writeAircraftADIRSPacket(BitStream& stream) {
+		auto& ac = Aircraft::getInstance();
+		
+		// Payload
+		stream.writeFloat(ac.ahrs.getRollRad());
+		stream.writeFloat(ac.ahrs.getPitchRad());
+		stream.writeFloat(ac.ahrs.getYawRad());
+		stream.writeFloat(ac.ahrs.getAccelVelocityMs());
+		stream.writeFloat(ac.ahrs.getAltitudeM());
+		
+		return true;
+	}
+	
+	void AircraftPacketHandler::onConnectionLost() {
 		auto& ac = Aircraft::getInstance();
 
 		ac.lights.setEmergencyEnabled(true);
 	}
 
-	void AircraftPacketParser::onConnectionRestored() {
+	void AircraftPacketHandler::onConnectionRestored() {
 		auto& ac = Aircraft::getInstance();
 
 		ac.lights.setEmergencyEnabled(false);

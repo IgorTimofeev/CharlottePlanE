@@ -94,7 +94,7 @@ namespace pizda {
 					constexpr static uint32_t SPIFrequencyHz = 4'000'000;
 					
 					constexpr static gpio_num_t SS = GPIO_NUM_5;
-					constexpr static gpio_num_t RST = GPIO_NUM_NC;
+					constexpr static gpio_num_t RST = GPIO_NUM_4;
 					constexpr static gpio_num_t busy = GPIO_NUM_6;
 					constexpr static gpio_num_t DIO1 = GPIO_NUM_7;
 					
@@ -105,6 +105,8 @@ namespace pizda {
 					constexpr static uint8_t syncWord = 0x34;
 					constexpr static uint16_t powerDBm = 22;
 					constexpr static uint16_t preambleLength = 8;
+					
+					constexpr static uint8_t tickRateHz = 30;
 			};
 
 			class gnss {
