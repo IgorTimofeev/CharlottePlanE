@@ -37,11 +37,11 @@ namespace pizda {
 			) {
 				const float accelMagnitude = accelData.getLength();
 
-				// float aRoll = std::atan2(a.getZ(), a.getX());
-				// float aPitch = std::atan2(a.getY(), a.getZ());
+				float accelRoll = -std::atan2(accelData.getX(), accelData.getZ());
+				float accelPitch = std::atan2(accelData.getY(), accelData.getZ());
 
-				float accelRoll = -std::atan2(accelData.getX(), std::sqrt(accelData.getY() * accelData.getY() + accelData.getZ() * accelData.getZ()));
-				float accelPitch = std::atan2(accelData.getY(), std::sqrt(accelData.getX() * accelData.getX() + accelData.getZ() * accelData.getZ()));
+//				float accelRoll = -std::atan2(accelData.getX(), std::sqrt(accelData.getY() * accelData.getY() + accelData.getZ() * accelData.getZ()));
+//				float accelPitch = std::atan2(accelData.getY(), std::sqrt(accelData.getX() * accelData.getX() + accelData.getZ() * accelData.getZ()));
 
 				float gyroRoll = rollRad + toRadians(gyroData.getY()) * deltaTimeS;
 				float gyroPitch = pitchRad + toRadians(gyroData.getX()) * deltaTimeS;
@@ -67,6 +67,7 @@ namespace pizda {
 				yawRad = applyGyroTrustFactor(gyroYaw, magYaw, gyroTrustFactor);
 
 				if (log) {
+//					ESP_LOGI("Compl", "acc roll/pitch: %f x %f", toDegrees(accelRoll), toDegrees(accelPitch));
 //					ESP_LOGI("Compl", "acc: %f x %f x %f, magni: %f", accelData.getX(), accelData.getY(), accelData.getZ(), accelMagnitude);
 //					ESP_LOGI("Compl", "gyr: %f x %f x %f", gyroData.getX(), gyroData.getY(), gyroData.getZ());
 //					ESP_LOGI("Compl", "mag: %f x %f x %f", magData.getX(), magData.getY(), magData.getZ());
@@ -119,9 +120,9 @@ namespace pizda {
 			constexpr static uint8_t FIFOSampleLength = FIFOSampleDataTypeLength * FIFOSampleDataTypes;
 			constexpr static uint16_t FIFOMaxSampleCount = FIFOLength / FIFOSampleLength;
 
-			constexpr static uint32_t bytesPerSecond = FIFOSampleLength * FIFOSampleRateHz;
-			constexpr static uint32_t minimumReadTaskDelayMs = FIFOLength * 1'000 / bytesPerSecond;
-			constexpr static uint32_t safeReadTaskDelayMs = minimumReadTaskDelayMs * 9 / 10;
+			constexpr static uint32_t FIFOBytesPerSecond = FIFOSampleLength * FIFOSampleRateHz;
+			constexpr static uint32_t FIFOMinimumSampleIntervalUs = FIFOLength * 1'000'000 / FIFOBytesPerSecond;
+			constexpr static uint32_t FIFOSafeSampleIntervalUs = FIFOMinimumSampleIntervalUs * 9 / 10;
 			
 			MPU9250 MPU {};
 			Vector3F accelBias {};
@@ -130,18 +131,25 @@ namespace pizda {
 			// Mag
 			constexpr static uint32_t magSampleRateHz = 100;
 			constexpr static uint32_t magSampleIntervalUs = 1'000'000 / magSampleRateHz;
+			constexpr static uint8_t magSampleAveragingCount = 8;
 
 			uint32_t magSampleTimeUs = 0;
 			Vector3F magBias {};
-			Vector3F lastMagData {};
-
+			
+			uint8_t magSampleCount = 0;
+			Vector3F magSampleSum {};
+			Vector3F magSampleLast { 0, 1, 0};
+			
+			// FIFO
+			uint32_t FIFOSampleTimeUs = 0;
+			
+			Vector3F accelPosM {};
+			Vector3F accelVelocityMs {};
+			
 			float rollRad = 0;
 			float pitchRad = 0;
 			float yawRad = 0;
-
-			Vector3F accelPosM {};
-			Vector3F accelVelocityMs {};
-
+			
 			bool setup(BusStream* busStream) {
 				if (!MPU.setup(busStream))
 					return false;
@@ -259,92 +267,10 @@ namespace pizda {
 				
 				ESP_LOGI(_logTag, "mag bias: %f x %f x %f", magBias.getX(), magBias.getY(), magBias.getZ());
 			}
-
+			
 			void tick() {
-				// Mag update should be separated from FIFO
-				if (esp_timer_get_time() >= magSampleTimeUs) {
-					const auto magData = MPU.getMagData();
-
-//					ESP_LOGI(_logTag, "mag: %f x %f x %f", magData.getX(), magData.getY(), magData.getZ());
-
-					// Axis swap, fuck MPU
-					lastMagData = {
-						magData.getY() - magBias.getY(),
-						magData.getX() - magBias.getX(),
-						-(magData.getZ() - magBias.getZ())
-					};
-
-					magSampleTimeUs = esp_timer_get_time() + magSampleIntervalUs;
-				}
-
-				const auto sampleCount = MPU.getFIFOCount() / FIFOSampleLength;
-
-//				ESP_LOGI(_logTag, "FIFO sample count %d", sampleCount);
-
-				if (sampleCount < 8) {
-					ESP_LOGI(_logTag, "FIFO sample count %d is not enough, skipping for more data", sampleCount);
-					return;
-				}
-				else if (sampleCount >= FIFOMaxSampleCount) {
-					ESP_LOGW(_logTag, "FIFO sample count %d exceeds max sample count, data was permanently lost", sampleCount);
-				}
-
-				MPU.setFIFODataSource(MPU9250_FIFO_DATA_SOURCE_NONE);
-
-//				ESP_LOGI(_logTag, "FIFO sample count: %d", sampleCount);
-
-				const auto samplesToRead = std::min<uint16_t>(FIFOMaxSampleCount, sampleCount);
-
-				uint8_t sample[FIFOSampleLength] {};
-
-				for (uint32_t i = 0; i < samplesToRead; i++) {
-					MPU.getFIFOData(sample, FIFOSampleLength);
-
-					const auto accelData = MPU.getAccelData(sample) - accelBias;
-					const auto gyroData = MPU.getGyroData(sample + FIFOSampleDataTypeLength) - gyroBias;
-
-					// Applying adaptive complimentary filter
-					AdaptiveComplimentaryFiler::apply(
-						accelData,
-						gyroData,
-						lastMagData,
-
-						FIFOSampleIntervalS,
-
-						0.8,
-						0.95,
-
-						0.95,
-						0.99,
-
-						rollRad,
-						pitchRad,
-						yawRad,
-
-						i == 0
-					);
-
-					// Position
-					auto accelTilt = AdaptiveComplimentaryFiler::applyTiltCompensation(accelData, rollRad, pitchRad);
-					// Subtracting 1G
-					accelTilt.setZ(accelTilt.getZ() - 1);
-
-					constexpr static float GMs2 = 9.80665f;
-					auto accelerationMs2 = accelTilt * GMs2;
-					auto velocityMs = accelerationMs2 * FIFOSampleIntervalS;
-					accelVelocityMs += velocityMs;
-
-					auto accelPositionOffsetM = accelVelocityMs * FIFOSampleIntervalS;
-					accelPosM += accelPositionOffsetM;
-				}
-
-//				ESP_LOGI(_logTag, "Velocity: %f x %f x %f", accelVelocityMs.getX(), accelVelocityMs.getY(), accelVelocityMs.getZ());
-//				ESP_LOGI(_logTag, "Pos: %f x %f x %f", accelPosM.getX(), accelPosM.getY(), accelPosM.getZ());
-//				ESP_LOGI(_logTag, "Roll pitch yaw: %f x %f x %f", toDegrees(rollRad), toDegrees(pitchRad), toDegrees(yawRad));
-
-				MPU.resetFIFO();
-				MPU.setFIFODataSource(FIFODataSource);
-				MPU.readAndClearInterruptStatus();
+				magTick();
+				FIFOTick();
 			}
 
 		private:
@@ -386,5 +312,107 @@ namespace pizda {
 
 				MPU.setFIFODataSource(FIFODataSource);
 			}
+			
+			void magTick() {
+				if (esp_timer_get_time() < magSampleTimeUs)
+					return;
+				
+				const auto magData = MPU.getMagData();
+
+//					ESP_LOGI(_logTag, "mag: %f x %f x %f", magData.getX(), magData.getY(), magData.getZ());
+
+				// Axis swap, fuck MPU
+				magSampleSum.setX(magSampleSum.getX() + magData.getY() - magBias.getY());
+				magSampleSum.setY(magSampleSum.getY() + magData.getX() - magBias.getX());
+				magSampleSum.setZ(magSampleSum.getZ() - (magData.getZ() - magBias.getZ()));
+				
+				magSampleCount++;
+				
+				// Need to average
+				if (magSampleCount >= magSampleAveragingCount) {
+					magSampleLast = magSampleSum / magSampleCount;
+					magSampleSum = { 0, 0, 0};
+					magSampleCount = 0;
+				}
+				
+				magSampleTimeUs = esp_timer_get_time() + magSampleIntervalUs;
+			}
+			
+			void FIFOTick() {
+				if (esp_timer_get_time() < FIFOSampleTimeUs)
+					return;
+				
+				const auto sampleCount = MPU.getFIFOCount() / FIFOSampleLength;
+
+//				ESP_LOGI(_logTag, "FIFO sample count %d", sampleCount);
+				
+				if (sampleCount < 8) {
+					ESP_LOGI(_logTag, "FIFO sample count %d is not enough, skipping for more data", sampleCount);
+					return;
+				}
+				else if (sampleCount >= FIFOMaxSampleCount) {
+					ESP_LOGW(_logTag, "FIFO sample count %d exceeds max sample count, data was permanently lost", sampleCount);
+				}
+				
+				MPU.setFIFODataSource(MPU9250_FIFO_DATA_SOURCE_NONE);
+
+//				ESP_LOGI(_logTag, "FIFO sample count: %d", sampleCount);
+				
+				const auto samplesToRead = std::min<uint16_t>(FIFOMaxSampleCount, sampleCount);
+				
+				uint8_t sample[FIFOSampleLength] {};
+				
+				for (uint32_t i = 0; i < samplesToRead; i++) {
+					MPU.getFIFOData(sample, FIFOSampleLength);
+					
+					const auto accelData = MPU.getAccelData(sample) - accelBias;
+					const auto gyroData = MPU.getGyroData(sample + FIFOSampleDataTypeLength) - gyroBias;
+					
+					// Applying adaptive complimentary filter
+					AdaptiveComplimentaryFiler::apply(
+						accelData,
+						gyroData,
+						magSampleLast,
+						
+						FIFOSampleIntervalS,
+						
+						0.8,
+						0.95,
+						
+						0.95,
+						0.99,
+						
+						rollRad,
+						pitchRad,
+						yawRad,
+						
+						i == 0
+					);
+					
+					// Position
+					auto accelTilt = AdaptiveComplimentaryFiler::applyTiltCompensation(accelData, rollRad, pitchRad);
+					// Subtracting 1G
+					accelTilt.setZ(accelTilt.getZ() - 1);
+					
+					constexpr static float GMs2 = 9.80665f;
+					auto accelerationMs2 = accelTilt * GMs2;
+					auto velocityMs = accelerationMs2 * FIFOSampleIntervalS;
+					accelVelocityMs += velocityMs;
+					
+					auto accelPositionOffsetM = accelVelocityMs * FIFOSampleIntervalS;
+					accelPosM += accelPositionOffsetM;
+				}
+
+//				ESP_LOGI(_logTag, "Velocity: %f x %f x %f", accelVelocityMs.getX(), accelVelocityMs.getY(), accelVelocityMs.getZ());
+//				ESP_LOGI(_logTag, "Pos: %f x %f x %f", accelPosM.getX(), accelPosM.getY(), accelPosM.getZ());
+//				ESP_LOGI(_logTag, "Roll pitch yaw: %f x %f x %f", toDegrees(rollRad), toDegrees(pitchRad), toDegrees(yawRad));
+				
+				MPU.resetFIFO();
+				MPU.setFIFODataSource(FIFODataSource);
+				MPU.readAndClearInterruptStatus();
+				
+				FIFOSampleTimeUs = esp_timer_get_time() + FIFOSafeSampleIntervalUs;
+			}
+		
 	};
 }

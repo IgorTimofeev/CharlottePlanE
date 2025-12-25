@@ -209,12 +209,34 @@ namespace pizda {
 			stream.writeUint16(uintValue, bits);
 		};
 		
-		writeEbanina(ac.ahrs.getRollRad(), 12);
-		writeEbanina(ac.ahrs.getPitchRad(), 12);
-		writeEbanina(ac.ahrs.getYawRad(), 12);
+		// Precision of 0.25 - 0.5 deg should be enough for any client-side visualization with LPF
+		// So 360 * 1 / 0.25 = 1440 ~= 10 bits
+		// Or for 180 deg:
+		
+		// Roll range is [-180; 180] deg
+		writeEbanina(ac.ahrs.getRollRad(), 10);
+		// But pitch is [-90; 90] deg, but we can't use fewer bits
+		writeEbanina(ac.ahrs.getPitchRad(), 10);
+		// Same as roll, [-180; 180] deg
+		writeEbanina(ac.ahrs.getYawRad(), 10);
 
-		stream.writeUint8(static_cast<uint8_t>(ac.ahrs.getAccelVelocityMs()), 8);
-		stream.writeInt16(static_cast<int16_t>(ac.ahrs.getAltitudeM()), 16);
+		// Speed
+		// 7 bit = 127 m/s or ~246.8 kt, should be enough
+		stream.writeUint8(static_cast<uint8_t>(ac.ahrs.getAccelVelocityMs()), 7);
+		
+		// Altitude
+		// 13 bit = 8191, not enough
+		// 14 bit = 16383, more than enough
+		// Mapping [-1000; 10000] to [0; 16383]
+		constexpr static int16_t altitudeMin = -1'000;
+		constexpr static int16_t altitudeMax = 10'000;
+		constexpr static uint8_t altitudeBits = 14;
+		
+		const auto altitudeClamped = std::clamp<float>(ac.ahrs.getAltitudeM(), altitudeMin, altitudeMax);
+		const auto altitudeFactor = (altitudeClamped - static_cast<float>(altitudeMin)) / static_cast<float>(altitudeMax - altitudeMin);
+		const auto altitudeUint16 = static_cast<uint16_t>(altitudeFactor * static_cast<float>(1 << altitudeBits));
+		
+		stream.writeInt16(altitudeUint16, altitudeBits);
 
 //		stream.writeUint16(2048, 12);
 //		stream.writeUint16(2048, 12);

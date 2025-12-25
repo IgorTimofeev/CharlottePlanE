@@ -169,12 +169,12 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="сука хз">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="вооо пашет">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-BitStream" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-BitStream" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-BitStream/src/bitStream.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-BitStream/src/bitStream.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/IMU.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/IMU.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packetHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packetHandler.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -187,7 +187,7 @@
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/components/ESP-IDF-BitStream" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -1175,15 +1175,7 @@
       <workItem from="1766595902745" duration="16926000" />
       <workItem from="1766657447447" duration="12450000" />
       <workItem from="1766671015069" duration="8230000" />
-      <workItem from="1766684210566" duration="13170000" />
-    </task>
-    <task id="LOCAL-00040" summary="pizda1111">
-      <option name="closed" value="true" />
-      <created>1766246904091</created>
-      <option name="number" value="00040" />
-      <option name="presentableId" value="LOCAL-00040" />
-      <option name="project" value="LOCAL" />
-      <updated>1766246904091</updated>
+      <workItem from="1766684210566" duration="17768000" />
     </task>
     <task id="LOCAL-00041" summary="pizda1111">
       <option name="closed" value="true" />
@@ -1569,7 +1561,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766700044110</updated>
     </task>
-    <option name="localTasksCounter" value="89" />
+    <task id="LOCAL-00089" summary="вооо пашет">
+      <option name="closed" value="true" />
+      <created>1766701773206</created>
+      <option name="number" value="00089" />
+      <option name="presentableId" value="LOCAL-00089" />
+      <option name="project" value="LOCAL" />
+      <updated>1766701773206</updated>
+    </task>
+    <option name="localTasksCounter" value="90" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1607,7 +1607,8 @@
     <MESSAGE value="чота медленновато пока" />
     <MESSAGE value="по ходу надо покомпактнее паковать дату" />
     <MESSAGE value="сука хз" />
-    <option name="LAST_COMMIT_MESSAGE" value="сука хз" />
+    <MESSAGE value="вооо пашет" />
+    <option name="LAST_COMMIT_MESSAGE" value="вооо пашет" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

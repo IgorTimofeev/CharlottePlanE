@@ -253,7 +253,7 @@ namespace pizda {
 					updateIMUs();
 					updateBMPs();
 
-					vTaskDelay(pdMS_TO_TICKS(IMU::safeReadTaskDelayMs));
+					vTaskDelay(pdMS_TO_TICKS(std::max(std::min(IMU::FIFOSafeSampleIntervalUs, IMU::magSampleIntervalUs) / 1000, portTICK_PERIOD_MS)));
 //					vTaskDelay(pdMS_TO_TICKS(1000));
 				}
 			}
