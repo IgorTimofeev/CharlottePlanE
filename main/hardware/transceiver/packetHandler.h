@@ -4,21 +4,21 @@
 #include <functional>
 
 #include <bitStream.h>
+#include "utils/math.h"
 
 #include "packet.h"
 
-#include "utils/math.h"
-
 namespace pizda {
 	using namespace YOBA;
+	
+	enum class TransceiverConnectionState : uint8_t;
 	
 	class PacketHandler {
 		public:
 			bool read(uint8_t* buffer, uint8_t length);
 			bool write(uint8_t* buffer, PacketType packetType, uint8_t& length);
 			
-			virtual void onConnectionLost() = 0;
-			virtual void onConnectionRestored() = 0;
+			virtual void onConnectionStateChanged(TransceiverConnectionState fromState, TransceiverConnectionState toState) = 0;
 		
 		protected:
 			constexpr static const char* _logTag = "PacketHandler";

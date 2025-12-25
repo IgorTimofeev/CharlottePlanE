@@ -48,11 +48,11 @@ namespace pizda {
 				);
 			}
 			
-			float getReferencePressurePa() const {
+			uint32_t getReferencePressurePa() const {
 				return _referencePressurePa;
 			}
 			
-			void setReferencePressurePa(float value) {
+			void setReferencePressurePa(uint32_t value) {
 				_referencePressurePa = value;
 			}
 			
@@ -96,7 +96,7 @@ namespace pizda {
 			float _altitudeM = 0;
 			float _temperatureC = 0;
 			
-			float _referencePressurePa = 101325;
+			uint32_t _referencePressurePa = 101325;
 
 			i2c_master_bus_handle_t _I2CBusHandle {};
 
@@ -115,7 +115,7 @@ namespace pizda {
 			static float computeAltitude(
 				float pressurePa,
 				float temperatureC,
-				float referencePressurePa,
+				uint32_t referencePressurePa,
 				float lapseRateKpm = -0.0065f
 			) {
 				// Physical constants
@@ -127,7 +127,7 @@ namespace pizda {
 				const float temperatureK = temperatureC + 273.15f;
 
 				// Avoid division by zero and invalid values
-				if (pressurePa <= 0.0f || referencePressurePa <= 0.0f || temperatureK <= 0.0f)
+				if (pressurePa <= 0.0f || temperatureK <= 0.0f)
 					return 0.0f;
 
 				// Barometric formula with temperature gradient consideration
@@ -137,12 +137,12 @@ namespace pizda {
 				// If temperature lapse rate is close to zero, use simplified formula
 				if (std::abs(lapseRateKpm) < 1e-6f) {
 					// Isothermal atmosphere (lapse rate ≈ 0)
-					return (R * temperatureK) / (g * M) * std::log(referencePressurePa / pressurePa);
+					return (R * temperatureK) / (g * M) * std::log(static_cast<float>(referencePressurePa) / pressurePa);
 				}
 
 				// Full formula with temperature gradient
 				const float exponent = (R * lapseRateKpm) / (g * M);
-				const float power = std::pow(pressurePa / referencePressurePa, exponent);
+				const float power = std::pow(pressurePa / static_cast<float>(referencePressurePa), exponent);
 				const float altitude = (temperatureK / lapseRateKpm) * (1.0f - power);
 
 				return altitude;

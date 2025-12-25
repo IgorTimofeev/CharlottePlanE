@@ -31,7 +31,7 @@ namespace pizda {
 		ahrs.setup();
 		ahrs.setReferencePressurePa(102200);
 		
-		if (!transceiver.setup())
+		if (!transceiver.setup(true))
 			startErrorLoop("failed to setup XCVR");
 		
 		transceiver.setPacketHandler(&packetHandler);

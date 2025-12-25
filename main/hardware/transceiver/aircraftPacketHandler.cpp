@@ -21,6 +21,9 @@ namespace pizda {
 			case PacketType::remoteMotorConfiguration: {
 				return readMotorConfigurationPacket(stream, payloadLength);
 			}
+			case PacketType::remoteBaro: {
+				return readRemoteBaroPacket(stream, payloadLength);
+			}
 			default: {
 				ESP_LOGE(_logTag, "failed to read packet: unsupported type %d", std::to_underlying(packetType));
 				return false;
@@ -166,6 +169,21 @@ namespace pizda {
 		return true;
 	}
 	
+	bool AircraftPacketHandler::readRemoteBaroPacket(BitStream& stream, uint8_t payloadLength) {
+		auto& ac = Aircraft::getInstance();
+		
+		if (!validatePayloadChecksumAndLength(
+			stream,
+			sizeof(uint32_t) * 1 * 8,
+			payloadLength
+		))
+			return false;
+		
+		ac.ahrs.setReferencePressurePa(sanitizeValue<uint32_t>(stream.readUint32(), 900'00, 1100'00));
+		
+		return true;
+	}
+	
 	// -------------------------------- Writing --------------------------------
 	
 	bool AircraftPacketHandler::writePacket(BitStream& stream, PacketType packetType) {
@@ -192,15 +210,21 @@ namespace pizda {
 		return true;
 	}
 	
-	void AircraftPacketHandler::onConnectionLost() {
+	void AircraftPacketHandler::onConnectionStateChanged(TransceiverConnectionState fromState, TransceiverConnectionState toState) {
 		auto& ac = Aircraft::getInstance();
-
-		ac.lights.setEmergencyEnabled(true);
-	}
-
-	void AircraftPacketHandler::onConnectionRestored() {
-		auto& ac = Aircraft::getInstance();
-
-		ac.lights.setEmergencyEnabled(false);
+		
+		switch (toState) {
+			case TransceiverConnectionState::connected: {
+				ac.lights.setEmergencyEnabled(true);
+				
+				break;
+			}
+			case TransceiverConnectionState::disconnected: {
+				ac.lights.setEmergencyEnabled(true);
+				
+				break;
+			}
+			default: break;
+		}
 	}
 }

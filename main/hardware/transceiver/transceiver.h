@@ -13,41 +13,45 @@ namespace pizda {
 	using namespace YOBA;
 	
 	enum class TransceiverConnectionState : uint8_t {
-		initial,
-		normal,
-		lost
+		standby,
+		connected,
+		disconnected
 	};
-
+	
 	class Transceiver {
 		public:
-			bool setup();
+			bool setup(bool isSlave);
 			void setPacketHandler(PacketHandler* value);
 			void start();
 			float getRSSI() const;
-
+		
 		private:
 			constexpr static const char* _logTag = "XCVR";
-			constexpr static uint32_t _connectionLostIntervalUs = 5'000'000;
 			
-			constexpr static uint32_t _SXTransmitTimeoutUs = 500'000;
-			constexpr static uint32_t _SXReceiveTimeoutUs = 500'000;
+			constexpr static uint8_t _desiredTickFrequencyHz = 20;
+			constexpr static uint32_t _desiredTickDurationUs = 1'000'000 / _desiredTickFrequencyHz;
+			constexpr static uint32_t _safetyMarginDurationUs = 2'000;
+			
+			constexpr static uint32_t _TXDurationUs = (_desiredTickDurationUs - _safetyMarginDurationUs) / 2;
+			constexpr static uint32_t _RXDurationUs = _desiredTickDurationUs - _TXDurationUs - _safetyMarginDurationUs;
+			
 			SX1262Ex _SX {};
+			float _RSSI = 0;
+			bool _isSlave = false;
 			
 			PacketHandler* _packetHandler = nullptr;
-			
-			float _RSSI = 0;
-			
-			bool _reading = false;
 			
 			constexpr static uint16_t _bufferLength = 255;
 			uint8_t _buffer[_bufferLength] {};
 			
+			constexpr static uint32_t _connectionLostInterval = 5'000'000;
 			uint32_t _connectionLostTime = 0;
-			TransceiverConnectionState _connectionState = TransceiverConnectionState::initial;
+			TransceiverConnectionState _connectionState = TransceiverConnectionState::standby;
 			
-			void updateConnectionLostTime();
-			void onStart();
-			bool write();
-			bool read();
+			[[noreturn]] void onStart();
+			bool transmit(uint32_t timeoutUs);
+			bool receive(uint32_t timeoutUs);
+			
+			void setConnectionState(TransceiverConnectionState state);
 	};
 }

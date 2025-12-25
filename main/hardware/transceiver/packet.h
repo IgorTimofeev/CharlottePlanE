@@ -9,6 +9,7 @@ namespace pizda {
 		remoteChannelDataStructure,
 		remoteChannelData,
 		remoteMotorConfiguration,
+		remoteBaro,
 
 		aircraftADIRS
 	};

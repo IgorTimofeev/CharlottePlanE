@@ -9,11 +9,10 @@
 #include <esp_timer.h>
 
 #include "config.h"
-#include "aircraft.h"
 
 namespace pizda {
-	bool Transceiver::setup() {
-		_reading = false;
+	bool Transceiver::setup(bool isSlave) {
+		_isSlave = isSlave;
 		
 		auto state = _SX.setup(
 			config::spi::device,
@@ -62,96 +61,92 @@ namespace pizda {
 	float Transceiver::getRSSI() const {
 		return _RSSI;
 	}
-
-	void Transceiver::onStart() {
+	
+	[[noreturn]] void Transceiver::onStart() {
 		ESP_LOGI(_logTag, "started");
-
-		while (true) {
-			if (!_packetHandler)
-				continue;
-			
-			bool state = false;
-			
-			if (_reading) {
-				state = read();
-				
-				if (state) {
-					switch (_connectionState) {
-						case TransceiverConnectionState::initial:
-							_connectionState = TransceiverConnectionState::normal;
-							
-							break;
-						
-						case TransceiverConnectionState::lost:
-							_connectionState = TransceiverConnectionState::normal;
-							_packetHandler->onConnectionRestored();
-							
-							break;
-						
-						default:
-							break;
-					}
-					
-					updateConnectionLostTime();
-					
-					// RSSI
-					_SX.getRSSI(_RSSI);
-				}
-				else {
-					if (_connectionState == TransceiverConnectionState::normal) {
-						if (esp_timer_get_time() >= _connectionLostTime) {
-							_connectionState = TransceiverConnectionState::lost;
-							_packetHandler->onConnectionLost();
-						}
-					}
+		
+		if (_isSlave) {
+			while (true) {
+				if (receive(1'000'000)) {
+					vTaskDelay(pdMS_TO_TICKS(30));
+					transmit(1'000'000);
 				}
 			}
-			else {
-				state = write();
+		}
+		else {
+			while (true) {
+				transmit(500'000);
+				receive(1'000'000);
 			}
-
-			vTaskDelay(pdMS_TO_TICKS(1'000 / config::transceiver::tickRateHz));
-//			vTaskDelay(pdMS_TO_TICKS(1'000));
 		}
 	}
 	
-	void Transceiver::updateConnectionLostTime() {
-		_connectionLostTime = esp_timer_get_time() + _connectionLostIntervalUs;
-	}
-	
-	bool Transceiver::write() {
+	bool Transceiver::transmit(uint32_t timeoutUs) {
 		uint8_t length = 0;
 		
 		if (!_packetHandler->write(_buffer, PacketType::aircraftADIRS, length))
 			return false;
-		
+
 //		ESP_LOGI(_logTag, "write length: %d", length);
 //
 //		for (int i = 0; i < length; ++i) {
 //			ESP_LOGI(_logTag, "write buffer[%d]: %d", i, _buffer[i]);
 //		}
-
-		if (!_SX.transmit(_buffer, length, _SXTransmitTimeoutUs))
-			return false;
 		
-		return true;
+		return _SX.transmit(_buffer, length, timeoutUs);
 	}
 	
-	bool Transceiver::read() {
+	bool Transceiver::receive(uint32_t timeoutUs) {
 		uint8_t length = 0;
 		
-		if (!_SX.receive(_buffer, length, _SXReceiveTimeoutUs))
-			return false;
-		
+		auto state = _SX.receive(_buffer, length, timeoutUs);
+
 //		ESP_LOGI(_logTag, "read length: %d", length);
 //
 //		for (int i = 0; i < length; ++i) {
 //			ESP_LOGI(_logTag, "read buffer[%d]: %d", i, _buffer[i]);
 //		}
+
+		if (state) {
+			state = _packetHandler->read(_buffer, length);
+		}
 		
-		if (!_packetHandler->read(_buffer, length))
-			return false;
+		if (state) {
+			switch (_connectionState) {
+				case TransceiverConnectionState::standby:
+					setConnectionState(TransceiverConnectionState::connected);
+					
+					break;
+				
+				case TransceiverConnectionState::disconnected:
+					setConnectionState(TransceiverConnectionState::connected);
+					
+					break;
+				
+				default:
+					break;
+			}
+			
+			_connectionLostTime = esp_timer_get_time() + _connectionLostInterval;
+			
+			// RSSI
+			_SX.getRSSI(_RSSI);
+		}
+		else {
+			if (_connectionState == TransceiverConnectionState::connected) {
+				if (esp_timer_get_time() >= _connectionLostTime) {
+					setConnectionState(TransceiverConnectionState::disconnected);
+				}
+			}
+		}
 		
-		return true;
+		return state;
+	}
+	
+	void Transceiver::setConnectionState(TransceiverConnectionState state) {
+		auto oldState = _connectionState;
+		_connectionState = state;
+		
+		_packetHandler->onConnectionStateChanged(oldState, _connectionState);
 	}
 }
