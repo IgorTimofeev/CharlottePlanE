@@ -116,7 +116,7 @@ namespace pizda {
 	}
 	
 	void Transceiver::updateConnectionLostTime() {
-		_connectionLostTime = esp_timer_get_time() + _connectionLostInterval;
+		_connectionLostTime = esp_timer_get_time() + _connectionLostIntervalUs;
 	}
 	
 	bool Transceiver::write() {
@@ -131,7 +131,7 @@ namespace pizda {
 //			ESP_LOGI(_logTag, "write buffer[%d]: %d", i, _buffer[i]);
 //		}
 
-		if (!_SX.transmit(_buffer, length, 1'000'000))
+		if (!_SX.transmit(_buffer, length, _SXTransmitTimeoutUs))
 			return false;
 		
 		return true;
@@ -140,7 +140,7 @@ namespace pizda {
 	bool Transceiver::read() {
 		uint8_t length = 0;
 		
-		if (!_SX.receive(_buffer, length, 1'000'000))
+		if (!_SX.receive(_buffer, length, _SXReceiveTimeoutUs))
 			return false;
 		
 //		ESP_LOGI(_logTag, "read length: %d", length);

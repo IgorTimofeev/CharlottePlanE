@@ -2,10 +2,12 @@
 
 #include <array>
 #include <cmath>
+#include <algorithm>
 
 #include <driver/spi_master.h>
 #include <driver/gpio.h>
 #include <esp_log.h>
+#include <esp_timer.h>
 
 #include "config.h"
 #include "hardware/ADIRS/MPU9250.h"
@@ -55,7 +57,7 @@ namespace pizda {
 				pitchRad = applyGyroTrustFactor(gyroPitch, accelPitch, gyroTrustFactor);
 
 				// Mag tilt compensation using computed pitch/roll
-				float magYawWithoutTilt = std::atan2(magData.getX(), magData.getY());
+//				float magYawWithoutTilt = std::atan2(magData.getX(), magData.getY());
 
 				const auto magDataTilt = applyTiltCompensation(magData, rollRad, pitchRad);
 				float magYaw = std::atan2(magDataTilt.getX(), magDataTilt.getY());
@@ -120,7 +122,7 @@ namespace pizda {
 			constexpr static uint32_t bytesPerSecond = FIFOSampleLength * FIFOSampleRateHz;
 			constexpr static uint32_t minimumReadTaskDelayMs = FIFOLength * 1'000 / bytesPerSecond;
 			constexpr static uint32_t safeReadTaskDelayMs = minimumReadTaskDelayMs * 9 / 10;
-
+			
 			MPU9250 MPU {};
 			Vector3F accelBias {};
 			Vector3F gyroBias {};
@@ -171,7 +173,7 @@ namespace pizda {
 			void calibrateAccAndGyr() {
 				constexpr static uint16_t iterations = 512;
 
-				ESP_LOGI(_logTag, "Acc and gyr calibration started");
+				ESP_LOGI(_logTag, "accel and gyro calibration started");
 
 //				accelBias = {
 //					0.080503,
@@ -208,25 +210,54 @@ namespace pizda {
 				aSum.setZ(aSum.getZ() - 1);
 
 				gSum /= static_cast<float>(iterations);
-
-				ESP_LOGI(_logTag, "acc offset: %f x %f x %f", aSum.getX(), aSum.getY(), aSum.getZ());
-				ESP_LOGI(_logTag, "gyr offset: %f x %f x %f", gSum.getX(), gSum.getY(), gSum.getZ());
-
+				
 				accelBias = aSum;
 				gyroBias = gSum;
-
+				
+				ESP_LOGI(_logTag, "acc bias: %f x %f x %f", accelBias.getX(), accelBias.getY(), accelBias.getZ());
+				ESP_LOGI(_logTag, "gyr bias: %f x %f x %f", gyroBias.getX(), gyroBias.getY(), gyroBias.getZ());
+				
 				// Restoring attenuation to operational
 				setMPUOperationalMode();
 			}
 
 			void calibrateMag() {
-				ESP_LOGI(_logTag, "Mag calibration started");
-
 				magBias = {
-					(-31 + 74) / 2,
-					(-38 + 65) / 2,
-					(-76 + 27) / 2
+					11.828777,
+					24.903629,
+					-25.226059
 				};
+
+				return;
+				
+				ESP_LOGI(_logTag, "mag calibration started");
+				
+				constexpr static uint32_t durationUs = 10'000'000;
+				const auto deadline = esp_timer_get_time() + durationUs;
+				
+				Vector3F min {};
+				Vector3F max {};
+				
+				do {
+					const auto magData = MPU.getMagData();
+					
+					min.setX(std::min(min.getX(), magData.getX()));
+					min.setY(std::min(min.getY(), magData.getY()));
+					min.setZ(std::min(min.getZ(), magData.getZ()));
+					
+					max.setX(std::max(max.getX(), magData.getX()));
+					max.setY(std::max(max.getY(), magData.getY()));
+					max.setZ(std::max(max.getZ(), magData.getZ()));
+					
+					vTaskDelay(pdMS_TO_TICKS(std::max(magSampleIntervalUs / 1000, portTICK_PERIOD_MS)));
+				}
+				while (esp_timer_get_time() < deadline);
+				
+				magBias.setX(min.getX() + (max.getX() - min.getX()) / 2);
+				magBias.setY(min.getY() + (max.getY() - min.getY()) / 2);
+				magBias.setZ(min.getZ() + (max.getZ() - min.getZ()) / 2);
+				
+				ESP_LOGI(_logTag, "mag bias: %f x %f x %f", magBias.getX(), magBias.getY(), magBias.getZ());
 			}
 
 			void tick() {

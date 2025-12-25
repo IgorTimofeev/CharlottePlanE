@@ -183,24 +183,24 @@ namespace pizda {
 			}
 
 			void updateIMUs() {
-				_rollRad = 0;
-				_pitchRad = 0;
-				_yawRad = 0;
-				_accelVelocityMs = 0;
+				float rollRadSum = 0;
+				float pitchRadSum = 0;
+				float yawRadSum = 0;
+				float accelVelocityMsSum = 0;
 				
 				for (auto& IMU : _IMUs) {
 					IMU.unit.tick();
 					
-					_rollRad += IMU.unit.rollRad;
-					_pitchRad += IMU.unit.pitchRad;
-					_yawRad += IMU.unit.yawRad;
-					_accelVelocityMs += IMU.unit.accelVelocityMs.getY();
+					rollRadSum += IMU.unit.rollRad;
+					pitchRadSum += IMU.unit.pitchRad;
+					yawRadSum += IMU.unit.yawRad;
+					accelVelocityMsSum += std::abs(IMU.unit.accelVelocityMs.getY());
 				}
 				
-				_rollRad /= _IMUs.size();
-				_pitchRad /= _IMUs.size();
-				_yawRad /= _IMUs.size();
-				_accelVelocityMs /= _IMUs.size();
+				_rollRad = rollRadSum / _IMUs.size();
+				_pitchRad = pitchRadSum / _IMUs.size();
+				_yawRad = yawRadSum / _IMUs.size();
+				_accelVelocityMs = accelVelocityMsSum / _IMUs.size();
 			}
 
 			bool setupBMPs() {

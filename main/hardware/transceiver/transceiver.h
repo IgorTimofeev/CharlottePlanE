@@ -27,8 +27,10 @@ namespace pizda {
 
 		private:
 			constexpr static const char* _logTag = "XCVR";
-			constexpr static uint32_t _connectionLostInterval = 5'000'000;
+			constexpr static uint32_t _connectionLostIntervalUs = 5'000'000;
 			
+			constexpr static uint32_t _SXTransmitTimeoutUs = 500'000;
+			constexpr static uint32_t _SXReceiveTimeoutUs = 500'000;
 			SX1262Ex _SX {};
 			
 			PacketHandler* _packetHandler = nullptr;
