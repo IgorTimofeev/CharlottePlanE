@@ -32,7 +32,7 @@ namespace pizda {
 		}
 		
 		const auto checksum = getCRC8(stream.getBuffer(), expectedPayloadLengthBytes);
-		const auto expectedChecksum = *(stream.getBuffer() + expectedPayloadLengthBytes + Packet::checksumLengthBytes);
+		const auto expectedChecksum = *(stream.getBuffer() + expectedPayloadLengthBytes);
 		
 		// Checksum
 		if (checksum != expectedChecksum) {
