@@ -169,11 +169,13 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="сэкономили бля пару битиков">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="pizda">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262Ex.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262Ex.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/transceiver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/transceiver.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/transceiver.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/transceiver.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -265,11 +267,6 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.CharlottePlanE.elf">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="CharlottePlanE.elf" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="CharlottePlanE.elf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="CharlottePlanE" RUN_TARGET_NAME="CharlottePlanE.elf">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -1174,15 +1171,8 @@
       <workItem from="1766595902745" duration="16926000" />
       <workItem from="1766657447447" duration="12450000" />
       <workItem from="1766671015069" duration="8230000" />
-      <workItem from="1766684210566" duration="22416000" />
-    </task>
-    <task id="LOCAL-00042" summary="pizda1111">
-      <option name="closed" value="true" />
-      <created>1766265296595</created>
-      <option name="number" value="00042" />
-      <option name="presentableId" value="LOCAL-00042" />
-      <option name="project" value="LOCAL" />
-      <updated>1766265296595</updated>
+      <workItem from="1766684210566" duration="22771000" />
+      <workItem from="1766741638948" duration="7392000" />
     </task>
     <task id="LOCAL-00043" summary="pizda1111">
       <option name="closed" value="true" />
@@ -1568,7 +1558,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766706568711</updated>
     </task>
-    <option name="localTasksCounter" value="91" />
+    <task id="LOCAL-00091" summary="pizda">
+      <option name="closed" value="true" />
+      <created>1766711791810</created>
+      <option name="number" value="00091" />
+      <option name="presentableId" value="LOCAL-00091" />
+      <option name="project" value="LOCAL" />
+      <updated>1766711791810</updated>
+    </task>
+    <option name="localTasksCounter" value="92" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1593,7 +1591,6 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="ппц заебался" />
     <MESSAGE value="получше" />
-    <MESSAGE value="pizda" />
     <MESSAGE value="pizda1111" />
     <MESSAGE value="так-то лучше ебана" />
     <MESSAGE value="ЧОТА ЧИТАЕТ!111 но пока один раз" />
@@ -1608,7 +1605,8 @@
     <MESSAGE value="сука хз" />
     <MESSAGE value="вооо пашет" />
     <MESSAGE value="сэкономили бля пару битиков" />
-    <option name="LAST_COMMIT_MESSAGE" value="сэкономили бля пару битиков" />
+    <MESSAGE value="pizda" />
+    <option name="LAST_COMMIT_MESSAGE" value="pizda" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

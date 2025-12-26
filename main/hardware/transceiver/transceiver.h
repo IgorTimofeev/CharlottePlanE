@@ -20,7 +20,7 @@ namespace pizda {
 	
 	class Transceiver {
 		public:
-			bool setup(bool isSlave);
+			bool setup();
 			void setPacketHandler(PacketHandler* value);
 			void start();
 			float getRSSI() const;
@@ -37,7 +37,6 @@ namespace pizda {
 			
 			SX1262Ex _SX {};
 			float _RSSI = 0;
-			bool _isSlave = false;
 			
 			PacketHandler* _packetHandler = nullptr;
 			

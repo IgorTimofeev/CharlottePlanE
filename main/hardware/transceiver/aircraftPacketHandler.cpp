@@ -179,9 +179,10 @@ namespace pizda {
 		))
 			return false;
 		
-		const auto referencePressureKPa = stream.readUint16();
+		// 
+		const auto referencePressureDaPa = stream.readUint16(15);
 		
-		ac.ahrs.setReferencePressurePa(sanitizeValue<uint32_t>(static_cast<uint32_t>(referencePressureKPa) * 10, 900'00, 1100'00));
+		ac.ahrs.setReferencePressurePa(sanitizeValue<uint32_t>(static_cast<uint32_t>(referencePressureDaPa) * 10, 900'00, 1100'00));
 		
 		return true;
 	}
