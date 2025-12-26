@@ -68,15 +68,22 @@ namespace pizda {
 		if (_isSlave) {
 			while (true) {
 				if (receive(1'000'000)) {
-					vTaskDelay(pdMS_TO_TICKS(30));
+					vTaskDelay(pdMS_TO_TICKS(20));
 					transmit(1'000'000);
 				}
 			}
 		}
 		else {
 			while (true) {
+//				auto time = esp_timer_get_time();
 				transmit(500'000);
-				receive(1'000'000);
+//				auto txTime = esp_timer_get_time() - time;
+
+//				time = esp_timer_get_time();
+				receive(500'000);
+//				auto rxTime = esp_timer_get_time() - time;
+
+//				ESP_LOGI("PIZDA", "total time: %d, rx time: %d, txTime: %d", rxTime +  txTime, rxTime, txTime);
 			}
 		}
 	}

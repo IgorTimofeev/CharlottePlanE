@@ -169,12 +169,11 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="вооо пашет">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="сэкономили бля пару битиков">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/IMU.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/IMU.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262Ex.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262Ex.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/transceiver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/transceiver.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -1175,15 +1174,7 @@
       <workItem from="1766595902745" duration="16926000" />
       <workItem from="1766657447447" duration="12450000" />
       <workItem from="1766671015069" duration="8230000" />
-      <workItem from="1766684210566" duration="17768000" />
-    </task>
-    <task id="LOCAL-00041" summary="pizda1111">
-      <option name="closed" value="true" />
-      <created>1766262011528</created>
-      <option name="number" value="00041" />
-      <option name="presentableId" value="LOCAL-00041" />
-      <option name="project" value="LOCAL" />
-      <updated>1766262011528</updated>
+      <workItem from="1766684210566" duration="22416000" />
     </task>
     <task id="LOCAL-00042" summary="pizda1111">
       <option name="closed" value="true" />
@@ -1569,7 +1560,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766701773206</updated>
     </task>
-    <option name="localTasksCounter" value="90" />
+    <task id="LOCAL-00090" summary="сэкономили бля пару битиков">
+      <option name="closed" value="true" />
+      <created>1766706568711</created>
+      <option name="number" value="00090" />
+      <option name="presentableId" value="LOCAL-00090" />
+      <option name="project" value="LOCAL" />
+      <updated>1766706568711</updated>
+    </task>
+    <option name="localTasksCounter" value="91" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1608,7 +1607,8 @@
     <MESSAGE value="по ходу надо покомпактнее паковать дату" />
     <MESSAGE value="сука хз" />
     <MESSAGE value="вооо пашет" />
-    <option name="LAST_COMMIT_MESSAGE" value="вооо пашет" />
+    <MESSAGE value="сэкономили бля пару битиков" />
+    <option name="LAST_COMMIT_MESSAGE" value="сэкономили бля пару битиков" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
