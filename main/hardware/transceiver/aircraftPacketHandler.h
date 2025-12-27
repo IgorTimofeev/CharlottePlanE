@@ -25,6 +25,8 @@ namespace pizda {
 			bool readRemoteBaroPacket(BitStream& stream, uint8_t payloadLength);
 			
 			bool writeAircraftADIRSPacket(BitStream& stream);
+			bool writeAircraftStatisticsPacket(BitStream& stream);
+			bool writeAircraftAutopilotPacket(BitStream& stream);
 			
 			template<typename T>
 			static float sanitizeValue(T value, T min, T max) {

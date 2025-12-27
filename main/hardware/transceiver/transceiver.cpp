@@ -12,8 +12,6 @@
 
 namespace pizda {
 	bool Transceiver::setup() {
-		_isSlave = isSlave;
-		
 		auto state = _SX.setup(
 			config::spi::device,
 			config::transceiver::SPIFrequencyHz,

@@ -194,6 +194,12 @@ namespace pizda {
 			case PacketType::aircraftADIRS:
 				return writeAircraftADIRSPacket(stream);
 			
+			case PacketType::aircraftStatistics:
+				return writeAircraftADIRSPacket(stream);
+			
+			case PacketType::aircraftAutopilot:
+				return writeAircraftADIRSPacket(stream);
+			
 			default:
 				ESP_LOGE(_logTag, "failed to write packet: unsupported type %d", std::to_underlying(packetType));
 				return false;
@@ -203,41 +209,34 @@ namespace pizda {
 	bool AircraftPacketHandler::writeAircraftADIRSPacket(BitStream& stream) {
 		auto& ac = Aircraft::getInstance();
 		
-		// Payload
-		auto writeEbanina = [&stream](float value, uint8_t bits) {
+		// Roll / pitch / yaw
+		auto writeRadians = [&stream](float value, uint8_t bits) {
 			const auto uintValue = static_cast<uint16_t>((value / (2.f * std::numbers::pi_v<float>) + 0.5f) * (1 << bits));
 			
 			stream.writeUint16(uintValue, bits);
 		};
 		
-		// Precision of 0.25 - 0.5 deg should be enough for any client-side visualization with LPF
-		// So 360 * 1 / 0.25 = 1440 ~= 10 bits
-		// Or for 180 deg:
-		
 		// Roll range is [-180; 180] deg
-		writeEbanina(ac.ahrs.getRollRad(), 10);
-		// But pitch is [-90; 90] deg, but we can't use fewer bits
-		writeEbanina(ac.ahrs.getPitchRad(), 10);
+		writeRadians(ac.ahrs.getRollRad(), AircraftADIRSPacket::rollLengthBits);
+		// Pitch is [-90; 90] deg, but we can't use fewer bits
+		writeRadians(ac.ahrs.getPitchRad(), AircraftADIRSPacket::pitchLengthBits);
 		// Same as roll, [-180; 180] deg
-		writeEbanina(ac.ahrs.getYawRad(), 10);
+		writeRadians(ac.ahrs.getYawRad(), AircraftADIRSPacket::yawLengthBits);
 
+		// Slip & skid
+		const auto slipAndSkidValue = static_cast<uint8_t>(static_cast<float>(1 << AircraftADIRSPacket::slipAndSkidLengthBits) * (ac.ahrs.getSlipAndSkidFactor() + 1.f) / 2.f);
+		
+		stream.writeUint8(slipAndSkidValue, AircraftADIRSPacket::slipAndSkidLengthBits);
+		
 		// Speed
-		// 7 bit = 127 m/s or ~246.8 kt, should be enough
-		stream.writeUint8(static_cast<uint8_t>(ac.ahrs.getAccelVelocityMs()), 7);
+		stream.writeUint8(static_cast<uint8_t>(ac.ahrs.getAccelVelocityMs()), AircraftADIRSPacket::speedLengthBits);
 		
 		// Altitude
-		// 13 bit = 8191, not enough
-		// 14 bit = 16383, more than enough
-		// Mapping [-1000; 10000] to [0; 16383]
-		constexpr static int16_t altitudeMin = -1'000;
-		constexpr static int16_t altitudeMax = 10'000;
-		constexpr static uint8_t altitudeBits = 14;
+		const auto altitudeClamped = std::clamp<float>(ac.ahrs.getAltitudeM(), AircraftADIRSPacket::altitudeMin, AircraftADIRSPacket::altitudeMax);
+		const auto altitudeFactor = (altitudeClamped - static_cast<float>(AircraftADIRSPacket::altitudeMin)) / static_cast<float>(AircraftADIRSPacket::altitudeMax - AircraftADIRSPacket::altitudeMin);
+		const auto altitudeUint16 = static_cast<uint16_t>(altitudeFactor * static_cast<float>(1 << AircraftADIRSPacket::altitudeLengthBits));
 		
-		const auto altitudeClamped = std::clamp<float>(ac.ahrs.getAltitudeM(), altitudeMin, altitudeMax);
-		const auto altitudeFactor = (altitudeClamped - static_cast<float>(altitudeMin)) / static_cast<float>(altitudeMax - altitudeMin);
-		const auto altitudeUint16 = static_cast<uint16_t>(altitudeFactor * static_cast<float>(1 << altitudeBits));
-		
-		stream.writeInt16(altitudeUint16, altitudeBits);
+		stream.writeInt16(altitudeUint16, AircraftADIRSPacket::altitudeLengthBits);
 
 //		stream.writeUint16(2048, 12);
 //		stream.writeUint16(2048, 12);
@@ -245,6 +244,20 @@ namespace pizda {
 //
 //		stream.writeUint8(125, 8);
 //		stream.writeInt16(100, 16);
+		
+		return true;
+	}
+	
+	bool AircraftPacketHandler::writeAircraftStatisticsPacket(BitStream& stream) {
+		auto& ac = Aircraft::getInstance();
+		
+		
+		
+		return true;
+	}
+	
+	bool AircraftPacketHandler::writeAircraftAutopilotPacket(BitStream& stream) {
+		auto& ac = Aircraft::getInstance();
 		
 		return true;
 	}

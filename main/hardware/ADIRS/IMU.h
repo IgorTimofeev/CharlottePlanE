@@ -107,6 +107,7 @@ namespace pizda {
 			constexpr static const char* _logTag = "IMU";
 
 			constexpr static uint8_t SRD = 4;
+			constexpr static uint8_t accelerationGMax = 2;
 
 			constexpr static uint16_t FIFOLength = 512;
 			constexpr static uint16_t FIFOSampleRateHz = 1000 / (1 + SRD);
@@ -143,8 +144,10 @@ namespace pizda {
 			// FIFO
 			uint32_t FIFOSampleTimeUs = 0;
 			
-			Vector3F accelPosM {};
-			Vector3F accelVelocityMs {};
+			Vector3F accelerationG {};
+
+			Vector3F positionM {};
+			Vector3F velocityMs {};
 			
 			float rollRad = 0;
 			float pitchRad = 0;
@@ -347,7 +350,7 @@ namespace pizda {
 //				ESP_LOGI(_logTag, "FIFO sample count %d", sampleCount);
 				
 				if (sampleCount < 8) {
-					ESP_LOGI(_logTag, "FIFO sample count %d is not enough, skipping for more data", sampleCount);
+					ESP_LOGW(_logTag, "FIFO sample count %d is not enough, skipping for more data", sampleCount);
 					return;
 				}
 				else if (sampleCount >= FIFOMaxSampleCount) {
@@ -361,11 +364,14 @@ namespace pizda {
 				const auto samplesToRead = std::min<uint16_t>(FIFOMaxSampleCount, sampleCount);
 				
 				uint8_t sample[FIFOSampleLength] {};
+				Vector3F accelerationGSum {};
 				
 				for (uint32_t i = 0; i < samplesToRead; i++) {
 					MPU.getFIFOData(sample, FIFOSampleLength);
 					
 					const auto accelData = MPU.getAccelData(sample) - accelBias;
+					accelerationGSum += accelData;
+					
 					const auto gyroData = MPU.getGyroData(sample + FIFOSampleDataTypeLength) - gyroBias;
 					
 					// Applying adaptive complimentary filter
@@ -396,11 +402,10 @@ namespace pizda {
 					
 					constexpr static float GMs2 = 9.80665f;
 					auto accelerationMs2 = accelTilt * GMs2;
-					auto velocityMs = accelerationMs2 * FIFOSampleIntervalS;
-					accelVelocityMs += velocityMs;
+					velocityMs += accelerationMs2 * FIFOSampleIntervalS;
 					
-					auto accelPositionOffsetM = accelVelocityMs * FIFOSampleIntervalS;
-					accelPosM += accelPositionOffsetM;
+					auto accelPositionOffsetM = velocityMs * FIFOSampleIntervalS;
+					positionM += accelPositionOffsetM;
 				}
 
 //				ESP_LOGI(_logTag, "Velocity: %f x %f x %f", accelVelocityMs.getX(), accelVelocityMs.getY(), accelVelocityMs.getZ());
@@ -410,6 +415,9 @@ namespace pizda {
 				MPU.resetFIFO();
 				MPU.setFIFODataSource(FIFODataSource);
 				MPU.readAndClearInterruptStatus();
+				
+				accelerationGSum /= samplesToRead;
+				accelerationG = accelerationGSum;
 				
 				FIFOSampleTimeUs = esp_timer_get_time() + FIFOSafeSampleIntervalUs;
 			}

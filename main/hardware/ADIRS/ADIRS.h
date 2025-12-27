@@ -84,13 +84,23 @@ namespace pizda {
 				return _altitudeM;
 			}
 			
+			const Vector3F& getAccelerationG() const {
+				return _accelerationG;
+			}
+		
+			float getSlipAndSkidFactor() const {
+				return _slipAndSkidFactor;
+			}
+			
 		private:
 			constexpr static const char* _logTag = "AHRS";
 			
 			float _rollRad = 0;
 			float _pitchRad = 0;
 			float _yawRad = 0;
+			Vector3F _accelerationG {};
 			float _accelVelocityMs = 0;
+			float _slipAndSkidFactor = 0;
 			
 			float _pressurePa = 0;
 			float _altitudeM = 0;
@@ -186,6 +196,7 @@ namespace pizda {
 				float rollRadSum = 0;
 				float pitchRadSum = 0;
 				float yawRadSum = 0;
+				Vector3F accelerationGSum {};
 				float accelVelocityMsSum = 0;
 				
 				for (auto& IMU : _IMUs) {
@@ -194,13 +205,19 @@ namespace pizda {
 					rollRadSum += IMU.unit.rollRad;
 					pitchRadSum += IMU.unit.pitchRad;
 					yawRadSum += IMU.unit.yawRad;
-					accelVelocityMsSum += std::abs(IMU.unit.accelVelocityMs.getY());
+					accelerationGSum += IMU.unit.accelerationG;
+					accelVelocityMsSum += std::abs(IMU.unit.velocityMs.getY());
 				}
 				
 				_rollRad = rollRadSum / _IMUs.size();
 				_pitchRad = pitchRadSum / _IMUs.size();
 				_yawRad = yawRadSum / _IMUs.size();
+				_accelerationG = accelerationGSum / _IMUs.size();
 				_accelVelocityMs = accelVelocityMsSum / _IMUs.size();
+				
+				// Slip & skid
+				// factor = accelerationG / rangeG - sin(roll)
+				_slipAndSkidFactor = std::clamp(-_accelerationG.getX() / static_cast<float>(IMU::accelerationGMax) - std::sin(_rollRad), -1.f, 1.f);
 			}
 
 			bool setupBMPs() {
