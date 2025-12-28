@@ -1,6 +1,6 @@
 #pragma once
 
-#include <array>
+#include <vector>
 #include <optional>
 
 #include <esp_log.h>
@@ -82,10 +82,12 @@ namespace pizda {
 		elevator,
 		rudder,
 		flaps,
+		unused,
 
 		navLights,
 		strobeLights,
-		landingLights
+		landingLights,
+		cabinLights
 	};
 
 	class Channels {
@@ -105,7 +107,7 @@ namespace pizda {
 		private:
 			constexpr static const char* _logTag = "Channels";
 
-			std::array<Channel*, 10> instances {};
+			std::vector<Channel*> instances = std::vector<Channel*>(16);
 
 			Channel* getChannelAndCheckDataType(uint8_t channelIndex, ChannelDataType dataType);
 	};

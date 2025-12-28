@@ -36,12 +36,11 @@ namespace pizda {
 			Motor(gpio_num_t pin, ledc_channel_t channel);
 
 			constexpr static const char* _logTag = "Motor";
-
+			
+			constexpr static uint16_t powerMaxValue = 0xFFFF;
+			
 			constexpr static uint8_t frequencyHz = 50;
-
-			constexpr static uint8_t powerBitCount = 12;
-			constexpr static uint16_t powerMaxValue = 4095;
-
+			
 			constexpr static ledc_timer_bit_t dutyBitCount = LEDC_TIMER_13_BIT;
 			constexpr static uint32_t dutyMaxValue = 8191;
 

@@ -57,6 +57,7 @@ namespace pizda {
 		return _power;
 	}
 
+	// Value range is [0; 0xFFFF]
 	void ConfiguredMotor::setPower(uint16_t value) {
 		_power = value;
 

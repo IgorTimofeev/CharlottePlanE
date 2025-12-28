@@ -72,7 +72,7 @@ namespace pizda {
 
 		protected:
 			const char* getNamespace() override {
-				return "rcds1";
+				return "rcds2";
 			}
 
 			void onRead(const NVSStream& stream) override {

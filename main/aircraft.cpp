@@ -21,15 +21,14 @@ namespace pizda {
 
 		SPIBusSetup();
 
-//		motors.setup();
+		motors.setup();
 
-//		lights.setup();
-//		lights.start();
+		lights.setup();
+		lights.start();
 
-//		channels.setup();
+		channels.setup();
 
 		ahrs.setup();
-		ahrs.setReferencePressurePa(102200);
 		
 		if (!transceiver.setup())
 			startErrorLoop("failed to setup XCVR");
@@ -64,7 +63,7 @@ namespace pizda {
 
 			if (!channel || !motor)
 				return;
-
+			
 			motor->setPower(channel->getValue());
 		}
 
@@ -76,7 +75,7 @@ namespace pizda {
 
 			if (!channel || !leftAileronMotor)
 				return;
-
+			
 			leftAileronMotor->setPower(channel->getValue());
 //				rightAileronMotor->setPower(aileronsChannel->getValue());
 		}
@@ -89,7 +88,7 @@ namespace pizda {
 
 			if (!flapsChannel || !leftFlapMotor)
 				return;
-
+			
 			leftFlapMotor->setPower(flapsChannel->getValue());
 //				rightFlapMotor->setPower(aileronsChannel->getValue());
 		}
@@ -106,6 +105,10 @@ namespace pizda {
 
 			if ((boolChannel = channels.getBoolChannel(ChannelType::landingLights)))
 				lights.setLandingEnabled(boolChannel->getValue());
+			
+			if ((boolChannel = channels.getBoolChannel(ChannelType::cabinLights))) {
+				lights.setCabinEnabled(boolChannel->getValue());
+			}
 		}
 	}
 	

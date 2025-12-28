@@ -224,7 +224,7 @@ namespace pizda {
 				for (uint8_t i = 0; i < static_cast<uint8_t>(_BMPs.size()); ++i) {
 					auto& BMP = _BMPs[i];
 
-					BMP.stream.setup(_I2CBusHandle, BMP.address, 1000000);
+					BMP.stream.setup(_I2CBusHandle, BMP.address, 1'000'000);
 
 					if (!BMP.unit.setup(
 						&BMP.stream,

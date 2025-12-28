@@ -13,12 +13,28 @@ namespace pizda {
 		auto& ac = Aircraft::getInstance();
 
 		// Deleting existing channels
-		for (auto& channel : instances) {
+		for (auto channel : instances) {
 			if (channel) {
 				delete channel;
-				channel = nullptr;
 			}
 		}
+		
+		instances.clear();
+		
+		// TMP
+		instances.push_back(new UintChannel(RemoteChannelsPacket::motorLengthBits));
+		instances.push_back(new UintChannel(RemoteChannelsPacket::motorLengthBits));
+		instances.push_back(new UintChannel(RemoteChannelsPacket::motorLengthBits));
+		instances.push_back(new UintChannel(RemoteChannelsPacket::motorLengthBits));
+		instances.push_back(new UintChannel(RemoteChannelsPacket::motorLengthBits));
+		instances.push_back(new UintChannel(RemoteChannelsPacket::motorLengthBits));
+		
+		instances.push_back(new BoolChannel());
+		instances.push_back(new BoolChannel());
+		instances.push_back(new BoolChannel());
+		instances.push_back(new BoolChannel());
+		
+		return;
 
 		// Creating new channels
 		Channel* channel = nullptr;
@@ -27,11 +43,6 @@ namespace pizda {
 
 		for (const auto& field : ac.settings.channelDataStructure.fields) {
 			for (uint16_t i = 0; i < field.count; ++i) {
-				if (channelIndex >= instances.size()) {
-					ESP_LOGE(_logTag, "updateFromDataStructure() failed, channel %d >= channels size %d", channelIndex, instances.size());
-					return;
-				}
-
 				switch (field.type) {
 					case ChannelDataType::unsignedInteger:
 						channel = new UintChannel(field.bitDepth);
@@ -42,7 +53,7 @@ namespace pizda {
 						break;
 				}
 
-				instances[channelIndex] = channel;
+				instances.push_back(channel);
 
 				channelIndex++;
 			}
@@ -54,15 +65,8 @@ namespace pizda {
 			ESP_LOGE(_logTag, "getChannel() failed, channel %d >= channels size %d", channelIndex, instances.size());
 			return nullptr;
 		}
-
-		const auto channel = instances[channelIndex];
-
-		if (!channel) {
-			ESP_LOGE(_logTag, "getChannel() failed, channel %d is not configured", channelIndex);
-			return nullptr;
-		}
-
-		return channel;
+		
+		return instances[channelIndex];
 	}
 
 	Channel* Channels::getChannel(ChannelType channelType) {

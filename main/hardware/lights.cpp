@@ -24,6 +24,13 @@ namespace pizda {
 			&taskHandle
 		);
 	}
+	
+	void Lights::setCabinEnabled(bool value) {
+		if (value == cabinEnabled)
+			return;
+		
+		cabinEnabled = value;
+	}
 
 	bool Lights::isNavigationEnabled() const {
 		return navigationEnabled;
@@ -104,12 +111,20 @@ namespace pizda {
 
 		while (true) {
 			if (emergencyEnabled) {
+				// Cabin
+				cabin.fill(0xFF, 0x00, 0x00);
+				cabin.flush();
+				
 				// Left wing
 				leftWing.fill(0xFF, 0x00, 0x00);
 				leftWing.flush();
 
 				vTaskDelay(pdMS_TO_TICKS(500));
-
+				
+				// Cabin
+				cabin.fill(0x00);
+				cabin.flush();
+				
 				// Left wing
 				leftWing.fill(0x00);
 				leftWing.flush();
@@ -117,6 +132,10 @@ namespace pizda {
 				vTaskDelay(pdMS_TO_TICKS(500));
 			}
 			else {
+				// Cabin
+				cabin.fill(cabinEnabled ? 0xFF : 0x00);
+				cabin.flush();
+				
 				// Left wing (strobe 1)
 				updateStrobes(leftWing, 0xFF, 0x00, 0x00);
 

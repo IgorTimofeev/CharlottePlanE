@@ -12,17 +12,37 @@
 namespace pizda {
 	class AircraftPacketHandler : public PacketHandler {
 		public:
+			AircraftPacketHandler() : PacketHandler({
+				PacketType::aircraftADIRS,
+				PacketType::aircraftADIRS,
+				PacketType::aircraftADIRS,
+				PacketType::aircraftADIRS,
+				
+				PacketType::aircraftStatistics,
+				
+				PacketType::aircraftADIRS,
+				PacketType::aircraftADIRS,
+				PacketType::aircraftADIRS,
+				PacketType::aircraftADIRS,
+				
+				std::nullopt
+			}) {
+			
+			}
+			
 			void onConnectionStateChanged(TransceiverConnectionState fromState, TransceiverConnectionState toState) override;
 
 		protected:
 			bool readPacket(BitStream& stream, PacketType packetType, uint8_t payloadLength) override;
 			bool writePacket(BitStream& stream, PacketType packetType) override;
-			
+		
 		private:
-			bool readChannelDataStructurePacket(BitStream& stream, uint8_t payloadLength);
-			bool readChannelDataPacket(BitStream& stream, uint8_t payloadLength);
+			uint8_t _packetIndex = 0;
+			
+			bool readRemoteChannelDataStructurePacket(BitStream& stream, uint8_t payloadLength);
+			bool readRemoteChannelsDataPacket(BitStream& stream, uint8_t payloadLength);
 			bool readMotorConfigurationPacket(BitStream& stream, uint8_t payloadLength);
-			bool readRemoteBaroPacket(BitStream& stream, uint8_t payloadLength);
+			bool readRemoteAuxiliary0Packet(BitStream& stream, uint8_t payloadLength);
 			
 			bool writeAircraftADIRSPacket(BitStream& stream);
 			bool writeAircraftStatisticsPacket(BitStream& stream);

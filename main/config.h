@@ -34,16 +34,16 @@ namespace pizda {
 			class motors {
 				public:
 					constexpr static gpio_num_t throttle = GPIO_NUM_1;
-					constexpr static gpio_num_t noseWheelSteering = GPIO_NUM_NC;
+					constexpr static gpio_num_t noseWheelSteering = GPIO_NUM_47;
 
-					constexpr static gpio_num_t leftWingFlap = GPIO_NUM_6;
-					constexpr static gpio_num_t leftWingAileron = GPIO_NUM_5;
+					constexpr static gpio_num_t leftWingFlap = GPIO_NUM_2;
+					constexpr static gpio_num_t leftWingAileron = GPIO_NUM_42;
 
-					constexpr static gpio_num_t rightWingFlap = GPIO_NUM_NC;
-					constexpr static gpio_num_t rightWingAileron = GPIO_NUM_NC;
+					constexpr static gpio_num_t rightWingFlap = GPIO_NUM_40;
+					constexpr static gpio_num_t rightWingAileron = GPIO_NUM_39;
 
-					constexpr static gpio_num_t tailLeft = GPIO_NUM_NC;
-					constexpr static gpio_num_t tailRight = GPIO_NUM_NC;
+					constexpr static gpio_num_t tailLeft = GPIO_NUM_37;
+					constexpr static gpio_num_t tailRight = GPIO_NUM_36;
 			};
 
 			class lights {
@@ -56,19 +56,19 @@ namespace pizda {
 
 					class leftWing {
 						public:
-							constexpr static gpio_num_t pin = GPIO_NUM_4;
+							constexpr static gpio_num_t pin = GPIO_NUM_41;
 							constexpr static uint8_t length = 6;
 					};
 
 					class rightWing {
 						public:
-							constexpr static gpio_num_t pin = GPIO_NUM_4;
+							constexpr static gpio_num_t pin = GPIO_NUM_38;
 							constexpr static uint8_t length = 6;
 					};
 
 					class tail {
 						public:
-							constexpr static gpio_num_t pin = GPIO_NUM_4;
+							constexpr static gpio_num_t pin = GPIO_NUM_35;
 							constexpr static uint8_t length = 3;
 					};
 			};

@@ -169,15 +169,25 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="pizda">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="))">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-BitStream" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-BitStream" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/aircraft.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/config.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/IMU.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/IMU.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/MPU9250.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/MPU9250.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/lights.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/lights.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/lights.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/lights.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/motor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motor.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/motor.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motor.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/channels.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/channels.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/channels.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/channels.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packetHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packetHandler.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packetHandler.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packetHandler.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/transceiver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/transceiver.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/settings/settings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/settings/settings.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -269,6 +279,11 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.CharlottePlanE.elf">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="CharlottePlanE.elf" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="CharlottePlanE.elf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="CharlottePlanE" RUN_TARGET_NAME="CharlottePlanE.elf">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -1175,15 +1190,8 @@
       <workItem from="1766671015069" duration="8230000" />
       <workItem from="1766684210566" duration="22771000" />
       <workItem from="1766741638948" duration="15375000" />
-      <workItem from="1766844319676" duration="5440000" />
-    </task>
-    <task id="LOCAL-00044" summary="pizda1111">
-      <option name="closed" value="true" />
-      <created>1766311719369</created>
-      <option name="number" value="00044" />
-      <option name="presentableId" value="LOCAL-00044" />
-      <option name="project" value="LOCAL" />
-      <updated>1766311719369</updated>
+      <workItem from="1766844319676" duration="5600000" />
+      <workItem from="1766861473291" duration="17013000" />
     </task>
     <task id="LOCAL-00045" summary="pizda1111">
       <option name="closed" value="true" />
@@ -1569,7 +1577,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766759394581</updated>
     </task>
-    <option name="localTasksCounter" value="93" />
+    <task id="LOCAL-00093" summary="))">
+      <option name="closed" value="true" />
+      <created>1766850287413</created>
+      <option name="number" value="00093" />
+      <option name="presentableId" value="LOCAL-00093" />
+      <option name="project" value="LOCAL" />
+      <updated>1766850287413</updated>
+    </task>
+    <option name="localTasksCounter" value="94" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1609,7 +1625,8 @@
     <MESSAGE value="вооо пашет" />
     <MESSAGE value="сэкономили бля пару битиков" />
     <MESSAGE value="pizda" />
-    <option name="LAST_COMMIT_MESSAGE" value="pizda" />
+    <MESSAGE value="))" />
+    <option name="LAST_COMMIT_MESSAGE" value="))" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

@@ -4,6 +4,10 @@
 #include "hardware/transceiver/transceiver.h"
 
 namespace pizda {
+	PacketHandler::PacketHandler(const std::initializer_list<std::optional<PacketType>>& packetSequence) : _packetSequence(packetSequence) {
+	
+	}
+	
 	uint8_t PacketHandler::getCRC8(const uint8_t* buffer, size_t length) {
 		uint8_t crc = 0xff;
 		size_t i, j;
@@ -68,14 +72,16 @@ namespace pizda {
 		return true;
 	}
 	
-	bool PacketHandler::write(uint8_t* buffer, PacketType packetType, uint8_t& length) {
+	bool PacketHandler::writeNext(uint8_t* buffer, uint8_t& length) {
 		BitStream stream { buffer };
 		
 		// Type
-		stream.writeUint8(static_cast<uint8_t>(packetType), Packet::typeLengthBits);
+		const auto type = getNextPacketType();
+		
+		stream.writeUint8(static_cast<uint8_t>(type), Packet::typeLengthBits);
 		
 		// Body
-		if (!writePacket(stream, packetType))
+		if (!writePacket(stream, type))
 			return false;
 		
 		// Checksum
@@ -87,5 +93,43 @@ namespace pizda {
 		length = static_cast<uint8_t>(payloadLength + Packet::checksumLengthBytes);
 		
 		return true;
+	}
+	
+	void PacketHandler::enqueue(PacketType type) {
+		_packetQueue.push(type);
+	}
+	
+	PacketType PacketHandler::getNextPacketType() {
+		const auto& item = _packetSequence[_packetSequenceIndex];
+		
+		// Enqueued
+		if (item.has_value()) {
+			nextPacketQueueIndex();
+			
+			return item.value();
+		}
+		// Normal
+		else {
+			if (_packetQueue.empty()) {
+				nextPacketQueueIndex();
+				
+				return getNextPacketType();
+			}
+			else {
+				const auto enqueuedPacketType = _packetQueue.front();
+				_packetQueue.pop();
+				
+				nextPacketQueueIndex();
+				
+				return enqueuedPacketType;
+			}
+		}
+	}
+	
+	void PacketHandler::nextPacketQueueIndex() {
+		_packetSequenceIndex++;
+		
+		if (_packetSequenceIndex >= _packetSequence.size())
+			_packetSequenceIndex = 0;
 	}
 }

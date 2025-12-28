@@ -512,7 +512,7 @@ namespace pizda {
 		rawCorr = readAK8963Register8(REGISTER_AK8963_ASAZ);
 		magASAFactor.setZ((0.5 * (rawCorr - 128) / 128.0) + 1.0);
 
-		ESP_LOGI(_logTag, "ASA vals: %f, %f, %f", magASAFactor.getX(), magASAFactor.getY(), magASAFactor.getZ());
+//		ESP_LOGI(_logTag, "ASA vals: %f, %f, %f", magASAFactor.getX(), magASAFactor.getY(), magASAFactor.getZ());
 	}
 
 	void MPU9250::writeAK8963Register(uint8_t reg, uint8_t val) {

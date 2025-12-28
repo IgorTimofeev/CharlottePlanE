@@ -1,15 +1,15 @@
 #pragma once
 
-#include "cstdint"
+#include <cstdint>
 
 namespace pizda {
 	#pragma pack(push, 1)
 	
 	enum class PacketType : uint8_t {
-		remoteChannelDataStructure,
-		remoteChannelData,
+		remoteChannelsDataStructure,
+		remoteChannelsData,
 		remoteMotorConfiguration,
-		remoteBaro,
+		remoteAuxiliary,
 		
 		aircraftADIRS,
 		aircraftStatistics,
@@ -20,6 +20,16 @@ namespace pizda {
 		public:
 			constexpr static uint8_t typeLengthBits = 4;
 			constexpr static uint8_t checksumLengthBytes = 1;
+	};
+	
+	class RemoteChannelsPacket {
+		public:
+			constexpr static uint8_t motorLengthBits = 9;
+	};
+	
+	class RemoteAuxiliary0Packet {
+		public:
+			constexpr static uint8_t referencePressureLengthBits = 14;
 	};
 	
 	class AircraftADIRSPacket {

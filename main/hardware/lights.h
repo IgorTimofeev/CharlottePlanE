@@ -12,7 +12,9 @@ namespace pizda {
 		public:
 			void setup();
 			void start();
-
+			
+			void setCabinEnabled(bool value);
+			
 			bool isNavigationEnabled() const;
 			void setNavigationEnabled(bool value);
 
@@ -32,12 +34,18 @@ namespace pizda {
 //				config::lights::tail::pin,
 //				config::lights::tail::length
 //			};
+			
+			Light cabin {
+				config::lights::cabin::pin,
+				config::lights::cabin::length
+			};
 
 			Light leftWing {
 				config::lights::leftWing::pin,
 				config::lights::leftWing::length
 			};
-
+			
+			bool cabinEnabled = false;
 			bool navigationEnabled = false;
 			bool strobeEnabled = false;
 			bool landingEnabled = false;
