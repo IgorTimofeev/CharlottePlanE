@@ -169,12 +169,11 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="заебца">
-      <change afterPath="$PROJECT_DIR$/main/utils/lowPassFilter.h" afterDir="false" />
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="чета хуета какая-то творится с магом на дипике -180 180">
+      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/project.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dictionaries/project.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/IMU.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/IMU.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -1180,15 +1179,7 @@
       <workItem from="1766741638948" duration="15375000" />
       <workItem from="1766844319676" duration="5600000" />
       <workItem from="1766861473291" duration="17194000" />
-      <workItem from="1766932406146" duration="7755000" />
-    </task>
-    <task id="LOCAL-00046" summary="pizda1111">
-      <option name="closed" value="true" />
-      <created>1766314042102</created>
-      <option name="number" value="00046" />
-      <option name="presentableId" value="LOCAL-00046" />
-      <option name="project" value="LOCAL" />
-      <updated>1766314042102</updated>
+      <workItem from="1766932406146" duration="12052000" />
     </task>
     <task id="LOCAL-00047" summary="pizda1111">
       <option name="closed" value="true" />
@@ -1574,7 +1565,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766881718656</updated>
     </task>
-    <option name="localTasksCounter" value="95" />
+    <task id="LOCAL-00095" summary="чета хуета какая-то творится с магом на дипике -180 180">
+      <option name="closed" value="true" />
+      <created>1766953473790</created>
+      <option name="number" value="00095" />
+      <option name="presentableId" value="LOCAL-00095" />
+      <option name="project" value="LOCAL" />
+      <updated>1766953473790</updated>
+    </task>
+    <option name="localTasksCounter" value="96" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1616,7 +1615,8 @@
     <MESSAGE value="pizda" />
     <MESSAGE value="))" />
     <MESSAGE value="заебца" />
-    <option name="LAST_COMMIT_MESSAGE" value="заебца" />
+    <MESSAGE value="чета хуета какая-то творится с магом на дипике -180 180" />
+    <option name="LAST_COMMIT_MESSAGE" value="чета хуета какая-то творится с магом на дипике -180 180" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

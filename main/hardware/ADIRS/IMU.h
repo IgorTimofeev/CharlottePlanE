@@ -101,67 +101,15 @@ namespace pizda {
 
 	class IMU {
 		public:
-			IMU() {
-
-			}
-
-			constexpr static const char* _logTag = "IMU";
-
-			constexpr static uint8_t SRD = 4;
-			constexpr static uint8_t accelerationGMax = 2;
-
-			constexpr static uint16_t FIFOLength = 512;
-			constexpr static uint16_t FIFOSampleRateHz = 1000 / (1 + SRD);
-			constexpr static float FIFOSampleIntervalS = 1.0f / FIFOSampleRateHz;
-
-			constexpr static MPU9250_fifo_data_source FIFODataSource = MPU9250_FIFO_DATA_SOURCE_ACCEL_GYRO;
-			// 3 axis * 2 bytes
-			constexpr static uint8_t FIFOSampleDataTypeLength = 3 * 2;
-			// Aacc + gyro
-			constexpr static uint8_t FIFOSampleDataTypes = 2;
-			constexpr static uint8_t FIFOSampleLength = FIFOSampleDataTypeLength * FIFOSampleDataTypes;
-			constexpr static uint16_t FIFOMaxSampleCount = FIFOLength / FIFOSampleLength;
-
-			constexpr static uint32_t FIFOBytesPerSecond = FIFOSampleLength * FIFOSampleRateHz;
-			constexpr static uint32_t FIFOMinimumSampleIntervalUs = FIFOLength * 1'000'000 / FIFOBytesPerSecond;
-			constexpr static uint32_t FIFOSafeSampleIntervalUs = FIFOMinimumSampleIntervalUs * 9 / 10;
-			
-			MPU9250 MPU {};
-			Vector3F accelBias {};
-			Vector3F gyroBias {};
-
-			// Mag
-			constexpr static uint32_t magSampleRateHz = 100;
-			constexpr static uint32_t magSampleIntervalUs = 1'000'000 / magSampleRateHz;
-			constexpr static float magSampleLPFFactorPerSecond = 10.f;
-			constexpr static float magSampleLPFFactor = magSampleLPFFactorPerSecond * static_cast<float>(magSampleIntervalUs) / 1'000'000.f;
-			
-			uint32_t magSampleTimeUs = 0;
-			Vector3F magValue { 0, 0, 0};
-			
-			Vector3F magBias {};
-			
-			// FIFO
-			uint32_t FIFOSampleTimeUs = 0;
-			
-			Vector3F accelerationG {};
-
-			Vector3F positionM {};
-			Vector3F velocityMs {};
-			
-			float rollRad = 0;
-			float pitchRad = 0;
-			float yawRad = 0;
-			
 			bool setup(BusStream* busStream) {
 				if (!MPU.setup(busStream))
 					return false;
 
 				// SRD
-				MPU.setSRD(SRD);
+				MPU.setSRD(MPUSRD);
 
 //				setMPUOperationalMode();
-				calibrateAccAndGyr();
+				calibrateAccelAndGyro();
 				calibrateMag();
 
 				return true;
@@ -181,7 +129,7 @@ namespace pizda {
 			*  You call the function as follows: setAccOffsets(xMin,xMax,yMin,yMax,zMin,zMax);
 			*  Use either autoOffset or setAccOffsets, not both.
 			*/
-			void calibrateAccAndGyr() {
+			void calibrateAccelAndGyro() {
 				constexpr static uint16_t iterations = 512;
 
 				ESP_LOGI(_logTag, "accel and gyro calibration started");
@@ -213,7 +161,7 @@ namespace pizda {
 					aSum += MPU.getAccelData();
 					gSum += MPU.getGyroData();
 
-					vTaskDelay(pdMS_TO_TICKS(std::max<uint32_t>(1'000 / FIFOSampleRateHz, portTICK_PERIOD_MS)));
+					vTaskDelay(pdMS_TO_TICKS(std::max<uint32_t>(1'000 / MPUSampleRateHz, portTICK_PERIOD_MS)));
 				}
 
 				aSum /= static_cast<float>(iterations);
@@ -275,46 +223,100 @@ namespace pizda {
 				magTick();
 				FIFOTick();
 			}
-
+			
+			float getRollRad() const {
+				return rollRad;
+			}
+			
+			float getPitchRad() const {
+				return pitchRad;
+			}
+			
+			float getYawRad() const {
+				return yawRad;
+			}
+			
+			const Vector3F& getPositionM() const {
+				return positionM;
+			}
+			
+			const Vector3F& getVelocityMs() const {
+				return velocityMs;
+			}
+			
+			const Vector3F& getAccelerationG() const {
+				return accelerationG;
+			}
+		
 		private:
+			constexpr static const char* _logTag = "IMU";
+			
+			// -------------------------------- MPU --------------------------------
+			
+			MPU9250 MPU {};
+			constexpr static uint8_t MPUSRD = 4;
+			constexpr static uint16_t MPUSampleRateHz = 1000 / (1 + MPUSRD);
+			
 			void setMPUCalibrationMode() {
 				MPU.setGyroRange(MPU9250_GYRO_RANGE_250);
 				MPU.setAccelRange(MPU9250_ACC_RANGE_2G);
-
+				
 				MPU.setAccelDLPF(MPU9250_DLPF_6);
 				MPU.enableAccelDLPF();
-
+				
 				MPU.setGyroDLPF(MPU9250_DLPF_6);
 				MPU.enableGyroDLPF();
-
+				
 				vTaskDelay(pdMS_TO_TICKS(100));
-
+				
 				MPU.disableFIFO();
 			}
-
+			
 			void setMPUOperationalMode() {
 				// Range
 				MPU.setAccelRange(MPU9250_ACC_RANGE_2G);
 				MPU.setGyroRange(MPU9250_GYRO_RANGE_250);
-
+				
 				// LPF
 				MPU.setAccelDLPF(MPU9250_DLPF_2);
 				MPU.enableAccelDLPF();
-
+				
 				MPU.setGyroDLPF(MPU9250_DLPF_2);
 				MPU.enableGyroDLPF();
-
+				
 				vTaskDelay(pdMS_TO_TICKS(100));
-
+				
 				// FIFO
 				MPU.setFIFOMode(MPU9250_STOP_WHEN_FULL);
 				MPU.enableFIFO();
-
+				
 				// In some cases a delay after enabling FIFO makes sense
 				vTaskDelay(pdMS_TO_TICKS(100));
-
+				
 				MPU.setFIFODataSource(FIFODataSource);
 			}
+			
+			// -------------------------------- Accel --------------------------------
+			
+			Vector3F accelBias {};
+			Vector3F accelerationG {};
+			
+			// -------------------------------- Gyro --------------------------------
+			
+			Vector3F gyroBias {};
+			
+			// -------------------------------- Mag --------------------------------
+			
+			constexpr static uint32_t magSampleRateHz = 100;
+			constexpr static uint32_t magSampleIntervalUs = 1'000'000 / magSampleRateHz;
+			
+			constexpr static float magLPFFactorPerSecond = 10.f;
+			constexpr static float magLPFFactor = magLPFFactorPerSecond * static_cast<float>(magSampleIntervalUs) / 1'000'000.f;
+			
+			Vector3F magBias {};
+			uint32_t magSampleTimeUs = 0;
+			Vector3F magDataFiltered { 0, 0, 0 };
+			
 			
 			void magTick() {
 				if (esp_timer_get_time() < magSampleTimeUs)
@@ -323,14 +325,40 @@ namespace pizda {
 				const auto magData = MPU.getMagData();
 
 //					ESP_LOGI(_logTag, "mag raw: %f x %f x %f", magData.getX(), magData.getY(), magData.getZ());
-
+				
 				// Axis swap, fuck MPU
-				magValue.setX(LowPassFilter::apply(magValue.getX(), magData.getY() - magBias.getY(), magSampleLPFFactor));
-				magValue.setY(LowPassFilter::apply(magValue.getY(), magData.getX() - magBias.getX(), magSampleLPFFactor));
-				magValue.setZ(LowPassFilter::apply(magValue.getZ(), -(magData.getZ() - magBias.getZ()), magSampleLPFFactor));
+				magDataFiltered.setX(LowPassFilter::apply(magDataFiltered.getX(), magData.getY() - magBias.getY(), magLPFFactor));
+				magDataFiltered.setY(LowPassFilter::apply(magDataFiltered.getY(), magData.getX() - magBias.getX(), magLPFFactor));
+				magDataFiltered.setZ(LowPassFilter::apply(magDataFiltered.getZ(), -(magData.getZ() - magBias.getZ()), magLPFFactor));
+
+//				magSample.setX(magData.getY() - magBias.getY());
+//				magSample.setY(magData.getX() - magBias.getX());
+//				magSample.setZ(-(magData.getZ() - magBias.getZ()));
+
+//				const auto magYaw = std::atan2(magSample.getX(), magSample.getY());
+//				ESP_LOGI(_logTag, "Mag: %f x %f x %f, yaw: %f", magData.getX(), magSample.getY(), magSample.getZ(), toDegrees(magYaw));
 				
 				magSampleTimeUs = esp_timer_get_time() + magSampleIntervalUs;
 			}
+			
+			// -------------------------------- FIFO --------------------------------
+			
+			constexpr static uint16_t FIFOLength = 512;
+			constexpr static float FIFOSampleIntervalS = 1.0f / MPUSampleRateHz;
+			
+			constexpr static MPU9250_fifo_data_source FIFODataSource = MPU9250_FIFO_DATA_SOURCE_ACCEL_GYRO;
+			// 3 axis * 2 bytes
+			constexpr static uint8_t FIFOSampleDataTypeLength = 3 * 2;
+			// Aacc + gyro
+			constexpr static uint8_t FIFOSampleDataTypes = 2;
+			constexpr static uint8_t FIFOSampleLength = FIFOSampleDataTypeLength * FIFOSampleDataTypes;
+			constexpr static uint16_t FIFOMaxSampleCount = FIFOLength / FIFOSampleLength;
+			
+			constexpr static uint32_t FIFOBytesPerSecond = FIFOSampleLength * MPUSampleRateHz;
+			constexpr static uint32_t FIFOMinimumSampleIntervalUs = FIFOLength * 1'000'000 / FIFOBytesPerSecond;
+			constexpr static uint32_t FIFOSafeSampleIntervalUs = FIFOMinimumSampleIntervalUs * 9 / 10;
+			
+			uint32_t FIFOSampleTimeUs = 0;
 			
 			void FIFOTick() {
 				if (esp_timer_get_time() < FIFOSampleTimeUs)
@@ -369,7 +397,7 @@ namespace pizda {
 					AdaptiveComplimentaryFiler::apply(
 						accelData,
 						gyroData,
-						magValue,
+						magDataFiltered,
 						
 						FIFOSampleIntervalS,
 						
@@ -412,6 +440,19 @@ namespace pizda {
 				
 				FIFOSampleTimeUs = esp_timer_get_time() + FIFOSafeSampleIntervalUs;
 			}
+			
+			// -------------------------------- Computed --------------------------------
+			
+			float rollRad = 0;
+			float pitchRad = 0;
+			float yawRad = 0;
+			
+			Vector3F positionM {};
+			Vector3F velocityMs {};
+			
 		
+		public:
+			constexpr static uint8_t accelerationGMax = 2;
+			constexpr static uint32_t recommendedTickDelayUs = std::min(FIFOSafeSampleIntervalUs, magSampleIntervalUs);
 	};
 }

@@ -202,11 +202,11 @@ namespace pizda {
 				for (auto& IMU : _IMUs) {
 					IMU.unit.tick();
 					
-					rollRadSum += IMU.unit.rollRad;
-					pitchRadSum += IMU.unit.pitchRad;
-					yawRadSum += IMU.unit.yawRad;
-					accelerationGSum += IMU.unit.accelerationG;
-					accelVelocityMsSum += std::abs(IMU.unit.velocityMs.getY());
+					rollRadSum += IMU.unit.getRollRad();
+					pitchRadSum += IMU.unit.getPitchRad();
+					yawRadSum += IMU.unit.getYawRad();
+					accelerationGSum += IMU.unit.getAccelerationG();
+					accelVelocityMsSum += std::abs(IMU.unit.getVelocityMs().getY());
 				}
 				
 				_rollRad = rollRadSum / _IMUs.size();
@@ -272,7 +272,7 @@ namespace pizda {
 					updateIMUs();
 					updateBMPs();
 
-					vTaskDelay(pdMS_TO_TICKS(std::max(std::min(IMU::FIFOSafeSampleIntervalUs, IMU::magSampleIntervalUs) / 1000, portTICK_PERIOD_MS)));
+					vTaskDelay(pdMS_TO_TICKS(std::max(IMU::recommendedTickDelayUs / 1000, portTICK_PERIOD_MS)));
 //					vTaskDelay(pdMS_TO_TICKS(1000));
 				}
 			}
