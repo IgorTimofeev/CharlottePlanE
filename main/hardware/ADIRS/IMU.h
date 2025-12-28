@@ -12,6 +12,7 @@
 #include "config.h"
 #include "hardware/ADIRS/MPU9250.h"
 #include "utils/math.h"
+#include "utils/lowPassFilter.h"
 
 namespace pizda {
 	class AdaptiveComplimentaryFiler {
@@ -60,7 +61,7 @@ namespace pizda {
 //				float magYawWithoutTilt = std::atan2(magData.getX(), magData.getY());
 
 				const auto magDataTilt = applyTiltCompensation(magData, rollRad, pitchRad);
-				float magYaw = std::atan2(magDataTilt.getX(), magDataTilt.getY());
+				const auto magYaw = std::atan2(magDataTilt.getX(), magDataTilt.getY());
 
 				// For mag, we're using other gyro trust factor, because mag produces a lot of noise
 				gyroTrustFactor = getGyroTrustFactor(magGyroTrustFactorMin, magGyroTrustFactorMax, accelMagnitude);
@@ -132,14 +133,13 @@ namespace pizda {
 			// Mag
 			constexpr static uint32_t magSampleRateHz = 100;
 			constexpr static uint32_t magSampleIntervalUs = 1'000'000 / magSampleRateHz;
-			constexpr static uint8_t magSampleAveragingCount = 8;
-
-			uint32_t magSampleTimeUs = 0;
-			Vector3F magBias {};
+			constexpr static float magSampleLPFFactorPerSecond = 10.f;
+			constexpr static float magSampleLPFFactor = magSampleLPFFactorPerSecond * static_cast<float>(magSampleIntervalUs) / 1'000'000.f;
 			
-			uint8_t magSampleCount = 0;
-			Vector3F magSampleSum {};
-			Vector3F magSampleLast { 0, 1, 0};
+			uint32_t magSampleTimeUs = 0;
+			Vector3F magValue { 0, 0, 0};
+			
+			Vector3F magBias {};
 			
 			// FIFO
 			uint32_t FIFOSampleTimeUs = 0;
@@ -322,21 +322,12 @@ namespace pizda {
 				
 				const auto magData = MPU.getMagData();
 
-//					ESP_LOGI(_logTag, "mag: %f x %f x %f", magData.getX(), magData.getY(), magData.getZ());
+//					ESP_LOGI(_logTag, "mag raw: %f x %f x %f", magData.getX(), magData.getY(), magData.getZ());
 
 				// Axis swap, fuck MPU
-				magSampleSum.setX(magSampleSum.getX() + magData.getY() - magBias.getY());
-				magSampleSum.setY(magSampleSum.getY() + magData.getX() - magBias.getX());
-				magSampleSum.setZ(magSampleSum.getZ() - (magData.getZ() - magBias.getZ()));
-				
-				magSampleCount++;
-				
-				// Need to average
-				if (magSampleCount >= magSampleAveragingCount) {
-					magSampleLast = magSampleSum / magSampleCount;
-					magSampleSum = { 0, 0, 0};
-					magSampleCount = 0;
-				}
+				magValue.setX(LowPassFilter::apply(magValue.getX(), magData.getY() - magBias.getY(), magSampleLPFFactor));
+				magValue.setY(LowPassFilter::apply(magValue.getY(), magData.getX() - magBias.getX(), magSampleLPFFactor));
+				magValue.setZ(LowPassFilter::apply(magValue.getZ(), -(magData.getZ() - magBias.getZ()), magSampleLPFFactor));
 				
 				magSampleTimeUs = esp_timer_get_time() + magSampleIntervalUs;
 			}
@@ -378,7 +369,7 @@ namespace pizda {
 					AdaptiveComplimentaryFiler::apply(
 						accelData,
 						gyroData,
-						magSampleLast,
+						magValue,
 						
 						FIFOSampleIntervalS,
 						

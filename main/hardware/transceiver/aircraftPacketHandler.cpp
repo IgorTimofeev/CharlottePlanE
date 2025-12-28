@@ -253,7 +253,11 @@ namespace pizda {
 		writeRadians(ac.ahrs.getYawRad(), AircraftADIRSPacket::yawLengthBits);
 
 		// Slip & skid
-		const auto slipAndSkidValue = static_cast<uint8_t>(static_cast<float>((1 << AircraftADIRSPacket::slipAndSkidLengthBits) - 1) * (ac.ahrs.getSlipAndSkidFactor() + 1.f) / 2.f);
+		const auto slipAndSkidValue = static_cast<uint8_t>(
+			static_cast<float>((1 << AircraftADIRSPacket::slipAndSkidLengthBits) - 1)
+			// Mapping from [-1.0; 1.0] to [0.0; 1.0]
+			* (ac.ahrs.getSlipAndSkidFactor() + 1.f) / 2.f
+		);
 		
 		stream.writeUint8(slipAndSkidValue, AircraftADIRSPacket::slipAndSkidLengthBits);
 		

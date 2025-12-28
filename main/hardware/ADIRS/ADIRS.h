@@ -216,8 +216,10 @@ namespace pizda {
 				_accelVelocityMs = accelVelocityMsSum / _IMUs.size();
 				
 				// Slip & skid
-				// factor = accelerationG / rangeG - sin(roll)
-				_slipAndSkidFactor = std::clamp(-_accelerationG.getX() / static_cast<float>(IMU::accelerationGMax) - std::sin(_rollRad), -1.f, 1.f);
+				// factor = accelerationG - sin(roll)
+				_slipAndSkidFactor =
+					std::clamp<float>(-_accelerationG.getX() - std::sin(_rollRad), -IMU::accelerationGMax, IMU::accelerationGMax)
+					 / static_cast<float>(IMU::accelerationGMax);
 			}
 
 			bool setupBMPs() {
