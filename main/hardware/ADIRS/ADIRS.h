@@ -68,6 +68,10 @@ namespace pizda {
 				return _yawRad;
 			}
 			
+			float getHeadingDeg() const {
+				return _headingDeg;
+			}
+			
 			float getAccelVelocityMs() const {
 				return _accelVelocityMs;
 			}
@@ -97,7 +101,10 @@ namespace pizda {
 			
 			float _rollRad = 0;
 			float _pitchRad = 0;
+			
 			float _yawRad = 0;
+			float _headingDeg = 0;
+			
 			Vector3F _accelerationG {};
 			float _accelVelocityMs = 0;
 			float _slipAndSkidFactor = 0;
@@ -211,7 +218,10 @@ namespace pizda {
 				
 				_rollRad = rollRadSum / _IMUs.size();
 				_pitchRad = pitchRadSum / _IMUs.size();
+				
 				_yawRad = yawRadSum / _IMUs.size();
+				_headingDeg = normalizeAngle360(toDegrees(-_yawRad));
+				
 				_accelerationG = accelerationGSum / _IMUs.size();
 				_accelVelocityMs = accelVelocityMsSum / _IMUs.size();
 				

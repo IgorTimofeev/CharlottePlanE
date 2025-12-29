@@ -9,6 +9,8 @@
 
 #include <bitStream.h>
 
+#include "utils/lowPassFilter.h"
+
 namespace pizda {
 	Aircraft& Aircraft::getInstance() {
 		static auto instance = Aircraft();
@@ -20,26 +22,39 @@ namespace pizda {
 		settings.setup();
 
 		SPIBusSetup();
-
+		
+		ahrs.setup();
+		
 		motors.setup();
 
 		lights.setup();
 		lights.start();
 
 		channels.setup();
-
-		ahrs.setup();
 		
+		// Transceiver
 		if (!transceiver.setup())
 			startErrorLoop("failed to setup XCVR");
 		
-		transceiver.setPacketHandler(&packetHandler);
-		transceiver.start();
+		packetHandler.setTransceiver(&transceiver);
+		packetHandler.start();
+		
+		// Autopilot
+		autopilot.setup();
+		autopilot.start();
 		
 		while (true) {
 //			ESP_LOGI("Main", "Pizda");
-
+			
 			vTaskDelay(pdMS_TO_TICKS(1000));
+		}
+	}
+	
+	void Aircraft::startErrorLoop(const char* error) {
+		ESP_LOGE(_logTag, "%s", error);
+		
+		while (true) {
+			vTaskDelay(pdMS_TO_TICKS(1'000));
 		}
 	}
 
@@ -109,14 +124,6 @@ namespace pizda {
 			if ((boolChannel = channels.getBoolChannel(ChannelType::cabinLights))) {
 				lights.setCabinEnabled(boolChannel->getValue());
 			}
-		}
-	}
-	
-	void Aircraft::startErrorLoop(const char* error) {
-		ESP_LOGE(_logTag, "%s", error);
-		
-		while (true) {
-			vTaskDelay(pdMS_TO_TICKS(1'000));
 		}
 	}
 }

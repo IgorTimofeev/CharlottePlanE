@@ -8,6 +8,8 @@
 #include <driver/spi_master.h>
 #include <driver/i2c_master.h>
 
+#include "utils/math.h"
+
 namespace pizda {
 	class config {
 		public:
@@ -111,6 +113,12 @@ namespace pizda {
 				public:
 					constexpr static gpio_num_t rx = GPIO_NUM_NC;
 					constexpr static gpio_num_t tx = GPIO_NUM_NC;
+			};
+			
+			class limits {
+				public:
+					constexpr static float autopilotPitchAngleMaxRad = toRadians(30);
+					constexpr static float autopilotRollAngleMaxRad = toRadians(25);
 			};
 	};
 }

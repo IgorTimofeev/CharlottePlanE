@@ -10,43 +10,57 @@
 #include <bitStream.h>
 
 namespace pizda {
-	class AircraftPacketHandler : public PacketHandler {
+	class PacketSequenceItem {
 		public:
-			AircraftPacketHandler() : PacketHandler({
-				PacketType::aircraftADIRS,
-				PacketType::aircraftADIRS,
-				PacketType::aircraftADIRS,
-				PacketType::aircraftADIRS,
-				
-				PacketType::aircraftStatistics,
-				
-				PacketType::aircraftADIRS,
-				PacketType::aircraftADIRS,
-				PacketType::aircraftADIRS,
-				PacketType::aircraftADIRS,
-				
-				std::nullopt
-			}) {
-			
-			}
-			
-			void onConnectionStateChanged(TransceiverConnectionState fromState, TransceiverConnectionState toState) override;
-
-		protected:
-			bool readPacket(BitStream& stream, PacketType packetType, uint8_t payloadLength) override;
-			bool writePacket(BitStream& stream, PacketType packetType) override;
+			PacketSequenceItem(AircraftPacketType type, uint8_t count, bool useEnqueued = false);
+			AircraftPacketType getType() const;
+			uint8_t getCount() const;
+			bool useEnqueued() const;
 		
 		private:
-			uint8_t _packetIndex = 0;
+			AircraftPacketType _type;
+			uint8_t _count;
+			bool _useEnqueued;
+	};
+	
+	class AircraftPacketHandler : public PacketHandler {
+		public:
+			void enqueue(AircraftPacketType type) {
+				_packetQueue.push(type);
+			}
+		
+		protected:
+			[[noreturn]] void onStart() override;
+			bool onReceive(BitStream& stream, uint8_t packetType, uint8_t payloadLength) override;
+			uint8_t getTransmitPacketType() override;
+			bool onTransmit(BitStream& stream, uint8_t packetType) override;
+			void onIsConnectedChanged() override;
+		
+		private:
+			int64_t _aircraftADIRSPacketTime = 0;
 			
-			bool readRemoteChannelDataStructurePacket(BitStream& stream, uint8_t payloadLength);
-			bool readRemoteChannelsDataPacket(BitStream& stream, uint8_t payloadLength);
-			bool readMotorConfigurationPacket(BitStream& stream, uint8_t payloadLength);
-			bool readRemoteAuxiliary0Packet(BitStream& stream, uint8_t payloadLength);
+			std::vector<PacketSequenceItem> _packetSequence {
+				PacketSequenceItem(AircraftPacketType::aircraftADIRS, 4),
+				PacketSequenceItem(AircraftPacketType::aircraftAuxiliary, 1),
+				PacketSequenceItem(AircraftPacketType::aircraftADIRS, 4),
+				PacketSequenceItem(AircraftPacketType::aircraftAutopilot, 1, true)
+			};
 			
-			bool writeAircraftADIRSPacket(BitStream& stream);
-			bool writeAircraftStatisticsPacket(BitStream& stream);
-			bool writeAircraftAutopilotPacket(BitStream& stream);
+			uint8_t _packetSequenceIndex = 0;
+			uint8_t _packetSequenceItemCounter = 0;
+			
+			std::queue<AircraftPacketType> _packetQueue {};
+			
+			bool receiveNOPPacket(BitStream& stream, uint8_t payloadLength);
+			bool receiveRemoteChannelDataStructurePacket(BitStream& stream, uint8_t payloadLength);
+			bool receiveRemoteChannelsDataPacket(BitStream& stream, uint8_t payloadLength);
+			bool receiveMotorConfigurationPacket(BitStream& stream, uint8_t payloadLength);
+			bool receiveRemoteAuxiliaryPacket(BitStream& stream, uint8_t payloadLength);
+			bool receiveRemoteAutopilotPacket(BitStream& stream, uint8_t payloadLength);
+			
+			bool transmitAircraftADIRSPacket(BitStream& stream);
+			bool transmitAircraftAuxiliaryPacket(BitStream& stream);
+			bool transmitAircraftAutopilotPacket(BitStream& stream);
 			
 			template<typename T>
 			static float sanitizeValue(T value, T min, T max) {
@@ -64,5 +78,7 @@ namespace pizda {
 				
 				return value;
 			}
+			
+			static void writeRadians(BitStream& stream, float value, float range, uint8_t bits);
 	};
 }
