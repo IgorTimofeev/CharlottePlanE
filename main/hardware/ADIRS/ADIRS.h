@@ -72,7 +72,7 @@ namespace pizda {
 				return _headingDeg;
 			}
 			
-			float getAccelVelocityMs() const {
+			float getAccelVelocityMPS() const {
 				return _accelVelocityMs;
 			}
 			

@@ -37,8 +37,6 @@ namespace pizda {
 			void onIsConnectedChanged() override;
 		
 		private:
-			int64_t _aircraftADIRSPacketTime = 0;
-			
 			std::vector<PacketSequenceItem> _packetSequence {
 				PacketSequenceItem(AircraftPacketType::aircraftADIRS, 4),
 				PacketSequenceItem(AircraftPacketType::aircraftAuxiliary, 1),

@@ -6,6 +6,10 @@
 namespace pizda {
 	class LowPassFilter {
 		public:
+			static float getFactor(float factorPerSecond, uint32_t deltaTimeUs) {
+				return factorPerSecond * static_cast<float>(deltaTimeUs) / 1'000'000.f;
+			}
+			
 			static float apply(float oldValue, float newValue, float factor) {
 				// Just in case
 				factor = std::clamp(factor, 0.f, 1.f);

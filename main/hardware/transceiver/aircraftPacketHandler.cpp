@@ -44,7 +44,6 @@ namespace pizda {
 		
 		if (isConnected()) {
 			ac.lights.setEmergencyEnabled(false);
-			
 		}
 		else {
 			ac.lights.setEmergencyEnabled(true);
@@ -379,7 +378,7 @@ namespace pizda {
 		stream.writeUint8(slipAndSkidValue, AircraftADIRSPacket::slipAndSkidLengthBits);
 		
 		// Speed
-		stream.writeUint8(static_cast<uint8_t>(ac.ahrs.getAccelVelocityMs()), AircraftADIRSPacket::speedLengthBits);
+		stream.writeUint8(static_cast<uint8_t>(ac.ahrs.getAccelVelocityMPS()), AircraftADIRSPacket::speedLengthBits);
 		
 		// Altitude
 		const auto altitudeClamped = std::clamp<float>(ac.ahrs.getAltitudeM(), AircraftADIRSPacket::altitudeMin, AircraftADIRSPacket::altitudeMax);
