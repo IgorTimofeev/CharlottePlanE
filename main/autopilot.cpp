@@ -58,47 +58,49 @@ namespace pizda {
 		int64_t timeUs = esp_timer_get_time();
 		
 		float altitudePrevM = ac.ahrs.getAltitudeM();
-		float headingPrevDeg = ac.ahrs.getHeadingDeg();
+		float rollPrevRad = ac.ahrs.getRollRad();
+		float pitchPrevRad = ac.ahrs.getPitchRad();
+		float yawPrevRad = ac.ahrs.getYawRad();
 		
 		while (true) {
 			const auto deltaTimeUs = esp_timer_get_time() - timeUs;
 			timeUs = esp_timer_get_time();
 			
+			// -------------------------------- Prediction --------------------------------
+			
+			constexpr static uint32_t predictionTimeUs = 1'000'000;
+			
 			// Altitude
 			const auto altitudeM = ac.ahrs.getAltitudeM();
-			
 			const auto altitudePrevDeltaM = altitudeM - altitudePrevM;
-			const auto altitudePredictedM = altitudePrevM + predictValue(altitudePrevDeltaM, deltaTimeUs, 1'000'000);
+			const auto altitudePredictedM = altitudePrevM + predictValue(altitudePrevDeltaM, deltaTimeUs, predictionTimeUs);
 			altitudePrevM = altitudeM;
 			
-			const float altitudePredictedTargetDeltaM = static_cast<float>(ac.remoteData.raw.autopilot.altitudeM) - altitudePredictedM;
-			const bool climbUp = altitudePredictedTargetDeltaM >= 0;
+			// Roll
+			const auto rollRad = ac.ahrs.getRollRad();
+			const auto rollPrevDeltaRad = rollRad - rollPrevRad;
+			const auto rollPredictedRad = rollPrevRad + predictValue(rollPrevDeltaRad, deltaTimeUs, predictionTimeUs);
+			rollPrevRad = rollRad;
 			
-			// Heading
-			const auto headingDeg = ac.ahrs.getHeadingDeg();
+			// Pitch
+			const auto pitchRad = ac.ahrs.getPitchRad();
+			const auto pitchPrevDeltaRad = pitchRad - pitchPrevRad;
+			const auto pitchPredictedRad = pitchPrevRad + predictValue(pitchPrevDeltaRad, deltaTimeUs, predictionTimeUs);
+			pitchPrevRad = pitchRad;
 			
-			auto headingPrevDeltaDeg = headingDeg - headingPrevDeg;
-			
-			if (headingPrevDeltaDeg > 180) {
-				headingPrevDeltaDeg -= 360;
-			}
-			else if (headingPrevDeltaDeg < -180) {
-				headingPrevDeltaDeg += 360;
-			}
-			
-			const auto headingPredictedDeg = headingPrevDeg + predictValue(headingPrevDeltaDeg, deltaTimeUs, 1'000'000);
-			headingPrevDeg = headingDeg;
-			
-			const float headingPredictedTargetDeltaDeg = static_cast<float>(ac.remoteData.raw.autopilot.headingDeg) - headingPredictedDeg;
+			// Yaw
+			const auto yawRad = ac.ahrs.getYawRad();
+			const auto yawPrevDeltaRad = yawRad - yawPrevRad;
+			const auto yawPredictedRad = yawPrevRad + predictValue(yawPrevDeltaRad, deltaTimeUs, predictionTimeUs);
+			yawPrevRad = yawRad;
 		
 //			ESP_LOGI(_logTag, "altitudeDeltaM: %f, headingDeltaDeg: %f", altitudeDeltaM, headingDeltaDeg);
-
-			// Pitch
-			auto LPFFactor = getInterpolatedLPFFactor(
-				altitudePredictedTargetDeltaM, 30,
-				0.05, 0.9,
-				deltaTimeUs
-			);
+			
+			// -------------------------------- Pitch --------------------------------
+			
+			const auto altitudeTargetM = static_cast<float>(ac.remoteData.raw.autopilot.altitudeM);
+			const auto altitudePredictedTargetDeltaM = altitudeTargetM - altitudePredictedM;
+			const auto climbUp = altitudePredictedTargetDeltaM >= 0;
 			
 			const auto pitchAngle =
 				climbUp
@@ -108,32 +110,42 @@ namespace pizda {
 			ac.aircraftData.computed.autopilotPitchRad = LowPassFilter::applyForAngleRad(
 				ac.aircraftData.computed.autopilotPitchRad,
 				pitchAngle,
-				LPFFactor
+				getInterpolatedLPFFactor(
+					altitudePredictedTargetDeltaM, toRadians(30),
+					0.01, 1.0,
+					deltaTimeUs
+				)
 			);
 			
-			ac.aircraftData.computed.autopilotFlightDirectorPitchRad = ac.aircraftData.computed.autopilotPitchRad - ac.ahrs.getPitchRad();
+			// -------------------------------- Roll --------------------------------
 			
-			// Turn
-			const bool turnToRight = headingPredictedTargetDeltaDeg >= 0;
+			const auto yawTargetRad = -toRadians(normalizeAngle180(static_cast<float>(ac.remoteData.raw.autopilot.headingDeg)));
+			const auto yawPredictedTargetDeltaRad = yawTargetRad - yawPredictedRad;
 			
-			const auto rollAngle =
-				turnToRight
+			const auto yawToRight =
+				(yawPredictedTargetDeltaRad < 0 && yawPredictedTargetDeltaRad < std::numbers::pi_v<float>)
+				|| (yawPredictedTargetDeltaRad > 0 && yawPredictedTargetDeltaRad < -std::numbers::pi_v<float>);
+			
+			const bool rollToRight =
+				(yawToRight && rollPredictedRad < config::limits::autopilotRollAngleMaxRad)
+				|| (!yawToRight && rollPredictedRad < -config::limits::autopilotRollAngleMaxRad);
+			
+			const auto rollTargetRad =
+				rollToRight
 				? config::limits::autopilotRollAngleMaxRad
 				: -config::limits::autopilotRollAngleMaxRad;
 			
-			LPFFactor = getInterpolatedLPFFactor(
-				headingPredictedTargetDeltaDeg, 45,
-				0.05, 0.9,
-				deltaTimeUs
-			);
+			const auto rollPredictedTargetDeltaRad = rollTargetRad - rollPredictedRad;
 			
 			ac.aircraftData.computed.autopilotRollRad = LowPassFilter::applyForAngleRad(
 				ac.aircraftData.computed.autopilotRollRad,
-				rollAngle,
-				LPFFactor
+				rollTargetRad,
+				getInterpolatedLPFFactor(
+					yawPredictedTargetDeltaRad, toRadians(40),
+					0.01, 1.0,
+					deltaTimeUs
+				)
 			);
-			
-			ac.aircraftData.computed.autopilotFlightDirectorRollRad = ac.aircraftData.computed.autopilotRollRad - ac.ahrs.getRollRad();
 			
 			vTaskDelay(pdMS_TO_TICKS(_tickIntervalUs / 1'000));
 		}

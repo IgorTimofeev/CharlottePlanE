@@ -53,12 +53,12 @@ namespace pizda {
 			bool receiveRemoteChannelDataStructurePacket(BitStream& stream, uint8_t payloadLength);
 			bool receiveRemoteChannelsDataPacket(BitStream& stream, uint8_t payloadLength);
 			bool receiveMotorConfigurationPacket(BitStream& stream, uint8_t payloadLength);
-			bool receiveRemoteAuxiliaryPacket(BitStream& stream, uint8_t payloadLength);
 			bool receiveRemoteAutopilotPacket(BitStream& stream, uint8_t payloadLength);
+			bool receiveRemoteAuxiliaryPacket(BitStream& stream, uint8_t payloadLength);
 			
 			bool transmitAircraftADIRSPacket(BitStream& stream);
-			bool transmitAircraftAuxiliaryPacket(BitStream& stream);
 			bool transmitAircraftAutopilotPacket(BitStream& stream);
+			bool transmitAircraftAuxiliaryPacket(BitStream& stream);
 			
 			template<typename T>
 			static float sanitizeValue(T value, T min, T max) {

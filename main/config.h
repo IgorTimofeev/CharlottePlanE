@@ -118,7 +118,7 @@ namespace pizda {
 			class limits {
 				public:
 					constexpr static float autopilotPitchAngleMaxRad = toRadians(30);
-					constexpr static float autopilotRollAngleMaxRad = toRadians(25);
+					constexpr static float autopilotRollAngleMaxRad = toRadians(30);
 			};
 	};
 }

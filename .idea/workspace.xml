@@ -169,15 +169,14 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="ничего себе какая оказия! ебучие флайт директора ПАШУТ БАЛЯ">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="сука прикол директора ползают))) КРОСЕВА">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/autopilot.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/autopilot.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/autopilot.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/autopilot.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/config.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/utils/aircraftData.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/utils/aircraftData.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/utils/lowPassFilter.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/utils/lowPassFilter.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -745,11 +744,6 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="apidoc" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="apidoc" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -1188,15 +1182,9 @@
       <workItem from="1766998645119" duration="817000" />
       <workItem from="1767002345752" duration="4000" />
       <workItem from="1767002400037" duration="10175000" />
-      <workItem from="1767020221706" duration="6399000" />
-    </task>
-    <task id="LOCAL-00049" summary="pizda1111">
-      <option name="closed" value="true" />
-      <created>1766327595610</created>
-      <option name="number" value="00049" />
-      <option name="presentableId" value="LOCAL-00049" />
-      <option name="project" value="LOCAL" />
-      <updated>1766327595610</updated>
+      <workItem from="1767020221706" duration="7542000" />
+      <workItem from="1767032327937" duration="4488000" />
+      <workItem from="1767038982115" duration="5930000" />
     </task>
     <task id="LOCAL-00050" summary="pizda1111">
       <option name="closed" value="true" />
@@ -1582,7 +1570,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767015511547</updated>
     </task>
-    <option name="localTasksCounter" value="98" />
+    <task id="LOCAL-00098" summary="сука прикол директора ползают))) КРОСЕВА">
+      <option name="closed" value="true" />
+      <created>1767026907677</created>
+      <option name="number" value="00098" />
+      <option name="presentableId" value="LOCAL-00098" />
+      <option name="project" value="LOCAL" />
+      <updated>1767026907678</updated>
+    </task>
+    <option name="localTasksCounter" value="99" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1627,7 +1623,8 @@
     <MESSAGE value="чета хуета какая-то творится с магом на дипике -180 180" />
     <MESSAGE value="вроде получше" />
     <MESSAGE value="ничего себе какая оказия! ебучие флайт директора ПАШУТ БАЛЯ" />
-    <option name="LAST_COMMIT_MESSAGE" value="ничего себе какая оказия! ебучие флайт директора ПАШУТ БАЛЯ" />
+    <MESSAGE value="сука прикол директора ползают))) КРОСЕВА" />
+    <option name="LAST_COMMIT_MESSAGE" value="сука прикол директора ползают))) КРОСЕВА" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

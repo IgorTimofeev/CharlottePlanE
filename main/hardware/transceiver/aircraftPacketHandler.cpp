@@ -66,12 +66,12 @@ namespace pizda {
 			case RemotePacketType::remoteMotorConfiguration:
 				return receiveMotorConfigurationPacket(stream, payloadLength);
 				
+			case RemotePacketType::remoteAutopilot:
+				return receiveRemoteAutopilotPacket(stream, payloadLength);
+			
 			case RemotePacketType::remoteAuxiliary:
 				return receiveRemoteAuxiliaryPacket(stream, payloadLength);
 			
-			case RemotePacketType::remoteAutopilot:
-				return receiveRemoteAutopilotPacket(stream, payloadLength);
-				
 			default:
 				ESP_LOGE(_logTag, "failed to receive packet: unsupported type %d", packetType);
 				return false;
@@ -347,11 +347,11 @@ namespace pizda {
 			case AircraftPacketType::aircraftADIRS:
 				return transmitAircraftADIRSPacket(stream);
 			
-			case AircraftPacketType::aircraftAuxiliary:
-				return transmitAircraftAuxiliaryPacket(stream);
-			
 			case AircraftPacketType::aircraftAutopilot:
 				return transmitAircraftAutopilotPacket(stream);
+				
+			case AircraftPacketType::aircraftAuxiliary:
+				return transmitAircraftAuxiliaryPacket(stream);
 			
 			default:
 				ESP_LOGE(_logTag, "failed to write packet: unsupported type %d", packetType);
@@ -401,7 +401,7 @@ namespace pizda {
 		return true;
 	}
 	
-	bool AircraftPacketHandler::transmitAircraftAuxiliaryPacket(BitStream& stream) {
+	bool AircraftPacketHandler::transmitAircraftAutopilotPacket(BitStream& stream) {
 		auto& ac = Aircraft::getInstance();
 		
 		// Throttle
@@ -409,6 +409,18 @@ namespace pizda {
 			ac.motors.getMotor(MotorType::throttle)->getPower() * ((1 << AircraftAuxiliaryPacket::throttleLengthBits) - 1) / Motor::powerMaxValue,
 			AircraftAuxiliaryPacket::throttleLengthBits
 		);
+		
+		// Roll
+		writeRadians(stream, ac.aircraftData.computed.autopilotRollRad, AircraftAutopilotPacket::rollRangeRad, AircraftAutopilotPacket::rollLengthBits);
+		
+		// Pitch
+		writeRadians(stream, ac.aircraftData.computed.autopilotPitchRad, AircraftAutopilotPacket::pitchRangeRad, AircraftAutopilotPacket::pitchLengthBits);
+		
+		return true;
+	}
+	
+	bool AircraftPacketHandler::transmitAircraftAuxiliaryPacket(BitStream& stream) {
+		auto& ac = Aircraft::getInstance();
 		
 		// 60.014002019765776, 29.717151511256816
 		// ОПЯТЬ ЖЕНЩИНЫ??? ФЕДЯ СУКА ЭТО ТЫ ЕБЛАН СДЕЛАЛ
@@ -431,17 +443,6 @@ namespace pizda {
 		
 		// Battery, daV
 		stream.writeUint16(125, AircraftAuxiliaryPacket::batteryLengthBits);
-		
-		return true;
-	}
-	
-	bool AircraftPacketHandler::transmitAircraftAutopilotPacket(BitStream& stream) {
-		auto& ac = Aircraft::getInstance();
-		
-		// -------------------------------- Flight director --------------------------------
-		
-		writeRadians(stream, ac.aircraftData.computed.autopilotFlightDirectorRollRad, 2.f * std::numbers::pi_v<float>, AircraftAutopilotPacket::flightDirectorRollLengthBits);
-		writeRadians(stream, ac.aircraftData.computed.autopilotFlightDirectorPitchRad, std::numbers::pi_v<float>, AircraftAutopilotPacket::flightDirectorPitchLengthBits);
 		
 		return true;
 	}

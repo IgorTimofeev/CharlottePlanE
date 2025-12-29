@@ -18,8 +18,8 @@ namespace pizda {
 		remoteChannelsDataStructure,
 		remoteChannelsData,
 		remoteMotorConfiguration,
-		remoteAuxiliary,
 		remoteAutopilot,
+		remoteAuxiliary,
 		remoteCalibrate
 	};
 	
@@ -46,8 +46,9 @@ namespace pizda {
 	class RemoteAutopilotPacket {
 		public:
 			// Speed
-			// 7 bit = 127 m/s or ~246.8 kt, should be enough
-			constexpr static uint8_t speedLengthBits = 7;
+			// 7 bit = 127 m/s or ~246 kt
+			// 8 bit = 512 m/s or ~495 kt
+			constexpr static uint8_t speedLengthBits = 8;
 			
 			// 360 deg = 9 bits
 			constexpr static uint8_t headingLengthBits = 9;
@@ -65,8 +66,8 @@ namespace pizda {
 	
 	enum class AircraftPacketType : uint8_t {
 		aircraftADIRS,
-		aircraftAuxiliary,
 		aircraftAutopilot,
+		aircraftAuxiliary,
 		aircraftCalibration
 	};
 	
@@ -123,11 +124,11 @@ namespace pizda {
 	
 	class AircraftAutopilotPacket {
 		public:
-			constexpr static uint8_t flightDirectorRollLengthBits = AircraftADIRSPacket::rollLengthBits;
-			constexpr static float flightDirectorRollRangeRad = AircraftADIRSPacket::rollRangeRad;
+			constexpr static uint8_t rollLengthBits = AircraftADIRSPacket::rollLengthBits;
+			constexpr static float rollRangeRad = AircraftADIRSPacket::rollRangeRad;
 			
-			constexpr static uint8_t flightDirectorPitchLengthBits = AircraftADIRSPacket::pitchLengthBits;
-			constexpr static float flightDirectorPitchRangeRad = AircraftADIRSPacket::pitchRangeRad;
+			constexpr static uint8_t pitchLengthBits = AircraftADIRSPacket::pitchLengthBits;
+			constexpr static float pitchRangeRad = AircraftADIRSPacket::pitchRangeRad;
 	};
 	
 	#pragma pack(pop)
