@@ -169,13 +169,18 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="сука прикол директора ползают))) КРОСЕВА">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="фиксики закоптились">
+      <change afterPath="$PROJECT_DIR$/main/flyByWire.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/autopilot.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/autopilot.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/config.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/aircraft.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/aircraft.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/autopilot.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/autopilot.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/flyByWire.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packetHandler.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packetHandler.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/utils/aircraftData.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/utils/aircraftData.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -1184,15 +1189,9 @@
       <workItem from="1767002400037" duration="10175000" />
       <workItem from="1767020221706" duration="7542000" />
       <workItem from="1767032327937" duration="4488000" />
-      <workItem from="1767038982115" duration="5930000" />
-    </task>
-    <task id="LOCAL-00050" summary="pizda1111">
-      <option name="closed" value="true" />
-      <created>1766328191786</created>
-      <option name="number" value="00050" />
-      <option name="presentableId" value="LOCAL-00050" />
-      <option name="project" value="LOCAL" />
-      <updated>1766328191787</updated>
+      <workItem from="1767038982115" duration="6034000" />
+      <workItem from="1767091062331" duration="2374000" />
+      <workItem from="1767096204242" duration="11683000" />
     </task>
     <task id="LOCAL-00051" summary="pizda1111">
       <option name="closed" value="true" />
@@ -1578,7 +1577,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767026907678</updated>
     </task>
-    <option name="localTasksCounter" value="99" />
+    <task id="LOCAL-00099" summary="фиксики закоптились">
+      <option name="closed" value="true" />
+      <created>1767045035058</created>
+      <option name="number" value="00099" />
+      <option name="presentableId" value="LOCAL-00099" />
+      <option name="project" value="LOCAL" />
+      <updated>1767045035059</updated>
+    </task>
+    <option name="localTasksCounter" value="100" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1624,7 +1631,8 @@
     <MESSAGE value="вроде получше" />
     <MESSAGE value="ничего себе какая оказия! ебучие флайт директора ПАШУТ БАЛЯ" />
     <MESSAGE value="сука прикол директора ползают))) КРОСЕВА" />
-    <option name="LAST_COMMIT_MESSAGE" value="сука прикол директора ползают))) КРОСЕВА" />
+    <MESSAGE value="фиксики закоптились" />
+    <option name="LAST_COMMIT_MESSAGE" value="фиксики закоптились" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

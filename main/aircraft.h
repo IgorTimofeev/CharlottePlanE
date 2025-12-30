@@ -6,7 +6,7 @@
 #include <esp_timer.h>
 
 #include "config.h"
-#include "autopilot.h"
+#include "flyByWire.h"
 #include "settings/settings.h"
 #include "hardware/lights.h"
 #include "hardware/motors.h"
@@ -31,15 +31,14 @@ namespace pizda {
 			SX1262Transceiver transceiver {};
 			AircraftPacketHandler packetHandler {};
 
-			ADIRS ahrs {};
-			Autopilot autopilot {};
+			ADIRS adirs {};
+			FlyByWire fbw {};
 			
 			RemoteData remoteData {};
 			AircraftData aircraftData {};
 			
 			static Aircraft& getInstance();
 			void start();
-			void updateHardwareFromChannels();
 
 		private:
 			constexpr static const char* _logTag = "Aircraft";

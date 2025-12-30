@@ -10,8 +10,7 @@ namespace pizda {
 	
 	class AircraftDataComputed {
 		public:
-			float autopilotRollRad = 0;
-			float autopilotPitchRad = 0;
+			
 	};
 	
 	class AircraftData {

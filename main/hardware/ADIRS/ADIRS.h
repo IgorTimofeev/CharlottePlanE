@@ -72,7 +72,18 @@ namespace pizda {
 				return _headingDeg;
 			}
 			
-			float getAccelVelocityMPS() const {
+			int32_t _speedTime = 0;
+			float _speed = 0;
+			
+			float getAccelVelocityMPS() {
+				if (esp_timer_get_time() > _speedTime) {
+					_speed = random(14, 15);
+					
+					_speedTime = esp_timer_get_time() + 1'000'000;
+				}
+				
+				return _speed;
+				
 				return _accelVelocityMs;
 			}
 			

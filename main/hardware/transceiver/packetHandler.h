@@ -29,15 +29,15 @@ namespace pizda {
 	};
 	
 	enum class RemoteState : uint8_t {
-		normal,
+		normal
 	};
 	
 	enum class AircraftState : uint8_t {
-		initial,
 		aircraftNormal,
 		aircraftCalibrating
 	};
 	
+	template<typename TLocalState, typename TLocalPacketType, typename TRemoteState, typename TRemotePacketType>
 	class PacketHandler {
 		public:
 			void start() {
@@ -46,7 +46,7 @@ namespace pizda {
 						reinterpret_cast<PacketHandler*>(arg)->onStart();
 					},
 					"PacketHandler",
-					16 * 1024,
+					8 * 1024,
 					this,
 					10,
 					nullptr
@@ -104,7 +104,7 @@ namespace pizda {
 				BitStream stream { _buffer };
 				
 				// Type
-				const auto packetType = stream.readUint8(Packet::typeLengthBits);
+				const auto packetType = static_cast<TRemotePacketType>(stream.readUint8(Packet::typeLengthBits));
 				
 				// Reading
 				if (!onReceive(stream, packetType, payloadLength))
@@ -123,7 +123,7 @@ namespace pizda {
 				const auto packetType = getTransmitPacketType();
 				
 				// Type
-				stream.writeUint8(packetType, Packet::typeLengthBits);
+				stream.writeUint8(static_cast<uint8_t>(packetType), Packet::typeLengthBits);
 				
 				// Body
 				if (!onTransmit(stream, packetType))
@@ -135,10 +135,10 @@ namespace pizda {
 				stream.finishByte();
 				stream.writeUint8(checksum, Packet::checksumLengthBytes * 8);
 				
-				const auto length = static_cast<uint8_t>(payloadLength + Packet::checksumLengthBytes);
+				const auto totalLength = static_cast<uint8_t>(payloadLength + Packet::checksumLengthBytes);
 				
 				// Transmitting
-				const auto state = _transceiver->transmit(_buffer, length, timeoutUs);
+				const auto state = _transceiver->transmit(_buffer, totalLength, timeoutUs);
 				
 				_TXDurationUs = esp_timer_get_time() - transmitStartTimeUs;
 				
@@ -165,12 +165,12 @@ namespace pizda {
 				return _connectionState == ConnectionState::connected;
 			}
 			
-			RemoteState getRemoteState() const {
-				return _remoteState;
+			TLocalState getLocalState() const {
+				return _localState;
 			}
 			
-			AircraftState getAircraftState() const {
-				return _aircraftState;
+			TRemoteState getRemoteState() const {
+				return _remoteState;
 			}
 		
 		protected:
@@ -217,20 +217,20 @@ namespace pizda {
 				return true;
 			}
 			
-			void setRemoteState(RemoteState remoteState) {
+			virtual void onStart() = 0;
+			virtual bool onReceive(BitStream& stream, TRemotePacketType packetType, uint8_t payloadLength) = 0;
+			
+			virtual TLocalPacketType getTransmitPacketType() = 0;
+			virtual bool onTransmit(BitStream& stream, TLocalPacketType packetType) = 0;
+			virtual void onIsConnectedChanged() = 0;
+			
+			void setLocalState(TLocalState localState) {
+				_localState = localState;
+			}
+			
+			void setRemoteState(TRemoteState remoteState) {
 				_remoteState = remoteState;
 			}
-			
-			void setAircraftState(AircraftState aircraftState) {
-				_aircraftState = aircraftState;
-			}
-			
-			virtual void onStart() = 0;
-			virtual bool onReceive(BitStream& stream, uint8_t packetType, uint8_t payloadLength) = 0;
-			
-			virtual uint8_t getTransmitPacketType() = 0;
-			virtual bool onTransmit(BitStream& stream, uint8_t packetType) = 0;
-			virtual void onIsConnectedChanged() = 0;
 		
 		private:
 			Transceiver* _transceiver = nullptr;
@@ -262,10 +262,9 @@ namespace pizda {
 				onIsConnectedChanged();
 			}
 			
-			// ----------------------------- Remote/aircraft state -----------------------------
+			// ----------------------------- Local/remote state -----------------------------
 			
-			RemoteState _remoteState = RemoteState::normal;
-			AircraftState _aircraftState = AircraftState::initial;
-		
+			TLocalState _localState {};
+			TRemoteState _remoteState {};
 	};
 }

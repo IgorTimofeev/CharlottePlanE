@@ -23,7 +23,7 @@ namespace pizda {
 
 		SPIBusSetup();
 		
-		ahrs.setup();
+		adirs.setup();
 		
 		motors.setup();
 
@@ -40,8 +40,8 @@ namespace pizda {
 		packetHandler.start();
 		
 		// Autopilot
-		autopilot.setup();
-		autopilot.start();
+		fbw.setup();
+		fbw.start();
 		
 		while (true) {
 //			ESP_LOGI("Main", "Pizda");
@@ -68,62 +68,5 @@ namespace pizda {
 		busConfig.max_transfer_sz = 320 * 240;
 
 		ESP_ERROR_CHECK(spi_bus_initialize(config::spi::device, &busConfig, SPI_DMA_CH_AUTO));
-	}
-
-	void Aircraft::updateHardwareFromChannels() {
-		// Throttle
-		{
-			const auto channel = channels.getUintChannel(ChannelType::throttle);
-			const auto motor = motors.getMotor(MotorType::throttle);
-
-			if (!channel || !motor)
-				return;
-			
-			motor->setPower(channel->getValue());
-		}
-
-		// Ailerons
-		{
-			const auto channel = channels.getUintChannel(ChannelType::ailerons);
-			const auto leftAileronMotor = motors.getMotor(MotorType::leftAileron);
-//				const auto rightAileronMotor = motors.getMotor(MotorType::rightAileron);
-
-			if (!channel || !leftAileronMotor)
-				return;
-			
-			leftAileronMotor->setPower(channel->getValue());
-//				rightAileronMotor->setPower(aileronsChannel->getValue());
-		}
-
-		// Flaps
-		{
-			const auto flapsChannel = channels.getUintChannel(ChannelType::flaps);
-			const auto leftFlapMotor = motors.getMotor(MotorType::leftFlap);
-//				const auto rightFlapMotor = motors.getMotor(MotorType::rightAileron);
-
-			if (!flapsChannel || !leftFlapMotor)
-				return;
-			
-			leftFlapMotor->setPower(flapsChannel->getValue());
-//				rightFlapMotor->setPower(aileronsChannel->getValue());
-		}
-
-		// Lights
-		{
-			BoolChannel* boolChannel;
-
-			if ((boolChannel = channels.getBoolChannel(ChannelType::navLights)))
-				lights.setNavigationEnabled(boolChannel->getValue());
-
-			if ((boolChannel = channels.getBoolChannel(ChannelType::strobeLights)))
-				lights.setStrobeEnabled(boolChannel->getValue());
-
-			if ((boolChannel = channels.getBoolChannel(ChannelType::landingLights)))
-				lights.setLandingEnabled(boolChannel->getValue());
-			
-			if ((boolChannel = channels.getBoolChannel(ChannelType::cabinLights))) {
-				lights.setCabinEnabled(boolChannel->getValue());
-			}
-		}
 	}
 }

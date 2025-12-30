@@ -15,12 +15,11 @@ namespace pizda {
 	
 	enum class RemotePacketType : uint8_t {
 		NOP,
-		remoteChannelsDataStructure,
-		remoteChannelsData,
-		remoteMotorConfiguration,
-		remoteAutopilot,
-		remoteAuxiliary,
-		remoteCalibrate
+		channelsDataStructure,
+		channelsData,
+		motorConfiguration,
+		auxiliary,
+		calibrate
 	};
 	
 	enum class RemoteCalibratePacketSystem : uint8_t {
@@ -40,35 +39,37 @@ namespace pizda {
 	
 	class RemoteAuxiliaryPacket {
 		public:
-			constexpr static uint8_t referencePressureLengthBits = 14;
-	};
-	
-	class RemoteAutopilotPacket {
-		public:
 			// Speed
 			// 7 bit = 127 m/s or ~246 kt
 			// 8 bit = 512 m/s or ~495 kt
-			constexpr static uint8_t speedLengthBits = 8;
+			constexpr static uint8_t autopilotSpeedLengthBits = 8;
+			constexpr static int16_t autopilotSpeedMax = 343;
 			
 			// 360 deg = 9 bits
-			constexpr static uint8_t headingLengthBits = 9;
+			constexpr static uint8_t autopilotHeadingLengthBits = 9;
 			
 			// Altitude
 			// 13 bit = 8191, not enough
 			// 14 bit = 16383, more than enough
 			// Mapping [-1000; 10000] to [0; 16383]
-			constexpr static uint8_t altitudeLengthBits = 14;
-			constexpr static int16_t altitudeMin = -1'000;
-			constexpr static int16_t altitudeMax = 10'000;
+			constexpr static uint8_t autopilotAltitudeLengthBits = 14;
+			constexpr static int16_t autopilotAltitudeMin = -1'000;
+			constexpr static int16_t autopilotAltitudeMax = 10'000;
+			
+			// 1 hectopascal ~= 7.88 meters ~= 30 feet of altitude, which is not good enough for low altitude RC aircraft
+			// So we'll be using decapascals. Cool fact: The maximum recorded atmospheric pressure on Earth, adjusted to sea level,
+			// is around 1085.7 hPa (32.09 inHg), occurring in Tonsontsengel, Mongolia (2001)
+			// So in theory 1100 daPa will be more than enough
+			// So 14 bits
+			constexpr static uint8_t referencePressureLengthBits = 14;
 	};
 	
 	// -------------------------------- Aircraft --------------------------------
 	
 	enum class AircraftPacketType : uint8_t {
-		aircraftADIRS,
-		aircraftAutopilot,
-		aircraftAuxiliary,
-		aircraftCalibration
+		ADIRS,
+		auxiliary,
+		calibration
 	};
 	
 	class AircraftADIRSPacket {
@@ -94,13 +95,22 @@ namespace pizda {
 			constexpr static uint8_t slipAndSkidLengthBits = 8;
 			constexpr static uint8_t slipAndSkidMaxG = 2;
 			
-			// See RemoteAutopilotPacket
-			constexpr static uint8_t speedLengthBits = RemoteAutopilotPacket::speedLengthBits;
+			// See RemoteAuxiliaryPacket
+			constexpr static uint8_t speedLengthBits = RemoteAuxiliaryPacket::autopilotSpeedLengthBits;
+			constexpr static int16_t speedMax = RemoteAuxiliaryPacket::autopilotSpeedMax;
 			
-			// See RemoteAutopilotPacket
-			constexpr static uint8_t altitudeLengthBits = RemoteAutopilotPacket::altitudeLengthBits;
-			constexpr static int16_t altitudeMin = RemoteAutopilotPacket::altitudeMin;
-			constexpr static int16_t altitudeMax = RemoteAutopilotPacket::altitudeMax;
+			// See RemoteAuxiliaryPacket
+			constexpr static uint8_t altitudeLengthBits = RemoteAuxiliaryPacket::autopilotAltitudeLengthBits;
+			constexpr static int16_t altitudeMin = RemoteAuxiliaryPacket::autopilotAltitudeMin;
+			constexpr static int16_t altitudeMax = RemoteAuxiliaryPacket::autopilotAltitudeMax;
+			
+			constexpr static uint8_t throttleLengthBits = 7;
+			
+			constexpr static uint8_t autopilotRollLengthBits = AircraftADIRSPacket::rollLengthBits;
+			constexpr static float autopilotRollRangeRad = AircraftADIRSPacket::rollRangeRad;
+			
+			constexpr static uint8_t autopilotPitchLengthBits = AircraftADIRSPacket::pitchLengthBits;
+			constexpr static float autopilotPitchRangeRad = AircraftADIRSPacket::pitchRangeRad;
 	};
 	
 	enum class AircraftCalibrationPacketSystem : uint8_t {
@@ -116,19 +126,9 @@ namespace pizda {
 	
 	class AircraftAuxiliaryPacket {
 		public:
-			constexpr static uint8_t throttleLengthBits = 7;
 			constexpr static uint8_t latLengthBits = 25;
 			constexpr static uint8_t lonLengthBits = 26;
 			constexpr static uint8_t batteryLengthBits = 9;
-	};
-	
-	class AircraftAutopilotPacket {
-		public:
-			constexpr static uint8_t rollLengthBits = AircraftADIRSPacket::rollLengthBits;
-			constexpr static float rollRangeRad = AircraftADIRSPacket::rollRangeRad;
-			
-			constexpr static uint8_t pitchLengthBits = AircraftADIRSPacket::pitchLengthBits;
-			constexpr static float pitchRangeRad = AircraftADIRSPacket::pitchRangeRad;
 	};
 	
 	#pragma pack(pop)
