@@ -110,38 +110,54 @@ namespace pizda {
 		
 		const auto altitudeTargetM = static_cast<float>(ac.remoteData.raw.autopilot.altitudeM);
 		const auto altitudePredictedTargetDeltaM = altitudeTargetM - altitudePredictedM;
-		const auto climbUp = altitudePredictedTargetDeltaM >= 0;
 		
 		const auto yawTargetRad = -toRadians(normalizeAngle180(static_cast<float>(ac.remoteData.raw.autopilot.headingDeg)));
 		const auto yawPredictedTargetDeltaRad = yawTargetRad - yawPredictedRad;
 		
 		// -------------------------------- Pitch --------------------------------
 		
+		const auto climbUp = altitudePredictedTargetDeltaM >= 0;
+		
+//		ESP_LOGI(_logTag, "altitudeTargetM: %f, altitudeM: %f, altitudePredictedM: %f, altitudePredictedTargetDeltaM: %f",
+//			altitudeTargetM,
+//			altitudeM,
+//			altitudePredictedM,
+//			altitudePredictedTargetDeltaM
+//		);
+		
 		const auto pitchAngle =
 			climbUp
 			? config::limits::autopilotPitchAngleMaxRad
 			: -config::limits::autopilotPitchAngleMaxRad;
 		
-		_pitchTargetRad = LowPassFilter::applyForAngleRad(
-			_pitchTargetRad,
-			pitchAngle,
-			getInterpolatedLPFFactor(
-				altitudePredictedTargetDeltaM, toRadians(30),
-				0.01, 1.0,
-				deltaTimeUs
+		_pitchTargetRad =
+			ac.remoteData.raw.autopilot.levelChange
+			? LowPassFilter::applyForAngleRad(
+				_pitchTargetRad,
+				pitchAngle,
+				getInterpolatedLPFFactor(
+					altitudePredictedTargetDeltaM, 50,
+					0.01, 1.0,
+					deltaTimeUs
+				)
 			)
-		);
+			: 0;
 		
 		// -------------------------------- Throttle --------------------------------
 		
 		const auto throttleTargetAltitudeSafetyMarginM = 5.f;
 		
-		const auto throttleState =
+		auto throttleState =
 			// Not enough speed
 			speedPredictedTargetDeltaMPS > 0
-			// Enough, but target altitude hasn't been reached yet
-			|| altitudePredictedTargetDeltaM > throttleTargetAltitudeSafetyMarginM;
-		
+			// Enough, but
+			|| (
+				// Altitude affects throttle
+				ac.remoteData.raw.autopilot.levelChange
+				// Target altitude hasn't been reached yet
+				&& altitudePredictedTargetDeltaM > throttleTargetAltitudeSafetyMarginM
+			);
+			
 		const auto throttleTargetMax_0_1 = 1.f;
 		const auto throttleTarget_0_1 = throttleState ? throttleTargetMax_0_1 : 0.f;
 		
@@ -156,7 +172,6 @@ namespace pizda {
 		);
 		
 		// -------------------------------- Roll --------------------------------
-		
 		
 		const auto yawToRight =
 			(yawPredictedTargetDeltaRad < 0 && yawPredictedTargetDeltaRad < std::numbers::pi_v<float>)
@@ -173,16 +188,18 @@ namespace pizda {
 		
 		const auto rollPredictedTargetDeltaRad = rollTargetRad - rollPredictedRad;
 		
-		_rollTargetRad = LowPassFilter::applyForAngleRad(
-			_rollTargetRad,
-			rollTargetRad,
-			getInterpolatedLPFFactor(
-				yawPredictedTargetDeltaRad, toRadians(40),
-				0.01, 1.0,
-				deltaTimeUs
+		_rollTargetRad =
+			ac.remoteData.raw.autopilot.headingHold
+			? LowPassFilter::applyForAngleRad(
+				_rollTargetRad,
+				rollTargetRad,
+				getInterpolatedLPFFactor(
+					yawPredictedTargetDeltaRad, toRadians(40),
+					0.01, 1.0,
+					deltaTimeUs
+				)
 			)
-		);
-		
+			: 0;
 	}
 	
 	void FlyByWire::applyData() {

@@ -288,6 +288,9 @@ namespace pizda {
 		
 		ac.remoteData.raw.autopilot.levelChange = stream.readBool();
 		
+		// Engaged
+		ac.remoteData.raw.autopilot.engaged = stream.readBool();
+		
 		return true;
 	}
 	

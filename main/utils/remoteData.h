@@ -13,6 +13,8 @@ namespace pizda {
 			
 			uint16_t altitudeM = 0;
 			bool levelChange = false;
+			
+			bool engaged = false;
 	};
 	
 	class RemoteDataRaw {
