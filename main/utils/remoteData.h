@@ -5,13 +5,13 @@
 namespace pizda {
 	class RemoteDataRawAutopilot {
 		public:
-			uint8_t speedMPS = 0;
+			float speedMPS = 0;
 			bool autoThrottle = false;
 			
 			uint16_t headingDeg = 0;
 			bool headingHold = false;
 			
-			uint16_t altitudeM = 0;
+			float altitudeM = 0;
 			bool levelChange = false;
 			
 			bool engaged = false;

@@ -40,10 +40,10 @@ namespace pizda {
 	class RemoteAuxiliaryPacket {
 		public:
 			// Speed
-			// 7 bit = 127 m/s or ~246 kt
-			// 8 bit = 512 m/s or ~495 kt
+			// The Guinness World Record for the fastest RC jet-powered aircraft is 749.221 km/h, set by Niels Herbrich in 2017.
+			// In our case 350 km/h (97.2 m/s) will be enough, because it gives precision of ~0.37 m/s per 1 bit
 			constexpr static uint8_t autopilotSpeedLengthBits = 8;
-			constexpr static int16_t autopilotSpeedMax = 343;
+			constexpr static int16_t autopilotSpeedMaxMPS = 97;
 			
 			// 360 deg = 9 bits
 			constexpr static uint8_t autopilotHeadingLengthBits = 9;
@@ -53,8 +53,8 @@ namespace pizda {
 			// 14 bit = 16383, more than enough
 			// Mapping [-1000; 10000] to [0; 16383]
 			constexpr static uint8_t autopilotAltitudeLengthBits = 14;
-			constexpr static int16_t autopilotAltitudeMin = -1'000;
-			constexpr static int16_t autopilotAltitudeMax = 10'000;
+			constexpr static int16_t autopilotAltitudeMinM = -1'000;
+			constexpr static int16_t autopilotAltitudeMaxM = 10'000;
 			
 			// 1 hectopascal ~= 7.88 meters ~= 30 feet of altitude, which is not good enough for low altitude RC aircraft
 			// So we'll be using decapascals. Cool fact: The maximum recorded atmospheric pressure on Earth, adjusted to sea level,
@@ -97,12 +97,12 @@ namespace pizda {
 			
 			// See RemoteAuxiliaryPacket
 			constexpr static uint8_t speedLengthBits = RemoteAuxiliaryPacket::autopilotSpeedLengthBits;
-			constexpr static int16_t speedMax = RemoteAuxiliaryPacket::autopilotSpeedMax;
+			constexpr static int16_t speedMaxMPS = RemoteAuxiliaryPacket::autopilotSpeedMaxMPS;
 			
 			// See RemoteAuxiliaryPacket
 			constexpr static uint8_t altitudeLengthBits = RemoteAuxiliaryPacket::autopilotAltitudeLengthBits;
-			constexpr static int16_t altitudeMin = RemoteAuxiliaryPacket::autopilotAltitudeMin;
-			constexpr static int16_t altitudeMax = RemoteAuxiliaryPacket::autopilotAltitudeMax;
+			constexpr static int16_t altitudeMinM = RemoteAuxiliaryPacket::autopilotAltitudeMinM;
+			constexpr static int16_t altitudeMaxM = RemoteAuxiliaryPacket::autopilotAltitudeMaxM;
 			
 			constexpr static uint8_t throttleLengthBits = 7;
 			

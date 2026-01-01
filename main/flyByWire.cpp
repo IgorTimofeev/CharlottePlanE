@@ -105,10 +105,10 @@ namespace pizda {
 		
 		// -------------------------------- Target deltas --------------------------------
 		
-		const auto speedTargetMPS = static_cast<float>(ac.remoteData.raw.autopilot.speedMPS);
+		const auto speedTargetMPS = ac.remoteData.raw.autopilot.speedMPS;
 		const auto speedPredictedTargetDeltaMPS = speedTargetMPS - speedPredictedMPS;
 		
-		const auto altitudeTargetM = static_cast<float>(ac.remoteData.raw.autopilot.altitudeM);
+		const auto altitudeTargetM = ac.remoteData.raw.autopilot.altitudeM;
 		const auto altitudePredictedTargetDeltaM = altitudeTargetM - altitudePredictedM;
 		
 		const auto yawTargetRad = -toRadians(normalizeAngle180(static_cast<float>(ac.remoteData.raw.autopilot.headingDeg)));
@@ -146,6 +146,13 @@ namespace pizda {
 		// -------------------------------- Throttle --------------------------------
 		
 		const auto throttleTargetAltitudeSafetyMarginM = 5.f;
+		
+//		ESP_LOGI(_logTag, "speedMPS: %f, speedTargetMPS: %f, speedPredictedMPS: %f, speedPredictedTargetDeltaMPS: %f",
+//			speedMPS,
+//			speedTargetMPS,
+//			speedPredictedMPS,
+//			speedPredictedTargetDeltaMPS
+//		);
 		
 		auto throttleState =
 			// Not enough speed

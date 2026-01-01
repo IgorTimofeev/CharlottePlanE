@@ -270,7 +270,7 @@ namespace pizda {
 			static_cast<float>(stream.readUint8(RemoteAuxiliaryPacket::autopilotSpeedLengthBits))
 			/ static_cast<float>((1 << RemoteAuxiliaryPacket::autopilotSpeedLengthBits) - 1);
 		
-		ac.remoteData.raw.autopilot.speedMPS = static_cast<float>(RemoteAuxiliaryPacket::autopilotSpeedMax) * speedFactor;
+		ac.remoteData.raw.autopilot.speedMPS = static_cast<float>(RemoteAuxiliaryPacket::autopilotSpeedMaxMPS) * speedFactor;
 		ac.remoteData.raw.autopilot.autoThrottle = stream.readBool();
 		
 		// Heading
@@ -283,8 +283,8 @@ namespace pizda {
 			/ static_cast<float>((1 << RemoteAuxiliaryPacket::autopilotAltitudeLengthBits) - 1);
 		
 		ac.remoteData.raw.autopilot.altitudeM =
-			RemoteAuxiliaryPacket::autopilotAltitudeMin
-			+ (RemoteAuxiliaryPacket::autopilotAltitudeMax - RemoteAuxiliaryPacket::autopilotAltitudeMin) * altitudeFactor;
+			static_cast<float>(RemoteAuxiliaryPacket::autopilotAltitudeMinM)
+			+ static_cast<float>(RemoteAuxiliaryPacket::autopilotAltitudeMaxM - RemoteAuxiliaryPacket::autopilotAltitudeMinM) * altitudeFactor;
 		
 		ac.remoteData.raw.autopilot.levelChange = stream.readBool();
 		
@@ -370,19 +370,19 @@ namespace pizda {
 		
 		// Speed
 		const auto speedFactor =
-			std::min<float>(ac.adirs.getAccelVelocityMPS(), AircraftADIRSPacket::speedMax)
-		    / static_cast<float>(AircraftADIRSPacket::speedMax);
+			std::min<float>(ac.adirs.getAccelVelocityMPS(), AircraftADIRSPacket::speedMaxMPS)
+		    / static_cast<float>(AircraftADIRSPacket::speedMaxMPS);
 		
 		const auto speedMapped = static_cast<float>((1 << AircraftADIRSPacket::speedLengthBits) - 1) * speedFactor;
 		
 		stream.writeUint8(static_cast<uint8_t>(speedMapped), AircraftADIRSPacket::speedLengthBits);
 		
 		// Altitude
-		const auto altitudeClamped = std::clamp<float>(ac.adirs.getAltitudeM(), AircraftADIRSPacket::altitudeMin, AircraftADIRSPacket::altitudeMax);
+		const auto altitudeClamped = std::clamp<float>(ac.adirs.getAltitudeM(), AircraftADIRSPacket::altitudeMinM, AircraftADIRSPacket::altitudeMaxM);
 		
 		const auto altitudeFactor =
-			(altitudeClamped - static_cast<float>(AircraftADIRSPacket::altitudeMin))
-			/ static_cast<float>(AircraftADIRSPacket::altitudeMax - AircraftADIRSPacket::altitudeMin);
+			(altitudeClamped - static_cast<float>(AircraftADIRSPacket::altitudeMinM))
+			/ static_cast<float>(AircraftADIRSPacket::altitudeMaxM - AircraftADIRSPacket::altitudeMinM);
 		
 		const auto altitudeUint16 = static_cast<uint16_t>(altitudeFactor * static_cast<float>((1 << AircraftADIRSPacket::altitudeLengthBits) - 1));
 		
