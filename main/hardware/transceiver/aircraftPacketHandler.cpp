@@ -370,7 +370,7 @@ namespace pizda {
 		
 		// Speed
 		const auto speedFactor =
-			std::min<float>(ac.adirs.getAccelVelocityMPS(), AircraftADIRSPacket::speedMaxMPS)
+			std::min<float>(ac.adirs.getAccelSpeedMPS(), AircraftADIRSPacket::speedMaxMPS)
 		    / static_cast<float>(AircraftADIRSPacket::speedMaxMPS);
 		
 		const auto speedMapped = static_cast<float>((1 << AircraftADIRSPacket::speedLengthBits) - 1) * speedFactor;
@@ -378,7 +378,7 @@ namespace pizda {
 		stream.writeUint8(static_cast<uint8_t>(speedMapped), AircraftADIRSPacket::speedLengthBits);
 		
 		// Altitude
-		const auto altitudeClamped = std::clamp<float>(ac.adirs.getAltitudeM(), AircraftADIRSPacket::altitudeMinM, AircraftADIRSPacket::altitudeMaxM);
+		const auto altitudeClamped = std::clamp<float>(ac.adirs.getCoordinates().getAltitude(), AircraftADIRSPacket::altitudeMinM, AircraftADIRSPacket::altitudeMaxM);
 		
 		const auto altitudeFactor =
 			(altitudeClamped - static_cast<float>(AircraftADIRSPacket::altitudeMinM))
@@ -408,11 +408,10 @@ namespace pizda {
 	bool AircraftPacketHandler::transmitAircraftAuxiliaryPacket(BitStream& stream) {
 		auto& ac = Aircraft::getInstance();
 		
-		// 60.014002019765776, 29.717151511256816
-		// ОПЯТЬ ЖЕНЩИНЫ??? ФЕДЯ СУКА ЭТО ТЫ ЕБЛАН СДЕЛАЛ
+		const auto& coordinates = ac.adirs.getCoordinates();
 		
 		// Lat
-		const auto latRad = toRadians(60.014002019765776f);
+		const auto latRad = coordinates.getLatitude();
 		// Mapping from [-90; 90] to [0; 180] and then to [0; 1]
 		const auto latFactor = (latRad + std::numbers::pi_v<float> / 2.f) / std::numbers::pi_v<float>;
 		const auto latValue = static_cast<uint32_t>(static_cast<float>((1 << AircraftAuxiliaryPacket::latLengthBits) - 1) * latFactor);
@@ -420,7 +419,7 @@ namespace pizda {
 		stream.writeUint32(latValue, AircraftAuxiliaryPacket::latLengthBits);
 		
 		// Lon
-		const auto lonRad = toRadians(29.717151511256816);
+		const auto lonRad = coordinates.getLongitude();
 		// Mapping from [0; 360] to [0; 1]
 		const auto lonFactor = lonRad / (2 * std::numbers::pi_v<float>);
 		const auto lonValue = static_cast<uint32_t>(static_cast<float>((1 << AircraftAuxiliaryPacket::lonLengthBits) - 1) * lonFactor);

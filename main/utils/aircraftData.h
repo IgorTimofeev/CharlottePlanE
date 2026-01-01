@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+#include "utils/geographicCoordinates.h"
+
 namespace pizda {
 	class AircraftDataRaw {
 		public:

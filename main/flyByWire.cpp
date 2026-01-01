@@ -16,6 +16,7 @@ namespace pizda {
 	}
 	
 	void FlyByWire::start() {
+		
 		xTaskCreate(
 			[](void* arg) {
 				reinterpret_cast<FlyByWire*>(arg)->taskBody();
@@ -71,13 +72,13 @@ namespace pizda {
 		constexpr static uint32_t predictionTimeUs = 1'000'000;
 		
 		// Speed
-		const auto speedMPS = ac.adirs.getAccelVelocityMPS();
+		const auto speedMPS = ac.adirs.getAccelSpeedMPS();
 		const auto speedPrevDeltaMPS = speedMPS - _speedPrevMPS;
 		const auto speedPredictedMPS = _speedPrevMPS + predictValue(speedPrevDeltaMPS, deltaTimeUs, predictionTimeUs);
 		_speedPrevMPS = speedMPS;
 		
 		// Altitude
-		const auto altitudeM = ac.adirs.getAltitudeM();
+		const auto altitudeM = ac.adirs.getCoordinates().getAltitude();
 		const auto altitudePrevDeltaM = altitudeM - _altitudePrevM;
 		const auto altitudePredictedM = _altitudePrevM + predictValue(altitudePrevDeltaM, deltaTimeUs, predictionTimeUs);
 		_altitudePrevM = altitudeM;
@@ -277,8 +278,8 @@ namespace pizda {
 		
 		_computationTimeUs = esp_timer_get_time();
 		
-		_speedPrevMPS = ac.adirs.getAccelVelocityMPS();
-		_altitudePrevM = ac.adirs.getAltitudeM();
+		_speedPrevMPS = ac.adirs.getAccelSpeedMPS();
+		_altitudePrevM = ac.adirs.getCoordinates().getAltitude();
 		_rollPrevRad = ac.adirs.getRollRad();
 		_pitchPrevRad = ac.adirs.getPitchRad();
 		_yawPrevRad = ac.adirs.getYawRad();
