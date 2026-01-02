@@ -32,13 +32,15 @@ namespace pizda {
 			float _rollTargetRad = 0;
 			float _pitchTargetRad = 0;
 			
-			float _aileronsTargetFactor = 0;
-			float _elevatorTargetFactor = 0;
+			float _aileronsTargetFactor = 0.5;
+			float _elevatorTargetFactor = 0.5;
 			
-			static float getInterpolatedLPFFactor(float value, float valueRange, float factorPerSecondMin, float factorPerSecondMax, uint32_t deltaTimeUs);
+			static float interpolateValueBy(float valueMin, float valueMax, float range, float rangeMax);
+			static float interpolateLPFFactor(float factorPerSecondMin, float factorPerSecondMax, float range, float rangeMax, uint32_t deltaTimeUs);
 			static float predictValue(float valueDelta, uint32_t dueTimeUs, uint32_t deltaTimeUs);
 			
 			void computeData();
 			[[noreturn]] void taskBody();
+			
 	};
 }

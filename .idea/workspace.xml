@@ -169,27 +169,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="симконнект успешно захуячен - пока что в тестовом формате, но уже даж летать можно">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="пашет, но нужно затюнить кэфики">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/aircraft.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/aircraft.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/config.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/flyByWire.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/flyByWire.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/flyByWire.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/flyByWire.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/I2CADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/I2CADIRS.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/dummyADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/simADIRS.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/lights.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/lights.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/lights.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/lights.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/motor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motor.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/motor.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motor.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/motors.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/motors.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/simLink/simLink.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/simLink/simLink.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/simLink/simLink.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/simLink/simLink.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/channels.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/channels.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/channels.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/channels.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -283,6 +266,11 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.CharlottePlanE.elf">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="CharlottePlanE.elf" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="CharlottePlanE.elf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="CharlottePlanE" RUN_TARGET_NAME="CharlottePlanE.elf">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -1211,15 +1199,7 @@
       <workItem from="1767277949004" duration="591000" />
       <workItem from="1767292769924" duration="11733000" />
       <workItem from="1767348896300" duration="14852000" />
-      <workItem from="1767365985755" duration="6000" />
-    </task>
-    <task id="LOCAL-00055" summary="pizda1111">
-      <option name="closed" value="true" />
-      <created>1766424607502</created>
-      <option name="number" value="00055" />
-      <option name="presentableId" value="LOCAL-00055" />
-      <option name="project" value="LOCAL" />
-      <updated>1766424607503</updated>
+      <workItem from="1767365985755" duration="11554000" />
     </task>
     <task id="LOCAL-00056" summary="pizda1111">
       <option name="closed" value="true" />
@@ -1605,7 +1585,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767304735488</updated>
     </task>
-    <option name="localTasksCounter" value="104" />
+    <task id="LOCAL-00104" summary="пашет, но нужно затюнить кэфики">
+      <option name="closed" value="true" />
+      <created>1767366035953</created>
+      <option name="number" value="00104" />
+      <option name="presentableId" value="LOCAL-00104" />
+      <option name="project" value="LOCAL" />
+      <updated>1767366035953</updated>
+    </task>
+    <option name="localTasksCounter" value="105" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1628,7 +1616,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="так-то лучше ебана" />
     <MESSAGE value="ЧОТА ЧИТАЕТ!111 но пока один раз" />
     <MESSAGE value="бляяя разобрался ахуй пашет" />
     <MESSAGE value="то ли флоаты пиздливые, то ли че" />
@@ -1653,7 +1640,8 @@
     <MESSAGE value="с новым годом, посоны и посонессы!!1" />
     <MESSAGE value="попробовать что ли к флайтсиму подрубить эту хуйню - по идее удобно будет" />
     <MESSAGE value="симконнект успешно захуячен - пока что в тестовом формате, но уже даж летать можно" />
-    <option name="LAST_COMMIT_MESSAGE" value="симконнект успешно захуячен - пока что в тестовом формате, но уже даж летать можно" />
+    <MESSAGE value="пашет, но нужно затюнить кэфики" />
+    <option name="LAST_COMMIT_MESSAGE" value="пашет, но нужно затюнить кэфики" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

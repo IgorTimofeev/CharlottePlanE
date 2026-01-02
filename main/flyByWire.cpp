@@ -37,19 +37,24 @@ namespace pizda {
 		return _pitchTargetRad;
 	}
 	
-	float FlyByWire::getInterpolatedLPFFactor(
-		float value,
-		float valueRange,
-		
+	float FlyByWire::interpolateValueBy(float valueMin, float valueMax, float range, float rangeMax) {
+		return valueMin + (valueMax - valueMin) * std::clamp<float>(std::abs(range) / rangeMax, 0, 1);
+	}
+	
+	float FlyByWire::interpolateLPFFactor(
 		float factorPerSecondMin,
 		float factorPerSecondMax,
 		
+		float range,
+		float rangeMax,
+		
 		uint32_t deltaTimeUs
 	) {
-		const float factorPerSecondFactor = std::min(std::abs(value), valueRange) / valueRange;
+//		const float factorPerSecondFactor = std::min(std::abs(value), valueRange) / valueRange;
+//		factorPerSecondMin + (factorPerSecondMax - factorPerSecondMin) * factorPerSecondFactor,
 		
 		return LowPassFilter::getFactor(
-			factorPerSecondMin + (factorPerSecondMax - factorPerSecondMin) * factorPerSecondFactor,
+			interpolateValueBy(factorPerSecondMin, factorPerSecondMax, range, rangeMax),
 			deltaTimeUs
 		);
 	}
@@ -131,9 +136,9 @@ namespace pizda {
 				altitudeTargetAndPredictedDeltaM >= 0
 					? config::limits::autopilotPitchAngleMaxRad
 					: -config::limits::autopilotPitchAngleMaxRad,
-				getInterpolatedLPFFactor(
-					altitudeTargetAndPredictedDeltaM, 100,
+				interpolateLPFFactor(
 					0.2, 1.5,
+					altitudeTargetAndPredictedDeltaM, 100,
 					deltaTimeUs
 				)
 			)
@@ -161,16 +166,12 @@ namespace pizda {
 				&& altitudeTargetAndPredictedDeltaM > throttleTargetAltitudeSafetyMarginM
 			);
 			
-		const auto throttleTargetFactorMax = 1.f;
+		const auto throttleTargetFactor = interpolateValueBy(0.0, 1.0, speedTargetAndPredictedDeltaMPS, 5);
 		
 		_throttleTargetFactor = LowPassFilter::applyForAngleRad(
 			_throttleTargetFactor,
-			throttleState ? throttleTargetFactorMax : 0.f,
-			getInterpolatedLPFFactor(
-				speedTargetAndPredictedDeltaMPS, 5,
-				0.01, 0.8,
-				deltaTimeUs
-			)
+			throttleState ? throttleTargetFactor : 0.f,
+			LowPassFilter::getFactor(0.8, deltaTimeUs)
 		);
 		
 		// -------------------------------- Roll --------------------------------
@@ -184,37 +185,40 @@ namespace pizda {
 			|| (!yawToRight && rollPredictedRad < -config::limits::autopilotRollAngleMaxRad);
 		
 		const auto rollTargetRad =
-			rollToRight
-			? config::limits::autopilotRollAngleMaxRad
-			: -config::limits::autopilotRollAngleMaxRad;
+			interpolateValueBy(
+				config::limits::autopilotRollAngleMaxRad * 0.1,
+				config::limits::autopilotRollAngleMaxRad,
+				yawTargetAndPredictedDeltaRad,
+				toRadians(15)
+			)
+			* (rollToRight ? 1 : -1);
 		
 		_rollTargetRad =
 			ac.remoteData.raw.autopilot.headingHold
 			? LowPassFilter::applyForAngleRad(
 				_rollTargetRad,
 				rollTargetRad,
-				getInterpolatedLPFFactor(
-					yawTargetAndPredictedDeltaRad, toRadians(30),
-					0.01, 0.8,
-					deltaTimeUs
-				)
+				LowPassFilter::getFactor(0.6, deltaTimeUs)
 			)
 			: 0;
 		
 		// -------------------------------- Ailerons --------------------------------
 		
 		const auto rollTargetAndPredictedDeltaRad = _rollTargetRad - rollPredictedRad;
+		const auto aileronsTargetFactor =
+			0.5f
+			+ (
+				interpolateValueBy(0.04, 0.5, rollTargetAndPredictedDeltaRad, toRadians(20))
+				* (rollTargetAndPredictedDeltaRad >= 0 ? 1 : -1)
+				/ 2.f
+			);
 		
 		_aileronsTargetFactor =
 			ac.remoteData.raw.autopilot.headingHold
 			? LowPassFilter::applyForAngleRad(
 				_aileronsTargetFactor,
-				rollTargetAndPredictedDeltaRad >= 0 ? 1 : 0,
-				getInterpolatedLPFFactor(
-					rollTargetAndPredictedDeltaRad, toRadians(30),
-					0.05, 0.8,
-					deltaTimeUs
-				)
+				aileronsTargetFactor,
+				LowPassFilter::getFactor(1.0, deltaTimeUs)
 			)
 			: 0;
 		
@@ -227,9 +231,9 @@ namespace pizda {
 			? LowPassFilter::applyForAngleRad(
 				_elevatorTargetFactor,
 				pitchTargetAndPredictedDeltaRad >= 0 ? 0 : 1,
-				getInterpolatedLPFFactor(
-					pitchTargetAndPredictedDeltaRad, config::limits::autopilotPitchAngleMaxRad,
+				interpolateLPFFactor(
 					0.2, 1.5,
+					pitchTargetAndPredictedDeltaRad, config::limits::autopilotPitchAngleMaxRad,
 					deltaTimeUs
 				)
 			)
