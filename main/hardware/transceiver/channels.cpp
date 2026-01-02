@@ -13,26 +13,26 @@ namespace pizda {
 		auto& ac = Aircraft::getInstance();
 
 		// Deleting existing channels
-		for (auto channel : instances) {
+		for (auto channel : _instances) {
 			if (channel) {
 				delete channel;
 			}
 		}
 		
-		instances.clear();
+		_instances.clear();
 		
 		// TMP
-		instances.push_back(new UintChannel(RemoteChannelsPacket::motorLengthBits));
-		instances.push_back(new UintChannel(RemoteChannelsPacket::motorLengthBits));
-		instances.push_back(new UintChannel(RemoteChannelsPacket::motorLengthBits));
-		instances.push_back(new UintChannel(RemoteChannelsPacket::motorLengthBits));
-		instances.push_back(new UintChannel(RemoteChannelsPacket::motorLengthBits));
-		instances.push_back(new UintChannel(RemoteChannelsPacket::motorLengthBits));
+		_instances.push_back(new UintChannel(RemoteChannelsPacket::motorLengthBits));
+		_instances.push_back(new UintChannel(RemoteChannelsPacket::motorLengthBits));
+		_instances.push_back(new UintChannel(RemoteChannelsPacket::motorLengthBits));
+		_instances.push_back(new UintChannel(RemoteChannelsPacket::motorLengthBits));
+		_instances.push_back(new UintChannel(RemoteChannelsPacket::motorLengthBits));
+		_instances.push_back(new UintChannel(RemoteChannelsPacket::motorLengthBits));
 		
-		instances.push_back(new BoolChannel());
-		instances.push_back(new BoolChannel());
-		instances.push_back(new BoolChannel());
-		instances.push_back(new BoolChannel());
+		_instances.push_back(new BoolChannel());
+		_instances.push_back(new BoolChannel());
+		_instances.push_back(new BoolChannel());
+		_instances.push_back(new BoolChannel());
 		
 		return;
 
@@ -53,7 +53,7 @@ namespace pizda {
 						break;
 				}
 
-				instances.push_back(channel);
+				_instances.push_back(channel);
 
 				channelIndex++;
 			}
@@ -61,12 +61,12 @@ namespace pizda {
 	}
 
 	Channel* Channels::getChannel(uint8_t channelIndex) {
-		if (channelIndex >= instances.size()) {
-			ESP_LOGE(_logTag, "getChannel() failed, channel %d >= channels size %d", channelIndex, instances.size());
+		if (channelIndex >= _instances.size()) {
+			ESP_LOGE(_logTag, "getChannel() failed, channel %d >= channels size %d", channelIndex, _instances.size());
 			return nullptr;
 		}
 		
-		return instances[channelIndex];
+		return _instances[channelIndex];
 	}
 
 	Channel* Channels::getChannel(ChannelType channelType) {

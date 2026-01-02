@@ -18,7 +18,9 @@ namespace pizda {
 		rightTail,
 
 		leftFlap,
-		rightFlap
+		rightFlap,
+		
+		noseWheel
 	};
 
 	class Motors {
@@ -31,18 +33,19 @@ namespace pizda {
 		private:
 			constexpr static const char* _logTag = "Motors";
 
-			std::array<std::optional<ConfiguredMotor>, 7> instances {
+			std::array<ConfiguredMotor, 8> _instances {
 				ConfiguredMotor { config::motors::throttle, LEDC_CHANNEL_0 },
 
-				ConfiguredMotor { config::motors::leftWingAileron, LEDC_CHANNEL_2 },
-				std::nullopt,
-
-				std::nullopt,
-				std::nullopt,
-
-				ConfiguredMotor { config::motors::leftWingFlap, LEDC_CHANNEL_3 },
-				std::nullopt,
+				ConfiguredMotor { config::motors::leftAileron, LEDC_CHANNEL_1 },
+				ConfiguredMotor { config::motors::rightAileron, LEDC_CHANNEL_2 },
+				
+				ConfiguredMotor { config::motors::tailLeft, LEDC_CHANNEL_3 },
+				ConfiguredMotor { config::motors::tailRight, LEDC_CHANNEL_4 },
+				
+				ConfiguredMotor { config::motors::leftFlap, LEDC_CHANNEL_5 },
+				ConfiguredMotor { config::motors::rightFlap, LEDC_CHANNEL_6 },
+				
+				ConfiguredMotor { config::motors::noseWheel, LEDC_CHANNEL_7 },
 			};
-
 	};
 }

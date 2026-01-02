@@ -26,9 +26,9 @@ namespace pizda {
 			uint8_t address;
 	};
 
-	class I2CADIRS : ADIRS {
+	class I2CADIRS : public ADIRS {
 		public:
-			void setup() override {
+			void setup() {
 				if (!setupBus())
 					return;
 

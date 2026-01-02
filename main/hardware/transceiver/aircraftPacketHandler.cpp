@@ -136,16 +136,16 @@ namespace pizda {
 		))
 			return false;
 		
-		const auto receiveChannel = [&stream]() {
-			return stream.readUint16(RemoteChannelsPacket::motorLengthBits) * Motor::powerMaxValue / ((1 << RemoteChannelsPacket::motorLengthBits) - 1);
+		const auto receiveChannel = [&stream](UintChannel* channel) {
+			channel->setValue(stream.readUint16(channel->getBitDepth()));
 		};
 		
-		ac.channels.getUintChannel(ChannelType::throttle)->setValue(receiveChannel());
-		ac.channels.getUintChannel(ChannelType::ailerons)->setValue(receiveChannel());
-		ac.channels.getUintChannel(ChannelType::elevator)->setValue(receiveChannel());
-		ac.channels.getUintChannel(ChannelType::rudder)->setValue(receiveChannel());
-		ac.channels.getUintChannel(ChannelType::flaps)->setValue(receiveChannel());
-		ac.channels.getUintChannel(ChannelType::unused)->setValue(receiveChannel());
+		receiveChannel(ac.channels.getUintChannel(ChannelType::throttle));
+		receiveChannel(ac.channels.getUintChannel(ChannelType::ailerons));
+		receiveChannel(ac.channels.getUintChannel(ChannelType::elevator));
+		receiveChannel(ac.channels.getUintChannel(ChannelType::rudder));
+		receiveChannel(ac.channels.getUintChannel(ChannelType::flaps));
+		receiveChannel(ac.channels.getUintChannel(ChannelType::unused));
 		
 		// Lights
 		ac.channels.getBoolChannel(ChannelType::navLights)->setValue(stream.readBool());

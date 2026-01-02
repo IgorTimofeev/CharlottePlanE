@@ -43,6 +43,9 @@ namespace pizda {
 			float throttle = 0;
 			float ailerons = 0;
 			float elevator = 0;
+			float rudder = 0;
+			float flaps = 0;
+			uint8_t lights = 0;
 	};
 	
 	#pragma pack(pop)

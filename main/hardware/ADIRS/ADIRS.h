@@ -22,41 +22,29 @@ namespace pizda {
 				return _rollRad;
 			}
 			
-			void setRollRad(float rollRad) {
-				_rollRad = rollRad;
-			}
-			
 			
 			float getPitchRad() const {
 				return _pitchRad;
-			}
-			
-			void setPitchRad(float pitchRad) {
-				_pitchRad = pitchRad;
 			}
 			
 			float getYawRad() const {
 				return _yawRad;
 			}
 			
-			void setYawRad(float value) {
-				_yawRad = value;
-			}
-			
 			float getHeadingDeg() const {
 				return _headingDeg;
 			}
 			
-			void updateHeadingFromYaw() {
-				_headingDeg = toDegrees(-_yawRad);
-			}
-			
-			void setAccelSpeedMPS(float accelSpeedMPS) {
-				_accelSpeedMPS = accelSpeedMPS;
-			}
-			
 //			int32_t _speedTime = 0;
 //			float _speed = 0;
+			
+			float getSlipAndSkidFactor() const {
+				return _slipAndSkidFactor;
+			}
+			
+			const GeographicCoordinates& getCoordinates() {
+				return _coordinates;
+			}
 			
 			float getAccelSpeedMPS() {
 //				if (esp_timer_get_time() > _speedTime) {
@@ -70,8 +58,24 @@ namespace pizda {
 				return _accelSpeedMPS;
 			}
 			
-			float getSlipAndSkidFactor() const {
-				return _slipAndSkidFactor;
+			void setRollRad(float rollRad) {
+				_rollRad = rollRad;
+			}
+			
+			void setPitchRad(float pitchRad) {
+				_pitchRad = pitchRad;
+			}
+			
+			void setYawRad(float value) {
+				_yawRad = value;
+			}
+			
+			void updateHeadingFromYaw() {
+				_headingDeg = toDegrees(-_yawRad);
+			}
+			
+			void setAccelSpeedMPS(float accelSpeedMPS) {
+				_accelSpeedMPS = accelSpeedMPS;
 			}
 			
 			static float computeAltitude(
@@ -132,14 +136,14 @@ namespace pizda {
 				_coordinates.setAltitude(computeAltitude(_pressurePa, _temperatureC, _referencePressurePa));
 			}
 			
-			GeographicCoordinates& getCoordinates() {
-				return _coordinates;
+			void setLatitude(float value) {
+				_coordinates.setLatitude(value);
 			}
 			
-			void setCoordinates(const GeographicCoordinates& coordinates) {
-				_coordinates = coordinates;
+			void setLongitude(float value) {
+				_coordinates.setLongitude(value);
 			}
-		
+			
 		protected:
 			constexpr static const char* _logTag = "ADIRS";
 			

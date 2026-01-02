@@ -25,6 +25,10 @@ namespace pizda {
 		);
 	}
 	
+	bool Lights::isCabinEnabled() const {
+		return cabinEnabled;
+	}
+	
 	void Lights::setCabinEnabled(bool value) {
 		if (value == cabinEnabled)
 			return;

@@ -43,7 +43,9 @@ namespace pizda {
 		fbw.setup();
 		fbw.start();
 		
-		simLink.setup();
+		#ifdef SIM
+			simLink.setup();
+		#endif
 		
 		while (true) {
 //			ESP_LOGI("Main", "Pizda");

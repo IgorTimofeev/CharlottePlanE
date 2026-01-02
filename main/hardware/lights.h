@@ -13,6 +13,7 @@ namespace pizda {
 			void setup();
 			void start();
 			
+			bool isCabinEnabled() const;
 			void setCabinEnabled(bool value);
 			
 			bool isNavigationEnabled() const;

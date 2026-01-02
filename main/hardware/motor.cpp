@@ -56,7 +56,11 @@ namespace pizda {
 	uint16_t ConfiguredMotor::getPower() const {
 		return _power;
 	}
-
+	
+	float ConfiguredMotor::getPowerF() {
+		return static_cast<float>(getPower()) / static_cast<float>(Motor::powerMaxValue);
+	}
+	
 	// Value range is [0; 0xFFFF]
 	void ConfiguredMotor::setPower(uint16_t value) {
 		_power = value;
@@ -72,6 +76,10 @@ namespace pizda {
 		pulseWidth = std::clamp<int32_t>(pulseWidth, _configuration.min, _configuration.max);
 
 		_motor.setPulseWidth(pulseWidth);
+	}
+	
+	void ConfiguredMotor::setPowerF(float value) {
+		setPower(value * Motor::powerMaxValue);
 	}
 
 	void ConfiguredMotor::updateCurrentPowerFromConfiguration() {

@@ -19,16 +19,12 @@ namespace pizda {
 	}
 
 	ConfiguredMotor* Motors::getMotor(uint8_t index) {
-		if (index >= instances.size()) {
-			ESP_LOGI(_logTag, "index %d >= motors count %d", index, instances.size());
-			return nullptr;
-		}
-		else if (!instances[index]) {
-			ESP_LOGI(_logTag, "motor with index %d is not bound", index);
+		if (index >= _instances.size()) {
+			ESP_LOGI(_logTag, "index %d >= motors count %d", index, _instances.size());
 			return nullptr;
 		}
 
-		return &instances[index].value();
+		return &_instances[index];
 	}
 
 	ConfiguredMotor* Motors::getMotor(MotorType type) {

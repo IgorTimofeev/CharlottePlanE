@@ -41,22 +41,7 @@ namespace pizda {
 				auto packet = reinterpret_cast<SimLinkSimPacket*>(_buffer);
 				
 				if (packet->header == SimLinkPacket::header) {
-					ac.adirs.updateSlipAndSkidFactor(packet->accelerationX, 2);
-					
-					ac.adirs.setRollRad(packet->rollRad);
-					ac.adirs.setPitchRad(packet->pitchRad);
-					ac.adirs.setYawRad(packet->yawRad);
-					ac.adirs.updateHeadingFromYaw();
-					
-					auto& coordinates = ac.adirs.getCoordinates();
-					coordinates.setLatitude(packet->latitudeRad);
-					coordinates.setLongitude(packet->longitudeRad);
-					
-					ac.adirs.setAccelSpeedMPS(packet->speedMPS);
-					
-					ac.adirs.setPressurePa(packet->pressurePA);
-					ac.adirs.setTemperatureC(packet->temperatureC);
-					ac.adirs.updateAltitudeFromPressureTemperatureAndReferenceValue();
+					ac.adirs.fromSimPacket(*packet);
 					
 //					ESP_LOGI("SimLink", "pitchRad: %f",
 //						toDegrees(packet->pitchRad)
@@ -71,22 +56,28 @@ namespace pizda {
 			{
 //				ESP_LOGI("SimLink", "writing");
 				
-				auto packet = SimLinkAircraftPacket {};
+				auto packet = reinterpret_cast<SimLinkAircraftPacket*>(_buffer);
 				
 				const auto throttle = ac.motors.getMotor(MotorType::throttle);
-				const auto ailerons = ac.channels.getUintChannel(ChannelType::ailerons);
-				const auto elevator = ac.channels.getUintChannel(ChannelType::elevator);
+				const auto ailerons = ac.motors.getMotor(MotorType::leftAileron);
+				const auto elevator = ac.motors.getMotor(MotorType::leftTail);
+				const auto rudder = ac.motors.getMotor(MotorType::rightTail);
+				const auto flaps = ac.motors.getMotor(MotorType::leftFlap);
 				
-				packet.header = SimLinkPacket::header;
-				packet.throttle = throttle ? (float) throttle->getPower() / (float) Motor::powerMaxValue : 0;
-				packet.ailerons = ailerons ? (float) ailerons->getValue() / (float) Motor::powerMaxValue : 0;
-				packet.elevator = elevator ? (float) elevator->getValue() / (float) Motor::powerMaxValue : 0;
+				packet->header = SimLinkPacket::header;
+				packet->throttle = throttle ? throttle->getPowerF() : 0;
+				packet->ailerons = ailerons ? ailerons->getPowerF() : 0;
+				packet->elevator = elevator ? elevator->getPowerF() : 0;
+				packet->rudder = rudder ? rudder->getPowerF() : 0;
+				packet->flaps = flaps ? flaps->getPowerF() : 0;
 				
-				std::memcpy(_buffer, &packet, sizeof(SimLinkAircraftPacket));
+				packet->lights =
+					(ac.lights.isNavigationEnabled() << 0)
+					| (ac.lights.isStrobeEnabled() << 1)
+					| (ac.lights.isLandingEnabled() << 2)
+					| (ac.lights.isCabinEnabled() << 3);
 				
 				uart_write_bytes(UART_NUM_0, _buffer, sizeof(SimLinkAircraftPacket));
-				
-//				ESP_LOGI("SimLink", "writing, throttle: %f, ailerons: %f, elevator: %f", packet.throttle, packet.ailerons, packet.elevator);
 			}
 			
 			vTaskDelay(pdMS_TO_TICKS(1'000 / 20));

@@ -57,6 +57,10 @@ namespace pizda {
 			uint8_t getBitDepth() const {
 				return _bitDepth;
 			}
+			
+			float getValueF() {
+				return static_cast<float>(ValueChannel<TValue>::getValue()) / static_cast<float>((1 << _bitDepth) - 1);
+			}
 
 		private:
 			uint8_t _bitDepth;
@@ -107,7 +111,7 @@ namespace pizda {
 		private:
 			constexpr static const char* _logTag = "Channels";
 
-			std::vector<Channel*> instances = std::vector<Channel*>(16);
+			std::vector<Channel*> _instances = std::vector<Channel*>(16);
 
 			Channel* getChannelAndCheckDataType(uint8_t channelIndex, ChannelDataType dataType);
 	};

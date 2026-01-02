@@ -60,10 +60,15 @@ namespace pizda {
 
 
 			void setup();
+			
+			uint16_t getPower() const;
+			float getPowerF();
+			
 			void setPower(uint16_t value);
+			void setPowerF(float value);
+			
 			void updateCurrentPowerFromConfiguration();
 			void setStartupPower();
-			uint16_t getPower() const;
 
 			void setConfiguration(const MotorConfiguration& configuration);
 
