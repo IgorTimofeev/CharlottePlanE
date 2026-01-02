@@ -169,7 +169,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="пашет, но нужно затюнить кэфики">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="РАБОТАИТ!11">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/flyByWire.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/flyByWire.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/flyByWire.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/flyByWire.h" afterDir="false" />
@@ -266,11 +266,6 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.CharlottePlanE.elf">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="CharlottePlanE.elf" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="CharlottePlanE.elf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="CharlottePlanE" RUN_TARGET_NAME="CharlottePlanE.elf">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -746,6 +741,11 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="apidoc" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="apidoc" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -1199,15 +1199,8 @@
       <workItem from="1767277949004" duration="591000" />
       <workItem from="1767292769924" duration="11733000" />
       <workItem from="1767348896300" duration="14852000" />
-      <workItem from="1767365985755" duration="11554000" />
-    </task>
-    <task id="LOCAL-00056" summary="pizda1111">
-      <option name="closed" value="true" />
-      <created>1766436089881</created>
-      <option name="number" value="00056" />
-      <option name="presentableId" value="LOCAL-00056" />
-      <option name="project" value="LOCAL" />
-      <updated>1766436089881</updated>
+      <workItem from="1767365985755" duration="12271000" />
+      <workItem from="1767382986936" duration="5742000" />
     </task>
     <task id="LOCAL-00057" summary="pizda1111">
       <option name="closed" value="true" />
@@ -1593,7 +1586,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767366035953</updated>
     </task>
-    <option name="localTasksCounter" value="105" />
+    <task id="LOCAL-00105" summary="РАБОТАИТ!11">
+      <option name="closed" value="true" />
+      <created>1767378199629</created>
+      <option name="number" value="00105" />
+      <option name="presentableId" value="LOCAL-00105" />
+      <option name="project" value="LOCAL" />
+      <updated>1767378199629</updated>
+    </task>
+    <option name="localTasksCounter" value="106" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1616,7 +1617,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="ЧОТА ЧИТАЕТ!111 но пока один раз" />
     <MESSAGE value="бляяя разобрался ахуй пашет" />
     <MESSAGE value="то ли флоаты пиздливые, то ли че" />
     <MESSAGE value="уууу, а РССИ-то я чет забыл" />
@@ -1641,7 +1641,8 @@
     <MESSAGE value="попробовать что ли к флайтсиму подрубить эту хуйню - по идее удобно будет" />
     <MESSAGE value="симконнект успешно захуячен - пока что в тестовом формате, но уже даж летать можно" />
     <MESSAGE value="пашет, но нужно затюнить кэфики" />
-    <option name="LAST_COMMIT_MESSAGE" value="пашет, но нужно затюнить кэфики" />
+    <MESSAGE value="РАБОТАИТ!11" />
+    <option name="LAST_COMMIT_MESSAGE" value="РАБОТАИТ!11" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

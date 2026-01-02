@@ -36,7 +36,6 @@ namespace pizda {
 			float _elevatorTargetFactor = 0.5;
 			
 			static float interpolateValueBy(float valueMin, float valueMax, float range, float rangeMax);
-			static float interpolateLPFFactor(float factorPerSecondMin, float factorPerSecondMax, float range, float rangeMax, uint32_t deltaTimeUs);
 			static float predictValue(float valueDelta, uint32_t dueTimeUs, uint32_t deltaTimeUs);
 			
 			void computeData();
