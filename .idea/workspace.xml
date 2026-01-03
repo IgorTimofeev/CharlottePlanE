@@ -170,16 +170,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="вроде ниче так, более-менее уже даже летать можн">
-      <change afterPath="$PROJECT_DIR$/components/ESP-IDF-Units" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitmodules" beforeDir="false" afterPath="$PROJECT_DIR$/.gitmodules" afterDir="false" />
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="так, чета я затупил уже">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dependencies.lock" beforeDir="false" afterPath="$PROJECT_DIR$/dependencies.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/main/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/config.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/flyByWire.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/flyByWire.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/flyByWire.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/flyByWire.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/utils/math.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/utils/math.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -1214,15 +1208,7 @@
       <workItem from="1767348896300" duration="14852000" />
       <workItem from="1767365985755" duration="12271000" />
       <workItem from="1767382986936" duration="6335000" />
-      <workItem from="1767437185651" duration="9094000" />
-    </task>
-    <task id="LOCAL-00058" summary="pizda1111">
-      <option name="closed" value="true" />
-      <created>1766443555085</created>
-      <option name="number" value="00058" />
-      <option name="presentableId" value="LOCAL-00058" />
-      <option name="project" value="LOCAL" />
-      <updated>1766443555085</updated>
+      <workItem from="1767437185651" duration="13914000" />
     </task>
     <task id="LOCAL-00059" summary="pizda1111">
       <option name="closed" value="true" />
@@ -1608,7 +1594,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767389523458</updated>
     </task>
-    <option name="localTasksCounter" value="107" />
+    <task id="LOCAL-00107" summary="так, чета я затупил уже">
+      <option name="closed" value="true" />
+      <created>1767446799345</created>
+      <option name="number" value="00107" />
+      <option name="presentableId" value="LOCAL-00107" />
+      <option name="project" value="LOCAL" />
+      <updated>1767446799345</updated>
+    </task>
+    <option name="localTasksCounter" value="108" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1631,7 +1625,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="то ли флоаты пиздливые, то ли че" />
     <MESSAGE value="уууу, а РССИ-то я чет забыл" />
     <MESSAGE value="щас надо подсосать эту хуйню с битстримом" />
     <MESSAGE value="все, заебумба, можно делать 2-стороннюю отсылку" />
@@ -1656,7 +1649,8 @@
     <MESSAGE value="пашет, но нужно затюнить кэфики" />
     <MESSAGE value="РАБОТАИТ!11" />
     <MESSAGE value="вроде ниче так, более-менее уже даже летать можн" />
-    <option name="LAST_COMMIT_MESSAGE" value="вроде ниче так, более-менее уже даже летать можн" />
+    <MESSAGE value="так, чета я затупил уже" />
+    <option name="LAST_COMMIT_MESSAGE" value="так, чета я затупил уже" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

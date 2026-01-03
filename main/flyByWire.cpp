@@ -163,14 +163,7 @@ namespace pizda {
 			}
 			// Nose down
 			else {
-				// Speed is small enough
-				if (speedTargetAndPredictedDeltaMPS >= 0) {
-					pitchTargetRad = -pitchInterpolatedTargetRad;
-				}
-				// Loosing speed first
-				else {
-					pitchTargetRad = 0;
-				}
+				pitchTargetRad = -pitchInterpolatedTargetRad;
 			}
 		}
 		else {
@@ -207,14 +200,14 @@ namespace pizda {
 		
 		// -------------------------------- Elevator --------------------------------
 		
-		const auto pitchTargetAndPredictedDeltaRad = _pitchTargetRad - pitchPredictedRad;
+		const auto pitchTargetAndPredictedDeltaRad = _pitchTargetRad - pitchRad;
 		
 		const auto elevatorTargetFactor =
 			ac.remoteData.raw.autopilot.levelChange
 			? (
 				0.5f
 				+ (
-					interpolateValueBy(0.03, 0.5, pitchTargetAndPredictedDeltaRad, toRadians(10))
+					interpolateValueBy(0.05, 0.8, pitchTargetAndPredictedDeltaRad, toRadians(10))
 					* (pitchTargetAndPredictedDeltaRad >= 0 ? -1 : 1)
 					/ 2.f
 				)
@@ -224,40 +217,42 @@ namespace pizda {
 		_elevatorTargetFactor = LowPassFilter::applyForAngleRad(
 			_elevatorTargetFactor,
 			elevatorTargetFactor,
-			LowPassFilter::getFactor(0.9, deltaTimeUs)
+			LowPassFilter::getFactor(1.0, deltaTimeUs)
 		);
 		
 		// -------------------------------- Throttle --------------------------------
 		
-	
-		const auto throttleTargetAltitudeSafetyMarginM = Units::convertDistance(20.f, DistanceUnit::foot, DistanceUnit::meter);
+		auto throttlePitchUp =
+			// Pitch control engaged
+			ac.remoteData.raw.autopilot.engaged && ac.remoteData.raw.autopilot.levelChange
+			// Pitch up
+			&& altitudeTargetAndPredictedDeltaM >= Units::convertDistance(100.f, DistanceUnit::foot, DistanceUnit::meter);
 		
 		auto throttleState =
 			// Not enough speed
 			speedTargetAndPredictedDeltaMPS > 0
 			// Enough, but
-			|| (
-				// Altitude affects throttle
-				ac.remoteData.raw.autopilot.levelChange
-				// Target altitude hasn't been reached yet
-				&& altitudeTargetAndPredictedDeltaM > throttleTargetAltitudeSafetyMarginM
-			);
+			|| throttlePitchUp;
 		
 		const auto throttleTargetFactor =
-			0.5f
-			+ interpolateValueBy(
-				0.4f,
-				1.0f,
-				speedTargetAndPredictedDeltaMPS,
-				Units::convertSpeed(10.f, SpeedUnit::knot, SpeedUnit::meterPerSecond)
-			)
-			  / 2.f
-			  * (throttleState ? 1.f : -1.f);
+			throttlePitchUp
+			? 1.0f
+			: (
+				0.5f
+				+ interpolateValueBy(
+					0.6f,
+					1.0f,
+					speedTargetAndPredictedDeltaMPS,
+					Units::convertSpeed(10.f, SpeedUnit::knot, SpeedUnit::meterPerSecond)
+				)
+				/ 2.f
+				* (throttleState ? 1.f : -1.f)
+			);
 		
 		_throttleTargetFactor = LowPassFilter::applyForAngleRad(
 			_throttleTargetFactor,
 			throttleTargetFactor,
-			LowPassFilter::getFactor(0.6f, deltaTimeUs)
+			LowPassFilter::getFactor(0.5f, deltaTimeUs)
 		);
 		
 	}
