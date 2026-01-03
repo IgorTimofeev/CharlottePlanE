@@ -35,6 +35,7 @@ namespace pizda {
 			float _aileronsTargetFactor = 0.5;
 			float _elevatorTargetFactor = 0.5;
 			
+			static float getInterpolationFactor(float range, float rangeMax);
 			static float interpolateValueBy(float valueMin, float valueMax, float range, float rangeMax);
 			static float predictValue(float valueDelta, uint32_t dueTimeUs, uint32_t deltaTimeUs);
 			

@@ -23,28 +23,40 @@ namespace pizda {
 	}
 
 	template<typename T>
-	T normalizeAngle360(T x) {
-		x = std::fmod(x, 360);
+	T normalizeAngleDeg360(T angle) {
+		angle = std::fmod(angle, 360);
 
-		if (x < 0)
-			x += 360;
+		if (angle < 0)
+			angle += 360;
 
-		return x;
+		return angle;
 	}
 
 	template<typename T>
-	T normalizeAngle180(T x) {
-		x = std::fmod(x + 180, 360);
+	T normalizeAngleDeg180(T angle) {
+		angle = std::fmod(angle + 180, 360);
 
-		if (x < 0)
-			x += 360;
+		if (angle < 0)
+			angle += 360;
 
-		return x - 180;
+		return angle - 180;
 	}
-
+	
 	template<typename T>
-	T interpolate(T first, T second, const float position) {
-		return static_cast<T>(static_cast<float>(first) + static_cast<float>(second - first) * position);
+	T normalizeAngleRadPi(T angle) {
+		const auto twoPi = 2 * std::numbers::pi_v<T>;
+		
+		angle = std::fmod(angle + std::numbers::pi_v<T>, twoPi);
+		
+		if (angle < 0)
+			angle += twoPi;
+		
+		return angle - std::numbers::pi_v<T>;
+	}
+	
+	template<typename T>
+	T interpolate(T first, T second, const T factor) {
+		return static_cast<T>(static_cast<T>(first) + static_cast<T>(second - first) * factor);
 	}
 
 	template<typename T>

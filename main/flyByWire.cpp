@@ -5,6 +5,8 @@
 #include <esp_timer.h>
 #include <esp_log.h>
 
+#include <units.h>
+
 #include "config.h"
 #include "aircraft.h"
 #include "utils/math.h"
@@ -37,8 +39,12 @@ namespace pizda {
 		return _pitchTargetRad;
 	}
 	
+	float FlyByWire::getInterpolationFactor(float range, float rangeMax) {
+		return std::min(std::abs(range), rangeMax) / rangeMax;
+	}
+	
 	float FlyByWire::interpolateValueBy(float valueMin, float valueMax, float range, float rangeMax) {
-		return valueMin + (valueMax - valueMin) * std::clamp<float>(std::abs(range) / rangeMax, 0, 1);
+		return interpolate(valueMin, valueMax, getInterpolationFactor(range, rangeMax));
 	}
 	
 	float FlyByWire::predictValue(float valueDelta, uint32_t deltaTimeUs, uint32_t dueTimeUs) {
@@ -88,8 +94,7 @@ namespace pizda {
 		const auto yawPredictedRad = _yawPrevRad + predictValue(yawPrevDeltaRad, deltaTimeUs, predictionTimeUs);
 		_yawPrevRad = yawRad;
 		
-	
-		// -------------------------------- Throttle --------------------------------
+		// -------------------------------- Deltas --------------------------------
 		
 		const auto speedTargetMPS = ac.remoteData.raw.autopilot.speedMPS;
 		const auto speedTargetAndPredictedDeltaMPS = speedTargetMPS - speedPredictedMPS;
@@ -97,34 +102,10 @@ namespace pizda {
 		const auto altitudeTargetM = ac.remoteData.raw.autopilot.altitudeM;
 		const auto altitudeTargetAndPredictedDeltaM = altitudeTargetM - altitudePredictedM;
 		
-		const auto throttleTargetAltitudeSafetyMarginM = 10.f;
-		
-		auto throttleState =
-			// Not enough speed
-			speedTargetAndPredictedDeltaMPS > 0
-			// Enough, but
-			|| (
-				// Altitude affects throttle
-				ac.remoteData.raw.autopilot.levelChange
-				// Target altitude hasn't been reached yet
-				&& altitudeTargetAndPredictedDeltaM > throttleTargetAltitudeSafetyMarginM
-			);
-		
-		const auto throttleTargetFactor = throttleState ? 1.f : 0.f;
-		
-		_throttleTargetFactor = LowPassFilter::applyForAngleRad(
-			_throttleTargetFactor,
-			throttleTargetFactor,
-			LowPassFilter::getFactor(
-				interpolateValueBy(0.1, 1.0, speedTargetAndPredictedDeltaMPS, 5),
-				deltaTimeUs
-			)
-		);
+		const auto yawTargetRad = -normalizeAngleRadPi(toRadians(static_cast<float>(ac.remoteData.raw.autopilot.headingDeg)));
+		const auto yawTargetAndPredictedDeltaRad = normalizeAngleRadPi(yawTargetRad - yawPredictedRad);
 		
 		// -------------------------------- Roll --------------------------------
-		
-		const auto yawTargetRad = -toRadians(normalizeAngle180(static_cast<float>(ac.remoteData.raw.autopilot.headingDeg)));
-		const auto yawTargetAndPredictedDeltaRad = yawTargetRad - yawPredictedRad;
 		
 		const auto yawToRight =
 			(yawTargetAndPredictedDeltaRad < 0 && yawTargetAndPredictedDeltaRad < std::numbers::pi_v<float>)
@@ -141,7 +122,7 @@ namespace pizda {
 					config::limits::autopilotRollAngleMaxRad * 0.1,
 					config::limits::autopilotRollAngleMaxRad,
 					yawTargetAndPredictedDeltaRad,
-					toRadians(15)
+					toRadians(20)
 				)
 				* (rollToRight ? 1 : -1)
 			)
@@ -150,30 +131,56 @@ namespace pizda {
 		_rollTargetRad = LowPassFilter::applyForAngleRad(
 			_rollTargetRad,
 			rollTargetRad,
-			LowPassFilter::getFactor(0.6, deltaTimeUs)
+			LowPassFilter::getFactor(0.5, deltaTimeUs)
 		);
 		
 		// -------------------------------- Pitch --------------------------------
 		
-		const auto pitchUp = altitudeTargetAndPredictedDeltaM >= 0;
+		float pitchTargetRad;
 		
-		const auto pitchTargetRad =
-			ac.remoteData.raw.autopilot.levelChange
-			? (
-				interpolateValueBy(
-					config::limits::autopilotPitchAngleMaxRad * 0.1,
-					config::limits::autopilotPitchAngleMaxRad,
+		if (ac.remoteData.raw.autopilot.levelChange) {
+			const auto pitchUp = altitudeTargetAndPredictedDeltaM >= 0;
+			
+			const auto pitchInterpolatedTargetRad = interpolate(
+				config::limits::autopilotPitchAngleMaxRad * 0.1f,
+				config::limits::autopilotPitchAngleMaxRad,
+				getInterpolationFactor(
 					altitudeTargetAndPredictedDeltaM,
-					100
+					Units::convertDistance(100.f, DistanceUnit::foot, DistanceUnit::meter)
 				)
-				* (pitchUp ? 1 : -1)
-			)
-			: 0;
+			);
+			
+			// Nose up
+			if (pitchUp) {
+				// Speed is big enough
+				if (speedTargetAndPredictedDeltaMPS <= 0) {
+					pitchTargetRad = pitchInterpolatedTargetRad;
+				}
+				// Gaining speed first
+				else {
+					pitchTargetRad = 0;
+				}
+			}
+			// Nose down
+			else {
+				// Speed is small enough
+				if (speedTargetAndPredictedDeltaMPS >= 0) {
+					pitchTargetRad = -pitchInterpolatedTargetRad;
+				}
+				// Loosing speed first
+				else {
+					pitchTargetRad = 0;
+				}
+			}
+		}
+		else {
+			pitchTargetRad = 0;
+		}
 		
 		_pitchTargetRad = LowPassFilter::applyForAngleRad(
 			_pitchTargetRad,
 			pitchTargetRad,
-			LowPassFilter::getFactor(0.6, deltaTimeUs)
+			LowPassFilter::getFactor(0.5f, deltaTimeUs)
 		);
 		
 		// -------------------------------- Ailerons --------------------------------
@@ -185,7 +192,7 @@ namespace pizda {
 			? (
 				0.5f
 				+ (
-					interpolateValueBy(0.04, 0.5, rollTargetAndPredictedDeltaRad, toRadians(20))
+					interpolateValueBy(0.03, 0.5, rollTargetAndPredictedDeltaRad, toRadians(15))
 					* (rollTargetAndPredictedDeltaRad >= 0 ? 1 : -1)
 					/ 2.f
 				)
@@ -195,7 +202,7 @@ namespace pizda {
 		_aileronsTargetFactor = LowPassFilter::applyForAngleRad(
 			_aileronsTargetFactor,
 			aileronsTargetFactor,
-			LowPassFilter::getFactor(1.0, deltaTimeUs)
+			LowPassFilter::getFactor(0.9, deltaTimeUs)
 		);
 		
 		// -------------------------------- Elevator --------------------------------
@@ -207,7 +214,7 @@ namespace pizda {
 			? (
 				0.5f
 				+ (
-					interpolateValueBy(0.04, 0.5, pitchTargetAndPredictedDeltaRad, toRadians(20))
+					interpolateValueBy(0.03, 0.5, pitchTargetAndPredictedDeltaRad, toRadians(10))
 					* (pitchTargetAndPredictedDeltaRad >= 0 ? -1 : 1)
 					/ 2.f
 				)
@@ -217,8 +224,42 @@ namespace pizda {
 		_elevatorTargetFactor = LowPassFilter::applyForAngleRad(
 			_elevatorTargetFactor,
 			elevatorTargetFactor,
-			LowPassFilter::getFactor(1.0, deltaTimeUs)
+			LowPassFilter::getFactor(0.9, deltaTimeUs)
 		);
+		
+		// -------------------------------- Throttle --------------------------------
+		
+	
+		const auto throttleTargetAltitudeSafetyMarginM = Units::convertDistance(20.f, DistanceUnit::foot, DistanceUnit::meter);
+		
+		auto throttleState =
+			// Not enough speed
+			speedTargetAndPredictedDeltaMPS > 0
+			// Enough, but
+			|| (
+				// Altitude affects throttle
+				ac.remoteData.raw.autopilot.levelChange
+				// Target altitude hasn't been reached yet
+				&& altitudeTargetAndPredictedDeltaM > throttleTargetAltitudeSafetyMarginM
+			);
+		
+		const auto throttleTargetFactor =
+			0.5f
+			+ interpolateValueBy(
+				0.4f,
+				1.0f,
+				speedTargetAndPredictedDeltaMPS,
+				Units::convertSpeed(10.f, SpeedUnit::knot, SpeedUnit::meterPerSecond)
+			)
+			  / 2.f
+			  * (throttleState ? 1.f : -1.f);
+		
+		_throttleTargetFactor = LowPassFilter::applyForAngleRad(
+			_throttleTargetFactor,
+			throttleTargetFactor,
+			LowPassFilter::getFactor(0.6f, deltaTimeUs)
+		);
+		
 	}
 	
 	void FlyByWire::applyData() {

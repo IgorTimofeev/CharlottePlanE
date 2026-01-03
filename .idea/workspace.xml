@@ -88,6 +88,7 @@
       <config projectName="CharlottePlanE" targetName="__idf_esp_eth" />
       <config projectName="CharlottePlanE" targetName="__idf_esp_driver_i2c" />
       <config projectName="CharlottePlanE" targetName="__idf_esp_driver_rmt" />
+      <config projectName="CharlottePlanE" targetName="__idf_ESP-IDF-Units" />
       <config projectName="CharlottePlanE" targetName="__idf_json" />
       <config projectName="CharlottePlanE" targetName="encrypted-flash" />
       <config projectName="CharlottePlanE" targetName="__idf_fatfs" />
@@ -169,10 +170,16 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="РАБОТАИТ!11">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="вроде ниче так, более-менее уже даже летать можн">
+      <change afterPath="$PROJECT_DIR$/components/ESP-IDF-Units" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitmodules" beforeDir="false" afterPath="$PROJECT_DIR$/.gitmodules" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dependencies.lock" beforeDir="false" afterPath="$PROJECT_DIR$/dependencies.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/main/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/config.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/flyByWire.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/flyByWire.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/flyByWire.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/flyByWire.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/utils/math.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/utils/math.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -266,6 +273,11 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.CharlottePlanE.elf">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="CharlottePlanE.elf" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="CharlottePlanE.elf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="CharlottePlanE" RUN_TARGET_NAME="CharlottePlanE.elf">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -282,6 +294,11 @@
       </method>
     </configuration>
     <configuration name="__idf_ESP-IDF-SX1262" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="__idf_ESP-IDF-SX1262" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="__idf_ESP-IDF-Units" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="__idf_ESP-IDF-Units" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -741,11 +758,6 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="apidoc" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="apidoc" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -986,6 +998,7 @@
       <item itemvalue="CMake Application.__idf_ESP-IDF-BitStream" />
       <item itemvalue="CMake Application.__idf_ESP-IDF-NVSExtensions" />
       <item itemvalue="CMake Application.__idf_ESP-IDF-SX1262" />
+      <item itemvalue="CMake Application.__idf_ESP-IDF-Units" />
       <item itemvalue="CMake Application.__idf_app_trace" />
       <item itemvalue="CMake Application.__idf_app_update" />
       <item itemvalue="CMake Application.__idf_bootloader_support" />
@@ -1200,15 +1213,8 @@
       <workItem from="1767292769924" duration="11733000" />
       <workItem from="1767348896300" duration="14852000" />
       <workItem from="1767365985755" duration="12271000" />
-      <workItem from="1767382986936" duration="5742000" />
-    </task>
-    <task id="LOCAL-00057" summary="pizda1111">
-      <option name="closed" value="true" />
-      <created>1766442696617</created>
-      <option name="number" value="00057" />
-      <option name="presentableId" value="LOCAL-00057" />
-      <option name="project" value="LOCAL" />
-      <updated>1766442696618</updated>
+      <workItem from="1767382986936" duration="6335000" />
+      <workItem from="1767437185651" duration="9094000" />
     </task>
     <task id="LOCAL-00058" summary="pizda1111">
       <option name="closed" value="true" />
@@ -1594,7 +1600,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767378199629</updated>
     </task>
-    <option name="localTasksCounter" value="106" />
+    <task id="LOCAL-00106" summary="вроде ниче так, более-менее уже даже летать можн">
+      <option name="closed" value="true" />
+      <created>1767389523458</created>
+      <option name="number" value="00106" />
+      <option name="presentableId" value="LOCAL-00106" />
+      <option name="project" value="LOCAL" />
+      <updated>1767389523458</updated>
+    </task>
+    <option name="localTasksCounter" value="107" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1617,7 +1631,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="бляяя разобрался ахуй пашет" />
     <MESSAGE value="то ли флоаты пиздливые, то ли че" />
     <MESSAGE value="уууу, а РССИ-то я чет забыл" />
     <MESSAGE value="щас надо подсосать эту хуйню с битстримом" />
@@ -1642,7 +1655,8 @@
     <MESSAGE value="симконнект успешно захуячен - пока что в тестовом формате, но уже даж летать можно" />
     <MESSAGE value="пашет, но нужно затюнить кэфики" />
     <MESSAGE value="РАБОТАИТ!11" />
-    <option name="LAST_COMMIT_MESSAGE" value="РАБОТАИТ!11" />
+    <MESSAGE value="вроде ниче так, более-менее уже даже летать можн" />
+    <option name="LAST_COMMIT_MESSAGE" value="вроде ниче так, более-менее уже даже летать можн" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
