@@ -140,31 +140,28 @@ namespace pizda {
 		
 		if (ac.remoteData.raw.autopilot.levelChange) {
 			const auto pitchUp = altitudeTargetAndPredictedDeltaM >= 0;
+			const auto speedNotEnough = speedTargetAndPredictedDeltaMPS >= 0;
 			
-			const auto pitchInterpolatedTargetRad = interpolate(
-				config::limits::autopilotPitchAngleMaxRad * 0.1f,
-				config::limits::autopilotPitchAngleMaxRad,
-				getInterpolationFactor(
-					altitudeTargetAndPredictedDeltaM,
-					Units::convertDistance(100.f, DistanceUnit::foot, DistanceUnit::meter)
-				)
+			const auto pitchSpeedDeltaFactor = getInterpolationFactor(
+				speedTargetAndPredictedDeltaMPS,
+				Units::convertSpeed(2.0f, SpeedUnit::knot, SpeedUnit::meterPerSecond)
 			);
 			
-			// Nose up
-			if (pitchUp) {
-				// Speed is big enough
-				if (speedTargetAndPredictedDeltaMPS <= 0) {
-					pitchTargetRad = pitchInterpolatedTargetRad;
-				}
-				// Gaining speed first
-				else {
-					pitchTargetRad = 0;
-				}
-			}
-			// Nose down
-			else {
-				pitchTargetRad = -pitchInterpolatedTargetRad;
-			}
+			const auto pitchAltitudeDeltaFactor = getInterpolationFactor(
+				altitudeTargetAndPredictedDeltaM,
+				Units::convertDistance(100.f, DistanceUnit::foot, DistanceUnit::meter)
+			);
+			
+			pitchTargetRad =
+				interpolate(
+					0.0f,
+					config::limits::autopilotPitchAngleMaxRad,
+					pitchUp
+					? (speedNotEnough ? 1 - pitchSpeedDeltaFactor : pitchSpeedDeltaFactor)
+					: pitchSpeedDeltaFactor
+				)
+				* (pitchUp ? 1 : -1)
+				* pitchAltitudeDeltaFactor;
 		}
 		else {
 			pitchTargetRad = 0;
