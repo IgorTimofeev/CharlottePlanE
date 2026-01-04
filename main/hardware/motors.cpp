@@ -1,6 +1,5 @@
 #include "motors.h"
 
-#include "hardware/transceiver/channels.h"
 #include "aircraft.h"
 
 namespace pizda {

@@ -30,6 +30,62 @@ namespace pizda {
 		);
 	}
 	
+	float FlyByWire::getSelectedSpeedMps() const {
+		return _selectedSpeedMPS;
+	}
+	
+	void FlyByWire::setSelectedSpeedMps(float selectedSpeedMps) {
+		_selectedSpeedMPS = selectedSpeedMps;
+	}
+	
+	uint16_t FlyByWire::getSelectedHeadingDeg() const {
+		return _selectedHeadingDeg;
+	}
+	
+	void FlyByWire::setSelectedHeadingDeg(uint16_t selectedHeadingDeg) {
+		_selectedHeadingDeg = selectedHeadingDeg;
+	}
+	
+	float FlyByWire::getSelectedAltitudeM() const {
+		return _selectedAltitudeM;
+	}
+	
+	void FlyByWire::setSelectedAltitudeM(float selectedAltitudeM) {
+		_selectedAltitudeM = selectedAltitudeM;
+	}
+	
+	AutopilotLateralMode FlyByWire::getLateralMode() const {
+		return _lateralMode;
+	}
+	
+	void FlyByWire::setLateralMode(AutopilotLateralMode lateralMode) {
+		_lateralMode = lateralMode;
+	}
+	
+	AutopilotVerticalMode FlyByWire::getVerticalMode() const {
+		return _verticalMode;
+	}
+	
+	void FlyByWire::setVerticalMode(AutopilotVerticalMode verticalMode) {
+		_verticalMode = verticalMode;
+	}
+	
+	bool FlyByWire::getAutothrottle() const {
+		return _autothrottle;
+	}
+	
+	void FlyByWire::setAutothrottle(bool autothrottle) {
+		_autothrottle = autothrottle;
+	}
+	
+	bool FlyByWire::getAutopilot() const {
+		return _autopilot;
+	}
+	
+	void FlyByWire::setAutopilot(bool autopilot) {
+		_autopilot = autopilot;
+	}
+	
 	float FlyByWire::getTargetRollRad() const {
 		return _rollTargetRad;
 	}
@@ -37,6 +93,7 @@ namespace pizda {
 	float FlyByWire::getTargetPitchRad() const {
 		return _pitchTargetRad;
 	}
+	
 	
 	float FlyByWire::getInterpolationFactor(float range, float rangeMax) {
 		return std::min(std::abs(range), rangeMax) / rangeMax;
@@ -91,13 +148,11 @@ namespace pizda {
 		
 		// -------------------------------- Deltas --------------------------------
 		
-		const auto speedTargetMPS = ac.remoteData.raw.autopilot.speedMPS;
-		const auto speedTargetAndPredictedDeltaMPS = speedTargetMPS - speedPredictedMPS;
+		const auto speedTargetAndPredictedDeltaMPS = _selectedSpeedMPS - speedPredictedMPS;
 		
-		const auto altitudeTargetM = ac.remoteData.raw.autopilot.altitudeM;
-		const auto altitudeTargetAndPredictedDeltaM = altitudeTargetM - altitudePredictedM;
+		const auto altitudeTargetAndPredictedDeltaM = _selectedAltitudeM - altitudePredictedM;
 		
-		const auto yawTargetRad = -normalizeAngleRadPi(toRadians(static_cast<float>(ac.remoteData.raw.autopilot.headingDeg)));
+		const auto yawTargetRad = -normalizeAngleRadPi(toRadians(static_cast<float>(_selectedHeadingDeg)));
 		const auto yawTargetAndPredictedDeltaRad = normalizeAngleRadPi(yawTargetRad - yawPredictedRad);
 		
 		// -------------------------------- Roll --------------------------------
@@ -107,13 +162,13 @@ namespace pizda {
 			|| (yawTargetAndPredictedDeltaRad > 0 && yawTargetAndPredictedDeltaRad < -std::numbers::pi_v<float>);
 		
 		const bool rollToRight =
-			(yawToRight && rollPredictedRad < config::limits::autopilotRollAngleMaxRad)
-			|| (!yawToRight && rollPredictedRad < -config::limits::autopilotRollAngleMaxRad);
+			(yawToRight && rollPredictedRad < config::flyByWire::rollAngleMaxRad)
+			|| (!yawToRight && rollPredictedRad < -config::flyByWire::rollAngleMaxRad);
 		
 		const auto rollTargetRad =
-			ac.remoteData.raw.autopilot.headingHold
+			_lateralMode == AutopilotLateralMode::heading
 			? (
-				config::limits::autopilotRollAngleMaxRad
+				config::flyByWire::rollAngleMaxRad
 				* getInterpolationFactor(
 					yawTargetAndPredictedDeltaRad,
 					toRadians(30)
@@ -132,32 +187,73 @@ namespace pizda {
 		
 		float pitchTargetRad;
 		
-		if (ac.remoteData.raw.autopilot.levelChange) {
-			const auto pitchUp = altitudeTargetAndPredictedDeltaM >= 0;
-			const auto speedNotEnough = speedTargetAndPredictedDeltaMPS >= 0;
-			
-			const auto pitchSpeedDeltaFactor = getInterpolationFactor(
-				speedTargetAndPredictedDeltaMPS,
-				Units::convertSpeed(2.0f, SpeedUnit::knot, SpeedUnit::meterPerSecond)
-			);
-			
-			const auto pitchAltitudeDeltaFactor = getInterpolationFactor(
-				altitudeTargetAndPredictedDeltaM,
-				Units::convertDistance(100.f, DistanceUnit::foot, DistanceUnit::meter)
-			);
-			
-			pitchTargetRad =
-				config::limits::autopilotPitchAngleMaxRad
-				* (
-					pitchUp
-					? (speedNotEnough ? 0 : pitchSpeedDeltaFactor)
-					: (speedNotEnough ? pitchSpeedDeltaFactor : 0)
-				)
-				* (pitchUp ? 1 : -1)
-				* pitchAltitudeDeltaFactor;
+		if (_verticalMode == AutopilotVerticalMode::pitch) {
+			pitchTargetRad = 0;
 		}
 		else {
-			pitchTargetRad = 0;
+			if (
+				// Was in level change mode
+				_verticalMode == AutopilotVerticalMode::levelChange
+				// & become close enough to selected altitude
+				&& std::abs(altitudeTargetAndPredictedDeltaM) > Units::convertDistance(200.f, DistanceUnit::foot, DistanceUnit::meter)
+			) {
+				// Switching to alt hold mode
+				_verticalMode = AutopilotVerticalMode::hold;
+			}
+			
+			const auto pitchUp = altitudeTargetAndPredictedDeltaM >= 0;
+			
+			switch (_verticalMode) {
+				case AutopilotVerticalMode::hold: {
+					// Relying on altitude difference, speed doesn't matter
+					pitchTargetRad =
+						config::flyByWire::pitchAngleMaxRad
+						* (pitchUp ? 1 : -1)
+						* getInterpolationFactor(
+							altitudeTargetAndPredictedDeltaM,
+							Units::convertDistance(100.f, DistanceUnit::foot, DistanceUnit::meter)
+						);
+					
+					break;
+				}
+				case AutopilotVerticalMode::levelChange: {
+					// Relying on speed, altitude doesn't matter
+					const auto speedNotEnough = speedTargetAndPredictedDeltaMPS >= 0;
+					
+					const auto pitchSpeedDeltaFactor = getInterpolationFactor(
+						speedTargetAndPredictedDeltaMPS,
+						Units::convertSpeed(2.0f, SpeedUnit::knot, SpeedUnit::meterPerSecond)
+					);
+					
+					if (pitchUp) {
+						if (speedNotEnough) {
+							pitchTargetRad = 0;
+						}
+						else {
+							pitchTargetRad =
+								config::flyByWire::pitchAngleMaxRad
+								* pitchSpeedDeltaFactor;
+						}
+					}
+					else {
+						if (speedNotEnough) {
+							pitchTargetRad =
+								-config::flyByWire::pitchAngleMaxRad
+								* pitchSpeedDeltaFactor;
+						}
+						else {
+							pitchTargetRad = 0;
+						}
+					};
+					
+					break;
+				}
+				// Won't ever happen
+				default: {
+					pitchTargetRad = 0;
+					break;
+				}
+			}
 		}
 		
 		_pitchTargetRad = LowPassFilter::applyForAngleRad(
@@ -171,7 +267,7 @@ namespace pizda {
 		const auto rollTargetAndPredictedDeltaRad = _rollTargetRad - rollRad;
 		
 		const auto aileronsTargetFactor =
-			ac.remoteData.raw.autopilot.engaged && ac.remoteData.raw.autopilot.headingHold
+			_autopilot && _lateralMode != AutopilotLateralMode::roll
 			? (
 				0.5f
 				+ (
@@ -179,6 +275,8 @@ namespace pizda {
 						rollTargetAndPredictedDeltaRad,
 						toRadians(20)
 					)
+					* config::flyByWire::aileronMaxFactor
+					// [0.0; 1.0] -> [0.0; 0.5]
 					/ 2.f
 					* (rollTargetAndPredictedDeltaRad >= 0 ? 1 : -1)
 				)
@@ -196,7 +294,7 @@ namespace pizda {
 		const auto pitchTargetAndPredictedDeltaRad = _pitchTargetRad - pitchRad;
 		
 		const auto elevatorTargetFactor =
-			ac.remoteData.raw.autopilot.engaged && ac.remoteData.raw.autopilot.levelChange
+			_autopilot && _verticalMode != AutopilotVerticalMode::pitch
 			? (
 				0.5f
 				+ (
@@ -204,6 +302,7 @@ namespace pizda {
 						pitchTargetAndPredictedDeltaRad,
 						toRadians(20)
 					)
+					* config::flyByWire::elevatorMaxFactor
 					/ 2.f
 					* (pitchTargetAndPredictedDeltaRad >= 0 ? -1 : 1)
 				)
@@ -220,7 +319,7 @@ namespace pizda {
 		
 		auto throttlePitchUp =
 			// Pitch control engaged
-			ac.remoteData.raw.autopilot.engaged && ac.remoteData.raw.autopilot.levelChange
+			_autothrottle
 			// Pitch up
 			&& altitudeTargetAndPredictedDeltaM >= Units::convertDistance(100.f, DistanceUnit::foot, DistanceUnit::meter);
 		
@@ -243,8 +342,8 @@ namespace pizda {
 						Units::convertSpeed(10.f, SpeedUnit::knot, SpeedUnit::meterPerSecond)
 					)
 				)
-				/ 2.f
-				* (throttleState ? 1.f : -1.f)
+				  / 2.f
+				  * (throttleState ? 1.f : -1.f)
 			);
 		
 		_throttleTargetFactor = LowPassFilter::applyForAngleRad(
@@ -260,84 +359,61 @@ namespace pizda {
 		
 		// Throttle
 		{
-			const auto channel = ac.channels.getUintChannel(ChannelType::throttle);
 			const auto motor = ac.motors.getMotor(MotorType::throttle);
 			
-			if (!channel || !motor)
+			if (!motor)
 				return;
 			
 			motor->setPowerF(
-				ac.remoteData.raw.autopilot.autoThrottle
+				_autothrottle
 				? _throttleTargetFactor
-				: channel->getValueF()
+				: ac.remoteData.raw.controls.throttle
 			);
 		}
 		
 		// Ailerons
 		{
-			const auto channel = ac.channels.getUintChannel(ChannelType::ailerons);
 			const auto leftAileronMotor = ac.motors.getMotor(MotorType::leftAileron);
 //				const auto rightAileronMotor = ac.motors.getMotor(MotorType::rightAileron);
 			
-			if (!channel || !leftAileronMotor)
+			if (!leftAileronMotor)
 				return;
 			
 			leftAileronMotor->setPowerF(
-				ac.remoteData.raw.autopilot.engaged && ac.remoteData.raw.autopilot.headingHold
+				_autopilot && _lateralMode != AutopilotLateralMode::roll
 				? _aileronsTargetFactor
-				: channel->getValueF()
+				: ac.remoteData.raw.controls.ailerons
 			);
 //				rightAileronMotor->setPower(aileronsChannel->getValue());
 		}
 		
 		// Elevator & rudder
 		{
-			const auto elevatorChannel = ac.channels.getUintChannel(ChannelType::elevator);
-			const auto rudderChannel = ac.channels.getUintChannel(ChannelType::rudder);
-			
 			const auto leftTailMotor = ac.motors.getMotor(MotorType::leftTail);
 			const auto rightTailMotor = ac.motors.getMotor(MotorType::rightTail);
 			
-			if (!elevatorChannel || !rudderChannel || !leftTailMotor || !rightTailMotor)
+			if (!leftTailMotor || !rightTailMotor)
 				return;
 			
 			leftTailMotor->setPowerF(
-				ac.remoteData.raw.autopilot.engaged && ac.remoteData.raw.autopilot.levelChange
+				_autopilot && _verticalMode != AutopilotVerticalMode::pitch
 				? _elevatorTargetFactor
-				: elevatorChannel->getValueF()
+				: ac.remoteData.raw.controls.elevator
 			);
 			
-			rightTailMotor->setPowerF(rudderChannel->getValueF());
+			rightTailMotor->setPowerF(ac.remoteData.raw.controls.rudder);
 		}
 		
 		// Flaps
 		{
-			const auto flapsChannel = ac.channels.getUintChannel(ChannelType::flaps);
 			const auto leftFlapMotor = ac.motors.getMotor(MotorType::leftFlap);
 //				const auto rightFlapMotor = ac.motors.getMotor(MotorType::rightAileron);
 			
-			if (!flapsChannel || !leftFlapMotor)
+			if (!leftFlapMotor)
 				return;
 			
-			leftFlapMotor->setPowerF(flapsChannel->getValueF());
+			leftFlapMotor->setPowerF(ac.remoteData.raw.controls.flaps);
 //				rightFlapMotor->setPower(aileronsChannel->getValue());
-		}
-		
-		// Lights
-		{
-			BoolChannel* boolChannel;
-			
-			if ((boolChannel = ac.channels.getBoolChannel(ChannelType::navLights)))
-				ac.lights.setNavigationEnabled(boolChannel->getValue());
-			
-			if ((boolChannel = ac.channels.getBoolChannel(ChannelType::strobeLights)))
-				ac.lights.setStrobeEnabled(boolChannel->getValue());
-			
-			if ((boolChannel = ac.channels.getBoolChannel(ChannelType::landingLights)))
-				ac.lights.setLandingEnabled(boolChannel->getValue());
-			
-			if ((boolChannel = ac.channels.getBoolChannel(ChannelType::cabinLights)))
-				ac.lights.setCabinEnabled(boolChannel->getValue());
 		}
 	}
 	

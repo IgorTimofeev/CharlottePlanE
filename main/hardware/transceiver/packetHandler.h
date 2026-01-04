@@ -13,29 +13,17 @@
 #include <esp_timer.h>
 
 #include <bitStream.h>
+
 #include "utils/math.h"
 
 #include "config.h"
-#include "packet.h"
+#include "types.h"
+
 #include "hardware/transceiver/SX1262Transceiver.h"
+#include "hardware/transceiver/packet.h"
 
 namespace pizda {
 	using namespace YOBA;
-	
-	enum class ConnectionState : uint8_t {
-		initial,
-		connected,
-		disconnected
-	};
-	
-	enum class RemoteState : uint8_t {
-		normal
-	};
-	
-	enum class AircraftState : uint8_t {
-		aircraftNormal,
-		aircraftCalibrating
-	};
 	
 	template<typename TLocalState, typename TLocalPacketType, typename TRemoteState, typename TRemotePacketType>
 	class PacketHandler {
@@ -78,7 +66,6 @@ namespace pizda {
 					}
 					
 					_connectionLostTime = esp_timer_get_time() + _connectionLostInterval;
-					
 				}
 				else {
 					if (_connectionState == ConnectionState::connected) {

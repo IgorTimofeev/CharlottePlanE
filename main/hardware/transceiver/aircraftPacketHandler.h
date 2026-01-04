@@ -48,10 +48,11 @@ namespace pizda {
 			std::queue<AircraftPacketType> _packetQueue {};
 			
 			bool receiveNOPPacket(BitStream& stream, uint8_t payloadLength);
-			bool receiveRemoteChannelDataStructurePacket(BitStream& stream, uint8_t payloadLength);
-			bool receiveRemoteChannelsDataPacket(BitStream& stream, uint8_t payloadLength);
+			bool receiveRemoteControlsPacket(BitStream& stream, uint8_t payloadLength);
+			bool receiveRemoteLightsPacket(BitStream& stream, uint8_t payloadLength);
+			bool receiveRemoteBaroPacket(BitStream& stream, uint8_t payloadLength);
+			bool receiveRemoteAutopilotPacket(BitStream& stream, uint8_t payloadLength);
 			bool receiveMotorConfigurationPacket(BitStream& stream, uint8_t payloadLength);
-			bool receiveRemoteAuxiliaryPacket(BitStream& stream, uint8_t payloadLength);
 			
 			bool transmitAircraftADIRSPacket(BitStream& stream);
 			bool transmitAircraftAuxiliaryPacket(BitStream& stream);

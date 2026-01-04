@@ -2,14 +2,42 @@
 
 #include <cstdint>
 
+#include "types.h"
+
 namespace pizda {
+	
+	
 	class FlyByWire {
 		public:
 			void setup();
 			void start();
 			
-			float getTargetRollRad() const;
+			float getSelectedSpeedMps() const;
+			void setSelectedSpeedMps(float selectedSpeedMps);
 			
+			uint16_t getSelectedHeadingDeg() const;
+			void setSelectedHeadingDeg(uint16_t selectedHeadingDeg);
+			
+			float getSelectedAltitudeM() const;
+			void setSelectedAltitudeM(float selectedAltitudeM);
+			
+			AutopilotLateralMode getLateralMode() const;
+			
+			void setLateralMode(AutopilotLateralMode lateralMode);
+			
+			AutopilotVerticalMode getVerticalMode() const;
+			
+			void setVerticalMode(AutopilotVerticalMode verticalMode);
+			
+			bool getAutothrottle() const;
+			
+			void setAutothrottle(bool autothrottle);
+			
+			bool getAutopilot() const;
+			
+			void setAutopilot(bool autopilot);
+			
+			float getTargetRollRad() const;
 			float getTargetPitchRad() const;
 			
 			void applyData();
@@ -34,6 +62,16 @@ namespace pizda {
 			
 			float _aileronsTargetFactor = 0.5;
 			float _elevatorTargetFactor = 0.5;
+			
+			float _selectedSpeedMPS = 0;
+			uint16_t _selectedHeadingDeg = 0;
+			float _selectedAltitudeM = 0;
+			
+			AutopilotLateralMode _lateralMode = AutopilotLateralMode::roll;
+			AutopilotVerticalMode _verticalMode = AutopilotVerticalMode::pitch;
+			
+			bool _autothrottle = false;
+			bool _autopilot = false;
 			
 			static float getInterpolationFactor(float range, float rangeMax);
 			static float predictValue(float valueDelta, uint32_t dueTimeUs, uint32_t deltaTimeUs);

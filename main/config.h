@@ -116,10 +116,12 @@ namespace pizda {
 					constexpr static gpio_num_t tx = GPIO_NUM_NC;
 			};
 			
-			class limits {
+			class flyByWire {
 				public:
-					constexpr static float autopilotPitchAngleMaxRad = toRadians(15);
-					constexpr static float autopilotRollAngleMaxRad = toRadians(30);
+					constexpr static float pitchAngleMaxRad = toRadians(15);
+					constexpr static float rollAngleMaxRad = toRadians(30);
+					constexpr static float aileronMaxFactor = 0.8f;
+					constexpr static float elevatorMaxFactor = 0.8f;
 			};
 	};
 }

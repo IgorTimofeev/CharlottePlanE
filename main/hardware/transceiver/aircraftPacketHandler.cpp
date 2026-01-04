@@ -57,17 +57,20 @@ namespace pizda {
 			case RemotePacketType::NOP:
 				return receiveNOPPacket(stream, payloadLength);
 				
-			case RemotePacketType::channelsDataStructure:
-				return receiveRemoteChannelDataStructurePacket(stream, payloadLength);
+			case RemotePacketType::controls:
+				return receiveRemoteControlsPacket(stream, payloadLength);
 				
-			case RemotePacketType::channelsData:
-				return receiveRemoteChannelsDataPacket(stream, payloadLength);
+			case RemotePacketType::lights:
+				return receiveRemoteLightsPacket(stream, payloadLength);
+			
+			case RemotePacketType::baro:
+				return receiveRemoteBaroPacket(stream, payloadLength);
+			
+			case RemotePacketType::autopilot:
+				return receiveRemoteAutopilotPacket(stream, payloadLength);
 				
 			case RemotePacketType::motorConfiguration:
 				return receiveMotorConfigurationPacket(stream, payloadLength);
-			
-			case RemotePacketType::auxiliary:
-				return receiveRemoteAuxiliaryPacket(stream, payloadLength);
 			
 			default:
 				ESP_LOGE(_logTag, "failed to receive packet: unsupported type %d", packetType);
@@ -79,134 +82,69 @@ namespace pizda {
 		return true;
 	}
 
-	bool AircraftPacketHandler::receiveRemoteChannelDataStructurePacket(BitStream& stream, uint8_t payloadLength) {
-		auto& ac = Aircraft::getInstance();
-
-		const auto valueCount = stream.readUint8(8);
-
-		ESP_LOGI(_logTag, "data type count: %d", valueCount);
-
-		ac.settings.channelDataStructure.fields.clear();
-		ac.settings.channelDataStructure.fields.reserve(valueCount);
-
-		ChannelDataStructureSettingsField field {};
-
-		for (uint8_t i = 0; i < valueCount; ++i) {
-			field.type = static_cast<ChannelDataType>(stream.readUint8(3));
-
-			switch (field.type) {
-				case ChannelDataType::unsignedInteger: {
-					field.bitDepth = stream.readUint8(5);
-					field.count = stream.readUint8(8);
-
-					ESP_LOGI(_logTag, "data type #%d, type: uint, bit depth: %d, count: %d", i, field.bitDepth, field.count);
-
-					break;
-				}
-				case ChannelDataType::boolean: {
-					field.bitDepth = 1;
-					field.count = stream.readUint8(8);
-
-					ESP_LOGI(_logTag, "data type #%d, type: bool, count: %d", i, field.count);
-
-					break;
-				}
-				default: {
-					ESP_LOGI(_logTag, "unknown data type");
-					return false;
-				}
-			}
-
-			ac.settings.channelDataStructure.fields.push_back(field);
-		}
-
-		ac.channels.updateFromDataStructure();
-		ac.settings.channelDataStructure.write();
-
-		return true;
-	}
-
-	bool AircraftPacketHandler::receiveRemoteChannelsDataPacket(BitStream& stream, uint8_t payloadLength) {
+	bool AircraftPacketHandler::receiveRemoteControlsPacket(BitStream& stream, uint8_t payloadLength) {
 		auto& ac = Aircraft::getInstance();
 		
 		if (!validatePayloadChecksumAndLength(
 			stream,
-			RemoteChannelsPacket::motorLengthBits * 6 + 4,
+			RemoteControlsPacket::motorLengthBits * 6,
 			payloadLength
 		))
 			return false;
 		
-		const auto receiveChannel = [&stream](UintChannel* channel) {
-			channel->setValue(stream.readUint16(channel->getBitDepth()));
+		const auto readMotor = [&stream]() {
+			return
+			    static_cast<float>(stream.readUint16(RemoteControlsPacket::motorLengthBits))
+				/ static_cast<float>((1 << RemoteControlsPacket::motorLengthBits) - 1);
 		};
 		
-		receiveChannel(ac.channels.getUintChannel(ChannelType::throttle));
-		receiveChannel(ac.channels.getUintChannel(ChannelType::ailerons));
-		receiveChannel(ac.channels.getUintChannel(ChannelType::elevator));
-		receiveChannel(ac.channels.getUintChannel(ChannelType::rudder));
-		receiveChannel(ac.channels.getUintChannel(ChannelType::flaps));
-		receiveChannel(ac.channels.getUintChannel(ChannelType::unused));
-		
-		// Lights
-		ac.channels.getBoolChannel(ChannelType::navLights)->setValue(stream.readBool());
-		ac.channels.getBoolChannel(ChannelType::strobeLights)->setValue(stream.readBool());
-		ac.channels.getBoolChannel(ChannelType::landingLights)->setValue(stream.readBool());
-		ac.channels.getBoolChannel(ChannelType::cabinLights)->setValue(stream.readBool());
+		ac.remoteData.raw.controls.throttle = readMotor();
+		ac.remoteData.raw.controls.ailerons = readMotor();
+		ac.remoteData.raw.controls.elevator = readMotor();
+		ac.remoteData.raw.controls.rudder = readMotor();
+		ac.remoteData.raw.controls.flaps = readMotor();
+		ac.remoteData.raw.controls.unused = readMotor();
 		
 		ac.fbw.applyData();
 		
 		return true;
+	}
+	
+	bool AircraftPacketHandler::receiveRemoteLightsPacket(BitStream& stream, uint8_t payloadLength) {
+		auto& ac = Aircraft::getInstance();
 		
 		if (!validatePayloadChecksumAndLength(
 			stream,
-			ac.settings.channelDataStructure.getRequiredBitCountForChannels(),
+			4,
 			payloadLength
 		))
 			return false;
-
-		if (ac.settings.channelDataStructure.fields.empty()) {
-			ESP_LOGE(_logTag, "channel data structure is empty");
-
-			return false;
-		}
-
-		uint8_t channelIndex = 0;
-
-		for (auto field : ac.settings.channelDataStructure.fields) {
-			for (uint8_t i = 0; i < field.count; ++i) {
-				const auto channel = ac.channels.getChannel(channelIndex);
-
-				if (!channel)
-					return false;
-
-				switch (channel->getDataType()) {
-					case ChannelDataType::unsignedInteger: {
-						const auto uintChannel = reinterpret_cast<UintChannel*>(channel);
-						uintChannel->setValue(stream.readUint32(uintChannel->getBitDepth()));
-
-						ESP_LOGI(_logTag, "channel #%d, uint value: %d", channelIndex, uintChannel->getValue());
-
-						break;
-					}
-					case ChannelDataType::boolean: {
-						const auto boolChannel = reinterpret_cast<BoolChannel*>(channel);
-						boolChannel->setValue(stream.readBool());
-
-						ESP_LOGI(_logTag, "channel #%d, bool value: %d", channelIndex, boolChannel->getValue());
-
-						break;
-					}
-				}
-
-				channelIndex++;
-			}
-		}
 		
-		ac.fbw.applyData();
-
+		ac.lights.setNavigationEnabled(stream.readBool());
+		ac.lights.setStrobeEnabled(stream.readBool());
+		ac.lights.setLandingEnabled(stream.readBool());
+		ac.lights.setCabinEnabled(stream.readBool());
+		
 		return true;
 	}
-
+	
+	bool AircraftPacketHandler::receiveRemoteBaroPacket(BitStream& stream, uint8_t payloadLength) {
+		auto& ac = Aircraft::getInstance();
+		
+		if (!validatePayloadChecksumAndLength(
+			stream,
+			RemoteBaroPacket::referencePressureLengthBits,
+			payloadLength
+		))
+			return false;
+		
+		// Reference pressure
+		const auto referencePressureDaPa = stream.readUint16(RemoteBaroPacket::referencePressureLengthBits);
+		ac.adirs.setReferencePressurePa(sanitizeValue<uint32_t>(static_cast<uint32_t>(referencePressureDaPa) * 10, 900'00, 1100'00));
+		
+		return true;
+	}
+	
 	bool AircraftPacketHandler::receiveMotorConfigurationPacket(BitStream& stream, uint8_t payloadLength) {
 		auto& ac = Aircraft::getInstance();
 		
@@ -245,51 +183,53 @@ namespace pizda {
 		return true;
 	}
 	
-	bool AircraftPacketHandler::receiveRemoteAuxiliaryPacket(BitStream& stream, uint8_t payloadLength) {
+	bool AircraftPacketHandler::receiveRemoteAutopilotPacket(BitStream& stream, uint8_t payloadLength) {
 		auto& ac = Aircraft::getInstance();
 		
 		if (!validatePayloadChecksumAndLength(
 			stream,
-			RemoteAuxiliaryPacket::referencePressureLengthBits
-				+ RemoteAuxiliaryPacket::autopilotSpeedLengthBits + 1
-				+ RemoteAuxiliaryPacket::autopilotHeadingLengthBits + 1
-				+ RemoteAuxiliaryPacket::autopilotAltitudeLengthBits + 1,
+				+ RemoteAutopilotPacket::speedLengthBits
+				+ RemoteAutopilotPacket::headingLengthBits
+				+ RemoteAutopilotPacket::altitudeLengthBits
+				+ RemoteAutopilotPacket::lateralModeLengthBits
+				+ RemoteAutopilotPacket::verticalModeLengthBits
+				// A/T
+				+ 1
+				// A/P
+				+ 1,
 			payloadLength
 		))
 			return false;
 		
-		// Reference pressure
-		const auto referencePressureDaPa = stream.readUint16(RemoteAuxiliaryPacket::referencePressureLengthBits);
-		
-		ac.adirs.setReferencePressurePa(sanitizeValue<uint32_t>(static_cast<uint32_t>(referencePressureDaPa) * 10, 900'00, 1100'00));
-		
-		// -------------------------------- Autopilot --------------------------------
-		
 		// Speed
 		const auto speedFactor =
-			static_cast<float>(stream.readUint8(RemoteAuxiliaryPacket::autopilotSpeedLengthBits))
-			/ static_cast<float>((1 << RemoteAuxiliaryPacket::autopilotSpeedLengthBits) - 1);
+			static_cast<float>(stream.readUint8(RemoteAutopilotPacket::speedLengthBits))
+			/ static_cast<float>((1 << RemoteAutopilotPacket::speedLengthBits) - 1);
 		
-		ac.remoteData.raw.autopilot.speedMPS = static_cast<float>(RemoteAuxiliaryPacket::autopilotSpeedMaxMPS) * speedFactor;
-		ac.remoteData.raw.autopilot.autoThrottle = stream.readBool();
+		ac.fbw.setSelectedSpeedMps(static_cast<float>(RemoteAutopilotPacket::speedMaxMPS) * speedFactor);
 		
 		// Heading
-		ac.remoteData.raw.autopilot.headingDeg = stream.readUint16(RemoteAuxiliaryPacket::autopilotHeadingLengthBits);
-		ac.remoteData.raw.autopilot.headingHold = stream.readBool();
+		ac.fbw.setSelectedHeadingDeg(stream.readUint16(RemoteAutopilotPacket::headingLengthBits));
 		
 		// Altitude
 		const auto altitudeFactor =
-			static_cast<float>(stream.readUint16(RemoteAuxiliaryPacket::autopilotAltitudeLengthBits))
-			/ static_cast<float>((1 << RemoteAuxiliaryPacket::autopilotAltitudeLengthBits) - 1);
+			static_cast<float>(stream.readUint16(RemoteAutopilotPacket::altitudeLengthBits))
+			/ static_cast<float>((1 << RemoteAutopilotPacket::altitudeLengthBits) - 1);
 		
-		ac.remoteData.raw.autopilot.altitudeM =
-			static_cast<float>(RemoteAuxiliaryPacket::autopilotAltitudeMinM)
-			+ static_cast<float>(RemoteAuxiliaryPacket::autopilotAltitudeMaxM - RemoteAuxiliaryPacket::autopilotAltitudeMinM) * altitudeFactor;
+		ac.fbw.setSelectedAltitudeM(
+			static_cast<float>(RemoteAutopilotPacket::altitudeMinM)
+			+ static_cast<float>(RemoteAutopilotPacket::altitudeMaxM - RemoteAutopilotPacket::altitudeMinM) * altitudeFactor
+		);
 		
-		ac.remoteData.raw.autopilot.levelChange = stream.readBool();
+		// Modes
+		ac.fbw.setLateralMode(static_cast<AutopilotLateralMode>(stream.readUint8(RemoteAutopilotPacket::lateralModeLengthBits)));
+		ac.fbw.setVerticalMode(static_cast<AutopilotVerticalMode>(stream.readUint8(RemoteAutopilotPacket::verticalModeLengthBits)));
 		
-		// Engaged
-		ac.remoteData.raw.autopilot.engaged = stream.readBool();
+		// Autothrottle
+		ac.fbw.setAutothrottle(stream.readBool());
+		
+		// Autopilot
+		ac.fbw.setAutopilot(stream.readBool());
 		
 		return true;
 	}
@@ -388,13 +328,7 @@ namespace pizda {
 		
 		stream.writeUint16(altitudeUint16, AircraftADIRSPacket::altitudeLengthBits);
 		
-		// Throttle
-		const auto motor = ac.motors.getMotor(MotorType::throttle);
-		
-		stream.writeUint8(
-			(motor ? motor->getPower() : 0) * ((1 << AircraftADIRSPacket::throttleLengthBits) - 1) / Motor::powerMaxValue,
-			AircraftADIRSPacket::throttleLengthBits
-		);
+		// -------------------------------- Autopilot --------------------------------
 		
 		// Roll
 		writeRadians(stream, ac.fbw.getTargetRollRad(), AircraftADIRSPacket::autopilotRollRangeRad, AircraftADIRSPacket::autopilotRollLengthBits);
@@ -409,6 +343,17 @@ namespace pizda {
 		auto& ac = Aircraft::getInstance();
 		
 		const auto& coordinates = ac.adirs.getCoordinates();
+		
+		// -------------------------------- Throttle --------------------------------
+		
+		const auto motor = ac.motors.getMotor(MotorType::throttle);
+		
+		stream.writeUint8(
+			(motor ? motor->getPower() : 0) * ((1 << AircraftAuxiliaryPacket::throttleLengthBits) - 1) / Motor::powerMaxValue,
+			AircraftAuxiliaryPacket::throttleLengthBits
+		);
+		
+		// -------------------------------- Lat / lon --------------------------------
 		
 		// Lat
 		const auto latRad = coordinates.getLatitude();
@@ -426,8 +371,28 @@ namespace pizda {
 		
 		stream.writeUint32(lonValue, AircraftAuxiliaryPacket::lonLengthBits);
 		
-		// Battery, daV
+		// -------------------------------- Battery --------------------------------
+		
 		stream.writeUint16(125, AircraftAuxiliaryPacket::batteryLengthBits);
+		
+		// -------------------------------- Lights --------------------------------
+		
+		stream.writeBool(ac.lights.isNavigationEnabled());
+		stream.writeBool(ac.lights.isStrobeEnabled());
+		stream.writeBool(ac.lights.isLandingEnabled());
+		stream.writeBool(ac.lights.isCabinEnabled());
+		
+		// -------------------------------- Autopilot --------------------------------
+		
+		// Modes
+		stream.writeUint8(std::to_underlying(ac.fbw.getLateralMode()), AircraftAuxiliaryPacket::autopilotLateralModeLengthBits);
+		stream.writeUint8(std::to_underlying(ac.fbw.getVerticalMode()), AircraftAuxiliaryPacket::autopilotVerticalModeLengthBits);
+		
+		// Autothrottle
+		stream.writeBool(ac.fbw.getAutothrottle());
+		
+		// Autopilot
+		stream.writeBool(ac.fbw.getAutopilot());
 		
 		return true;
 	}

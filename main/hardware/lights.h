@@ -4,7 +4,6 @@
 
 #include "config.h"
 #include "hardware/light.h"
-#include "hardware/transceiver/channels.h"
 #include "settings/settings.h"
 
 namespace pizda {

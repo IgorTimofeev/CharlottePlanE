@@ -6,15 +6,13 @@
 #include <esp_timer.h>
 
 #include "config.h"
+#include "remoteData.h"
 #include "flyByWire.h"
 #include "settings/settings.h"
 #include "hardware/lights.h"
 #include "hardware/motors.h"
 #include "hardware/transceiver/SX1262Transceiver.h"
 #include "hardware/transceiver/aircraftPacketHandler.h"
-#include "hardware/transceiver/channels.h"
-#include "utils/remoteData.h"
-#include "utils/aircraftData.h"
 
 #define SIM
 
@@ -34,7 +32,6 @@ namespace pizda {
 
 			Lights lights {};
 			Motors motors {};
-			Channels channels {};
 			
 			SX1262Transceiver transceiver {};
 			AircraftPacketHandler packetHandler {};
@@ -49,7 +46,6 @@ namespace pizda {
 			FlyByWire fbw {};
 			
 			RemoteData remoteData {};
-			AircraftData aircraftData {};
 			
 			static Aircraft& getInstance();
 			void start();

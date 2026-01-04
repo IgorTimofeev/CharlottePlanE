@@ -30,8 +30,6 @@ namespace pizda {
 		lights.setup();
 		lights.start();
 
-		channels.setup();
-		
 		// Transceiver
 		if (!transceiver.setup())
 			startErrorLoop("failed to setup XCVR");
