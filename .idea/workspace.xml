@@ -170,26 +170,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="немного разобрался">
-      <change afterPath="$PROJECT_DIR$/main/types.h" afterDir="false" />
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="))">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/aircraft.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/aircraft.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/config.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/flyByWire.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/flyByWire.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/flyByWire.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/flyByWire.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/lights.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/lights.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/motors.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/channels.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/channels.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packetHandler.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packetHandler.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/logger.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/settings/settings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/settings/settings.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/utils/aircraftData.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/utils/remoteData.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/remoteData.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -283,6 +266,11 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.CharlottePlanE.elf">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="CharlottePlanE.elf" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="CharlottePlanE.elf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="CharlottePlanE" RUN_TARGET_NAME="CharlottePlanE.elf">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -1222,15 +1210,7 @@
       <workItem from="1767437185651" duration="14351000" />
       <workItem from="1767454549440" duration="8035000" />
       <workItem from="1767478346392" duration="7653000" />
-      <workItem from="1767527466300" duration="19093000" />
-    </task>
-    <task id="LOCAL-00062" summary="pizda1111">
-      <option name="closed" value="true" />
-      <created>1766510026249</created>
-      <option name="number" value="00062" />
-      <option name="presentableId" value="LOCAL-00062" />
-      <option name="project" value="LOCAL" />
-      <updated>1766510026249</updated>
+      <workItem from="1767527466300" duration="20404000" />
     </task>
     <task id="LOCAL-00063" summary="pizda1111">
       <option name="closed" value="true" />
@@ -1616,7 +1596,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767486075763</updated>
     </task>
-    <option name="localTasksCounter" value="111" />
+    <task id="LOCAL-00111" summary="))">
+      <option name="closed" value="true" />
+      <created>1767555422686</created>
+      <option name="number" value="00111" />
+      <option name="presentableId" value="LOCAL-00111" />
+      <option name="project" value="LOCAL" />
+      <updated>1767555422686</updated>
+    </task>
+    <option name="localTasksCounter" value="112" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1647,7 +1635,6 @@
     <MESSAGE value="вооо пашет" />
     <MESSAGE value="сэкономили бля пару битиков" />
     <MESSAGE value="pizda" />
-    <MESSAGE value="))" />
     <MESSAGE value="заебца" />
     <MESSAGE value="чета хуета какая-то творится с магом на дипике -180 180" />
     <MESSAGE value="вроде получше" />
@@ -1664,7 +1651,8 @@
     <MESSAGE value="так, чета я затупил уже" />
     <MESSAGE value="ппц тюнить потно" />
     <MESSAGE value="немного разобрался" />
-    <option name="LAST_COMMIT_MESSAGE" value="немного разобрался" />
+    <MESSAGE value="))" />
+    <option name="LAST_COMMIT_MESSAGE" value="))" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

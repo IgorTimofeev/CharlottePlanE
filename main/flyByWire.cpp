@@ -195,7 +195,7 @@ namespace pizda {
 				// Was in level change mode
 				_verticalMode == AutopilotVerticalMode::levelChange
 				// & become close enough to selected altitude
-				&& std::abs(altitudeTargetAndPredictedDeltaM) > Units::convertDistance(200.f, DistanceUnit::foot, DistanceUnit::meter)
+				&& std::abs(altitudeTargetAndPredictedDeltaM) <= Units::convertDistance(200.f, DistanceUnit::foot, DistanceUnit::meter)
 			) {
 				// Switching to alt hold mode
 				_verticalMode = AutopilotVerticalMode::hold;
