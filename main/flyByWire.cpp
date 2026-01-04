@@ -14,11 +14,10 @@
 
 namespace pizda {
 	void FlyByWire::setup() {
-		
+	
 	}
 	
 	void FlyByWire::start() {
-		
 		xTaskCreate(
 			[](void* arg) {
 				reinterpret_cast<FlyByWire*>(arg)->taskBody();
@@ -41,10 +40,6 @@ namespace pizda {
 	
 	float FlyByWire::getInterpolationFactor(float range, float rangeMax) {
 		return std::min(std::abs(range), rangeMax) / rangeMax;
-	}
-	
-	float FlyByWire::interpolateValueBy(float valueMin, float valueMax, float range, float rangeMax) {
-		return interpolate(valueMin, valueMax, getInterpolationFactor(range, rangeMax));
 	}
 	
 	float FlyByWire::predictValue(float valueDelta, uint32_t deltaTimeUs, uint32_t dueTimeUs) {
@@ -118,11 +113,10 @@ namespace pizda {
 		const auto rollTargetRad =
 			ac.remoteData.raw.autopilot.headingHold
 			? (
-				interpolateValueBy(
-					config::limits::autopilotRollAngleMaxRad * 0.1,
-					config::limits::autopilotRollAngleMaxRad,
+				config::limits::autopilotRollAngleMaxRad
+				* getInterpolationFactor(
 					yawTargetAndPredictedDeltaRad,
-					toRadians(20)
+					toRadians(30)
 				)
 				* (rollToRight ? 1 : -1)
 			)
@@ -131,7 +125,7 @@ namespace pizda {
 		_rollTargetRad = LowPassFilter::applyForAngleRad(
 			_rollTargetRad,
 			rollTargetRad,
-			LowPassFilter::getFactor(0.5, deltaTimeUs)
+			LowPassFilter::getFactor(0.2f, deltaTimeUs)
 		);
 		
 		// -------------------------------- Pitch --------------------------------
@@ -153,12 +147,11 @@ namespace pizda {
 			);
 			
 			pitchTargetRad =
-				interpolate(
-					0.0f,
-					config::limits::autopilotPitchAngleMaxRad,
+				config::limits::autopilotPitchAngleMaxRad
+				* (
 					pitchUp
-					? (speedNotEnough ? 1 - pitchSpeedDeltaFactor : pitchSpeedDeltaFactor)
-					: pitchSpeedDeltaFactor
+					? (speedNotEnough ? 0 : pitchSpeedDeltaFactor)
+					: (speedNotEnough ? pitchSpeedDeltaFactor : 0)
 				)
 				* (pitchUp ? 1 : -1)
 				* pitchAltitudeDeltaFactor;
@@ -170,21 +163,24 @@ namespace pizda {
 		_pitchTargetRad = LowPassFilter::applyForAngleRad(
 			_pitchTargetRad,
 			pitchTargetRad,
-			LowPassFilter::getFactor(0.5f, deltaTimeUs)
+			LowPassFilter::getFactor(0.2f, deltaTimeUs)
 		);
 		
 		// -------------------------------- Ailerons --------------------------------
 		
-		const auto rollTargetAndPredictedDeltaRad = _rollTargetRad - rollPredictedRad;
+		const auto rollTargetAndPredictedDeltaRad = _rollTargetRad - rollRad;
 		
 		const auto aileronsTargetFactor =
-			ac.remoteData.raw.autopilot.headingHold
+			ac.remoteData.raw.autopilot.engaged && ac.remoteData.raw.autopilot.headingHold
 			? (
 				0.5f
 				+ (
-					interpolateValueBy(0.03, 0.5, rollTargetAndPredictedDeltaRad, toRadians(15))
-					* (rollTargetAndPredictedDeltaRad >= 0 ? 1 : -1)
+					getInterpolationFactor(
+						rollTargetAndPredictedDeltaRad,
+						toRadians(20)
+					)
 					/ 2.f
+					* (rollTargetAndPredictedDeltaRad >= 0 ? 1 : -1)
 				)
 			)
 			: 0.5f;
@@ -192,7 +188,7 @@ namespace pizda {
 		_aileronsTargetFactor = LowPassFilter::applyForAngleRad(
 			_aileronsTargetFactor,
 			aileronsTargetFactor,
-			LowPassFilter::getFactor(0.9, deltaTimeUs)
+			LowPassFilter::getFactor(3.5f, deltaTimeUs)
 		);
 		
 		// -------------------------------- Elevator --------------------------------
@@ -200,13 +196,16 @@ namespace pizda {
 		const auto pitchTargetAndPredictedDeltaRad = _pitchTargetRad - pitchRad;
 		
 		const auto elevatorTargetFactor =
-			ac.remoteData.raw.autopilot.levelChange
+			ac.remoteData.raw.autopilot.engaged && ac.remoteData.raw.autopilot.levelChange
 			? (
 				0.5f
 				+ (
-					interpolateValueBy(0.05, 0.8, pitchTargetAndPredictedDeltaRad, toRadians(10))
-					* (pitchTargetAndPredictedDeltaRad >= 0 ? -1 : 1)
+					getInterpolationFactor(
+						pitchTargetAndPredictedDeltaRad,
+						toRadians(20)
+					)
 					/ 2.f
+					* (pitchTargetAndPredictedDeltaRad >= 0 ? -1 : 1)
 				)
 			)
 			: 0.5f;
@@ -214,7 +213,7 @@ namespace pizda {
 		_elevatorTargetFactor = LowPassFilter::applyForAngleRad(
 			_elevatorTargetFactor,
 			elevatorTargetFactor,
-			LowPassFilter::getFactor(1.0, deltaTimeUs)
+			LowPassFilter::getFactor(3.5f, deltaTimeUs)
 		);
 		
 		// -------------------------------- Throttle --------------------------------
@@ -236,11 +235,13 @@ namespace pizda {
 			? 1.0f
 			: (
 				0.5f
-				+ interpolateValueBy(
+				+ interpolate(
 					0.6f,
 					1.0f,
-					speedTargetAndPredictedDeltaMPS,
-					Units::convertSpeed(10.f, SpeedUnit::knot, SpeedUnit::meterPerSecond)
+					getInterpolationFactor(
+						speedTargetAndPredictedDeltaMPS,
+						Units::convertSpeed(10.f, SpeedUnit::knot, SpeedUnit::meterPerSecond)
+					)
 				)
 				/ 2.f
 				* (throttleState ? 1.f : -1.f)
