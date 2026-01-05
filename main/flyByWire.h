@@ -13,29 +13,25 @@ namespace pizda {
 			void start();
 			
 			float getSelectedSpeedMps() const;
-			void setSelectedSpeedMps(float selectedSpeedMps);
+			void setSelectedSpeedMps(float value);
 			
 			uint16_t getSelectedHeadingDeg() const;
-			void setSelectedHeadingDeg(uint16_t selectedHeadingDeg);
+			void setSelectedHeadingDeg(uint16_t value);
 			
 			float getSelectedAltitudeM() const;
-			void setSelectedAltitudeM(float selectedAltitudeM);
+			void setSelectedAltitudeM(float value);
 			
 			AutopilotLateralMode getLateralMode() const;
-			
-			void setLateralMode(AutopilotLateralMode lateralMode);
+			void setLateralMode(AutopilotLateralMode value);
 			
 			AutopilotVerticalMode getVerticalMode() const;
-			
-			void setVerticalMode(AutopilotVerticalMode verticalMode);
+			void setVerticalMode(AutopilotVerticalMode value);
 			
 			bool getAutothrottle() const;
-			
-			void setAutothrottle(bool autothrottle);
+			void setAutothrottle(bool value);
 			
 			bool getAutopilot() const;
-			
-			void setAutopilot(bool autopilot);
+			void setAutopilot(bool value);
 			
 			float getTargetRollRad() const;
 			float getTargetPitchRad() const;
@@ -63,12 +59,12 @@ namespace pizda {
 			float _aileronsTargetFactor = 0.5;
 			float _elevatorTargetFactor = 0.5;
 			
-			float _selectedSpeedMPS = 0;
-			uint16_t _selectedHeadingDeg = 0;
-			float _selectedAltitudeM = 0;
+			float _speedSelectedMPS = 0;
+			uint16_t _headingSelectedDeg = 0;
+			float _altitudeSelectedM = 0;
 			
-			AutopilotLateralMode _lateralMode = AutopilotLateralMode::roll;
-			AutopilotVerticalMode _verticalMode = AutopilotVerticalMode::pitch;
+			AutopilotLateralMode _lateralMode = AutopilotLateralMode::man;
+			AutopilotVerticalMode _verticalMode = AutopilotVerticalMode::man;
 			
 			bool _autothrottle = false;
 			bool _autopilot = false;

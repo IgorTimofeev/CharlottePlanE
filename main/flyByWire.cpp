@@ -31,59 +31,59 @@ namespace pizda {
 	}
 	
 	float FlyByWire::getSelectedSpeedMps() const {
-		return _selectedSpeedMPS;
+		return _speedSelectedMPS;
 	}
 	
-	void FlyByWire::setSelectedSpeedMps(float selectedSpeedMps) {
-		_selectedSpeedMPS = selectedSpeedMps;
+	void FlyByWire::setSelectedSpeedMps(float value) {
+		_speedSelectedMPS = value;
 	}
 	
 	uint16_t FlyByWire::getSelectedHeadingDeg() const {
-		return _selectedHeadingDeg;
+		return _headingSelectedDeg;
 	}
 	
-	void FlyByWire::setSelectedHeadingDeg(uint16_t selectedHeadingDeg) {
-		_selectedHeadingDeg = selectedHeadingDeg;
+	void FlyByWire::setSelectedHeadingDeg(uint16_t value) {
+		_headingSelectedDeg = value;
 	}
 	
 	float FlyByWire::getSelectedAltitudeM() const {
-		return _selectedAltitudeM;
+		return _altitudeSelectedM;
 	}
 	
-	void FlyByWire::setSelectedAltitudeM(float selectedAltitudeM) {
-		_selectedAltitudeM = selectedAltitudeM;
+	void FlyByWire::setSelectedAltitudeM(float value) {
+		_altitudeSelectedM = value;
 	}
 	
 	AutopilotLateralMode FlyByWire::getLateralMode() const {
 		return _lateralMode;
 	}
 	
-	void FlyByWire::setLateralMode(AutopilotLateralMode lateralMode) {
-		_lateralMode = lateralMode;
+	void FlyByWire::setLateralMode(AutopilotLateralMode value) {
+		_lateralMode = value;
 	}
 	
 	AutopilotVerticalMode FlyByWire::getVerticalMode() const {
 		return _verticalMode;
 	}
 	
-	void FlyByWire::setVerticalMode(AutopilotVerticalMode verticalMode) {
-		_verticalMode = verticalMode;
+	void FlyByWire::setVerticalMode(AutopilotVerticalMode value) {
+		_verticalMode = value;
 	}
 	
 	bool FlyByWire::getAutothrottle() const {
 		return _autothrottle;
 	}
 	
-	void FlyByWire::setAutothrottle(bool autothrottle) {
-		_autothrottle = autothrottle;
+	void FlyByWire::setAutothrottle(bool value) {
+		_autothrottle = value;
 	}
 	
 	bool FlyByWire::getAutopilot() const {
 		return _autopilot;
 	}
 	
-	void FlyByWire::setAutopilot(bool autopilot) {
-		_autopilot = autopilot;
+	void FlyByWire::setAutopilot(bool value) {
+		_autopilot = value;
 	}
 	
 	float FlyByWire::getTargetRollRad() const {
@@ -148,11 +148,11 @@ namespace pizda {
 		
 		// -------------------------------- Deltas --------------------------------
 		
-		const auto speedTargetAndPredictedDeltaMPS = _selectedSpeedMPS - speedPredictedMPS;
+		const auto speedTargetAndPredictedDeltaMPS = _speedSelectedMPS - speedPredictedMPS;
 		
-		const auto altitudeTargetAndPredictedDeltaM = _selectedAltitudeM - altitudePredictedM;
+		const auto altitudeTargetAndPredictedDeltaM = _altitudeSelectedM - altitudePredictedM;
 		
-		const auto yawTargetRad = -normalizeAngleRadPi(toRadians(static_cast<float>(_selectedHeadingDeg)));
+		const auto yawTargetRad = -normalizeAngleRadPi(toRadians(static_cast<float>(_headingSelectedDeg)));
 		const auto yawTargetAndPredictedDeltaRad = normalizeAngleRadPi(yawTargetRad - yawPredictedRad);
 		
 		// -------------------------------- Roll --------------------------------
@@ -166,7 +166,7 @@ namespace pizda {
 			|| (!yawToRight && rollPredictedRad < -config::flyByWire::rollAngleMaxRad);
 		
 		const auto rollTargetRad =
-			_lateralMode == AutopilotLateralMode::heading
+			_lateralMode == AutopilotLateralMode::hdg
 			? (
 				config::flyByWire::rollAngleMaxRad
 				* getInterpolationFactor(
@@ -187,24 +187,25 @@ namespace pizda {
 		
 		float pitchTargetRad;
 		
-		if (_verticalMode == AutopilotVerticalMode::pitch) {
+		if (_verticalMode == AutopilotVerticalMode::man) {
 			pitchTargetRad = 0;
 		}
 		else {
 			if (
 				// Was in level change mode
-				_verticalMode == AutopilotVerticalMode::levelChange
+				_verticalMode == AutopilotVerticalMode::flc
 				// & become close enough to selected altitude
 				&& std::abs(altitudeTargetAndPredictedDeltaM) <= Units::convertDistance(200.f, DistanceUnit::foot, DistanceUnit::meter)
 			) {
-				// Switching to alt hold mode
-				_verticalMode = AutopilotVerticalMode::hold;
+				// Switching to altitude selected mode
+				_verticalMode = AutopilotVerticalMode::alts;
 			}
 			
 			const auto pitchUp = altitudeTargetAndPredictedDeltaM >= 0;
 			
 			switch (_verticalMode) {
-				case AutopilotVerticalMode::hold: {
+				case AutopilotVerticalMode::alts:
+				case AutopilotVerticalMode::alt: {
 					// Relying on altitude difference, speed doesn't matter
 					pitchTargetRad =
 						config::flyByWire::pitchAngleMaxRad
@@ -216,7 +217,7 @@ namespace pizda {
 					
 					break;
 				}
-				case AutopilotVerticalMode::levelChange: {
+				case AutopilotVerticalMode::flc: {
 					// Relying on speed, altitude doesn't matter
 					const auto speedNotEnough = speedTargetAndPredictedDeltaMPS >= 0;
 					
@@ -248,7 +249,7 @@ namespace pizda {
 					
 					break;
 				}
-				// Won't ever happen
+				// Won't ever happen, BUT
 				default: {
 					pitchTargetRad = 0;
 					break;
@@ -267,7 +268,7 @@ namespace pizda {
 		const auto rollTargetAndPredictedDeltaRad = _rollTargetRad - rollRad;
 		
 		const auto aileronsTargetFactor =
-			_autopilot && _lateralMode != AutopilotLateralMode::roll
+			_autopilot && _lateralMode != AutopilotLateralMode::man
 			? (
 				0.5f
 				+ (
@@ -294,7 +295,7 @@ namespace pizda {
 		const auto pitchTargetAndPredictedDeltaRad = _pitchTargetRad - pitchRad;
 		
 		const auto elevatorTargetFactor =
-			_autopilot && _verticalMode != AutopilotVerticalMode::pitch
+			_autopilot && _verticalMode != AutopilotVerticalMode::man
 			? (
 				0.5f
 				+ (
@@ -380,7 +381,7 @@ namespace pizda {
 				return;
 			
 			leftAileronMotor->setPowerF(
-				_autopilot && _lateralMode != AutopilotLateralMode::roll
+				_autopilot && _lateralMode != AutopilotLateralMode::man
 				? _aileronsTargetFactor
 				: ac.remoteData.raw.controls.ailerons
 			);
@@ -396,7 +397,7 @@ namespace pizda {
 				return;
 			
 			leftTailMotor->setPowerF(
-				_autopilot && _verticalMode != AutopilotVerticalMode::pitch
+				_autopilot && _verticalMode != AutopilotVerticalMode::man
 				? _elevatorTargetFactor
 				: ac.remoteData.raw.controls.elevator
 			);

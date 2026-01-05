@@ -204,6 +204,56 @@ namespace pizda {
 				return true;
 			}
 			
+			template<typename T>
+			static float sanitizeValue(T value, T min, T max) {
+				if (value < min) {
+					ESP_LOGW(_logTag, "value %f is out of range [%f, %f]", static_cast<float>(value), static_cast<float>(min), static_cast<float>(max));
+					
+					value = min;
+					
+				}
+				else if (value > max) {
+					ESP_LOGW(_logTag, "value %f is out of range [%f, %f]", static_cast<float>(value), static_cast<float>(min), static_cast<float>(max));
+					
+					value = max;
+				}
+				
+				return value;
+			}
+			
+			static float readRadians(BitStream& stream, float range, uint8_t bits) {
+				auto value = static_cast<float>(stream.readUint16(bits)) / static_cast<float>((1 << bits) - 1);
+				value = value - 0.5f;
+				value = value * range;
+				
+				return sanitizeValue<float>(value, toRadians(-180), toRadians(180));
+			}
+			
+			static void writeRadians(BitStream& stream, float value, float range, uint8_t bits) {
+				const auto uintValue = static_cast<uint16_t>((value / range + 0.5f) * ((1 << bits) - 1));
+				
+				stream.writeUint16(uintValue, bits);
+			}
+			
+			static int16_t readAltitude(BitStream& stream, uint8_t lengthBits, int16_t min, int16_t max) {
+				const auto factor =
+					static_cast<float>(stream.readUint16(lengthBits))
+					/ static_cast<float>((1 << lengthBits) - 1);
+				
+				return min + (max - min) * factor;
+			}
+			
+			static void writeAltitude(BitStream& stream, float valueM, uint8_t lengthBits, int16_t min, int16_t max) {
+				const auto factor =
+					(std::clamp<float>(valueM, min, max) - static_cast<float>(min))
+					/ static_cast<float>(max - min);
+				
+				stream.writeUint16(
+					static_cast<uint16_t>(std::round(factor * static_cast<float>((1 << lengthBits) - 1))),
+					lengthBits
+				);
+			}
+			
 			virtual void onStart() = 0;
 			virtual bool onReceive(BitStream& stream, TRemotePacketType packetType, uint8_t payloadLength) = 0;
 			

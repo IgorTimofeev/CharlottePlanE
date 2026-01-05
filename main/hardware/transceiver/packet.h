@@ -140,6 +140,11 @@ namespace pizda {
 			// See RemoteAutopilotPacket
 			constexpr static uint8_t autopilotLateralModeLengthBits = RemoteAutopilotPacket::lateralModeLengthBits;
 			constexpr static uint8_t autopilotVerticalModeLengthBits = RemoteAutopilotPacket::verticalModeLengthBits;
+			
+			// See RemoteAutopilotPacket
+			constexpr static uint8_t autopilotAltitudeLengthBits = RemoteAutopilotPacket::altitudeLengthBits;
+			constexpr static int16_t autopilotAltitudeMinM = RemoteAutopilotPacket::altitudeMinM;
+			constexpr static int16_t autopilotAltitudeMaxM = RemoteAutopilotPacket::altitudeMaxM;
 	};
 	
 	#pragma pack(pop)

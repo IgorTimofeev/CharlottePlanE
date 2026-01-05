@@ -212,14 +212,12 @@ namespace pizda {
 		ac.fbw.setSelectedHeadingDeg(stream.readUint16(RemoteAutopilotPacket::headingLengthBits));
 		
 		// Altitude
-		const auto altitudeFactor =
-			static_cast<float>(stream.readUint16(RemoteAutopilotPacket::altitudeLengthBits))
-			/ static_cast<float>((1 << RemoteAutopilotPacket::altitudeLengthBits) - 1);
-		
-		ac.fbw.setSelectedAltitudeM(
-			static_cast<float>(RemoteAutopilotPacket::altitudeMinM)
-			+ static_cast<float>(RemoteAutopilotPacket::altitudeMaxM - RemoteAutopilotPacket::altitudeMinM) * altitudeFactor
-		);
+		ac.fbw.setSelectedAltitudeM(readAltitude(
+			stream,
+			RemoteAutopilotPacket::altitudeLengthBits,
+			RemoteAutopilotPacket::altitudeMinM,
+			RemoteAutopilotPacket::altitudeMaxM
+		));
 		
 		// Modes
 		ac.fbw.setLateralMode(static_cast<AutopilotLateralMode>(stream.readUint8(RemoteAutopilotPacket::lateralModeLengthBits)));
@@ -318,15 +316,13 @@ namespace pizda {
 		stream.writeUint8(static_cast<uint8_t>(speedMapped), AircraftADIRSPacket::speedLengthBits);
 		
 		// Altitude
-		const auto altitudeClamped = std::clamp<float>(ac.adirs.getCoordinates().getAltitude(), AircraftADIRSPacket::altitudeMinM, AircraftADIRSPacket::altitudeMaxM);
-		
-		const auto altitudeFactor =
-			(altitudeClamped - static_cast<float>(AircraftADIRSPacket::altitudeMinM))
-			/ static_cast<float>(AircraftADIRSPacket::altitudeMaxM - AircraftADIRSPacket::altitudeMinM);
-		
-		const auto altitudeUint16 = static_cast<uint16_t>(altitudeFactor * static_cast<float>((1 << AircraftADIRSPacket::altitudeLengthBits) - 1));
-		
-		stream.writeUint16(altitudeUint16, AircraftADIRSPacket::altitudeLengthBits);
+		writeAltitude(
+			stream,
+			ac.adirs.getCoordinates().getAltitude(),
+			AircraftADIRSPacket::altitudeLengthBits,
+			AircraftADIRSPacket::altitudeMinM,
+			AircraftADIRSPacket::altitudeMaxM
+		);
 		
 		// -------------------------------- Autopilot --------------------------------
 		
@@ -388,6 +384,15 @@ namespace pizda {
 		stream.writeUint8(std::to_underlying(ac.fbw.getLateralMode()), AircraftAuxiliaryPacket::autopilotLateralModeLengthBits);
 		stream.writeUint8(std::to_underlying(ac.fbw.getVerticalMode()), AircraftAuxiliaryPacket::autopilotVerticalModeLengthBits);
 		
+		// Altitude for ALT/VNAV modes
+		writeAltitude(
+			stream,
+			ac.fbw.getSelectedAltitudeM(),
+			AircraftAuxiliaryPacket::autopilotAltitudeLengthBits,
+			AircraftAuxiliaryPacket::autopilotAltitudeMinM,
+			AircraftAuxiliaryPacket::autopilotAltitudeMaxM
+		);
+		
 		// Autothrottle
 		stream.writeBool(ac.fbw.getAutothrottle());
 		
@@ -395,11 +400,5 @@ namespace pizda {
 		stream.writeBool(ac.fbw.getAutopilot());
 		
 		return true;
-	}
-	
-	void AircraftPacketHandler::writeRadians(BitStream& stream, float value, float range, uint8_t bits) {
-		const auto uintValue = static_cast<uint16_t>((value / range + 0.5f) * ((1 << bits) - 1));
-		
-		stream.writeUint16(uintValue, bits);
 	}
 }
