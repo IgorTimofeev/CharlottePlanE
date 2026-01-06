@@ -20,13 +20,15 @@ namespace pizda {
 	
 	enum class AutopilotLateralMode : uint8_t {
 		man,
-		hdg
+		hdg,
+		lnav
 	};
 	
 	enum class AutopilotVerticalMode : uint8_t {
 		man,
 		flc,
 		alts,
-		alt
+		alt,
+		vnav
 	};
 }

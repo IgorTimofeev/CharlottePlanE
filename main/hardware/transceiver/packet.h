@@ -59,7 +59,7 @@ namespace pizda {
 			
 			// Mode
 			constexpr static uint8_t lateralModeLengthBits = 2;
-			constexpr static uint8_t verticalModeLengthBits = 2;
+			constexpr static uint8_t verticalModeLengthBits = 3;
 	};
 	
 	class RemoteBaroPacket {
