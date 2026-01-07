@@ -117,36 +117,34 @@ namespace pizda {
 		
 		// -------------------------------- Prediction --------------------------------
 		
-		constexpr static uint32_t predictionTimeUs = 2'000'000;
-		
 		// Speed
 		const auto speedMPS = ac.adirs.getAccelSpeedMPS();
 		const auto speedPrevDeltaMPS = speedMPS - _speedPrevMPS;
-		const auto speedPredictedMPS = _speedPrevMPS + predictValue(speedPrevDeltaMPS, deltaTimeUs, predictionTimeUs);
+		const auto speedPredictedMPS = _speedPrevMPS + predictValue(speedPrevDeltaMPS, deltaTimeUs, 2'000'000);
 		_speedPrevMPS = speedMPS;
 		
 		// Altitude
 		const auto altitudeM = ac.adirs.getCoordinates().getAltitude();
 		const auto altitudePrevDeltaM = altitudeM - _altitudePrevM;
-		const auto altitudePredictedM = _altitudePrevM + predictValue(altitudePrevDeltaM, deltaTimeUs, predictionTimeUs);
+		const auto altitudePredictedM = _altitudePrevM + predictValue(altitudePrevDeltaM, deltaTimeUs, 1'000'000);
 		_altitudePrevM = altitudeM;
 		
 		// Roll
 		const auto rollRad = ac.adirs.getRollRad();
 		const auto rollPrevDeltaRad = rollRad - _rollPrevRad;
-		const auto rollPredictedRad = _rollPrevRad + predictValue(rollPrevDeltaRad, deltaTimeUs, predictionTimeUs);
+		const auto rollPredictedRad = _rollPrevRad + predictValue(rollPrevDeltaRad, deltaTimeUs, 1'000'000);
 		_rollPrevRad = rollRad;
 		
 		// Pitch
 		const auto pitchRad = ac.adirs.getPitchRad();
 		const auto pitchPrevDeltaRad = pitchRad - _pitchPrevRad;
-		const auto pitchPredictedRad = _pitchPrevRad + predictValue(pitchPrevDeltaRad, deltaTimeUs, predictionTimeUs);
+		const auto pitchPredictedRad = _pitchPrevRad + predictValue(pitchPrevDeltaRad, deltaTimeUs, 1'000'000);
 		_pitchPrevRad = pitchRad;
 		
 		// Yaw
 		const auto yawRad = ac.adirs.getYawRad();
 		const auto yawPrevDeltaRad = yawRad - _yawPrevRad;
-		const auto yawPredictedRad = _yawPrevRad + predictValue(yawPrevDeltaRad, deltaTimeUs, predictionTimeUs);
+		const auto yawPredictedRad = _yawPrevRad + predictValue(yawPrevDeltaRad, deltaTimeUs, 1'000'000);
 		_yawPrevRad = yawRad;
 		
 		// -------------------------------- Deltas --------------------------------
@@ -183,7 +181,7 @@ namespace pizda {
 		_rollTargetRad = LowPassFilter::applyForAngleRad(
 			_rollTargetRad,
 			rollTargetRad,
-			LowPassFilter::getFactor(0.2f, deltaTimeUs)
+			LowPassFilter::getFactor(0.5f, deltaTimeUs)
 		);
 		
 		// -------------------------------- Pitch --------------------------------
@@ -222,7 +220,7 @@ namespace pizda {
 				}
 				case AutopilotVerticalMode::flc: {
 					// Relying on speed, altitude doesn't matter
-					const auto speedNotEnough = speedTargetAndPredictedDeltaMPS >= 0;
+					const auto speedLow = speedTargetAndPredictedDeltaMPS >= 0;
 					
 					const auto pitchSpeedDeltaFactor = getInterpolationFactor(
 						speedTargetAndPredictedDeltaMPS,
@@ -230,7 +228,7 @@ namespace pizda {
 					);
 					
 					if (pitchUp) {
-						if (speedNotEnough) {
+						if (speedLow) {
 							pitchTargetRad = 0;
 						}
 						else {
@@ -240,7 +238,7 @@ namespace pizda {
 						}
 					}
 					else {
-						if (speedNotEnough) {
+						if (speedLow) {
 							pitchTargetRad =
 								-config::flyByWire::pitchAngleMaxRad
 								* pitchSpeedDeltaFactor;
@@ -263,7 +261,7 @@ namespace pizda {
 		_pitchTargetRad = LowPassFilter::applyForAngleRad(
 			_pitchTargetRad,
 			pitchTargetRad,
-			LowPassFilter::getFactor(0.2f, deltaTimeUs)
+			LowPassFilter::getFactor(0.5f, deltaTimeUs)
 		);
 		
 		// -------------------------------- Ailerons --------------------------------
