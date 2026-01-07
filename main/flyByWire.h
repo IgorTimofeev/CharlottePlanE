@@ -69,6 +69,7 @@ namespace pizda {
 			bool _autothrottle = false;
 			bool _autopilot = false;
 			
+			static float mapPizda(float min, float max, float factor);
 			static float getInterpolationFactor(float range, float rangeMax);
 			static float predictValue(float valueDelta, uint32_t dueTimeUs, uint32_t deltaTimeUs);
 			

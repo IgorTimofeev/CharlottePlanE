@@ -47,59 +47,52 @@ namespace pizda {
 				uint8_t receivedLength = 0;
 				
 				// Updating connection state
-				auto state = _transceiver->receive(_buffer, receivedLength, timeoutUs);
-				
-				if (state) {
-					switch (_connectionState) {
-						case ConnectionState::initial:
-							setConnectionState(ConnectionState::connected);
-							
-							break;
+				if (_transceiver->receive(_buffer, receivedLength, timeoutUs)) {
+					// Length check
+					if (receivedLength >= 1) {
+						const uint8_t payloadLength = receivedLength - Packet::checksumLengthBytes;
 						
-						case ConnectionState::disconnected:
-							setConnectionState(ConnectionState::connected);
-							
-							break;
+						BitStream stream { _buffer };
 						
-						default:
-							break;
-					}
-					
-					_connectionLostTime = esp_timer_get_time() + _connectionLostInterval;
-				}
-				else {
-					if (_connectionState == ConnectionState::connected) {
-						if (esp_timer_get_time() >= _connectionLostTime) {
-							setConnectionState(ConnectionState::disconnected);
+						// Type
+						const auto packetType = static_cast<TRemotePacketType>(stream.readUint8(Packet::typeLengthBits));
+						
+						// Reading
+						if (onReceive(stream, packetType, payloadLength)) {
+							_RXDurationUs = esp_timer_get_time() - receiveStartTimeUs;
+							
+							switch (_connectionState) {
+								case ConnectionState::initial:
+									setConnectionState(ConnectionState::connected);
+									
+									break;
+								
+								case ConnectionState::disconnected:
+									setConnectionState(ConnectionState::connected);
+									
+									break;
+								
+								default:
+									break;
+							}
+							
+							_connectionLostTime = esp_timer_get_time() + _connectionLostInterval;
+							
+							return true;
 						}
 					}
-					
-					return false;
-				}
-
-//		ESP_LOGI(_logTag, "-------- Begin --------");
-				
-				// Length check
-				if (receivedLength < 1) {
-					ESP_LOGE(_logTag, "failed to receive packet: length %d is too small to fit any data", receivedLength);
-					
-					return false;
+					else {
+						ESP_LOGE(_logTag, "failed to receive packet: length %d is too small to fit any data", receivedLength);
+					}
 				}
 				
-				const uint8_t payloadLength = receivedLength - Packet::checksumLengthBytes;
+				if (_connectionState == ConnectionState::connected) {
+					if (esp_timer_get_time() >= _connectionLostTime) {
+						setConnectionState(ConnectionState::disconnected);
+					}
+				}
 				
-				BitStream stream { _buffer };
-				
-				// Type
-				const auto packetType = static_cast<TRemotePacketType>(stream.readUint8(Packet::typeLengthBits));
-				
-				// Reading
-				if (!onReceive(stream, packetType, payloadLength))
-					return false;
-				
-				_RXDurationUs = esp_timer_get_time() - receiveStartTimeUs;
-				
-				return true;
+				return false;
 			}
 			
 			bool transmit(uint32_t timeoutUs) {

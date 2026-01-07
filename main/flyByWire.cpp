@@ -23,7 +23,7 @@ namespace pizda {
 				reinterpret_cast<FlyByWire*>(arg)->taskBody();
 			},
 			"Autopilot",
-			4096,
+			4 * 1024,
 			this,
 			16,
 			nullptr
@@ -94,6 +94,9 @@ namespace pizda {
 		return _pitchTargetRad;
 	}
 	
+	float FlyByWire::mapPizda(float min, float max, float factor) {
+		return min + (max - min) * factor;
+	}
 	
 	float FlyByWire::getInterpolationFactor(float range, float rangeMax) {
 		return std::min(std::abs(range), rangeMax) / rangeMax;
@@ -114,7 +117,7 @@ namespace pizda {
 		
 		// -------------------------------- Prediction --------------------------------
 		
-		constexpr static uint32_t predictionTimeUs = 1'000'000;
+		constexpr static uint32_t predictionTimeUs = 2'000'000;
 		
 		// Speed
 		const auto speedMPS = ac.adirs.getAccelSpeedMPS();
@@ -195,7 +198,7 @@ namespace pizda {
 				// Was in level change mode
 				_verticalMode == AutopilotVerticalMode::flc
 				// & become close enough to selected altitude
-				&& std::abs(altitudeTargetAndPredictedDeltaM) <= Units::convertDistance(200.f, DistanceUnit::foot, DistanceUnit::meter)
+				&& std::abs(altitudeTargetAndPredictedDeltaM) <= config::flyByWire::altitudeDeltaForFLCToALTSSwitchM
 			) {
 				// Switching to altitude selected mode
 				_verticalMode = AutopilotVerticalMode::alts;
@@ -212,7 +215,7 @@ namespace pizda {
 						* (pitchUp ? 1 : -1)
 						* getInterpolationFactor(
 							altitudeTargetAndPredictedDeltaM,
-							Units::convertDistance(100.f, DistanceUnit::foot, DistanceUnit::meter)
+							config::flyByWire::altitudeDeltaForFLCToALTSSwitchM
 						);
 					
 					break;
@@ -274,7 +277,7 @@ namespace pizda {
 				+ (
 					getInterpolationFactor(
 						rollTargetAndPredictedDeltaRad,
-						toRadians(20)
+						toRadians(12)
 					)
 					* config::flyByWire::aileronMaxFactor
 					// [0.0; 1.0] -> [0.0; 0.5]
@@ -287,7 +290,7 @@ namespace pizda {
 		_aileronsTargetFactor = LowPassFilter::applyForAngleRad(
 			_aileronsTargetFactor,
 			aileronsTargetFactor,
-			LowPassFilter::getFactor(3.5f, deltaTimeUs)
+			LowPassFilter::getFactor(4.5f, deltaTimeUs)
 		);
 		
 		// -------------------------------- Elevator --------------------------------
@@ -301,7 +304,7 @@ namespace pizda {
 				+ (
 					getInterpolationFactor(
 						pitchTargetAndPredictedDeltaRad,
-						toRadians(20)
+						toRadians(12)
 					)
 					* config::flyByWire::elevatorMaxFactor
 					/ 2.f
@@ -313,46 +316,47 @@ namespace pizda {
 		_elevatorTargetFactor = LowPassFilter::applyForAngleRad(
 			_elevatorTargetFactor,
 			elevatorTargetFactor,
-			LowPassFilter::getFactor(3.5f, deltaTimeUs)
+			LowPassFilter::getFactor(4.5f, deltaTimeUs)
 		);
 		
 		// -------------------------------- Throttle --------------------------------
 		
-		auto throttlePitchUp =
-			// Pitch control engaged
-			_autothrottle
-			// Pitch up
-			&& altitudeTargetAndPredictedDeltaM >= Units::convertDistance(100.f, DistanceUnit::foot, DistanceUnit::meter);
+		float throttleTargetFactor;
+		float throttleLPFFactor;
 		
-		auto throttleState =
-			// Not enough speed
-			speedTargetAndPredictedDeltaMPS > 0
-			// Enough, but
-			|| throttlePitchUp;
-		
-		const auto throttleTargetFactor =
-			throttlePitchUp
-			? 1.0f
-			: (
-				0.5f
-				+ interpolate(
-					0.6f,
-					1.0f,
+		if (_autothrottle) {
+			const auto climb = altitudeTargetAndPredictedDeltaM > 0;
+			const auto speedLow = speedTargetAndPredictedDeltaMPS > 0;
+			
+			// FLC & climb
+			if (_verticalMode == AutopilotVerticalMode::flc) {
+				throttleTargetFactor = climb ? 1.f : 0.f;
+				throttleLPFFactor = 0.5f;
+			}
+			// Man, hold
+			else {
+				throttleTargetFactor = speedLow ? 1.f : 0.f;
+				
+				throttleLPFFactor = mapPizda(
+					0.01f,
+					0.8f,
 					getInterpolationFactor(
 						speedTargetAndPredictedDeltaMPS,
-						Units::convertSpeed(10.f, SpeedUnit::knot, SpeedUnit::meterPerSecond)
+						Units::convertSpeed(8.f, SpeedUnit::knot, SpeedUnit::meterPerSecond)
 					)
-				)
-				  / 2.f
-				  * (throttleState ? 1.f : -1.f)
-			);
+				);
+			}
+		}
+		else {
+			throttleTargetFactor = 0;
+			throttleLPFFactor = 0.5f;
+		}
 		
 		_throttleTargetFactor = LowPassFilter::applyForAngleRad(
 			_throttleTargetFactor,
 			throttleTargetFactor,
-			LowPassFilter::getFactor(0.5f, deltaTimeUs)
+			LowPassFilter::getFactor(throttleLPFFactor, deltaTimeUs)
 		);
-		
 	}
 	
 	void FlyByWire::applyData() {
