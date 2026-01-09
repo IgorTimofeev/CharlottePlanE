@@ -18,7 +18,6 @@ namespace pizda {
 	
 	class RemoteDataRaw {
 		public:
-			RemoteState state = RemoteState::normal;
 			RemoteDataRawControls controls {};
 	};
 	

@@ -14,7 +14,6 @@ namespace pizda {
 	// -------------------------------- Remote --------------------------------
 	
 	enum class RemotePacketType : uint8_t {
-		NOP,
 		controls,
 		trim,
 		lights,

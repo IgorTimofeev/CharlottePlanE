@@ -39,6 +39,14 @@ namespace pizda {
 		}
 	}
 	
+	void AircraftPacketHandler::enqueue(AircraftPacketType type) {
+		_enqueuedPackets.push(type);
+	}
+	
+	void AircraftPacketHandler::enqueueOnce(AircraftPacketType type) {
+		_enqueuedOncePackets.insert(type);
+	}
+	
 	void AircraftPacketHandler::onIsConnectedChanged() {
 		auto& ac = Aircraft::getInstance();
 		
@@ -53,52 +61,31 @@ namespace pizda {
 	// -------------------------------- Receiving --------------------------------
 	
 	bool AircraftPacketHandler::onReceive(BitStream& stream, RemotePacketType packetType, uint8_t payloadLength) {
-		switch (Aircraft::getInstance().aircraftData.state) {
-			case AircraftState::normal: {
-				switch (packetType) {
-					case RemotePacketType::NOP:
-						return true;
-					
-					case RemotePacketType::controls:
-						return receiveRemoteControlsPacket(stream, payloadLength);
-					
-					case RemotePacketType::trim:
-						return receiveRemoteTrimPacket(stream, payloadLength);
-					
-					case RemotePacketType::lights:
-						return receiveRemoteLightsPacket(stream, payloadLength);
-					
-					case RemotePacketType::baro:
-						return receiveRemoteBaroPacket(stream, payloadLength);
-					
-					case RemotePacketType::calibrate:
-						return receiveRemoteCalibratePacket(stream, payloadLength);
-					
-					case RemotePacketType::autopilot:
-						return receiveRemoteAutopilotPacket(stream, payloadLength);
-					
-					case RemotePacketType::motorConfiguration:
-						return receiveMotorConfigurationPacket(stream, payloadLength);
-					
-					default:
-						ESP_LOGE(_logTag, "failed to receive packet: unsupported type %d", std::to_underlying(packetType));
-						return false;
-				}
-				
-				break;
-			}
-			case AircraftState::calibration: {
-				switch (packetType) {
-					case RemotePacketType::NOP:
-						return true;
-					
-					default:
-						ESP_LOGE(_logTag, "only NOP packet allowed during calibration, but received %d", std::to_underlying(packetType));
-						return true;
-				}
-				
-				break;
-			}
+		switch (packetType) {
+			case RemotePacketType::controls:
+				return receiveRemoteControlsPacket(stream, payloadLength);
+			
+			case RemotePacketType::trim:
+				return receiveRemoteTrimPacket(stream, payloadLength);
+			
+			case RemotePacketType::lights:
+				return receiveRemoteLightsPacket(stream, payloadLength);
+			
+			case RemotePacketType::baro:
+				return receiveRemoteBaroPacket(stream, payloadLength);
+			
+			case RemotePacketType::calibrate:
+				return receiveRemoteCalibratePacket(stream, payloadLength);
+			
+			case RemotePacketType::autopilot:
+				return receiveRemoteAutopilotPacket(stream, payloadLength);
+			
+			case RemotePacketType::motorConfiguration:
+				return receiveMotorConfigurationPacket(stream, payloadLength);
+			
+			default:
+				ESP_LOGE(_logTag, "failed to receive packet: unsupported type %d", std::to_underlying(packetType));
+				return false;
 		}
 		
 		return true;
@@ -210,7 +197,7 @@ namespace pizda {
 		
 		ac.aircraftData.calibration.system = static_cast<AircraftCalibrationSystem>(stream.readUint8(RemoteCalibratePacket::systemLengthBits));
 		ac.aircraftData.calibration.progress = 0;
-		ac.aircraftData.state = AircraftState::calibration;
+		ac.aircraftData.calibration.inProgress = true;
 		
 		return true;
 	}
@@ -305,45 +292,48 @@ namespace pizda {
 	// -------------------------------- Transmitting --------------------------------
 	
 	AircraftPacketType AircraftPacketHandler::getTransmitPacketType() {
-		switch (Aircraft::getInstance().aircraftData.state) {
-			case AircraftState::normal: {
-				const auto& item = _packetSequence[_packetSequenceIndex];
+		const auto& item = _packetSequence[_packetSequenceIndex];
+		
+		const auto next = [this, &item]() {
+			_packetSequenceItemCounter++;
+			
+			if (_packetSequenceItemCounter < item.getCount())
+				return;
+			
+			_packetSequenceItemCounter = 0;
+			
+			_packetSequenceIndex++;
+			
+			if (_packetSequenceIndex >= _packetSequence.size())
+				_packetSequenceIndex = 0;
+		};
+		
+		// Enqueued
+		if (item.useEnqueued() && (!_enqueuedPackets.empty() || !_enqueuedOncePackets.empty())) {
+			if (!_enqueuedPackets.empty()) {
+				const auto packetType = _enqueuedPackets.front();
+				_enqueuedPackets.pop();
 				
-				const auto next = [this, &item]() {
-					_packetSequenceItemCounter++;
-					
-					if (_packetSequenceItemCounter < item.getCount())
-						return;
-					
-					_packetSequenceItemCounter = 0;
-					
-					_packetSequenceIndex++;
-					
-					if (_packetSequenceIndex >= _packetSequence.size())
-						_packetSequenceIndex = 0;
-				};
+				next();
 				
-				// Enqueued
-				if (item.useEnqueued() && !_packetQueue.empty()) {
-					const auto packetType = _packetQueue.front();
-					_packetQueue.pop();
-					
-					next();
-					
-					return packetType;
-				}
-				// Normal
-				else {
-					const auto packetType = item.getType();
-					
-					next();
-					
-					return packetType;
-				}
+				return packetType;
 			}
-			default: {
-				return AircraftPacketType::calibration;
+			else {
+				const auto packetType = *_enqueuedOncePackets.begin();
+				_enqueuedOncePackets.erase(packetType);
+				
+				next();
+				
+				return packetType;
 			}
+		}
+		// Normal
+		else {
+			const auto packetType = item.getType();
+			
+			next();
+			
+			return packetType;
 		}
 	}
 	

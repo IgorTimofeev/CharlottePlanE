@@ -2,10 +2,6 @@
 
 #include <cstdint>
 #include <cmath>
-#include <queue>
-#include <vector>
-#include <optional>
-#include <functional>
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>

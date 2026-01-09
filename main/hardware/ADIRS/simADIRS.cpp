@@ -18,15 +18,18 @@ namespace pizda {
 	void SimADIRS::simulateCalibration() {
 		auto& ac = Aircraft::getInstance();
 		
-		constexpr static uint32_t durationMs = 50'000;
+		constexpr static uint32_t durationMs = 10'000;
 		constexpr static uint32_t percentDurationMs = durationMs / 100;
 		
 		for (uint8_t i = 0; i < 100; ++i) {
 			ac.aircraftData.calibration.progress = static_cast<uint8_t>(static_cast<uint32_t>(i) * 0xFF / 100);
 			
+			ac.packetHandler.enqueueOnce(AircraftPacketType::calibration);
+			
 			vTaskDelay(pdMS_TO_TICKS(percentDurationMs));
 		}
 		
 		ac.aircraftData.calibration.progress = 0xFF;
+		ac.packetHandler.enqueueOnce(AircraftPacketType::calibration);
 	}
 }

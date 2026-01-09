@@ -170,15 +170,11 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="чота хз нужен ли трим на самом самбике или это хуйня">
-      <change afterPath="$PROJECT_DIR$/main/aircraftData.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main/hardware/ADIRS/simADIRS.cpp" afterDir="false" />
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="накалякал калибровку гирыча и мистера акксика по лоре - выглядит довольно эротишно!">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/aircraft.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/aircraft.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/simADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/simADIRS.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/aircraftData.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraftData.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/simADIRS.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/simADIRS.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" afterDir="false" />
@@ -1233,14 +1229,6 @@
       <workItem from="1767958296882" duration="3710000" />
       <workItem from="1767962855901" duration="5481000" />
     </task>
-    <task id="LOCAL-00069" summary="pizda1111">
-      <option name="closed" value="true" />
-      <created>1766534757140</created>
-      <option name="number" value="00069" />
-      <option name="presentableId" value="LOCAL-00069" />
-      <option name="project" value="LOCAL" />
-      <updated>1766534757140</updated>
-    </task>
     <task id="LOCAL-00070" summary="pizda1111">
       <option name="closed" value="true" />
       <created>1766537766820</created>
@@ -1625,7 +1613,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767967481941</updated>
     </task>
-    <option name="localTasksCounter" value="118" />
+    <task id="LOCAL-00118" summary="накалякал калибровку гирыча и мистера акксика по лоре - выглядит довольно эротишно!">
+      <option name="closed" value="true" />
+      <created>1767998587279</created>
+      <option name="number" value="00118" />
+      <option name="presentableId" value="LOCAL-00118" />
+      <option name="project" value="LOCAL" />
+      <updated>1767998587280</updated>
+    </task>
+    <option name="localTasksCounter" value="119" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1648,7 +1644,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="чота медленновато пока" />
     <MESSAGE value="по ходу надо покомпактнее паковать дату" />
     <MESSAGE value="сука хз" />
     <MESSAGE value="вооо пашет" />
@@ -1673,7 +1668,8 @@
     <MESSAGE value="))" />
     <MESSAGE value="ОПАЧА" />
     <MESSAGE value="чота хз нужен ли трим на самом самбике или это хуйня" />
-    <option name="LAST_COMMIT_MESSAGE" value="чота хз нужен ли трим на самом самбике или это хуйня" />
+    <MESSAGE value="накалякал калибровку гирыча и мистера акксика по лоре - выглядит довольно эротишно!" />
+    <option name="LAST_COMMIT_MESSAGE" value="накалякал калибровку гирыча и мистера акксика по лоре - выглядит довольно эротишно!" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

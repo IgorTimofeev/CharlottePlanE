@@ -9,15 +9,6 @@ namespace pizda {
 		disconnected
 	};
 	
-	enum class RemoteState : uint8_t {
-		normal
-	};
-	
-	enum class AircraftState : uint8_t {
-		normal,
-		calibration
-	};
-	
 	enum class AircraftCalibrationSystem : uint8_t {
 		accelAndGyro,
 		mag
