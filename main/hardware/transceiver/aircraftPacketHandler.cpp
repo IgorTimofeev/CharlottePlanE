@@ -124,11 +124,14 @@ namespace pizda {
 			return false;
 		
 		const auto read = [&stream]() {
-			return
-				// Mapping to motorPowerMaxValue / 2
-			    static_cast<int32_t>(stream.readInt16(RemoteTrimPacket::valueLengthBits))
-				* (Motor::powerMaxValue / 2)
-				/ ((1 << RemoteTrimPacket::valueLengthBits) - 1);
+			return static_cast<int16_t>(
+				// Mapping [0; bits] to [0; motorPowerMaxValue]
+				static_cast<int32_t>(stream.readUint16(RemoteTrimPacket::valueLengthBits))
+				* Motor::powerMaxValue
+				/ ((1 << RemoteTrimPacket::valueLengthBits) - 1)
+				// Mapping [0; motorPowerMaxValue] to [-motorPowerMaxValue / 2; motorPowerMaxValue / 2]
+				- Motor::powerMaxValue / 2
+			);
 		};
 
 		ac.settings.motors.aileronsTrim = read();

@@ -306,7 +306,7 @@ namespace pizda {
 					)
 					* config::flyByWire::elevatorMaxFactor
 					/ 2.f
-					* (pitchTargetAndPredictedDeltaRad >= 0 ? 1 : 0)
+					* (pitchTargetAndPredictedDeltaRad >= 0 ? -1 : 1)
 				)
 			)
 			: 0.5f;
