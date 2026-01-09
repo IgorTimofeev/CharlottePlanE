@@ -306,7 +306,7 @@ namespace pizda {
 					)
 					* config::flyByWire::elevatorMaxFactor
 					/ 2.f
-					* (pitchTargetAndPredictedDeltaRad >= 0 ? -1 : 1)
+					* (pitchTargetAndPredictedDeltaRad >= 0 ? 1 : 0)
 				)
 			)
 			: 0.5f;
@@ -377,17 +377,26 @@ namespace pizda {
 		// Ailerons
 		{
 			const auto leftAileronMotor = ac.motors.getMotor(MotorType::leftAileron);
-//				const auto rightAileronMotor = ac.motors.getMotor(MotorType::rightAileron);
+			const auto rightAileronMotor = ac.motors.getMotor(MotorType::rightAileron);
 			
-			if (!leftAileronMotor)
+			if (!leftAileronMotor || !rightAileronMotor)
 				return;
 			
-			leftAileronMotor->setPowerF(
-				_autopilot && _lateralMode != AutopilotLateralMode::man
-				? _aileronsTargetFactor
-				: ac.remoteData.raw.controls.ailerons
+			const auto power = std::clamp(
+				// Trim
+				static_cast<float>(ac.settings.motors.aileronsTrim) / static_cast<float>(Motor::powerMaxValue / 2)
+				// Value
+				+ (
+					_autopilot && _lateralMode != AutopilotLateralMode::man
+					? _aileronsTargetFactor
+					: ac.remoteData.raw.controls.ailerons
+				),
+				0.f,
+				1.f
 			);
-//				rightAileronMotor->setPower(aileronsChannel->getValue());
+				
+			leftAileronMotor->setPowerF(power);
+			rightAileronMotor->setPower(power);
 		}
 		
 		// Elevator & rudder
@@ -398,13 +407,33 @@ namespace pizda {
 			if (!leftTailMotor || !rightTailMotor)
 				return;
 			
-			leftTailMotor->setPowerF(
-				_autopilot && _verticalMode != AutopilotVerticalMode::man
-				? _elevatorTargetFactor
-				: ac.remoteData.raw.controls.elevator
+			const auto elevatorPower = std::clamp(
+				// Trim
+				(static_cast<float>(ac.settings.motors.elevatorTrim) / static_cast<float>(Motor::powerMaxValue))
+				// Value
+				+ (
+					_autopilot && _verticalMode != AutopilotVerticalMode::man
+					? _elevatorTargetFactor
+					: ac.remoteData.raw.controls.elevator
+				),
+				0.f,
+				1.f
 			);
 			
-			rightTailMotor->setPowerF(ac.remoteData.raw.controls.rudder);
+			const auto rudderPower = std::clamp(
+				static_cast<float>(ac.settings.motors.rudderTrim) / static_cast<float>(Motor::powerMaxValue)
+				+ (
+					ac.remoteData.raw.controls.rudder
+				),
+				0.f,
+				1.f
+			);
+			
+			// V-tail mixing
+			// ...
+			
+			leftTailMotor->setPowerF(elevatorPower);
+			rightTailMotor->setPowerF(rudderPower);
 		}
 		
 		// Flaps

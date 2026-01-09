@@ -172,7 +172,18 @@
   <component name="ChangeListManager">
     <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="ОПАЧА">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-NVSExtensions" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-NVSExtensions" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-NVSExtensions/src/NVSStream.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-NVSExtensions/src/NVSStream.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/flyByWire.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/flyByWire.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/motor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motor.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/motor.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motor.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/motors.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/remoteData.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/remoteData.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/settings/settings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/settings/settings.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -266,11 +277,6 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.CharlottePlanE.elf">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="CharlottePlanE.elf" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="CharlottePlanE.elf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="CharlottePlanE" RUN_TARGET_NAME="CharlottePlanE.elf">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -1216,15 +1222,10 @@
       <workItem from="1767666047477" duration="1840000" />
       <workItem from="1767703372366" duration="7357000" />
       <workItem from="1767735732689" duration="1853000" />
-      <workItem from="1767781010664" duration="17504000" />
-    </task>
-    <task id="LOCAL-00067" summary="pizda1111">
-      <option name="closed" value="true" />
-      <created>1766517875916</created>
-      <option name="number" value="00067" />
-      <option name="presentableId" value="LOCAL-00067" />
-      <option name="project" value="LOCAL" />
-      <updated>1766517875916</updated>
+      <workItem from="1767781010664" duration="18269000" />
+      <workItem from="1767810852320" duration="79000" />
+      <workItem from="1767958296882" duration="3710000" />
+      <workItem from="1767962855901" duration="2724000" />
     </task>
     <task id="LOCAL-00068" summary="pizda1111">
       <option name="closed" value="true" />
@@ -1610,7 +1611,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767798374326</updated>
     </task>
-    <option name="localTasksCounter" value="116" />
+    <task id="LOCAL-00116" summary="ОПАЧА">
+      <option name="closed" value="true" />
+      <created>1767799523522</created>
+      <option name="number" value="00116" />
+      <option name="presentableId" value="LOCAL-00116" />
+      <option name="project" value="LOCAL" />
+      <updated>1767799523522</updated>
+    </task>
+    <option name="localTasksCounter" value="117" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

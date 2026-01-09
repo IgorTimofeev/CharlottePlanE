@@ -49,8 +49,8 @@ namespace pizda {
 			void setPulseWidth(uint16_t pulseWidth) const;
 
 		private:
-			gpio_num_t pin;
-			ledc_channel_t channel;
+			gpio_num_t _pin;
+			ledc_channel_t _channel;
 
 	};
 
@@ -58,8 +58,7 @@ namespace pizda {
 		public:
 			ConfiguredMotor(gpio_num_t pin, ledc_channel_t channel);
 
-
-			void setup();
+			void setup(const MotorConfiguration& configuration);
 			
 			uint16_t getPower() const;
 			float getPowerF();

@@ -6,8 +6,8 @@
 
 namespace pizda {
 	Motor::Motor(const gpio_num_t pin, const ledc_channel_t channel) :
-		pin(pin),
-		channel(channel)
+		_pin(pin),
+		_channel(channel)
 	{
 
 	}
@@ -23,18 +23,18 @@ namespace pizda {
 
 		ledc_channel_config_t channelConfig {};
 		channelConfig.speed_mode = LEDC_LOW_SPEED_MODE;
-		channelConfig.channel = channel;
+		channelConfig.channel = _channel;
 		channelConfig.timer_sel = LEDC_TIMER_0;
 		channelConfig.intr_type = LEDC_INTR_DISABLE;
-		channelConfig.gpio_num = pin;
+		channelConfig.gpio_num = _pin;
 		channelConfig.duty = 0;
 		channelConfig.hpoint = 0;
 		ESP_ERROR_CHECK(ledc_channel_config(&channelConfig));
 	}
 
 	void Motor::setDuty(uint32_t duty) const {
-		ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, channel, duty));
-		ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, channel));
+		ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, _channel, duty));
+		ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, _channel));
 	}
 
 	void Motor::setPulseWidth(uint16_t pulseWidth) const {
@@ -48,8 +48,10 @@ namespace pizda {
 
 	}
 
-	void ConfiguredMotor::setup() {
+	void ConfiguredMotor::setup(const MotorConfiguration& configuration) {
 		_motor.setup();
+		
+		_configuration = configuration;
 		setStartupPower();
 	}
 

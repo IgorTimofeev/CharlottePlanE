@@ -14,8 +14,8 @@ namespace pizda {
 	};
 	
 	enum class AircraftState : uint8_t {
-		aircraftNormal,
-		aircraftCalibrating
+		normal,
+		calibrating
 	};
 	
 	enum class AutopilotLateralMode : uint8_t {

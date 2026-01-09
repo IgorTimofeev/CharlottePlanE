@@ -7,6 +7,7 @@
 namespace pizda {
 	class RemoteDataRawControls {
 		public:
+			// Factor in [0.0; 1.0] range
 			float throttle = 0;
 			float ailerons = 0;
 			float elevator = 0;

@@ -16,6 +16,7 @@ namespace pizda {
 	enum class RemotePacketType : uint8_t {
 		NOP,
 		controls,
+		trim,
 		lights,
 		baro,
 		autopilot,
@@ -35,7 +36,12 @@ namespace pizda {
 	
 	class RemoteControlsPacket {
 		public:
-			constexpr static uint8_t motorLengthBits = 9;
+			constexpr static uint8_t motorLengthBits = 12;
+	};
+	
+	class RemoteTrimPacket {
+		public:
+			constexpr static uint8_t valueLengthBits = RemoteControlsPacket::motorLengthBits;
 	};
 	
 	class RemoteAutopilotPacket {

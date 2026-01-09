@@ -59,6 +59,9 @@ namespace pizda {
 				
 			case RemotePacketType::controls:
 				return receiveRemoteControlsPacket(stream, payloadLength);
+			
+			case RemotePacketType::trim:
+				return receiveRemoteTrimPacket(stream, payloadLength);
 				
 			case RemotePacketType::lights:
 				return receiveRemoteLightsPacket(stream, payloadLength);
@@ -104,6 +107,34 @@ namespace pizda {
 		ac.remoteData.raw.controls.rudder = readMotor();
 		ac.remoteData.raw.controls.flaps = readMotor();
 		ac.remoteData.raw.controls.unused = readMotor();
+		
+		ac.fbw.applyData();
+		
+		return true;
+	}
+	
+	bool AircraftPacketHandler::receiveRemoteTrimPacket(BitStream& stream, uint8_t payloadLength) {
+		auto& ac = Aircraft::getInstance();
+		
+		if (!validatePayloadChecksumAndLength(
+			stream,
+			RemoteTrimPacket::valueLengthBits * 3,
+			payloadLength
+		))
+			return false;
+		
+		const auto read = [&stream]() {
+			return
+				// Mapping to motorPowerMaxValue / 2
+			    static_cast<int32_t>(stream.readInt16(RemoteTrimPacket::valueLengthBits))
+				* (Motor::powerMaxValue / 2)
+				/ ((1 << RemoteTrimPacket::valueLengthBits) - 1);
+		};
+
+		ac.settings.motors.aileronsTrim = read();
+		ac.settings.motors.elevatorTrim = read();
+		ac.settings.motors.rudderTrim = read();
+		ac.settings.motors.scheduleWrite();
 		
 		ac.fbw.applyData();
 		

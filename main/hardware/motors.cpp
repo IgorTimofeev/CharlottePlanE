@@ -7,13 +7,12 @@ namespace pizda {
 		auto& ac = Aircraft::getInstance();
 
 		// Copying configuration from settings
-		for (size_t i = 0; i < ac.settings.motors.configurations.size(); ++i) {
-			const auto motor = getMotor(i);
-
-			if (motor) {
-				motor->setConfiguration(ac.settings.motors.configurations[i]);
-				motor->setup();
-			}
+		for (size_t i = 0; i < _instances.size(); ++i) {
+			_instances[i].setup(
+				i < ac.settings.motors.configurations.size()
+				? ac.settings.motors.configurations[i]
+				: MotorConfiguration()
+			);
 		}
 	}
 
