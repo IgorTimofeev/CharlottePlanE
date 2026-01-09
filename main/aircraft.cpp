@@ -17,8 +17,8 @@ namespace pizda {
 
 		return instance;
 	}
-
-	void Aircraft::start() {
+	
+	[[noreturn]] void Aircraft::start() {
 		settings.setup();
 
 		SPIBusSetup();
@@ -52,7 +52,7 @@ namespace pizda {
 		}
 	}
 	
-	void Aircraft::startErrorLoop(const char* error) {
+	[[noreturn]] void Aircraft::startErrorLoop(const char* error) {
 		ESP_LOGE(_logTag, "%s", error);
 		
 		while (true) {

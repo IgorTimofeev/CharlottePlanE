@@ -25,7 +25,7 @@
 namespace pizda {
 	using namespace YOBA;
 	
-	template<typename TLocalState, typename TLocalPacketType, typename TRemoteState, typename TRemotePacketType>
+	template<typename TLocalPacketType, typename TRemotePacketType>
 	class PacketHandler {
 		public:
 			void start() {
@@ -144,14 +144,6 @@ namespace pizda {
 			bool isConnected() const {
 				return _connectionState == ConnectionState::connected;
 			}
-			
-			TLocalState getLocalState() const {
-				return _localState;
-			}
-			
-			TRemoteState getRemoteState() const {
-				return _remoteState;
-			}
 		
 		protected:
 			constexpr static const char* _logTag = "PacketHandler";
@@ -253,14 +245,6 @@ namespace pizda {
 			virtual TLocalPacketType getTransmitPacketType() = 0;
 			virtual bool onTransmit(BitStream& stream, TLocalPacketType packetType) = 0;
 			virtual void onIsConnectedChanged() = 0;
-			
-			void setLocalState(TLocalState localState) {
-				_localState = localState;
-			}
-			
-			void setRemoteState(TRemoteState remoteState) {
-				_remoteState = remoteState;
-			}
 		
 		private:
 			Transceiver* _transceiver = nullptr;
@@ -291,10 +275,5 @@ namespace pizda {
 				
 				onIsConnectedChanged();
 			}
-			
-			// ----------------------------- Local/remote state -----------------------------
-			
-			TLocalState _localState {};
-			TRemoteState _remoteState {};
 	};
 }

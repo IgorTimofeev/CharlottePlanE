@@ -53,38 +53,57 @@ namespace pizda {
 	// -------------------------------- Receiving --------------------------------
 	
 	bool AircraftPacketHandler::onReceive(BitStream& stream, RemotePacketType packetType, uint8_t payloadLength) {
-		switch (packetType) {
-			case RemotePacketType::NOP:
-				return receiveNOPPacket(stream, payloadLength);
+		switch (Aircraft::getInstance().aircraftData.state) {
+			case AircraftState::normal: {
+				switch (packetType) {
+					case RemotePacketType::NOP:
+						return true;
+					
+					case RemotePacketType::controls:
+						return receiveRemoteControlsPacket(stream, payloadLength);
+					
+					case RemotePacketType::trim:
+						return receiveRemoteTrimPacket(stream, payloadLength);
+					
+					case RemotePacketType::lights:
+						return receiveRemoteLightsPacket(stream, payloadLength);
+					
+					case RemotePacketType::baro:
+						return receiveRemoteBaroPacket(stream, payloadLength);
+					
+					case RemotePacketType::calibrate:
+						return receiveRemoteCalibratePacket(stream, payloadLength);
+					
+					case RemotePacketType::autopilot:
+						return receiveRemoteAutopilotPacket(stream, payloadLength);
+					
+					case RemotePacketType::motorConfiguration:
+						return receiveMotorConfigurationPacket(stream, payloadLength);
+					
+					default:
+						ESP_LOGE(_logTag, "failed to receive packet: unsupported type %d", std::to_underlying(packetType));
+						return false;
+				}
 				
-			case RemotePacketType::controls:
-				return receiveRemoteControlsPacket(stream, payloadLength);
-			
-			case RemotePacketType::trim:
-				return receiveRemoteTrimPacket(stream, payloadLength);
+				break;
+			}
+			case AircraftState::calibration: {
+				switch (packetType) {
+					case RemotePacketType::NOP:
+						return true;
+					
+					default:
+						ESP_LOGE(_logTag, "only NOP packet allowed during calibration, but received %d", std::to_underlying(packetType));
+						return true;
+				}
 				
-			case RemotePacketType::lights:
-				return receiveRemoteLightsPacket(stream, payloadLength);
-			
-			case RemotePacketType::baro:
-				return receiveRemoteBaroPacket(stream, payloadLength);
-			
-			case RemotePacketType::autopilot:
-				return receiveRemoteAutopilotPacket(stream, payloadLength);
-				
-			case RemotePacketType::motorConfiguration:
-				return receiveMotorConfigurationPacket(stream, payloadLength);
-			
-			default:
-				ESP_LOGE(_logTag, "failed to receive packet: unsupported type %d", packetType);
-				return false;
+				break;
+			}
 		}
-	}
-	
-	bool AircraftPacketHandler::receiveNOPPacket(BitStream& stream, uint8_t payloadLength) {
+		
 		return true;
 	}
-
+	
 	bool AircraftPacketHandler::receiveRemoteControlsPacket(BitStream& stream, uint8_t payloadLength) {
 		auto& ac = Aircraft::getInstance();
 		
@@ -179,6 +198,23 @@ namespace pizda {
 		return true;
 	}
 	
+	bool AircraftPacketHandler::receiveRemoteCalibratePacket(BitStream& stream, uint8_t payloadLength) {
+		auto& ac = Aircraft::getInstance();
+		
+		if (!validatePayloadChecksumAndLength(
+			stream,
+			RemoteCalibratePacket::systemLengthBits,
+			payloadLength
+		))
+			return false;
+		
+		ac.aircraftData.calibration.system = static_cast<AircraftCalibrationSystem>(stream.readUint8(RemoteCalibratePacket::systemLengthBits));
+		ac.aircraftData.calibration.progress = 0;
+		ac.aircraftData.state = AircraftState::calibration;
+		
+		return true;
+	}
+	
 	bool AircraftPacketHandler::receiveMotorConfigurationPacket(BitStream& stream, uint8_t payloadLength) {
 		auto& ac = Aircraft::getInstance();
 		
@@ -269,8 +305,8 @@ namespace pizda {
 	// -------------------------------- Transmitting --------------------------------
 	
 	AircraftPacketType AircraftPacketHandler::getTransmitPacketType() {
-		switch (getRemoteState()) {
-			default: {
+		switch (Aircraft::getInstance().aircraftData.state) {
+			case AircraftState::normal: {
 				const auto& item = _packetSequence[_packetSequenceIndex];
 				
 				const auto next = [this, &item]() {
@@ -296,7 +332,7 @@ namespace pizda {
 					
 					return packetType;
 				}
-					// Normal
+				// Normal
 				else {
 					const auto packetType = item.getType();
 					
@@ -305,25 +341,36 @@ namespace pizda {
 					return packetType;
 				}
 			}
+			default: {
+				return AircraftPacketType::calibration;
+			}
 		}
 	}
 	
 	bool AircraftPacketHandler::onTransmit(BitStream& stream, AircraftPacketType packetType) {
 		switch (packetType) {
 			case AircraftPacketType::ADIRS:
-				return transmitAircraftADIRSPacket(stream);
+				transmitAircraftADIRSPacket(stream);
+				break;
 			
 			case AircraftPacketType::auxiliary:
-				return transmitAircraftAuxiliaryPacket(stream);
+				transmitAircraftAuxiliaryPacket(stream);
+				break;
+			
+			case AircraftPacketType::calibration:
+				transmitAircraftCalibrationPacket(stream);
+				break;
 			
 			default:
 				ESP_LOGE(_logTag, "failed to write packet: unsupported type %d", packetType);
 				
 				return false;
 		}
+		
+		return true;
 	}
 	
-	bool AircraftPacketHandler::transmitAircraftADIRSPacket(BitStream& stream) {
+	void AircraftPacketHandler::transmitAircraftADIRSPacket(BitStream& stream) {
 		auto& ac = Aircraft::getInstance();
 		
 		// Roll / pitch / yaw
@@ -365,11 +412,9 @@ namespace pizda {
 		
 		// Pitch
 		writeRadians(stream, ac.fbw.getTargetPitchRad(), AircraftADIRSPacket::autopilotPitchRangeRad, AircraftADIRSPacket::autopilotPitchLengthBits);
-		
-		return true;
 	}
 	
-	bool AircraftPacketHandler::transmitAircraftAuxiliaryPacket(BitStream& stream) {
+	void AircraftPacketHandler::transmitAircraftAuxiliaryPacket(BitStream& stream) {
 		auto& ac = Aircraft::getInstance();
 		
 		const auto& coordinates = ac.adirs.getCoordinates();
@@ -432,7 +477,12 @@ namespace pizda {
 		
 		// Autopilot
 		stream.writeBool(ac.fbw.getAutopilot());
-		
-		return true;
+	}
+	
+	void AircraftPacketHandler::transmitAircraftCalibrationPacket(BitStream& stream) {
+		auto& ac = Aircraft::getInstance();
+	
+		stream.writeUint8(std::to_underlying(ac.aircraftData.calibration.system), AircraftCalibrationPacket::systemLengthBits);
+		stream.writeUint8(ac.aircraftData.calibration.progress * ((1 << AircraftCalibrationPacket::progressLengthBits) - 1) / 0xFF, AircraftCalibrationPacket::progressLengthBits);
 	}
 }

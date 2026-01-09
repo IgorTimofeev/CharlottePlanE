@@ -24,11 +24,6 @@ namespace pizda {
 		calibrate
 	};
 	
-	enum class RemoteCalibratePacketSystem : uint8_t {
-		accelAndGyro,
-		mag
-	};
-	
 	class RemoteCalibratePacket {
 		public:
 			constexpr static uint8_t systemLengthBits = 2;
@@ -125,15 +120,10 @@ namespace pizda {
 			constexpr static float autopilotPitchRangeRad = AircraftADIRSPacket::pitchRangeRad;
 	};
 	
-	enum class AircraftCalibrationPacketSystem : uint8_t {
-		accelAndGyro,
-		mag
-	};
-	
 	class AircraftCalibrationPacket {
 		public:
 			constexpr static uint8_t systemLengthBits = RemoteCalibratePacket::systemLengthBits;
-			constexpr static uint8_t progressLengthBits = 8;
+			constexpr static uint8_t progressLengthBits = 7;
 	};
 	
 	class AircraftAuxiliaryPacket {

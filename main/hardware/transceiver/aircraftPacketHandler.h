@@ -23,7 +23,7 @@ namespace pizda {
 			bool _useEnqueued;
 	};
 	
-	class AircraftPacketHandler : public PacketHandler<AircraftState, AircraftPacketType, RemoteState, RemotePacketType> {
+	class AircraftPacketHandler : public PacketHandler<AircraftPacketType, RemotePacketType> {
 		public:
 			void enqueue(AircraftPacketType type) {
 				_packetQueue.push(type);
@@ -38,8 +38,9 @@ namespace pizda {
 		
 		private:
 			std::vector<PacketSequenceItem> _packetSequence {
-				PacketSequenceItem(AircraftPacketType::ADIRS, 4),
-				PacketSequenceItem(AircraftPacketType::auxiliary, 1, true),
+				PacketSequenceItem(AircraftPacketType::ADIRS, 3),
+				PacketSequenceItem(AircraftPacketType::ADIRS, 1, true),
+				PacketSequenceItem(AircraftPacketType::auxiliary, 1)
 			};
 			
 			uint8_t _packetSequenceIndex = 0;
@@ -47,15 +48,16 @@ namespace pizda {
 			
 			std::queue<AircraftPacketType> _packetQueue {};
 			
-			bool receiveNOPPacket(BitStream& stream, uint8_t payloadLength);
 			bool receiveRemoteControlsPacket(BitStream& stream, uint8_t payloadLength);
 			bool receiveRemoteTrimPacket(BitStream& stream, uint8_t payloadLength);
 			bool receiveRemoteLightsPacket(BitStream& stream, uint8_t payloadLength);
 			bool receiveRemoteBaroPacket(BitStream& stream, uint8_t payloadLength);
+			bool receiveRemoteCalibratePacket(BitStream& stream, uint8_t payloadLength);
 			bool receiveRemoteAutopilotPacket(BitStream& stream, uint8_t payloadLength);
 			bool receiveMotorConfigurationPacket(BitStream& stream, uint8_t payloadLength);
 			
-			bool transmitAircraftADIRSPacket(BitStream& stream);
-			bool transmitAircraftAuxiliaryPacket(BitStream& stream);
+			void transmitAircraftADIRSPacket(BitStream& stream);
+			void transmitAircraftAuxiliaryPacket(BitStream& stream);
+			void transmitAircraftCalibrationPacket(BitStream& stream);
 	};
 }

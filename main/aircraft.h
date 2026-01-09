@@ -6,6 +6,7 @@
 #include <esp_timer.h>
 
 #include "config.h"
+#include "aircraftData.h"
 #include "remoteData.h"
 #include "flyByWire.h"
 #include "settings/settings.h"
@@ -45,10 +46,12 @@ namespace pizda {
 			
 			FlyByWire fbw {};
 			
+			AircraftData aircraftData {};
 			RemoteData remoteData {};
 			
 			static Aircraft& getInstance();
-			void start();
+			
+			[[noreturn]] void start();
 
 		private:
 			constexpr static const char* _logTag = "Aircraft";
@@ -57,6 +60,6 @@ namespace pizda {
 
 			void SPIBusSetup() const;
 			
-			void startErrorLoop(const char* error);
+			[[noreturn]] void startErrorLoop(const char* error);
 	};
 }

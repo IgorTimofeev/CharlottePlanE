@@ -2,14 +2,18 @@
 
 #include <array>
 #include <cmath>
+#include <optional>
+#include <algorithm>
 
 #include <driver/uart.h>
 #include <driver/gpio.h>
 #include <esp_log.h>
 #include <esp_timer.h>
 
+#include "utils/math.h"
 #include "utils/vector3.h"
 #include "utils/geographicCoordinates.h"
+#include "types.h"
 
 namespace pizda {
 	class ADIRS {
@@ -21,7 +25,6 @@ namespace pizda {
 			float getRollRad() const {
 				return _rollRad;
 			}
-			
 			
 			float getPitchRad() const {
 				return _pitchRad;
@@ -56,6 +59,30 @@ namespace pizda {
 //				return _speed;
 				
 				return _accelSpeedMPS;
+			}
+			
+			void setReferencePressurePa(uint32_t value) {
+				_referencePressurePa = value;
+			}
+			
+		protected:
+			constexpr static const char* _logTag = "ADIRS";
+			
+			virtual void onTick() = 0;
+			virtual void onCalibrateAccelAndGyro() = 0;
+			virtual void onCalibrateMag() = 0;
+			
+			void start() {
+				xTaskCreate(
+					[](void* arg) {
+						reinterpret_cast<ADIRS*>(arg)->onStart();
+					},
+					"ADIRS",
+					4 * 1024,
+					this,
+					10,
+					nullptr
+				);
 			}
 			
 			void setRollRad(float rollRad) {
@@ -128,10 +155,6 @@ namespace pizda {
 				_temperatureC = temperatureC;
 			}
 			
-			void setReferencePressurePa(uint32_t value) {
-				_referencePressurePa = value;
-			}
-			
 			void updateAltitudeFromPressureTemperatureAndReferenceValue() {
 				_coordinates.setAltitude(computeAltitude(_pressurePa, _temperatureC, _referencePressurePa));
 			}
@@ -143,10 +166,7 @@ namespace pizda {
 			void setLongitude(float value) {
 				_coordinates.setLongitude(value);
 			}
-			
-		protected:
-			constexpr static const char* _logTag = "ADIRS";
-			
+		
 		private:
 			float _rollRad = 0;
 			float _pitchRad = 0;
@@ -169,5 +189,7 @@ namespace pizda {
 				toRadians(29.70258579817704f),
 				0
 			};
+			
+			[[noreturn]] void onStart();
 	};
 }
