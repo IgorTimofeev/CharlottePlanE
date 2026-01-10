@@ -170,39 +170,12 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="чета подустал, хуйни могу накодить, над отдохнуть">
-      <change afterPath="$PROJECT_DIR$/main/types/settings/ADIRSSettings.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main/types/settings/settings.h" afterDir="false" />
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="таймаут на калибровку заебенил, по идее даже если чет отвалится, то оно само в норму придет">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/aircraft.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/aircraft.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/aircraftData.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/aircraftData.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/config.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/flyByWire.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/flyByWire.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/flyByWire.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/flyByWire.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/BMP280.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/BMP280.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/IMU.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/IMU.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/MPU9250.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/MPU9250.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/simADIRS.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/simADIRS.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/simADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/simADIRS.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/lights.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/lights.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/lights.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/lights.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/simLink/simLink.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/simLink/simLink.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/simLink/simLink.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/simLink/simLink.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftCommunicationManager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftPacketHandler.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftCommunicationManager.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packetHandler.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/communicationManager.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/remoteData.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/remoteData.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/settings/settings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/settings/motorSettings.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/types.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/generic.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/utils/busStream.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/utilities/busStream.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/utils/geographicCoordinates.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/geographicCoordinates.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/utils/lowPassFilter.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/utilities/lowPassFilter.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/utils/math.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/utilities/math.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/utils/sinAndCos.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/sinAndCos.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/utils/vector3.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/vector3.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262Ex.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262Ex.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/SX1262Transceiver.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/SX1262Transceiver.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -215,7 +188,7 @@
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/components/ESP-IDF-SX1262" />
     <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -1250,15 +1223,7 @@
       <workItem from="1767810852320" duration="79000" />
       <workItem from="1767958296882" duration="3710000" />
       <workItem from="1767962855901" duration="5481000" />
-      <workItem from="1768044868890" duration="6016000" />
-    </task>
-    <task id="LOCAL-00071" summary="так-то лучше ебана">
-      <option name="closed" value="true" />
-      <created>1766538201566</created>
-      <option name="number" value="00071" />
-      <option name="presentableId" value="LOCAL-00071" />
-      <option name="project" value="LOCAL" />
-      <updated>1766538201566</updated>
+      <workItem from="1768044868890" duration="10697000" />
     </task>
     <task id="LOCAL-00072" summary="так-то лучше ебана">
       <option name="closed" value="true" />
@@ -1644,7 +1609,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768001288634</updated>
     </task>
-    <option name="localTasksCounter" value="120" />
+    <task id="LOCAL-00120" summary="таймаут на калибровку заебенил, по идее даже если чет отвалится, то оно само в норму придет">
+      <option name="closed" value="true" />
+      <created>1768053353675</created>
+      <option name="number" value="00120" />
+      <option name="presentableId" value="LOCAL-00120" />
+      <option name="project" value="LOCAL" />
+      <updated>1768053353675</updated>
+    </task>
+    <option name="localTasksCounter" value="121" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1667,7 +1640,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="сука хз" />
     <MESSAGE value="вооо пашет" />
     <MESSAGE value="сэкономили бля пару битиков" />
     <MESSAGE value="pizda" />
@@ -1692,7 +1664,8 @@
     <MESSAGE value="чота хз нужен ли трим на самом самбике или это хуйня" />
     <MESSAGE value="накалякал калибровку гирыча и мистера акксика по лоре - выглядит довольно эротишно!" />
     <MESSAGE value="чета подустал, хуйни могу накодить, над отдохнуть" />
-    <option name="LAST_COMMIT_MESSAGE" value="чета подустал, хуйни могу накодить, над отдохнуть" />
+    <MESSAGE value="таймаут на калибровку заебенил, по идее даже если чет отвалится, то оно само в норму придет" />
+    <option name="LAST_COMMIT_MESSAGE" value="таймаут на калибровку заебенил, по идее даже если чет отвалится, то оно само в норму придет" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

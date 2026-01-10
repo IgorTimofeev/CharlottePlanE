@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <cmath>
+#include <utility>
 
 #include <esp_log.h>
 #include <esp_timer.h>
@@ -17,7 +18,7 @@ namespace pizda {
 	class SX1262Transceiver : public Transceiver {
 		public:
 			bool setup() {
-				const auto state = _SX.setup(
+				const auto SXError = _SX.setup(
 					config::spi::device,
 					config::transceiver::SPIFrequencyHz,
 					
@@ -35,8 +36,8 @@ namespace pizda {
 					config::transceiver::preambleLength
 				);
 				
-				if (!state) {
-					ESP_LOGE(_logTag, "SX1262 setup failed");
+				if (SXError != SX1262Error::none) {
+					ESP_LOGE(_logTag, "SX1262 setup failed with code %d", std::to_underlying(SXError));
 					
 					return false;
 				}
@@ -59,12 +60,11 @@ namespace pizda {
 //			ESP_LOGI(_logTag, "write buffer[%d]: %d", i, _buffer[i]);
 //		}
 				
-				return _SX.transmit(buffer, length, timeoutUs);
+				return _SX.transmit(buffer, length, timeoutUs) == SX1262Error::none;
 			}
 			
 			bool receive(uint8_t* buffer, uint8_t& length, uint32_t timeoutUs) override {
-				const auto state = _SX.receive(buffer, length, timeoutUs);
-
+				const auto state = _SX.receive(buffer, length, timeoutUs) == SX1262Error::none;
 //		ESP_LOGI(_logTag, "read length: %d", length);
 //
 //		for (int i = 0; i < length; ++i) {
