@@ -10,10 +10,10 @@
 #include <esp_log.h>
 #include <esp_timer.h>
 
-#include "utils/math.h"
-#include "utils/vector3.h"
-#include "utils/geographicCoordinates.h"
-#include "types.h"
+#include "utilities/math.h"
+#include "types/vector3.h"
+#include "types/geographicCoordinates.h"
+#include "types/generic.h"
 
 namespace pizda {
 	class ADIRS {

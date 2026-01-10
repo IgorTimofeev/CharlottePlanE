@@ -71,13 +71,4 @@ namespace pizda {
 				constexpr static auto _elevatorTrim = "te";
 				constexpr static auto _rudderTrim = "tr";
 	};
-	
-	class Settings {
-		public:
-			MotorSettings motors {};
-
-			void setup() {
-				motors.read();
-			}
-	};
 }

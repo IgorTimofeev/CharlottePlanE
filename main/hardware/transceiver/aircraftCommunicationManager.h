@@ -1,6 +1,6 @@
 #pragma once
 
-#include "packetHandler.h"
+#include "communicationManager.h"
 
 #include <queue>
 #include <set>
@@ -23,10 +23,9 @@ namespace pizda {
 			bool _useEnqueued;
 	};
 	
-	class AircraftPacketHandler : public PacketHandler<AircraftPacketType, RemotePacketType> {
+	class AircraftCommunicationManager : public CommunicationManager<AircraftPacketType, RemotePacketType> {
 		public:
 			void enqueue(AircraftPacketType type);
-			void enqueueOnce(AircraftPacketType type);
 		
 		protected:
 			[[noreturn]] void onStart() override;
@@ -45,8 +44,7 @@ namespace pizda {
 			uint8_t _packetSequenceIndex = 0;
 			uint8_t _packetSequenceItemCounter = 0;
 			
-			std::queue<AircraftPacketType> _enqueuedPackets {};
-			std::set<AircraftPacketType> _enqueuedOncePackets {};
+			std::set<AircraftPacketType> _enqueuedPackets {};
 			
 			bool receiveRemoteControlsPacket(BitStream& stream, uint8_t payloadLength);
 			bool receiveRemoteTrimPacket(BitStream& stream, uint8_t payloadLength);

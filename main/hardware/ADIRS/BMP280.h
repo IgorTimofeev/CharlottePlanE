@@ -7,7 +7,7 @@
 #include <driver/spi_master.h>
 #include <driver/i2c_master.h>
 
-#include "utils/busStream.h"
+#include "utilities/busStream.h"
 
 namespace pizda {
 	enum class BMP280I2CAddress : uint8_t {

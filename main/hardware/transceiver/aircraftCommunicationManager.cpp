@@ -1,4 +1,4 @@
-#include "aircraftPacketHandler.h"
+#include "aircraftCommunicationManager.h"
 
 #include <utility>
 
@@ -28,7 +28,7 @@ namespace pizda {
 	
 	// -------------------------------- Generic --------------------------------
 	
-	void AircraftPacketHandler::onStart() {
+	void AircraftCommunicationManager::onStart() {
 		ESP_LOGI(_logTag, "started");
 		
 		while (true) {
@@ -39,15 +39,11 @@ namespace pizda {
 		}
 	}
 	
-	void AircraftPacketHandler::enqueue(AircraftPacketType type) {
-		_enqueuedPackets.push(type);
+	void AircraftCommunicationManager::enqueue(AircraftPacketType type) {
+		_enqueuedPackets.insert(type);
 	}
 	
-	void AircraftPacketHandler::enqueueOnce(AircraftPacketType type) {
-		_enqueuedOncePackets.insert(type);
-	}
-	
-	void AircraftPacketHandler::onIsConnectedChanged() {
+	void AircraftCommunicationManager::onIsConnectedChanged() {
 		auto& ac = Aircraft::getInstance();
 		
 		if (isConnected()) {
@@ -60,7 +56,7 @@ namespace pizda {
 	
 	// -------------------------------- Receiving --------------------------------
 	
-	bool AircraftPacketHandler::onReceive(BitStream& stream, RemotePacketType packetType, uint8_t payloadLength) {
+	bool AircraftCommunicationManager::onReceive(BitStream& stream, RemotePacketType packetType, uint8_t payloadLength) {
 		switch (packetType) {
 			case RemotePacketType::controls:
 				return receiveRemoteControlsPacket(stream, payloadLength);
@@ -91,7 +87,7 @@ namespace pizda {
 		return true;
 	}
 	
-	bool AircraftPacketHandler::receiveRemoteControlsPacket(BitStream& stream, uint8_t payloadLength) {
+	bool AircraftCommunicationManager::receiveRemoteControlsPacket(BitStream& stream, uint8_t payloadLength) {
 		auto& ac = Aircraft::getInstance();
 		
 		if (!validatePayloadChecksumAndLength(
@@ -119,7 +115,7 @@ namespace pizda {
 		return true;
 	}
 	
-	bool AircraftPacketHandler::receiveRemoteTrimPacket(BitStream& stream, uint8_t payloadLength) {
+	bool AircraftCommunicationManager::receiveRemoteTrimPacket(BitStream& stream, uint8_t payloadLength) {
 		auto& ac = Aircraft::getInstance();
 		
 		if (!validatePayloadChecksumAndLength(
@@ -150,7 +146,7 @@ namespace pizda {
 		return true;
 	}
 	
-	bool AircraftPacketHandler::receiveRemoteLightsPacket(BitStream& stream, uint8_t payloadLength) {
+	bool AircraftCommunicationManager::receiveRemoteLightsPacket(BitStream& stream, uint8_t payloadLength) {
 		auto& ac = Aircraft::getInstance();
 		
 		if (!validatePayloadChecksumAndLength(
@@ -168,7 +164,7 @@ namespace pizda {
 		return true;
 	}
 	
-	bool AircraftPacketHandler::receiveRemoteBaroPacket(BitStream& stream, uint8_t payloadLength) {
+	bool AircraftCommunicationManager::receiveRemoteBaroPacket(BitStream& stream, uint8_t payloadLength) {
 		auto& ac = Aircraft::getInstance();
 		
 		if (!validatePayloadChecksumAndLength(
@@ -185,7 +181,7 @@ namespace pizda {
 		return true;
 	}
 	
-	bool AircraftPacketHandler::receiveRemoteCalibratePacket(BitStream& stream, uint8_t payloadLength) {
+	bool AircraftCommunicationManager::receiveRemoteCalibratePacket(BitStream& stream, uint8_t payloadLength) {
 		auto& ac = Aircraft::getInstance();
 		
 		if (!validatePayloadChecksumAndLength(
@@ -197,12 +193,14 @@ namespace pizda {
 		
 		ac.aircraftData.calibration.system = static_cast<AircraftCalibrationSystem>(stream.readUint8(RemoteCalibratePacket::systemLengthBits));
 		ac.aircraftData.calibration.progress = 0;
-		ac.aircraftData.calibration.inProgress = true;
+		ac.aircraftData.calibration.calibrating = true;
+		
+//		ESP_LOGI(_logTag, "Received calibrate packet");
 		
 		return true;
 	}
 	
-	bool AircraftPacketHandler::receiveMotorConfigurationPacket(BitStream& stream, uint8_t payloadLength) {
+	bool AircraftCommunicationManager::receiveMotorConfigurationPacket(BitStream& stream, uint8_t payloadLength) {
 		auto& ac = Aircraft::getInstance();
 		
 		const auto motorCount = stream.readUint8(4);
@@ -240,7 +238,7 @@ namespace pizda {
 		return true;
 	}
 	
-	bool AircraftPacketHandler::receiveRemoteAutopilotPacket(BitStream& stream, uint8_t payloadLength) {
+	bool AircraftCommunicationManager::receiveRemoteAutopilotPacket(BitStream& stream, uint8_t payloadLength) {
 		auto& ac = Aircraft::getInstance();
 		
 		if (!validatePayloadChecksumAndLength(
@@ -291,7 +289,7 @@ namespace pizda {
 	
 	// -------------------------------- Transmitting --------------------------------
 	
-	AircraftPacketType AircraftPacketHandler::getTransmitPacketType() {
+	AircraftPacketType AircraftCommunicationManager::getTransmitPacketType() {
 		const auto& item = _packetSequence[_packetSequenceIndex];
 		
 		const auto next = [this, &item]() {
@@ -309,23 +307,13 @@ namespace pizda {
 		};
 		
 		// Enqueued
-		if (item.useEnqueued() && (!_enqueuedPackets.empty() || !_enqueuedOncePackets.empty())) {
-			if (!_enqueuedPackets.empty()) {
-				const auto packetType = _enqueuedPackets.front();
-				_enqueuedPackets.pop();
-				
-				next();
-				
-				return packetType;
-			}
-			else {
-				const auto packetType = *_enqueuedOncePackets.begin();
-				_enqueuedOncePackets.erase(packetType);
-				
-				next();
-				
-				return packetType;
-			}
+		if (item.useEnqueued() && !_enqueuedPackets.empty()) {
+			const auto packetType = *_enqueuedPackets.begin();
+			_enqueuedPackets.erase(packetType);
+			
+			next();
+			
+			return packetType;
 		}
 		// Normal
 		else {
@@ -337,7 +325,7 @@ namespace pizda {
 		}
 	}
 	
-	bool AircraftPacketHandler::onTransmit(BitStream& stream, AircraftPacketType packetType) {
+	bool AircraftCommunicationManager::onTransmit(BitStream& stream, AircraftPacketType packetType) {
 		switch (packetType) {
 			case AircraftPacketType::ADIRS:
 				transmitAircraftADIRSPacket(stream);
@@ -360,7 +348,7 @@ namespace pizda {
 		return true;
 	}
 	
-	void AircraftPacketHandler::transmitAircraftADIRSPacket(BitStream& stream) {
+	void AircraftCommunicationManager::transmitAircraftADIRSPacket(BitStream& stream) {
 		auto& ac = Aircraft::getInstance();
 		
 		// Roll / pitch / yaw
@@ -404,7 +392,7 @@ namespace pizda {
 		writeRadians(stream, ac.fbw.getTargetPitchRad(), AircraftADIRSPacket::autopilotPitchRangeRad, AircraftADIRSPacket::autopilotPitchLengthBits);
 	}
 	
-	void AircraftPacketHandler::transmitAircraftAuxiliaryPacket(BitStream& stream) {
+	void AircraftCommunicationManager::transmitAircraftAuxiliaryPacket(BitStream& stream) {
 		auto& ac = Aircraft::getInstance();
 		
 		const auto& coordinates = ac.adirs.getCoordinates();
@@ -469,7 +457,7 @@ namespace pizda {
 		stream.writeBool(ac.fbw.getAutopilot());
 	}
 	
-	void AircraftPacketHandler::transmitAircraftCalibrationPacket(BitStream& stream) {
+	void AircraftCommunicationManager::transmitAircraftCalibrationPacket(BitStream& stream) {
 		auto& ac = Aircraft::getInstance();
 	
 		stream.writeUint8(std::to_underlying(ac.aircraftData.calibration.system), AircraftCalibrationPacket::systemLengthBits);

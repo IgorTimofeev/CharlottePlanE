@@ -25,8 +25,8 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
-#include "utils/vector3.h"
-#include "utils/busStream.h"
+#include "types/vector3.h"
+#include "utilities/busStream.h"
 
 namespace pizda {
 	typedef enum MPU9250_BW_WO_DLPF {

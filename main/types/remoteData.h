@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-#include "types.h"
+#include "types/generic.h"
 
 namespace pizda {
 	class RemoteDataRawControls {

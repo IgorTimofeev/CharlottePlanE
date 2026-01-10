@@ -10,10 +10,10 @@
 
 #include <bitStream.h>
 
-#include "utils/math.h"
+#include "utilities/math.h"
 
 #include "config.h"
-#include "types.h"
+#include "types/generic.h"
 
 #include "hardware/transceiver/SX1262Transceiver.h"
 #include "hardware/transceiver/packet.h"
@@ -22,14 +22,14 @@ namespace pizda {
 	using namespace YOBA;
 	
 	template<typename TLocalPacketType, typename TRemotePacketType>
-	class PacketHandler {
+	class CommunicationManager {
 		public:
 			void start() {
 				xTaskCreate(
 					[](void* arg) {
-						reinterpret_cast<PacketHandler*>(arg)->onStart();
+						reinterpret_cast<CommunicationManager*>(arg)->onStart();
 					},
-					"PacketHandler",
+					"CommunicationManager",
 					8 * 1024,
 					this,
 					10,
@@ -56,23 +56,20 @@ namespace pizda {
 						// Reading
 						if (onReceive(stream, packetType, payloadLength)) {
 							_RXDurationUs = esp_timer_get_time() - receiveStartTimeUs;
+							_connectionLostTimeUs = esp_timer_get_time() + _connectionLostIntervalUs;
 							
 							switch (_connectionState) {
 								case ConnectionState::initial:
 									setConnectionState(ConnectionState::connected);
-									
 									break;
 								
 								case ConnectionState::disconnected:
 									setConnectionState(ConnectionState::connected);
-									
 									break;
 								
 								default:
 									break;
 							}
-							
-							_connectionLostTime = esp_timer_get_time() + _connectionLostInterval;
 							
 							return true;
 						}
@@ -83,7 +80,7 @@ namespace pizda {
 				}
 				
 				if (_connectionState == ConnectionState::connected) {
-					if (esp_timer_get_time() >= _connectionLostTime) {
+					if (esp_timer_get_time() >= _connectionLostTimeUs) {
 						setConnectionState(ConnectionState::disconnected);
 					}
 				}
@@ -142,7 +139,7 @@ namespace pizda {
 			}
 		
 		protected:
-			constexpr static const char* _logTag = "PacketHandler";
+			constexpr static const char* _logTag = "CommunicationManager";
 			
 			static uint8_t getCRC8(const uint8_t* buffer, size_t length) {
 				uint8_t crc = 0xff;
@@ -262,8 +259,8 @@ namespace pizda {
 			
 			// ----------------------------- Connection state -----------------------------
 			
-			constexpr static uint32_t _connectionLostInterval = 5'000'000;
-			uint32_t _connectionLostTime = 0;
+			constexpr static uint32_t _connectionLostIntervalUs = 5'000'000;
+			uint32_t _connectionLostTimeUs = 0;
 			ConnectionState _connectionState = ConnectionState::initial;
 			
 			void setConnectionState(ConnectionState state) {

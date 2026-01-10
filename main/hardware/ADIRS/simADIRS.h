@@ -14,33 +14,13 @@
 #include "hardware/ADIRS/ADIRS.h"
 #include "hardware/simLink/simLink.h"
 
-#include "types.h"
+#include "types/generic.h"
 #include "config.h"
 
 namespace pizda {
 	class SimADIRS : public ADIRS {
 		public:
-			void setup() {
-				start();
-			}
-			
-			void fromSimPacket(const SimLinkSimPacket& packet) {
-				updateSlipAndSkidFactor(packet.accelerationX, 2);
-				
-				setRollRad(packet.rollRad);
-				setPitchRad(packet.pitchRad);
-				setYawRad(packet.yawRad);
-				updateHeadingFromYaw();
-				
-				setLatitude(packet.latitudeRad);
-				setLongitude(packet.longitudeRad);
-				
-				setAccelSpeedMPS(packet.speedMPS);
-				
-				setPressurePa(packet.pressurePA);
-				setTemperatureC(packet.temperatureC);
-				updateAltitudeFromPressureTemperatureAndReferenceValue();
-			}
+			void setup();
 			
 		protected:
 			void onTick() override;

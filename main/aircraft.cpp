@@ -9,7 +9,7 @@
 
 #include <bitStream.h>
 
-#include "utils/lowPassFilter.h"
+#include "utilities/lowPassFilter.h"
 
 namespace pizda {
 	Aircraft& Aircraft::getInstance() {
@@ -34,8 +34,8 @@ namespace pizda {
 		if (!transceiver.setup())
 			startErrorLoop("failed to setup XCVR");
 		
-		packetHandler.setTransceiver(&transceiver);
-		packetHandler.start();
+		communicationManager.setTransceiver(&transceiver);
+		communicationManager.start();
 		
 		// Autopilot
 		fbw.setup();

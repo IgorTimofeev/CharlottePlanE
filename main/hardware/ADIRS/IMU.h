@@ -11,8 +11,8 @@
 
 #include "config.h"
 #include "hardware/ADIRS/MPU9250.h"
-#include "utils/math.h"
-#include "utils/lowPassFilter.h"
+#include "utilities/math.h"
+#include "utilities/lowPassFilter.h"
 
 namespace pizda {
 	class AdaptiveComplimentaryFiler {

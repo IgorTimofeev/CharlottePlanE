@@ -4,7 +4,7 @@
 
 #include "config.h"
 #include "hardware/light.h"
-#include "settings/settings.h"
+#include "types/settings/settings.h"
 
 namespace pizda {
 	class Lights {
@@ -28,7 +28,7 @@ namespace pizda {
 			void setEmergencyEnabled(bool emergencyEnabled);
 
 		private:
-			TaskHandle_t taskHandle;
+			TaskHandle_t taskHandle = nullptr;
 
 //			Strip tail {
 //				config::lights::tail::pin,
@@ -50,9 +50,12 @@ namespace pizda {
 			bool strobeEnabled = false;
 			bool landingEnabled = false;
 			bool emergencyEnabled = false;
-
+			
+			bool delay(uint32_t ms);
+			void wake();
 			void updateNavOrLanding(Light& light, const uint8_t r, const uint8_t g, const uint8_t b) const;
 			void updateStrobes(Light& light, const uint8_t r, const uint8_t g, const uint8_t b);
-			void taskBody();
+			
+			[[noreturn]] void onStart();
 	};
 }

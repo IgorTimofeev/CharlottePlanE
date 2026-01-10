@@ -15,7 +15,7 @@ namespace pizda {
 	void Lights::start() {
 		xTaskCreate(
 			[](void* arg) {
-				reinterpret_cast<Lights*>(arg)->taskBody();
+				reinterpret_cast<Lights*>(arg)->onStart();
 			},
 			"lights",
 			4096,
@@ -34,6 +34,8 @@ namespace pizda {
 			return;
 		
 		cabinEnabled = value;
+		
+		wake();
 	}
 
 	bool Lights::isNavigationEnabled() const {
@@ -45,6 +47,8 @@ namespace pizda {
 			return;
 
 		navigationEnabled = value;
+		
+		wake();
 	}
 
 	bool Lights::isStrobeEnabled() const {
@@ -56,6 +60,8 @@ namespace pizda {
 			return;
 
 		strobeEnabled = value;
+		
+		wake();
 	}
 
 	bool Lights::isLandingEnabled() const {
@@ -67,6 +73,8 @@ namespace pizda {
 			return;
 
 		landingEnabled = value;
+		
+		wake();
 	}
 
 	bool Lights::isEmergencyEnabled() const {
@@ -78,8 +86,20 @@ namespace pizda {
 			return;
 
 		emergencyEnabled = value;
+		
+		wake();
 	}
-
+	
+	// -------------------------------- Processing --------------------------------
+	
+	bool Lights::delay(uint32_t ms) {
+		return ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(ms)) > 0;
+	}
+	
+	void Lights::wake() {
+		xTaskNotifyGive(taskHandle);
+	}
+	
 	void Lights::updateNavOrLanding(Light& light, const uint8_t r, const uint8_t g, const uint8_t b) const {
 		// Navigation
 		if (navigationEnabled) {
@@ -106,7 +126,7 @@ namespace pizda {
 		}
 	}
 	
-	void Lights::taskBody() {
+	[[noreturn]] void Lights::onStart() {
 		//             0       500       1000 ms
 		//             +--------+---------+
 		// Left wing:  WRWRRRRRRRRRRRRRRRRR
@@ -123,7 +143,8 @@ namespace pizda {
 				leftWing.fill(0xFF, 0x00, 0x00);
 				leftWing.flush();
 
-				vTaskDelay(pdMS_TO_TICKS(500));
+				if (delay(500))
+					continue;
 				
 				// Cabin
 				cabin.fill(0x00);
@@ -132,8 +153,9 @@ namespace pizda {
 				// Left wing
 				leftWing.fill(0x00);
 				leftWing.flush();
-
-				vTaskDelay(pdMS_TO_TICKS(500));
+				
+				if (delay(500))
+					continue;
 			}
 			else {
 				// Cabin
@@ -146,16 +168,21 @@ namespace pizda {
 				// Tail (dimmed)
 //					tail.fill(dimmedChannelValue);
 //					tail.flush();
-
-				vTaskDelay(pdMS_TO_TICKS(50));
+				
+				if (delay(50))
+					continue;
 
 				// Left wing (red)
 				updateNavOrLanding(leftWing, 0xFF, 0x00, 0x00);
-				vTaskDelay(pdMS_TO_TICKS(50));
+				
+				if (delay(50))
+					continue;
 
 				// Left wing (strobe 2)
 				updateStrobes(leftWing, 0xFF, 0x00, 0x00);
-				vTaskDelay(pdMS_TO_TICKS(50));
+				
+				if (delay(50))
+					continue;
 
 				// Left wing (red)
 				updateNavOrLanding(leftWing, 0xFF, 0x00, 0x00);
@@ -163,14 +190,16 @@ namespace pizda {
 				// Tail (strobe)
 //					tail.fill(0xFF);
 //					tail.flush();
-
-				vTaskDelay(pdMS_TO_TICKS(50));
+				
+				if (delay(50))
+					continue;
 
 				// Tail (dimmed)
 //					tail.fill(dimmedChannelValue);
 //					tail.flush();
-
-				vTaskDelay(pdMS_TO_TICKS(16 * 50));
+				
+				if (delay(50))
+					continue;
 			}
 		}
 	}

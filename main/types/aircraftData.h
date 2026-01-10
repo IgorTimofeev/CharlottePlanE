@@ -2,12 +2,12 @@
 
 #include <cmath>
 
-#include "types.h"
+#include "types/generic.h"
 
 namespace pizda {
 	class AircraftDataCalibration {
 		public:
-			bool inProgress = false;
+			bool calibrating = false;
 			AircraftCalibrationSystem system = AircraftCalibrationSystem::accelAndGyro;
 			uint8_t progress = 0xFF;
 	};

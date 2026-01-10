@@ -10,7 +10,7 @@
 
 #include <units.h>
 
-#include "utils/math.h"
+#include "utilities/math.h"
 
 namespace pizda {
 	using namespace YOBA;

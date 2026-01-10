@@ -54,9 +54,13 @@ namespace pizda {
 		public:
 			void setup();
 			
+			const SimLinkSimPacket& getLastSimPacket() const;
+		
 		private:
 			constexpr static uint16_t _bufferLength = 512;
 			uint8_t _buffer[_bufferLength] {};
+			
+			SimLinkSimPacket _lastSimPacket {};
 			
 			[[noreturn]] void taskBody();
 	};

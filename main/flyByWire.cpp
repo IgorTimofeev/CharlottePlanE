@@ -9,8 +9,8 @@
 
 #include "config.h"
 #include "aircraft.h"
-#include "utils/math.h"
-#include "utils/lowPassFilter.h"
+#include "utilities/math.h"
+#include "utilities/lowPassFilter.h"
 
 namespace pizda {
 	void FlyByWire::setup() {

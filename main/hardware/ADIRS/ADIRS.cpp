@@ -8,7 +8,7 @@ namespace pizda {
 		
 		while (true) {
 			if (
-				ac.aircraftData.calibration.inProgress
+				ac.aircraftData.calibration.calibrating
 				&& (
 					ac.aircraftData.calibration.system == AircraftCalibrationSystem::accelAndGyro
 					|| ac.aircraftData.calibration.system == AircraftCalibrationSystem::mag
@@ -21,7 +21,7 @@ namespace pizda {
 					onCalibrateMag();
 				}
 				
-				ac.aircraftData.calibration.inProgress = false;
+				ac.aircraftData.calibration.calibrating = false;
 			}
 			else {
 				onTick();
