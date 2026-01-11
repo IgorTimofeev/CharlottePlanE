@@ -18,7 +18,7 @@ namespace pizda {
 	class SX1262Transceiver : public Transceiver {
 		public:
 			bool setup() {
-				const auto SXError = _SX.setup(
+				const auto error = _SX.setup(
 					config::spi::device,
 					config::transceiver::SPIFrequencyHz,
 					
@@ -36,8 +36,8 @@ namespace pizda {
 					config::transceiver::preambleLength
 				);
 				
-				if (SXError != SX1262Error::none) {
-					ESP_LOGE(_logTag, "SX1262 setup failed with code %d", std::to_underlying(SXError));
+				if (error != SX1262Error::none) {
+					ESP_LOGE(_logTag, "SX1262 setup failed with code %d", std::to_underlying(error));
 					
 					return false;
 				}

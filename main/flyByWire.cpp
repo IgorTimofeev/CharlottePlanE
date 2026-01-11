@@ -376,15 +376,15 @@ namespace pizda {
 		
 		// Ailerons
 		{
-			const auto leftAileronMotor = ac.motors.getMotor(MotorType::leftAileron);
-			const auto rightAileronMotor = ac.motors.getMotor(MotorType::rightAileron);
+			const auto leftAileronMotor = ac.motors.getMotor(MotorType::aileronLeft);
+			const auto rightAileronMotor = ac.motors.getMotor(MotorType::aileronRight);
 			
 			if (!leftAileronMotor || !rightAileronMotor)
 				return;
 			
 			const auto power = std::clamp(
 				// Trim
-				static_cast<float>(ac.settings.motors.aileronsTrim) / static_cast<float>(Motor::powerMaxValue / 2)
+				static_cast<float>(ac.settings.controls.aileronsTrim) / static_cast<float>(Motor::powerMaxValue / 2)
 				// Value
 				+ (
 					_autopilot && _lateralMode != AutopilotLateralMode::man
@@ -401,15 +401,15 @@ namespace pizda {
 		
 		// Elevator & rudder
 		{
-			const auto leftTailMotor = ac.motors.getMotor(MotorType::leftTail);
-			const auto rightTailMotor = ac.motors.getMotor(MotorType::rightTail);
+			const auto leftTailMotor = ac.motors.getMotor(MotorType::tailLeft);
+			const auto rightTailMotor = ac.motors.getMotor(MotorType::tailRight);
 			
 			if (!leftTailMotor || !rightTailMotor)
 				return;
 			
 			const auto elevatorPower = std::clamp(
 				// Trim
-				(static_cast<float>(ac.settings.motors.elevatorTrim) / static_cast<float>(Motor::powerMaxValue))
+				(static_cast<float>(ac.settings.controls.elevatorTrim) / static_cast<float>(Motor::powerMaxValue))
 				// Value
 				+ (
 					_autopilot && _verticalMode != AutopilotVerticalMode::man
@@ -421,7 +421,7 @@ namespace pizda {
 			);
 			
 			const auto rudderPower = std::clamp(
-				static_cast<float>(ac.settings.motors.rudderTrim) / static_cast<float>(Motor::powerMaxValue)
+				static_cast<float>(ac.settings.controls.rudderTrim) / static_cast<float>(Motor::powerMaxValue)
 				+ (
 					ac.remoteData.raw.controls.rudder
 				),
@@ -438,7 +438,7 @@ namespace pizda {
 		
 		// Flaps
 		{
-			const auto leftFlapMotor = ac.motors.getMotor(MotorType::leftFlap);
+			const auto leftFlapMotor = ac.motors.getMotor(MotorType::flapLeft);
 //				const auto rightFlapMotor = ac.motors.getMotor(MotorType::rightAileron);
 			
 			if (!leftFlapMotor)

@@ -5,15 +5,15 @@
 namespace pizda {
 	void Motors::setup() {
 		auto& ac = Aircraft::getInstance();
-
-		// Copying configuration from settings
-		for (size_t i = 0; i < _instances.size(); ++i) {
-			_instances[i].setup(
-				i < ac.settings.motors.configurations.size()
-				? ac.settings.motors.configurations[i]
-				: MotorConfiguration()
-			);
-		}
+		
+		getMotor(MotorType::throttle)->setup(ac.settings.motors.throttle);
+		getMotor(MotorType::noseWheel)->setup(ac.settings.motors.noseWheel);
+		getMotor(MotorType::aileronLeft)->setup(ac.settings.motors.aileronLeft);
+		getMotor(MotorType::aileronRight)->setup(ac.settings.motors.aileronRight);
+		getMotor(MotorType::flapLeft)->setup(ac.settings.motors.flapRight);
+		getMotor(MotorType::flapRight)->setup(ac.settings.motors.flapLeft);
+		getMotor(MotorType::tailLeft)->setup(ac.settings.motors.tailLeft);
+		getMotor(MotorType::tailRight)->setup(ac.settings.motors.tailRight);
 	}
 
 	ConfiguredMotor* Motors::getMotor(uint8_t index) {
@@ -31,14 +31,14 @@ namespace pizda {
 
 	void Motors::updateConfigurationsFromSettings() {
 		auto& ac = Aircraft::getInstance();
-
-		for (size_t i = 0; i < ac.settings.motors.configurations.size(); ++i) {
-			const auto motor = getMotor(i);
-
-			if (motor) {
-				motor->setConfiguration(ac.settings.motors.configurations[i]);
-				motor->updateCurrentPowerFromConfiguration();
-			}
-		}
+		
+		getMotor(MotorType::throttle)->setConfiguration(ac.settings.motors.throttle);
+		getMotor(MotorType::noseWheel)->setConfiguration(ac.settings.motors.noseWheel);
+		getMotor(MotorType::aileronLeft)->setConfiguration(ac.settings.motors.aileronLeft);
+		getMotor(MotorType::aileronRight)->setConfiguration(ac.settings.motors.aileronRight);
+		getMotor(MotorType::flapLeft)->setConfiguration(ac.settings.motors.flapRight);
+		getMotor(MotorType::flapRight)->setConfiguration(ac.settings.motors.flapLeft);
+		getMotor(MotorType::tailLeft)->setConfiguration(ac.settings.motors.tailLeft);
+		getMotor(MotorType::tailRight)->setConfiguration(ac.settings.motors.tailRight);
 	}
 }

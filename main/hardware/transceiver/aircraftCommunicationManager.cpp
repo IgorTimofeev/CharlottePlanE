@@ -136,10 +136,10 @@ namespace pizda {
 			);
 		};
 
-		ac.settings.motors.aileronsTrim = read();
-		ac.settings.motors.elevatorTrim = read();
-		ac.settings.motors.rudderTrim = read();
-		ac.settings.motors.scheduleWrite();
+		ac.settings.controls.aileronsTrim = read();
+		ac.settings.controls.elevatorTrim = read();
+		ac.settings.controls.rudderTrim = read();
+		ac.settings.controls.scheduleWrite();
 		
 		ac.fbw.applyData();
 		
@@ -178,63 +178,6 @@ namespace pizda {
 		const auto referencePressureDaPa = stream.readUint16(RemoteBaroPacket::referencePressureLengthBits);
 		ac.adirs.setReferencePressurePa(sanitizeValue<uint32_t>(static_cast<uint32_t>(referencePressureDaPa) * 10, 900'00, 1100'00));
 		
-		return true;
-	}
-	
-	bool AircraftCommunicationManager::receiveRemoteCalibratePacket(BitStream& stream, uint8_t payloadLength) {
-		auto& ac = Aircraft::getInstance();
-		
-		if (!validatePayloadChecksumAndLength(
-			stream,
-			RemoteCalibratePacket::systemLengthBits,
-			payloadLength
-		))
-			return false;
-		
-		ac.aircraftData.calibration.system = static_cast<AircraftCalibrationSystem>(stream.readUint8(RemoteCalibratePacket::systemLengthBits));
-		ac.aircraftData.calibration.progress = 0;
-		ac.aircraftData.calibration.calibrating = true;
-		
-//		ESP_LOGI(_logTag, "Received calibrate packet");
-		
-		return true;
-	}
-	
-	bool AircraftCommunicationManager::receiveMotorConfigurationPacket(BitStream& stream, uint8_t payloadLength) {
-		auto& ac = Aircraft::getInstance();
-		
-		const auto motorCount = stream.readUint8(4);
-		
-		ESP_LOGI(_logTag, "motor count: %d", motorCount);
-
-		if (!validatePayloadChecksumAndLength(
-			stream,
-			4 + (12 * 4 + 1) * motorCount,
-			payloadLength
-		))
-			return false;
-		
-		ac.settings.motors.configurations.clear();
-		ac.settings.motors.configurations.reserve(motorCount);
-
-		MotorConfiguration configuration {};
-
-		for (uint8_t i = 0; i < motorCount; ++i) {
-			configuration.min = stream.readUint16(12);
-			configuration.max = stream.readUint16(12);
-			configuration.startup = stream.readUint16(12);
-			configuration.offset = stream.readInt16(12);
-			configuration.reverse = stream.readBool();
-			configuration.sanitize();
-
-			ac.settings.motors.configurations.push_back(configuration);
-
-			ESP_LOGI(_logTag, "motor index: %d, min: %d, max: %d, startup: %d, offset: %d, reverse: %d", i, configuration.min, configuration.max, configuration.startup, configuration.offset, configuration.reverse);
-		}
-
-		ac.motors.updateConfigurationsFromSettings();
-		ac.settings.motors.write();
-
 		return true;
 	}
 	
@@ -283,6 +226,72 @@ namespace pizda {
 		
 		// Autopilot
 		ac.fbw.setAutopilot(stream.readBool());
+		
+		return true;
+	}
+	
+	bool AircraftCommunicationManager::receiveRemoteCalibratePacket(BitStream& stream, uint8_t payloadLength) {
+		auto& ac = Aircraft::getInstance();
+		
+		ESP_LOGI(_logTag, "R!!!!ket");
+		
+		if (!validatePayloadChecksumAndLength(
+			stream,
+			RemoteCalibratePacket::systemLengthBits,
+			payloadLength
+		))
+			return false;
+		
+		ac.aircraftData.calibration.system = static_cast<AircraftCalibrationSystem>(stream.readUint8(RemoteCalibratePacket::systemLengthBits));
+		ac.aircraftData.calibration.progress = 0;
+		ac.aircraftData.calibration.calibrating = true;
+
+//		ESP_LOGI(_logTag, "Received calibrate packet");
+		
+		return true;
+	}
+	
+	bool AircraftCommunicationManager::receiveMotorConfigurationPacket(BitStream& stream, uint8_t payloadLength) {
+		auto& ac = Aircraft::getInstance();
+		
+		ESP_LOGI(_logTag, "Received motor config packet");
+		
+		if (!validatePayloadChecksumAndLength(
+			stream,
+			(
+				RemoteMotorConfigurationPacket::minLengthBits
+				+ RemoteMotorConfigurationPacket::maxLengthBits
+				+ RemoteMotorConfigurationPacket::startupLengthBits
+				+ RemoteMotorConfigurationPacket::offsetLengthBits
+				+ 1
+			)
+			* 8,
+			payloadLength
+		))
+			return false;
+		
+		const auto read = [&stream](MotorConfiguration& configuration) {
+			configuration.min = stream.readUint16(RemoteMotorConfigurationPacket::minLengthBits);
+			configuration.max = stream.readUint16(RemoteMotorConfigurationPacket::maxLengthBits);
+			configuration.startup = stream.readUint16(RemoteMotorConfigurationPacket::startupLengthBits);
+			configuration.offset = stream.readInt16(RemoteMotorConfigurationPacket::offsetLengthBits);
+			configuration.reverse = stream.readBool();
+			configuration.sanitize();
+			
+			ESP_LOGI(_logTag, "min: %d, max: %d, startup: %d, offset: %d, reverse: %d", configuration.min, configuration.max, configuration.startup, configuration.offset, configuration.reverse);
+		};
+		
+		read(ac.settings.motors.throttle);
+		read(ac.settings.motors.noseWheel);
+		read(ac.settings.motors.aileronLeft);
+		read(ac.settings.motors.aileronRight);
+		read(ac.settings.motors.flapLeft);
+		read(ac.settings.motors.flapRight);
+		read(ac.settings.motors.tailLeft);
+		read(ac.settings.motors.tailRight);
+		
+		ac.motors.updateConfigurationsFromSettings();
+		ac.settings.motors.scheduleWrite();
 		
 		return true;
 	}

@@ -6,31 +6,9 @@
 #include <driver/gpio.h>
 #include <driver/ledc.h>
 
+#include "types/generic.h"
+
 namespace pizda {
-	#pragma pack(push, 1)
-	class MotorConfiguration {
-		public:
-			uint16_t min = 1000;
-			uint16_t max = 2000;
-			uint16_t startup = 1500;
-			int16_t offset = 0;
-			bool reverse = false;
-
-			void sanitize() {
-				min = std::clamp<uint16_t>(min, 100, 1400);
-				max = std::clamp<uint16_t>(max, 1600, 2900);
-
-				if (min > max)
-					std::swap(min, max);
-
-				startup = std::clamp<uint16_t>(startup, min, max);
-
-				if (std::abs(offset) > 900)
-					offset = 0;
-			}
-	};
-	#pragma pack(pop)
-
 	class Motor {
 		public:
 			Motor(gpio_num_t pin, ledc_channel_t channel);
@@ -51,7 +29,6 @@ namespace pizda {
 		private:
 			gpio_num_t _pin;
 			ledc_channel_t _channel;
-
 	};
 
 	class ConfiguredMotor {

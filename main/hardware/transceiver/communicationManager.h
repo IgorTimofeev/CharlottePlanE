@@ -159,8 +159,8 @@ namespace pizda {
 				return crc;
 			}
 			
-			static bool validatePayloadChecksumAndLength(BitStream& stream, size_t dataBitCount, uint8_t payloadLength) {
-				const uint8_t expectedPayloadLengthBytes = divideCeiling<uint8_t>(Packet::typeLengthBits + dataBitCount, 8);
+			static bool validatePayloadChecksumAndLength(BitStream& stream, size_t expectedDataLengthBits, uint8_t payloadLength) {
+				const auto expectedPayloadLengthBytes = static_cast<uint8_t>(divideCeiling<size_t>(static_cast<size_t>(Packet::typeLengthBits) + expectedDataLengthBits, 8));
 				
 				// Length
 				if (payloadLength != expectedPayloadLengthBytes) {

@@ -40,17 +40,16 @@ namespace pizda {
 			class motors {
 				public:
 					constexpr static gpio_num_t throttle = GPIO_NUM_1;
+					constexpr static gpio_num_t noseWheel = GPIO_NUM_47;
 
-					constexpr static gpio_num_t leftFlap = GPIO_NUM_2;
-					constexpr static gpio_num_t leftAileron = GPIO_NUM_42;
+					constexpr static gpio_num_t flapLeft = GPIO_NUM_2;
+					constexpr static gpio_num_t aileronLeft = GPIO_NUM_42;
 
-					constexpr static gpio_num_t rightFlap = GPIO_NUM_40;
-					constexpr static gpio_num_t rightAileron = GPIO_NUM_39;
+					constexpr static gpio_num_t flapRight = GPIO_NUM_40;
+					constexpr static gpio_num_t aileronRight = GPIO_NUM_39;
 
 					constexpr static gpio_num_t tailLeft = GPIO_NUM_37;
 					constexpr static gpio_num_t tailRight = GPIO_NUM_36;
-					
-					constexpr static gpio_num_t noseWheel = GPIO_NUM_47;
 			};
 
 			class lights {

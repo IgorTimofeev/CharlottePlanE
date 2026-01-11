@@ -63,10 +63,10 @@ namespace pizda {
 				auto packet = reinterpret_cast<SimLinkAircraftPacket*>(_buffer);
 
 				const auto throttle = ac.motors.getMotor(MotorType::throttle);
-				const auto ailerons = ac.motors.getMotor(MotorType::leftAileron);
-				const auto elevator = ac.motors.getMotor(MotorType::leftTail);
-				const auto rudder = ac.motors.getMotor(MotorType::rightTail);
-				const auto flaps = ac.motors.getMotor(MotorType::leftFlap);
+				const auto ailerons = ac.motors.getMotor(MotorType::aileronLeft);
+				const auto elevator = ac.motors.getMotor(MotorType::tailLeft);
+				const auto rudder = ac.motors.getMotor(MotorType::tailRight);
+				const auto flaps = ac.motors.getMotor(MotorType::flapLeft);
 
 				packet->header = SimLinkPacket::header;
 				packet->throttle = throttle ? throttle->getPowerF() : 0;

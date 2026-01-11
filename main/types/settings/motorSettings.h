@@ -1,74 +1,294 @@
 #pragma once
 
-#include <vector>
+#include <cstdint>
 
 #include <NVSSettings.h>
-#include <NVSStream.h>
 
-#include "hardware/motor.h"
+#include "types/generic.h"
 
 namespace pizda {
 	using namespace YOBA;
 	
 	class MotorSettings : public NVSSettings {
 		public:
-			std::vector<MotorConfiguration> configurations {};
+			MotorConfiguration throttle {};
+			MotorConfiguration noseWheel {};
 			
-			// Pre-mapped to motorPowerMaxValue / 2
-			int16_t aileronsTrim = 0;
-			int16_t elevatorTrim = 0;
-			int16_t rudderTrim = 0;
+			MotorConfiguration aileronLeft {};
+			MotorConfiguration aileronRight {};
 			
+			MotorConfiguration flapRight {};
+			MotorConfiguration flapLeft {};
+			
+			MotorConfiguration tailLeft {};
+			MotorConfiguration tailRight {};
+		
 		protected:
 			const char* getNamespace() override {
-				return "rmtr1";
+				return "mt1";
 			}
-
-			void onRead(const NVSStream& stream) override {
-				// Configurations
-				{
-					const auto readSize = stream.readObjectLength<MotorConfiguration>(_configurations);
-					
-					configurations.clear();
-					
-					if (readSize > 0) {
-						configurations.resize(readSize);
-						stream.readObject<MotorConfiguration>(_configurations, configurations.data(), readSize);
-						
-						for (auto& configuration : configurations) {
-							configuration.sanitize();
-						}
-					}
-				}
-				
-				// Trim
-				aileronsTrim = stream.readInt16(_aileronsTrim, 0);
-				elevatorTrim = stream.readInt16(_elevatorTrim, 0);
-				rudderTrim = stream.readInt16(_rudderTrim, 0);
-			}
-
-			void onWrite(const NVSStream& stream) override {
-				// Configurations
-				{
-					if (configurations.empty()) {
-						stream.erase(_configurations);
-					}
-					else {
-						stream.writeObject<MotorConfiguration>(_configurations, configurations.data(), configurations.size());
-					}
-				}
-				
-				// Trim
-				stream.writeInt16(_aileronsTrim, aileronsTrim);
-				stream.writeInt16(_elevatorTrim, elevatorTrim);
-				stream.writeInt16(_rudderTrim, rudderTrim);
-			}
-
-			private:
-				constexpr static auto _configurations = "cn";
 			
-				constexpr static auto _aileronsTrim = "ta";
-				constexpr static auto _elevatorTrim = "te";
-				constexpr static auto _rudderTrim = "tr";
+			void onRead(const NVSStream& stream) override {
+				readMotor(
+					stream,
+					throttle,
+					
+					_throttleMin,
+					_throttleMax,
+					_throttleStartup,
+					_throttleOffset,
+					_throttleReverse
+				);
+				
+				readMotor(
+					stream,
+					noseWheel,
+					
+					_noseWheelMin,
+					_noseWheelMax,
+					_noseWheelStartup,
+					_noseWheelOffset,
+					_noseWheelReverse
+				);
+				
+				readMotor(
+					stream,
+					aileronLeft,
+					
+					_aileronLeftMin,
+					_aileronLeftMax,
+					_aileronLeftStartup,
+					_aileronLeftOffset,
+					_aileronLeftReverse
+				);
+				
+				readMotor(
+					stream,
+					aileronRight,
+					
+					_aileronRightMin,
+					_aileronRightMax,
+					_aileronRightStartup,
+					_aileronRightOffset,
+					_aileronRightReverse
+				);
+				
+				readMotor(
+					stream,
+					flapLeft,
+					
+					_flapLeftMin,
+					_flapLeftMax,
+					_flapLeftStartup,
+					_flapLeftOffset,
+					_flapLeftReverse
+				);
+				
+				readMotor(
+					stream,
+					flapRight,
+					
+					_flapRightMin,
+					_flapRightMax,
+					_flapRightStartup,
+					_flapRightOffset,
+					_flapRightReverse
+				);
+				
+				readMotor(
+					stream,
+					tailLeft,
+					
+					_tailLeftMin,
+					_tailLeftMax,
+					_tailLeftStartup,
+					_tailLeftOffset,
+					_tailLeftReverse
+				);
+				
+				readMotor(
+					stream,
+					tailRight,
+					
+					_tailRightMin,
+					_tailRightMax,
+					_tailRightStartup,
+					_tailRightOffset,
+					_tailRightReverse
+				);
+			}
+			
+			void onWrite(const NVSStream& stream) override {
+				writeMotor(
+					stream,
+					throttle,
+					
+					_throttleMin,
+					_throttleMax,
+					_throttleStartup,
+					_throttleOffset,
+					_throttleReverse
+				);
+				
+				writeMotor(
+					stream,
+					noseWheel,
+					
+					_noseWheelMin,
+					_noseWheelMax,
+					_noseWheelStartup,
+					_noseWheelOffset,
+					_noseWheelReverse
+				);
+				
+				writeMotor(
+					stream,
+					aileronLeft,
+					
+					_aileronLeftMin,
+					_aileronLeftMax,
+					_aileronLeftStartup,
+					_aileronLeftOffset,
+					_aileronLeftReverse
+				);
+				
+				writeMotor(
+					stream,
+					aileronRight,
+					
+					_aileronRightMin,
+					_aileronRightMax,
+					_aileronRightStartup,
+					_aileronRightOffset,
+					_aileronRightReverse
+				);
+				
+				writeMotor(
+					stream,
+					flapLeft,
+					
+					_flapLeftMin,
+					_flapLeftMax,
+					_flapLeftStartup,
+					_flapLeftOffset,
+					_flapLeftReverse
+				);
+				
+				writeMotor(
+					stream,
+					flapRight,
+					
+					_flapRightMin,
+					_flapRightMax,
+					_flapRightStartup,
+					_flapRightOffset,
+					_flapRightReverse
+				);
+				
+				writeMotor(
+					stream,
+					tailLeft,
+					
+					_tailLeftMin,
+					_tailLeftMax,
+					_tailLeftStartup,
+					_tailLeftOffset,
+					_tailLeftReverse
+				);
+				
+				writeMotor(
+					stream,
+					tailRight,
+					
+					_tailRightMin,
+					_tailRightMax,
+					_tailRightStartup,
+					_tailRightOffset,
+					_tailRightReverse
+				);
+			}
+		
+		private:
+			constexpr static const char* _throttleMin = "thm";
+			constexpr static const char* _throttleMax = "thx";
+			constexpr static const char* _throttleStartup = "ths";
+			constexpr static const char* _throttleOffset = "tho";
+			constexpr static const char* _throttleReverse = "thr";
+			
+			constexpr static const char* _noseWheelMin = "nwm";
+			constexpr static const char* _noseWheelMax = "nwx";
+			constexpr static const char* _noseWheelStartup = "nws";
+			constexpr static const char* _noseWheelOffset = "nwo";
+			constexpr static const char* _noseWheelReverse = "nwr";
+			
+			constexpr static const char* _aileronLeftMin = "alm";
+			constexpr static const char* _aileronLeftMax = "alx";
+			constexpr static const char* _aileronLeftStartup = "als";
+			constexpr static const char* _aileronLeftOffset = "alo";
+			constexpr static const char* _aileronLeftReverse = "alr";
+			
+			constexpr static const char* _aileronRightMin = "arm";
+			constexpr static const char* _aileronRightMax = "arx";
+			constexpr static const char* _aileronRightStartup = "ars";
+			constexpr static const char* _aileronRightOffset = "aro";
+			constexpr static const char* _aileronRightReverse = "arr";
+			
+			constexpr static const char* _flapLeftMin = "flm";
+			constexpr static const char* _flapLeftMax = "flx";
+			constexpr static const char* _flapLeftStartup = "fls";
+			constexpr static const char* _flapLeftOffset = "flo";
+			constexpr static const char* _flapLeftReverse = "flr";
+			
+			constexpr static const char* _flapRightMin = "frm";
+			constexpr static const char* _flapRightMax = "frx";
+			constexpr static const char* _flapRightStartup = "frs";
+			constexpr static const char* _flapRightOffset = "fro";
+			constexpr static const char* _flapRightReverse = "frr";
+			
+			constexpr static const char* _tailLeftMin = "tlm";
+			constexpr static const char* _tailLeftMax = "tlx";
+			constexpr static const char* _tailLeftStartup = "tls";
+			constexpr static const char* _tailLeftOffset = "tlo";
+			constexpr static const char* _tailLeftReverse = "tlr";
+			
+			constexpr static const char* _tailRightMin = "trm";
+			constexpr static const char* _tailRightMax = "trx";
+			constexpr static const char* _tailRightStartup = "trs";
+			constexpr static const char* _tailRightOffset = "tro";
+			constexpr static const char* _tailRightReverse = "trr";
+			
+			static void readMotor(
+				const NVSStream& stream,
+				MotorConfiguration& motor,
+				
+				const char* minKey,
+				const char* maxKey,
+				const char* startupKey,
+				const char* offsetKey,
+				const char* reverseKey
+			) {
+				motor.min = stream.readUint16(minKey, 1000);
+				motor.max = stream.readUint16(maxKey, 2000);
+				motor.startup = stream.readUint16(startupKey, 1500);
+				motor.offset = stream.readInt16(offsetKey, 0);
+				motor.reverse = stream.readBool(reverseKey, false);
+			}
+			
+			static void writeMotor(
+				const NVSStream& stream,
+				const MotorConfiguration& motor,
+				
+				const char* minKey,
+				const char* maxKey,
+				const char* startupKey,
+				const char* offsetKey,
+				const char* reverseKey
+			) {
+				stream.writeUint16(minKey, motor.min);
+				stream.writeUint16(maxKey, motor.max);
+				stream.writeUint16(startupKey, motor.startup);
+				stream.writeInt16(offsetKey, motor.offset);
+				stream.writeBool(reverseKey, motor.reverse);
+			}
 	};
 }
