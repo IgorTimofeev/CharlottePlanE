@@ -25,7 +25,7 @@ namespace pizda {
 		
 		protected:
 			const char* getNamespace() override {
-				return "mt1";
+				return "mt2";
 			}
 			
 			void onRead(const NVSStream& stream) override {
@@ -267,9 +267,9 @@ namespace pizda {
 				const char* offsetKey,
 				const char* reverseKey
 			) {
-				motor.min = stream.readUint16(minKey, 1000);
-				motor.max = stream.readUint16(maxKey, 2000);
-				motor.startup = stream.readUint16(startupKey, 1500);
+				motor.min = stream.readUint16(minKey, 10'000);
+				motor.max = stream.readUint16(maxKey, 20'000);
+				motor.startup = stream.readUint16(startupKey, 15'000);
 				motor.offset = stream.readInt16(offsetKey, 0);
 				motor.reverse = stream.readBool(reverseKey, false);
 			}

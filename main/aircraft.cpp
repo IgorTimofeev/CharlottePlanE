@@ -5,7 +5,6 @@
 
 #include "esp_log.h"
 #include "config.h"
-#include "esp_console.h"
 
 #include <bitStream.h>
 

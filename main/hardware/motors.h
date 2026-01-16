@@ -1,13 +1,52 @@
 #pragma once
 
 #include <array>
-#include <optional>
+#include <utility>
+#include <atomic>
+
+#include <driver/gpio.h>
+#include <driver/gptimer.h>
 
 #include "config.h"
-#include "hardware/motor.h"
-#include <utility>
+#include "types/generic.h"
 
 namespace pizda {
+	class Motor {
+		friend class Motors;
+
+		public:
+			Motor(gpio_num_t pin);
+			
+			constexpr static const char* _logTag = "Motor";
+			
+			constexpr static uint16_t powerMax = 0xFFFF;
+			
+			constexpr static uint8_t frequencyHz = 50;
+			
+			constexpr static uint8_t dutyLengthBits = 13;
+			constexpr static uint32_t dutyMax = (1 << dutyLengthBits) - 1;
+			
+			uint16_t getPower() const;
+			float getPowerF();
+			
+			void setPower(uint16_t value);
+			void setPowerF(float value);
+			
+			void updateCurrentPowerFromConfiguration();
+			void setStartupPower();
+			
+			void setConfiguration(const MotorConfiguration& configuration);
+		
+		private:
+			gpio_num_t _pin;
+			
+			MotorConfiguration _configuration {};
+			
+			uint16_t _pulseWidthUs = 0;
+			uint16_t _power = 0;
+			uint32_t _pulseDisableTimeTicks = 0;
+	};
+	
 	enum class MotorType : uint8_t {
 		throttle,
 		noseWheel,
@@ -25,25 +64,34 @@ namespace pizda {
 	class Motors {
 		public:
 			void setup();
-			ConfiguredMotor* getMotor(uint8_t index);
-			ConfiguredMotor* getMotor(MotorType type);
+			Motor* getMotor(uint8_t index);
+			Motor* getMotor(MotorType type);
 			void updateConfigurationsFromSettings();
 
 		private:
 			constexpr static const char* _logTag = "Motors";
+			
+			constexpr static uint8_t motorMaxPulseWidthFrequencyHz = 50;
+			constexpr static uint32_t motorMaxPulseWidthUs = 1'000'000 / motorMaxPulseWidthFrequencyHz;
+			constexpr static uint32_t motorMinPulseWidthUs = motorMaxPulseWidthUs / 2;
+			
+			IRAM_ATTR static bool timerAlarmCallback(gptimer_handle_t timer, const gptimer_alarm_event_data_t* eventData, void* userCtx);
+			
+			gptimer_handle_t _timer;
+			volatile uint32_t _timerTick = 0;
+			
+			std::array<Motor, 8> _motors {
+				Motor { config::motors::throttle },
+				Motor { config::motors::noseWheel },
 
-			std::array<ConfiguredMotor, 8> _instances {
-				ConfiguredMotor { config::motors::throttle, LEDC_CHANNEL_0 },
-				ConfiguredMotor { config::motors::noseWheel, LEDC_CHANNEL_1 },
-
-				ConfiguredMotor { config::motors::aileronLeft, LEDC_CHANNEL_2 },
-				ConfiguredMotor { config::motors::aileronRight, LEDC_CHANNEL_3 },
+				Motor { config::motors::aileronLeft },
+				Motor { config::motors::aileronRight },
 				
-				ConfiguredMotor { config::motors::flapLeft, LEDC_CHANNEL_6 },
-				ConfiguredMotor { config::motors::flapRight, LEDC_CHANNEL_7 },
+				Motor { config::motors::flapLeft },
+				Motor { config::motors::flapRight },
 				
-				ConfiguredMotor { config::motors::tailLeft, LEDC_CHANNEL_4 },
-				ConfiguredMotor { config::motors::tailRight, LEDC_CHANNEL_5 },
+				Motor { config::motors::tailLeft },
+				Motor { config::motors::tailRight },
 			};
 	};
 }

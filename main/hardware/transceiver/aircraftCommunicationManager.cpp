@@ -5,7 +5,7 @@
 #include <esp_timer.h>
 
 #include "aircraft.h"
-#include "hardware/motor.h"
+#include "hardware/motors.h"
 
 namespace pizda {
 	// -------------------------------- PacketSequenceItem --------------------------------
@@ -129,10 +129,10 @@ namespace pizda {
 			return static_cast<int16_t>(
 				// Mapping [0; bits] to [0; motorPowerMaxValue]
 				static_cast<int32_t>(stream.readUint16(RemoteTrimPacket::valueLengthBits))
-				* Motor::powerMaxValue
+				* Motor::powerMax
 				/ ((1 << RemoteTrimPacket::valueLengthBits) - 1)
 				// Mapping [0; motorPowerMaxValue] to [-motorPowerMaxValue / 2; motorPowerMaxValue / 2]
-				- Motor::powerMaxValue / 2
+				- Motor::powerMax / 2
 			);
 		};
 
@@ -411,7 +411,7 @@ namespace pizda {
 		const auto motor = ac.motors.getMotor(MotorType::throttle);
 		
 		stream.writeUint8(
-			(motor ? motor->getPower() : 0) * ((1 << AircraftAuxiliaryPacket::throttleLengthBits) - 1) / Motor::powerMaxValue,
+			(motor ? motor->getPower() : 0) * ((1 << AircraftAuxiliaryPacket::throttleLengthBits) - 1) / Motor::powerMax,
 			AircraftAuxiliaryPacket::throttleLengthBits
 		);
 		

@@ -170,23 +170,20 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="перехуячил логирование на коды ошибок, а то позорно чота">
-      <change afterPath="$PROJECT_DIR$/main/types/settings/controlSettings.h" afterDir="false" />
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="ахэнна, конфиг моториков пашет">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/main/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/aircraft.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/config.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/flyByWire.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/flyByWire.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/motor.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motor.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/motor.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/motor.h" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/motors.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/motors.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/simLink/simLink.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/simLink/simLink.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/SX1262Transceiver.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/SX1262Transceiver.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftCommunicationManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftCommunicationManager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftCommunicationManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftCommunicationManager.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/communicationManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/communicationManager.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/types/generic.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/generic.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/types/settings/motorSettings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/settings/motorSettings.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/types/settings/settings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/settings/settings.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -760,11 +757,6 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="apidoc" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="apidoc" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -1235,15 +1227,9 @@
       <workItem from="1767958296882" duration="3710000" />
       <workItem from="1767962855901" duration="5481000" />
       <workItem from="1768044868890" duration="12947000" />
-      <workItem from="1768132671324" duration="3267000" />
-    </task>
-    <task id="LOCAL-00073" summary="так-то лучше ебана">
-      <option name="closed" value="true" />
-      <created>1766574246334</created>
-      <option name="number" value="00073" />
-      <option name="presentableId" value="LOCAL-00073" />
-      <option name="project" value="LOCAL" />
-      <updated>1766574246334</updated>
+      <workItem from="1768132671324" duration="4191000" />
+      <workItem from="1768568483298" duration="3952000" />
+      <workItem from="1768592702688" duration="12960000" />
     </task>
     <task id="LOCAL-00074" summary="так-то лучше ебана">
       <option name="closed" value="true" />
@@ -1629,7 +1615,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768058116730</updated>
     </task>
-    <option name="localTasksCounter" value="122" />
+    <task id="LOCAL-00122" summary="ахэнна, конфиг моториков пашет">
+      <option name="closed" value="true" />
+      <created>1768136329055</created>
+      <option name="number" value="00122" />
+      <option name="presentableId" value="LOCAL-00122" />
+      <option name="project" value="LOCAL" />
+      <updated>1768136329055</updated>
+    </task>
+    <option name="localTasksCounter" value="123" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1652,7 +1646,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="сэкономили бля пару битиков" />
     <MESSAGE value="pizda" />
     <MESSAGE value="заебца" />
     <MESSAGE value="чета хуета какая-то творится с магом на дипике -180 180" />
@@ -1677,7 +1670,8 @@
     <MESSAGE value="чета подустал, хуйни могу накодить, над отдохнуть" />
     <MESSAGE value="таймаут на калибровку заебенил, по идее даже если чет отвалится, то оно само в норму придет" />
     <MESSAGE value="перехуячил логирование на коды ошибок, а то позорно чота" />
-    <option name="LAST_COMMIT_MESSAGE" value="перехуячил логирование на коды ошибок, а то позорно чота" />
+    <MESSAGE value="ахэнна, конфиг моториков пашет" />
+    <option name="LAST_COMMIT_MESSAGE" value="ахэнна, конфиг моториков пашет" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
