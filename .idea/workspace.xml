@@ -170,7 +170,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="ппц чет я не вдупляю">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="работаит, но чутка пердит">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/motors.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/motors.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.h" afterDir="false" />
@@ -1226,14 +1226,6 @@
       <workItem from="1768568483298" duration="3952000" />
       <workItem from="1768592702688" duration="18749000" />
     </task>
-    <task id="LOCAL-00076" summary="так-то лучше ебана">
-      <option name="closed" value="true" />
-      <created>1766590314242</created>
-      <option name="number" value="00076" />
-      <option name="presentableId" value="LOCAL-00076" />
-      <option name="project" value="LOCAL" />
-      <updated>1766590314243</updated>
-    </task>
     <task id="LOCAL-00077" summary="ЧОТА ЧИТАЕТ!111 но пока один раз">
       <option name="closed" value="true" />
       <created>1766600659855</created>
@@ -1618,7 +1610,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768609725747</updated>
     </task>
-    <option name="localTasksCounter" value="125" />
+    <task id="LOCAL-00125" summary="работаит, но чутка пердит">
+      <option name="closed" value="true" />
+      <created>1768661940393</created>
+      <option name="number" value="00125" />
+      <option name="presentableId" value="LOCAL-00125" />
+      <option name="project" value="LOCAL" />
+      <updated>1768661940393</updated>
+    </task>
+    <option name="localTasksCounter" value="126" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1641,7 +1641,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="чета хуета какая-то творится с магом на дипике -180 180" />
     <MESSAGE value="вроде получше" />
     <MESSAGE value="ничего себе какая оказия! ебучие флайт директора ПАШУТ БАЛЯ" />
     <MESSAGE value="сука прикол директора ползают))) КРОСЕВА" />
@@ -1666,7 +1665,8 @@
     <MESSAGE value="ахэнна, конфиг моториков пашет" />
     <MESSAGE value="чет хуйня с этими таймерами какая-то, ща забекаплю - и надо трайнуть обратно ledc с 16 каналами, мб low speed пойдеь" />
     <MESSAGE value="ппц чет я не вдупляю" />
-    <option name="LAST_COMMIT_MESSAGE" value="ппц чет я не вдупляю" />
+    <MESSAGE value="работаит, но чутка пердит" />
+    <option name="LAST_COMMIT_MESSAGE" value="работаит, но чутка пердит" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

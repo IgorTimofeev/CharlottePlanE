@@ -103,7 +103,6 @@ namespace pizda {
 		
 		ESP_ERROR_CHECK(gptimer_enable(_timer));
 		
-		_startTime = esp_timer_get_time();
 		updatePizda();
 	}
 	
@@ -114,8 +113,6 @@ namespace pizda {
 		
 		const auto time = esp_timer_get_time();
 		auto closestDelta = std::numeric_limits<int64_t>::max();
-		
-		_atLeastOneEnabled = false;
 		
 		for (uint8_t i = 0; i < _motors.size(); ++i) {
 			auto& motor = _motors[i];
@@ -132,16 +129,16 @@ namespace pizda {
 			
 //			esp_rom_printf("delta %lld closest %lld\n", delta, closestDelta);
 			
-			if (delta < 1)
-				delta = 1;
-			
-			if (delta < closestDelta) {
+			if (delta < 1) {
+				gpio_set_level(motor._pin, false);
+			}
+			else {
+				if (delta < closestDelta) {
 //				esp_rom_printf("closest\n");
-				
-				_atLeastOneEnabled = true;
-				
-				closestDelta = delta;
-				_closestIndex = i;
+					
+					closestDelta = delta;
+					_closestIndex = i;
+				}
 			}
 		}
 		
@@ -149,20 +146,17 @@ namespace pizda {
 		timerAlarmConfig.reload_count = 0;
 		timerAlarmConfig.flags.auto_reload_on_alarm = true;
 		
-		if (_atLeastOneEnabled) {
+		if (_closestIndex < 0xFF) {
 //			esp_rom_printf("atLeastOneEnabled %d %lld\n", _closestIndex, closestDelta);
 			
 			timerAlarmConfig.alarm_count = closestDelta;
-			
 		}
 		else {
-			auto startDelta = time - _startTime;
-			auto startDeltaMod = startDelta % pulsePeriodUs;
-			auto startDeltaRemaining = pulsePeriodUs - startDeltaMod;
+			const auto timeRemaining = pulsePeriodUs - (time % pulsePeriodUs);
 			
 //			esp_rom_printf("all disabled %lld %lld %lld\n", startDelta, startDeltaMod, startDeltaRemaining);
 			
-			timerAlarmConfig.alarm_count = startDeltaRemaining;
+			timerAlarmConfig.alarm_count = timeRemaining;
 		}
 		
 		ESP_ERROR_CHECK(gptimer_set_alarm_action(_timer, &timerAlarmConfig));
@@ -177,12 +171,10 @@ namespace pizda {
 		uint32_t pinMask1 = 0;
 		uint32_t pinMask2 = 0;
 		
-		if (_atLeastOneEnabled) {
-			for (uint8_t i = 0; i < _motors.size(); ++i) {
-				auto& motor = _motors[i];
-				
+		if (_closestIndex < 0xFF) {
+			for (auto& motor : _motors) {
 				if (motor._disableTime <= time) {
-//					esp_rom_printf("disabling %d\n", i);
+					// esp_rom_printf("disabling %d\n", i);
 					
 					motor._disableTime = 0;
 					

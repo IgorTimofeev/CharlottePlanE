@@ -96,8 +96,6 @@ namespace pizda {
 			};
 			
 			uint8_t _closestIndex = 0xFF;
-			bool _atLeastOneEnabled = false;
-			int64_t _startTime = 0;
 			
 			IRAM_ATTR static bool timerAlarmCallback(gptimer_handle_t timer, const gptimer_alarm_event_data_t* eventData, void* userCtx);
 			IRAM_ATTR void updatePizda();
