@@ -170,9 +170,13 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="так, ну вроде с костыльынм интервалом пиздато работает - можно оставить">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="хотя хз, чота доверия не внушает">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/motors.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/motors.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftCommunicationManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftCommunicationManager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftCommunicationManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftCommunicationManager.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/communicationManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/communicationManager.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -1225,14 +1229,6 @@
       <workItem from="1768568483298" duration="3952000" />
       <workItem from="1768592702688" duration="18749000" />
     </task>
-    <task id="LOCAL-00079" summary="то ли флоаты пиздливые, то ли че">
-      <option name="closed" value="true" />
-      <created>1766609581073</created>
-      <option name="number" value="00079" />
-      <option name="presentableId" value="LOCAL-00079" />
-      <option name="project" value="LOCAL" />
-      <updated>1766609581074</updated>
-    </task>
     <task id="LOCAL-00080" summary="то ли флоаты пиздливые, то ли че">
       <option name="closed" value="true" />
       <created>1766611372107</created>
@@ -1617,7 +1613,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768665703860</updated>
     </task>
-    <option name="localTasksCounter" value="128" />
+    <task id="LOCAL-00128" summary="хотя хз, чота доверия не внушает">
+      <option name="closed" value="true" />
+      <created>1768665806178</created>
+      <option name="number" value="00128" />
+      <option name="presentableId" value="LOCAL-00128" />
+      <option name="project" value="LOCAL" />
+      <updated>1768665806178</updated>
+    </task>
+    <option name="localTasksCounter" value="129" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1640,7 +1644,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="сука прикол директора ползают))) КРОСЕВА" />
     <MESSAGE value="фиксики закоптились" />
     <MESSAGE value="автопилик готов к труду и обороне!" />
     <MESSAGE value="с новым годом, посоны и посонессы!!1" />
@@ -1665,7 +1668,8 @@
     <MESSAGE value="работаит, но чутка пердит" />
     <MESSAGE value="бля да че за интерференции откуда" />
     <MESSAGE value="так, ну вроде с костыльынм интервалом пиздато работает - можно оставить" />
-    <option name="LAST_COMMIT_MESSAGE" value="так, ну вроде с костыльынм интервалом пиздато работает - можно оставить" />
+    <MESSAGE value="хотя хз, чота доверия не внушает" />
+    <option name="LAST_COMMIT_MESSAGE" value="хотя хз, чота доверия не внушает" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

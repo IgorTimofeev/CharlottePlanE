@@ -32,7 +32,7 @@ namespace pizda {
 			bool onReceive(BitStream& stream, RemotePacketType packetType, uint8_t payloadLength) override;
 			AircraftPacketType getTransmitPacketType() override;
 			bool onTransmit(BitStream& stream, AircraftPacketType packetType) override;
-			void onIsConnectedChanged() override;
+			void onConnectionStateChanged() override;
 		
 		private:
 			std::vector<PacketSequenceItem> _packetSequence {

@@ -237,7 +237,7 @@ namespace pizda {
 			
 			virtual TLocalPacketType getTransmitPacketType() = 0;
 			virtual bool onTransmit(BitStream& stream, TLocalPacketType packetType) = 0;
-			virtual void onIsConnectedChanged() = 0;
+			virtual void onConnectionStateChanged() = 0;
 		
 		private:
 			Transceiver* _transceiver = nullptr;
@@ -266,7 +266,7 @@ namespace pizda {
 			void setConnectionState(ConnectionState state) {
 				_connectionState = state;
 				
-				onIsConnectedChanged();
+				onConnectionStateChanged();
 			}
 	};
 }

@@ -43,7 +43,7 @@ namespace pizda {
 		_enqueuedPackets.insert(type);
 	}
 	
-	void AircraftCommunicationManager::onIsConnectedChanged() {
+	void AircraftCommunicationManager::onConnectionStateChanged() {
 		auto& ac = Aircraft::getInstance();
 		
 		if (isConnected()) {

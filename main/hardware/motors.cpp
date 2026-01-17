@@ -94,9 +94,8 @@ namespace pizda {
 		
 		ESP_ERROR_CHECK(gptimer_new_timer(&timerConfig, &_timer));
 		
-		gptimer_event_callbacks_t timerEventCallbacks = {
-			.on_alarm = timerAlarmCallback
-		};
+		gptimer_event_callbacks_t timerEventCallbacks {};
+		timerEventCallbacks.on_alarm = timerAlarmCallback;
 		
 		ESP_ERROR_CHECK(gptimer_register_event_callbacks(_timer, &timerEventCallbacks, this));
 		
@@ -143,7 +142,7 @@ namespace pizda {
 		if (_closestIndex < 0xFF) {
 //			esp_rom_printf("atLeastOneEnabled %d %lld\n", _closestIndex, closestDelta);
 			
-			timerAlarmConfig.alarm_count = closestDelta + pulseSafetyIntervalUs;
+			timerAlarmConfig.alarm_count = std::max<int64_t>(closestDelta, 1) + pulseSafetyIntervalUs;
 		}
 		else {
 			const auto timeRemaining = pulsePeriodUs - (time % pulsePeriodUs);
