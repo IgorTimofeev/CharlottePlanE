@@ -78,6 +78,7 @@ namespace pizda {
 			constexpr static const char* _logTag = "Motors";
 			constexpr static uint8_t pulseFrequencyHz = 50;
 			constexpr static uint32_t pulsePeriodUs = 1'000'000 / pulseFrequencyHz;
+			constexpr static uint8_t pulseSafetyIntervalUs = 15;
 			
 			gptimer_handle_t _timer;
 			

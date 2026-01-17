@@ -170,9 +170,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="бля да че за интерференции откуда">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="так, ну вроде с костыльынм интервалом пиздато работает - можно оставить">
       <change beforePath="$PROJECT_DIR$/main/hardware/motors.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/motors.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -1225,14 +1225,6 @@
       <workItem from="1768568483298" duration="3952000" />
       <workItem from="1768592702688" duration="18749000" />
     </task>
-    <task id="LOCAL-00078" summary="бляяя разобрался ахуй пашет">
-      <option name="closed" value="true" />
-      <created>1766604279007</created>
-      <option name="number" value="00078" />
-      <option name="presentableId" value="LOCAL-00078" />
-      <option name="project" value="LOCAL" />
-      <updated>1766604279007</updated>
-    </task>
     <task id="LOCAL-00079" summary="то ли флоаты пиздливые, то ли че">
       <option name="closed" value="true" />
       <created>1766609581073</created>
@@ -1617,7 +1609,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768663740874</updated>
     </task>
-    <option name="localTasksCounter" value="127" />
+    <task id="LOCAL-00127" summary="так, ну вроде с костыльынм интервалом пиздато работает - можно оставить">
+      <option name="closed" value="true" />
+      <created>1768665703860</created>
+      <option name="number" value="00127" />
+      <option name="presentableId" value="LOCAL-00127" />
+      <option name="project" value="LOCAL" />
+      <updated>1768665703860</updated>
+    </task>
+    <option name="localTasksCounter" value="128" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1640,7 +1640,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="ничего себе какая оказия! ебучие флайт директора ПАШУТ БАЛЯ" />
     <MESSAGE value="сука прикол директора ползают))) КРОСЕВА" />
     <MESSAGE value="фиксики закоптились" />
     <MESSAGE value="автопилик готов к труду и обороне!" />
@@ -1665,7 +1664,8 @@
     <MESSAGE value="ппц чет я не вдупляю" />
     <MESSAGE value="работаит, но чутка пердит" />
     <MESSAGE value="бля да че за интерференции откуда" />
-    <option name="LAST_COMMIT_MESSAGE" value="бля да че за интерференции откуда" />
+    <MESSAGE value="так, ну вроде с костыльынм интервалом пиздато работает - можно оставить" />
+    <option name="LAST_COMMIT_MESSAGE" value="так, ну вроде с костыльынм интервалом пиздато работает - можно оставить" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

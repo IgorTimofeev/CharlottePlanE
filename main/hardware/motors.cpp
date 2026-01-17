@@ -143,14 +143,14 @@ namespace pizda {
 		if (_closestIndex < 0xFF) {
 //			esp_rom_printf("atLeastOneEnabled %d %lld\n", _closestIndex, closestDelta);
 			
-			timerAlarmConfig.alarm_count = std::max<int64_t>(closestDelta + 10, 1);
+			timerAlarmConfig.alarm_count = closestDelta + pulseSafetyIntervalUs;
 		}
 		else {
 			const auto timeRemaining = pulsePeriodUs - (time % pulsePeriodUs);
 			
 //			esp_rom_printf("all disabled %lld %lld %lld\n", startDelta, startDeltaMod, startDeltaRemaining);
 			
-			timerAlarmConfig.alarm_count = std::max<int64_t>(timeRemaining + 10, 1);
+			timerAlarmConfig.alarm_count = std::max<int64_t>(timeRemaining, 1) + pulseSafetyIntervalUs;
 		}
 		
 		ESP_ERROR_CHECK(gptimer_set_alarm_action(_timer, &timerAlarmConfig));
