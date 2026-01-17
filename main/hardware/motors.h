@@ -17,7 +17,7 @@ namespace pizda {
 		friend class Motors;
 
 		public:
-			Motor(gpio_num_t pin, ledc_channel_t channel);
+			Motor(gpio_num_t pin);
 			
 			constexpr static const char* _logTag = "Motor";
 			
@@ -30,8 +30,6 @@ namespace pizda {
 			constexpr static uint32_t dutyMax = (1 << dutyLengthBits) - 1;
 			
 			void setup(const MotorConfiguration& configuration);
-			void setPulseWidth(uint16_t pulseWidth) const;
-			void setDuty(uint32_t duty) const;
 			
 			uint16_t getPower() const;
 			float getPowerF();
@@ -46,12 +44,13 @@ namespace pizda {
 		
 		private:
 			gpio_num_t _pin;
-			ledc_channel_t _channel;
 			
 			MotorConfiguration _configuration {};
 			
+			std::atomic<uint16_t> _pulseWidthUs = 0;
 			uint16_t _power = 0;
 			
+			int64_t _disableTime = 0;
 	};
 	
 	enum class MotorType : uint8_t {
@@ -77,19 +76,31 @@ namespace pizda {
 
 		private:
 			constexpr static const char* _logTag = "Motors";
+			constexpr static uint8_t pulseFrequencyHz = 50;
+			constexpr static uint32_t pulsePeriodUs = 1'000'000 / pulseFrequencyHz;
+			
+			gptimer_handle_t _timer;
 			
 			std::array<Motor, 8> _motors {
-				Motor { config::motors::throttle, LEDC_CHANNEL_0 },
-				Motor { config::motors::noseWheel, LEDC_CHANNEL_1 },
+				Motor { config::motors::throttle },
+				Motor { config::motors::noseWheel },
 				
-				Motor { config::motors::aileronLeft, LEDC_CHANNEL_2 },
-				Motor { config::motors::aileronRight, LEDC_CHANNEL_3 },
+				Motor { config::motors::aileronLeft },
+				Motor { config::motors::aileronRight },
 				
-				Motor { config::motors::flapLeft, LEDC_CHANNEL_6 },
-				Motor { config::motors::flapRight, LEDC_CHANNEL_7 },
+				Motor { config::motors::flapLeft },
+				Motor { config::motors::flapRight },
 				
-				Motor { config::motors::tailLeft, LEDC_CHANNEL_4 },
-				Motor { config::motors::tailRight, LEDC_CHANNEL_5 },
+				Motor { config::motors::tailLeft },
+				Motor { config::motors::tailRight },
 			};
+			
+			uint8_t _closestIndex = 0xFF;
+			bool _atLeastOneEnabled = false;
+			int64_t _startTime = 0;
+			
+			IRAM_ATTR static bool timerAlarmCallback(gptimer_handle_t timer, const gptimer_alarm_event_data_t* eventData, void* userCtx);
+			IRAM_ATTR void updatePizda();
+			IRAM_ATTR void callbackInstance();
 	};
 }

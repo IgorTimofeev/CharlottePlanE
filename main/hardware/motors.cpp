@@ -4,44 +4,15 @@
 #include "aircraft.h"
 
 namespace pizda {
-	Motor::Motor(const gpio_num_t pin, ledc_channel_t channel) : _pin(pin), _channel(channel) {
+	Motor::Motor(const gpio_num_t pin) : _pin(pin) {
 	
 	}
 	
 	void Motor::setup(const MotorConfiguration& configuration) {
-		ledc_timer_config_t timerConfig {};
-		timerConfig.speed_mode = LEDC_LOW_SPEED_MODE;
-		timerConfig.duty_resolution = static_cast<ledc_timer_bit_t>(dutyLengthBits);
-		timerConfig.timer_num = LEDC_TIMER_0;
-		timerConfig.freq_hz = tickFrequencyHz;
-		timerConfig.clk_cfg = LEDC_AUTO_CLK;
-		ESP_ERROR_CHECK(ledc_timer_config(&timerConfig));
-		
-		ledc_channel_config_t channelConfig {};
-		channelConfig.speed_mode = LEDC_LOW_SPEED_MODE;
-		channelConfig.channel = _channel;
-		channelConfig.timer_sel = LEDC_TIMER_0;
-		channelConfig.intr_type = LEDC_INTR_DISABLE;
-		channelConfig.gpio_num = _pin;
-		channelConfig.duty = 0;
-		channelConfig.hpoint = 0;
-		ESP_ERROR_CHECK(ledc_channel_config(&channelConfig));
-		
 		setConfiguration(configuration);
 		setStartupPower();
 	}
 	
-	void Motor::setDuty(uint32_t duty) const {
-		ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, _channel, duty));
-		ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, _channel));
-	}
-	
-	void Motor::setPulseWidth(uint16_t pulseWidth) const {
-		// Pulse width -> duty cycle conversion
-		const auto duty = static_cast<uint32_t>(pulseWidth * dutyMax / tickDurationUs);
-		
-		setDuty(duty);
-	}
 	
 	uint16_t Motor::getPower() const {
 		return _power;
@@ -66,8 +37,8 @@ namespace pizda {
 		pulseWidthUs = std::clamp<int32_t>(pulseWidthUs, _configuration.min, _configuration.max);
 		
 //		ESP_LOGI("ppizda", "pulse: %d", pulseWidthUs);
-		
-		setPulseWidth(pulseWidthUs);
+
+		_pulseWidthUs = pulseWidthUs;
 	}
 	
 	void Motor::setPowerF(float value) {
@@ -98,6 +69,166 @@ namespace pizda {
 		getMotor(MotorType::flapRight)->setup(ac.settings.motors.flapLeft);
 		getMotor(MotorType::tailLeft)->setup(ac.settings.motors.tailLeft);
 		getMotor(MotorType::tailRight)->setup(ac.settings.motors.tailRight);
+		
+		// GPIO
+		gpio_config_t gpioConfig {};
+		gpioConfig.pin_bit_mask = 0;
+		
+		for (auto& motor : _motors)
+			gpioConfig.pin_bit_mask |= (1ULL << static_cast<uint8_t>(motor._pin));
+		
+		gpioConfig.mode = GPIO_MODE_OUTPUT;
+		gpioConfig.pull_up_en = GPIO_PULLUP_DISABLE;
+		gpioConfig.pull_down_en = GPIO_PULLDOWN_DISABLE;
+		gpioConfig.intr_type = GPIO_INTR_DISABLE;
+		gpio_config(&gpioConfig);
+		
+		// Timer
+		gptimer_config_t timerConfig {};
+		timerConfig.clk_src = GPTIMER_CLK_SRC_DEFAULT;
+		timerConfig.direction = GPTIMER_COUNT_UP;
+		timerConfig.resolution_hz = 1'000'000;
+		timerConfig.intr_priority = 3;
+		timerConfig.flags.intr_shared = false;
+		timerConfig.flags.allow_pd = false;
+		timerConfig.flags.backup_before_sleep = false;
+		
+		ESP_ERROR_CHECK(gptimer_new_timer(&timerConfig, &_timer));
+		
+		gptimer_event_callbacks_t timerEventCallbacks = {
+			.on_alarm = timerAlarmCallback
+		};
+		
+		ESP_ERROR_CHECK(gptimer_register_event_callbacks(_timer, &timerEventCallbacks, this));
+		
+		ESP_ERROR_CHECK(gptimer_enable(_timer));
+		
+		_startTime = esp_timer_get_time();
+		updatePizda();
+	}
+	
+	void Motors::updatePizda() {
+//		esp_rom_printf("begin update\n");
+		
+		_closestIndex = 0xFF;
+		
+		const auto time = esp_timer_get_time();
+		auto closestDelta = std::numeric_limits<int64_t>::max();
+		
+		_atLeastOneEnabled = false;
+		
+		for (uint8_t i = 0; i < _motors.size(); ++i) {
+			auto& motor = _motors[i];
+			
+//			esp_rom_printf("motor %d\n", i);
+			
+			if (motor._disableTime == 0) {
+//				esp_rom_printf("already disabled\n");
+				
+				continue;
+			}
+			
+			auto delta = motor._disableTime - time;
+			
+//			esp_rom_printf("delta %lld closest %lld\n", delta, closestDelta);
+			
+			if (delta < 1)
+				delta = 1;
+			
+			if (delta < closestDelta) {
+//				esp_rom_printf("closest\n");
+				
+				_atLeastOneEnabled = true;
+				
+				closestDelta = delta;
+				_closestIndex = i;
+			}
+		}
+		
+		gptimer_alarm_config_t timerAlarmConfig {};
+		timerAlarmConfig.reload_count = 0;
+		timerAlarmConfig.flags.auto_reload_on_alarm = true;
+		
+		if (_atLeastOneEnabled) {
+//			esp_rom_printf("atLeastOneEnabled %d %lld\n", _closestIndex, closestDelta);
+			
+			timerAlarmConfig.alarm_count = closestDelta;
+			
+		}
+		else {
+			auto startDelta = time - _startTime;
+			auto startDeltaMod = startDelta % pulsePeriodUs;
+			auto startDeltaRemaining = pulsePeriodUs - startDeltaMod;
+			
+//			esp_rom_printf("all disabled %lld %lld %lld\n", startDelta, startDeltaMod, startDeltaRemaining);
+			
+			timerAlarmConfig.alarm_count = startDeltaRemaining;
+		}
+		
+		ESP_ERROR_CHECK(gptimer_set_alarm_action(_timer, &timerAlarmConfig));
+		ESP_ERROR_CHECK_WITHOUT_ABORT(gptimer_start(_timer));
+	}
+	
+	void Motors::callbackInstance() {
+		ESP_ERROR_CHECK_WITHOUT_ABORT(gptimer_stop(_timer));
+		
+		const auto time = esp_timer_get_time();
+		
+		uint32_t pinMask1 = 0;
+		uint32_t pinMask2 = 0;
+		
+		if (_atLeastOneEnabled) {
+			for (uint8_t i = 0; i < _motors.size(); ++i) {
+				auto& motor = _motors[i];
+				
+				if (motor._disableTime <= time) {
+//					esp_rom_printf("disabling %d\n", i);
+					
+					motor._disableTime = 0;
+					
+					const auto pin = static_cast<uint32_t>(motor._pin);
+					
+					if (pin < 32) {
+						pinMask1 |= (1 << pin);
+					}
+					else {
+						pinMask2 |= (1 << (pin - 32));
+					}
+				}
+			}
+			
+			GPIO.out_w1tc = pinMask1;
+			GPIO.out1_w1tc.val = pinMask2;
+		}
+		else {
+//			esp_rom_printf("enabling all");
+			
+			for (auto& motor : _motors) {
+				motor._disableTime = time + motor._pulseWidthUs;
+				
+				const auto pin = static_cast<uint32_t>(motor._pin);
+				
+				if (pin < 32) {
+					pinMask1 |= (1 << pin);
+				}
+				else {
+					pinMask2 |= (1 << (pin - 32));
+				}
+			}
+			
+			GPIO.out_w1ts = pinMask1;
+			GPIO.out1_w1ts.val = pinMask2;
+		}
+		
+		updatePizda();
+	}
+	
+	bool Motors::timerAlarmCallback(gptimer_handle_t timer, const gptimer_alarm_event_data_t* eventData, void* userCtx) {
+		auto m = reinterpret_cast<Motors*>(userCtx);
+		
+		m->callbackInstance();
+		
+		return false;
 	}
 	
 	Motor* Motors::getMotor(uint8_t index) {
@@ -125,5 +256,4 @@ namespace pizda {
 		getMotor(MotorType::tailLeft)->setConfiguration(ac.settings.motors.tailLeft);
 		getMotor(MotorType::tailRight)->setConfiguration(ac.settings.motors.tailRight);
 	}
-	
 }
