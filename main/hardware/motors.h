@@ -4,6 +4,7 @@
 #include <utility>
 #include <atomic>
 
+#include <driver/ledc.h>
 #include <driver/gpio.h>
 #include <driver/gptimer.h>
 #include <esp_timer.h>
@@ -16,16 +17,21 @@ namespace pizda {
 		friend class Motors;
 
 		public:
-			Motor(gpio_num_t pin);
+			Motor(gpio_num_t pin, ledc_channel_t channel);
 			
 			constexpr static const char* _logTag = "Motor";
 			
 			constexpr static uint16_t powerMax = 0xFFFF;
 			
-			constexpr static uint8_t frequencyHz = 50;
+			constexpr static uint8_t tickFrequencyHz = 50;
+			constexpr static uint32_t tickDurationUs = 1'000'000 / tickFrequencyHz;
 			
 			constexpr static uint8_t dutyLengthBits = 13;
 			constexpr static uint32_t dutyMax = (1 << dutyLengthBits) - 1;
+			
+			void setup(const MotorConfiguration& configuration);
+			void setPulseWidth(uint16_t pulseWidth) const;
+			void setDuty(uint32_t duty) const;
 			
 			uint16_t getPower() const;
 			float getPowerF();
@@ -40,13 +46,12 @@ namespace pizda {
 		
 		private:
 			gpio_num_t _pin;
+			ledc_channel_t _channel;
 			
 			MotorConfiguration _configuration {};
 			
-			uint16_t _pulseWidthUs = 0;
 			uint16_t _power = 0;
 			
-			int64_t _pulseDisableTimeTicks = 0;
 	};
 	
 	enum class MotorType : uint8_t {
@@ -73,32 +78,18 @@ namespace pizda {
 		private:
 			constexpr static const char* _logTag = "Motors";
 			
-			constexpr static uint8_t motorMaxPulseWidthFrequencyHz = 50;
-			constexpr static uint32_t motorMaxPulseWidthUs = 1'000'000 / motorMaxPulseWidthFrequencyHz;
-			constexpr static uint32_t motorMinPulseWidthUs = motorMaxPulseWidthUs / 2;
-			
-			IRAM_ATTR static bool timer1AlarmCallback(gptimer_handle_t timer, const gptimer_alarm_event_data_t* eventData, void* userCtx);
-			IRAM_ATTR static bool timer2AlarmCallback(gptimer_handle_t timer, const gptimer_alarm_event_data_t* eventData, void* userCtx);
-			
-			gptimer_handle_t _timer1;
-			gptimer_handle_t _timer2;
-			
-			volatile uint8_t _closestIndex = 0xFF;
-			
-			void updateClosest();
-			
 			std::array<Motor, 8> _motors {
-				Motor { config::motors::throttle },
-				Motor { config::motors::noseWheel },
-
-				Motor { config::motors::aileronLeft },
-				Motor { config::motors::aileronRight },
+				Motor { config::motors::throttle, LEDC_CHANNEL_0 },
+				Motor { config::motors::noseWheel, LEDC_CHANNEL_1 },
 				
-				Motor { config::motors::flapLeft },
-				Motor { config::motors::flapRight },
+				Motor { config::motors::aileronLeft, LEDC_CHANNEL_2 },
+				Motor { config::motors::aileronRight, LEDC_CHANNEL_3 },
 				
-				Motor { config::motors::tailLeft },
-				Motor { config::motors::tailRight },
+				Motor { config::motors::flapLeft, LEDC_CHANNEL_6 },
+				Motor { config::motors::flapRight, LEDC_CHANNEL_7 },
+				
+				Motor { config::motors::tailLeft, LEDC_CHANNEL_4 },
+				Motor { config::motors::tailRight, LEDC_CHANNEL_5 },
 			};
 	};
 }

@@ -29,22 +29,22 @@ namespace pizda {
 	
 	class MotorConfiguration {
 		public:
-			uint16_t min = 10'000;
-			uint16_t max = 20'000;
-			uint16_t startup = 15'000;
+			uint16_t min = 1000;
+			uint16_t max = 2000;
+			uint16_t startup = 1500;
 			int16_t offset = 0;
 			bool reverse = false;
 			
 			void sanitize() {
-				min = std::clamp<uint16_t>(min, 1'000, 14'000);
-				max = std::clamp<uint16_t>(max, 16'000, 29'000);
+				min = std::clamp<uint16_t>(min, 100, 1400);
+				max = std::clamp<uint16_t>(max, 1600, 2900);
 				
 				if (min > max)
 					std::swap(min, max);
 				
 				startup = std::clamp<uint16_t>(startup, min, max);
 				
-				if (std::abs(offset) > 9'000)
+				if (std::abs(offset) > 900)
 					offset = 0;
 			}
 	};

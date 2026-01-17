@@ -198,7 +198,7 @@ namespace pizda {
 //					tail.fill(dimmedChannelValue);
 //					tail.flush();
 				
-				if (delay(50))
+				if (delay(16 * 50))
 					continue;
 			}
 		}

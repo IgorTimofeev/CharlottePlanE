@@ -170,10 +170,14 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="чет хуйня с этими таймерами какая-то, ща забекаплю - и надо трайнуть обратно ledc с 16 каналами, мб low speed пойдеь">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="ппц чет я не вдупляю">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/lights.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/lights.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/motors.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/motors.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/generic.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/generic.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/settings/motorSettings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/settings/motorSettings.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -1224,15 +1228,7 @@
       <workItem from="1768044868890" duration="12947000" />
       <workItem from="1768132671324" duration="4191000" />
       <workItem from="1768568483298" duration="3952000" />
-      <workItem from="1768592702688" duration="16107000" />
-    </task>
-    <task id="LOCAL-00075" summary="так-то лучше ебана">
-      <option name="closed" value="true" />
-      <created>1766587225301</created>
-      <option name="number" value="00075" />
-      <option name="presentableId" value="LOCAL-00075" />
-      <option name="project" value="LOCAL" />
-      <updated>1766587225301</updated>
+      <workItem from="1768592702688" duration="18749000" />
     </task>
     <task id="LOCAL-00076" summary="так-то лучше ебана">
       <option name="closed" value="true" />
@@ -1618,7 +1614,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768606692214</updated>
     </task>
-    <option name="localTasksCounter" value="124" />
+    <task id="LOCAL-00124" summary="ппц чет я не вдупляю">
+      <option name="closed" value="true" />
+      <created>1768609725747</created>
+      <option name="number" value="00124" />
+      <option name="presentableId" value="LOCAL-00124" />
+      <option name="project" value="LOCAL" />
+      <updated>1768609725747</updated>
+    </task>
+    <option name="localTasksCounter" value="125" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1641,7 +1645,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="заебца" />
     <MESSAGE value="чета хуета какая-то творится с магом на дипике -180 180" />
     <MESSAGE value="вроде получше" />
     <MESSAGE value="ничего себе какая оказия! ебучие флайт директора ПАШУТ БАЛЯ" />
@@ -1666,7 +1669,8 @@
     <MESSAGE value="перехуячил логирование на коды ошибок, а то позорно чота" />
     <MESSAGE value="ахэнна, конфиг моториков пашет" />
     <MESSAGE value="чет хуйня с этими таймерами какая-то, ща забекаплю - и надо трайнуть обратно ledc с 16 каналами, мб low speed пойдеь" />
-    <option name="LAST_COMMIT_MESSAGE" value="чет хуйня с этими таймерами какая-то, ща забекаплю - и надо трайнуть обратно ledc с 16 каналами, мб low speed пойдеь" />
+    <MESSAGE value="ппц чет я не вдупляю" />
+    <option name="LAST_COMMIT_MESSAGE" value="ппц чет я не вдупляю" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
