@@ -13,7 +13,6 @@ namespace pizda {
 		setStartupPower();
 	}
 	
-	
 	uint16_t Motor::getPower() const {
 		return _power;
 	}
@@ -129,16 +128,11 @@ namespace pizda {
 			
 //			esp_rom_printf("delta %lld closest %lld\n", delta, closestDelta);
 			
-			if (delta < 1) {
-				gpio_set_level(motor._pin, false);
-			}
-			else {
-				if (delta < closestDelta) {
+			if (delta < closestDelta) {
 //				esp_rom_printf("closest\n");
-					
-					closestDelta = delta;
-					_closestIndex = i;
-				}
+				
+				closestDelta = delta;
+				_closestIndex = i;
 			}
 		}
 		
@@ -149,14 +143,14 @@ namespace pizda {
 		if (_closestIndex < 0xFF) {
 //			esp_rom_printf("atLeastOneEnabled %d %lld\n", _closestIndex, closestDelta);
 			
-			timerAlarmConfig.alarm_count = closestDelta;
+			timerAlarmConfig.alarm_count = std::max<int64_t>(closestDelta + 10, 1);
 		}
 		else {
 			const auto timeRemaining = pulsePeriodUs - (time % pulsePeriodUs);
 			
 //			esp_rom_printf("all disabled %lld %lld %lld\n", startDelta, startDeltaMod, startDeltaRemaining);
 			
-			timerAlarmConfig.alarm_count = timeRemaining;
+			timerAlarmConfig.alarm_count = std::max<int64_t>(timeRemaining + 10, 1);
 		}
 		
 		ESP_ERROR_CHECK(gptimer_set_alarm_action(_timer, &timerAlarmConfig));
@@ -168,9 +162,6 @@ namespace pizda {
 		
 		const auto time = esp_timer_get_time();
 		
-		uint32_t pinMask1 = 0;
-		uint32_t pinMask2 = 0;
-		
 		if (_closestIndex < 0xFF) {
 			for (auto& motor : _motors) {
 				if (motor._disableTime <= time) {
@@ -178,19 +169,9 @@ namespace pizda {
 					
 					motor._disableTime = 0;
 					
-					const auto pin = static_cast<uint32_t>(motor._pin);
-					
-					if (pin < 32) {
-						pinMask1 |= (1 << pin);
-					}
-					else {
-						pinMask2 |= (1 << (pin - 32));
-					}
+					gpio_set_level(motor._pin, false);
 				}
 			}
-			
-			GPIO.out_w1tc = pinMask1;
-			GPIO.out1_w1tc.val = pinMask2;
 		}
 		else {
 //			esp_rom_printf("enabling all");
@@ -198,18 +179,8 @@ namespace pizda {
 			for (auto& motor : _motors) {
 				motor._disableTime = time + motor._pulseWidthUs;
 				
-				const auto pin = static_cast<uint32_t>(motor._pin);
-				
-				if (pin < 32) {
-					pinMask1 |= (1 << pin);
-				}
-				else {
-					pinMask2 |= (1 << (pin - 32));
-				}
+				gpio_set_level(motor._pin, true);
 			}
-			
-			GPIO.out_w1ts = pinMask1;
-			GPIO.out1_w1ts.val = pinMask2;
 		}
 		
 		updatePizda();

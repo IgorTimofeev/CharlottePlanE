@@ -170,10 +170,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="работаит, но чутка пердит">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="бля да че за интерференции откуда">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/motors.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/motors.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -1226,14 +1225,6 @@
       <workItem from="1768568483298" duration="3952000" />
       <workItem from="1768592702688" duration="18749000" />
     </task>
-    <task id="LOCAL-00077" summary="ЧОТА ЧИТАЕТ!111 но пока один раз">
-      <option name="closed" value="true" />
-      <created>1766600659855</created>
-      <option name="number" value="00077" />
-      <option name="presentableId" value="LOCAL-00077" />
-      <option name="project" value="LOCAL" />
-      <updated>1766600659855</updated>
-    </task>
     <task id="LOCAL-00078" summary="бляяя разобрался ахуй пашет">
       <option name="closed" value="true" />
       <created>1766604279007</created>
@@ -1618,7 +1609,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768661940393</updated>
     </task>
-    <option name="localTasksCounter" value="126" />
+    <task id="LOCAL-00126" summary="бля да че за интерференции откуда">
+      <option name="closed" value="true" />
+      <created>1768663740874</created>
+      <option name="number" value="00126" />
+      <option name="presentableId" value="LOCAL-00126" />
+      <option name="project" value="LOCAL" />
+      <updated>1768663740874</updated>
+    </task>
+    <option name="localTasksCounter" value="127" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1641,7 +1640,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="вроде получше" />
     <MESSAGE value="ничего себе какая оказия! ебучие флайт директора ПАШУТ БАЛЯ" />
     <MESSAGE value="сука прикол директора ползают))) КРОСЕВА" />
     <MESSAGE value="фиксики закоптились" />
@@ -1666,7 +1664,8 @@
     <MESSAGE value="чет хуйня с этими таймерами какая-то, ща забекаплю - и надо трайнуть обратно ledc с 16 каналами, мб low speed пойдеь" />
     <MESSAGE value="ппц чет я не вдупляю" />
     <MESSAGE value="работаит, но чутка пердит" />
-    <option name="LAST_COMMIT_MESSAGE" value="работаит, но чутка пердит" />
+    <MESSAGE value="бля да че за интерференции откуда" />
+    <option name="LAST_COMMIT_MESSAGE" value="бля да че за интерференции откуда" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
