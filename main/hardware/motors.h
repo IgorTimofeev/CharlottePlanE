@@ -6,6 +6,7 @@
 
 #include <driver/gpio.h>
 #include <driver/gptimer.h>
+#include <esp_timer.h>
 
 #include "config.h"
 #include "types/generic.h"
@@ -44,7 +45,8 @@ namespace pizda {
 			
 			uint16_t _pulseWidthUs = 0;
 			uint16_t _power = 0;
-			uint32_t _pulseDisableTimeTicks = 0;
+			
+			int64_t _pulseDisableTimeTicks = 0;
 	};
 	
 	enum class MotorType : uint8_t {
@@ -75,10 +77,15 @@ namespace pizda {
 			constexpr static uint32_t motorMaxPulseWidthUs = 1'000'000 / motorMaxPulseWidthFrequencyHz;
 			constexpr static uint32_t motorMinPulseWidthUs = motorMaxPulseWidthUs / 2;
 			
-			IRAM_ATTR static bool timerAlarmCallback(gptimer_handle_t timer, const gptimer_alarm_event_data_t* eventData, void* userCtx);
+			IRAM_ATTR static bool timer1AlarmCallback(gptimer_handle_t timer, const gptimer_alarm_event_data_t* eventData, void* userCtx);
+			IRAM_ATTR static bool timer2AlarmCallback(gptimer_handle_t timer, const gptimer_alarm_event_data_t* eventData, void* userCtx);
 			
-			gptimer_handle_t _timer;
-			volatile uint32_t _timerTick = 0;
+			gptimer_handle_t _timer1;
+			gptimer_handle_t _timer2;
+			
+			volatile uint8_t _closestIndex = 0xFF;
+			
+			void updateClosest();
 			
 			std::array<Motor, 8> _motors {
 				Motor { config::motors::throttle },

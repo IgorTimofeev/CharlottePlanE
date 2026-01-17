@@ -170,20 +170,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="ахэнна, конфиг моториков пашет">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="чет хуйня с этими таймерами какая-то, ща забекаплю - и надо трайнуть обратно ledc с 16 каналами, мб low speed пойдеь">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/main/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/aircraft.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/config.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/flyByWire.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/flyByWire.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/motor.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/motor.h" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/motors.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/motors.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftCommunicationManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftCommunicationManager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/types/generic.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/generic.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/types/settings/motorSettings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/settings/motorSettings.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -277,6 +267,11 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.CharlottePlanE.elf">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="CharlottePlanE.elf" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="CharlottePlanE.elf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="CharlottePlanE" RUN_TARGET_NAME="CharlottePlanE.elf">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -1229,15 +1224,7 @@
       <workItem from="1768044868890" duration="12947000" />
       <workItem from="1768132671324" duration="4191000" />
       <workItem from="1768568483298" duration="3952000" />
-      <workItem from="1768592702688" duration="12960000" />
-    </task>
-    <task id="LOCAL-00074" summary="так-то лучше ебана">
-      <option name="closed" value="true" />
-      <created>1766578928423</created>
-      <option name="number" value="00074" />
-      <option name="presentableId" value="LOCAL-00074" />
-      <option name="project" value="LOCAL" />
-      <updated>1766578928423</updated>
+      <workItem from="1768592702688" duration="16107000" />
     </task>
     <task id="LOCAL-00075" summary="так-то лучше ебана">
       <option name="closed" value="true" />
@@ -1623,7 +1610,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768136329055</updated>
     </task>
-    <option name="localTasksCounter" value="123" />
+    <task id="LOCAL-00123" summary="чет хуйня с этими таймерами какая-то, ща забекаплю - и надо трайнуть обратно ledc с 16 каналами, мб low speed пойдеь">
+      <option name="closed" value="true" />
+      <created>1768606692214</created>
+      <option name="number" value="00123" />
+      <option name="presentableId" value="LOCAL-00123" />
+      <option name="project" value="LOCAL" />
+      <updated>1768606692214</updated>
+    </task>
+    <option name="localTasksCounter" value="124" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1646,7 +1641,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="pizda" />
     <MESSAGE value="заебца" />
     <MESSAGE value="чета хуета какая-то творится с магом на дипике -180 180" />
     <MESSAGE value="вроде получше" />
@@ -1671,7 +1665,8 @@
     <MESSAGE value="таймаут на калибровку заебенил, по идее даже если чет отвалится, то оно само в норму придет" />
     <MESSAGE value="перехуячил логирование на коды ошибок, а то позорно чота" />
     <MESSAGE value="ахэнна, конфиг моториков пашет" />
-    <option name="LAST_COMMIT_MESSAGE" value="ахэнна, конфиг моториков пашет" />
+    <MESSAGE value="чет хуйня с этими таймерами какая-то, ща забекаплю - и надо трайнуть обратно ledc с 16 каналами, мб low speed пойдеь" />
+    <option name="LAST_COMMIT_MESSAGE" value="чет хуйня с этими таймерами какая-то, ща забекаплю - и надо трайнуть обратно ledc с 16 каналами, мб low speed пойдеь" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
