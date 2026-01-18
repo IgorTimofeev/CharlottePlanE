@@ -2,8 +2,6 @@
 
 #include <cstdint>
 
-#include <SX1262Ex.h>
-
 namespace pizda {
 	class Transceiver {
 		public:

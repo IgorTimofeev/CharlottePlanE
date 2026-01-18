@@ -380,7 +380,7 @@ namespace pizda {
 			
 			const auto power = std::clamp(
 				// Trim
-				static_cast<float>(ac.settings.controls.aileronsTrim) / static_cast<float>(Motor::powerMax / 2)
+				ac.settings.trim.aileronsTrim
 				// Value
 				+ (
 					_autopilot && _lateralMode != AutopilotLateralMode::man
@@ -405,7 +405,7 @@ namespace pizda {
 			
 			const auto elevatorPower = std::clamp(
 				// Trim
-				(static_cast<float>(ac.settings.controls.elevatorTrim) / static_cast<float>(Motor::powerMax))
+				ac.settings.trim.elevatorTrim
 				// Value
 				+ (
 					_autopilot && _verticalMode != AutopilotVerticalMode::man
@@ -417,7 +417,7 @@ namespace pizda {
 			);
 			
 			const auto rudderPower = std::clamp(
-				static_cast<float>(ac.settings.controls.rudderTrim) / static_cast<float>(Motor::powerMax)
+				ac.settings.trim.rudderTrim
 				+ (
 					ac.remoteData.raw.controls.rudder
 				),

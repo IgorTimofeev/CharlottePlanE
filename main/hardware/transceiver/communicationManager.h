@@ -58,18 +58,8 @@ namespace pizda {
 							_RXDurationUs = esp_timer_get_time() - receiveStartTimeUs;
 							_connectionLostTimeUs = esp_timer_get_time() + _connectionLostIntervalUs;
 							
-							switch (_connectionState) {
-								case ConnectionState::initial:
-									setConnectionState(ConnectionState::connected);
-									break;
-								
-								case ConnectionState::disconnected:
-									setConnectionState(ConnectionState::connected);
-									break;
-								
-								default:
-									break;
-							}
+							if (_connectionState != ConnectionState::connected)
+								setConnectionState(ConnectionState::connected);
 							
 							return true;
 						}
@@ -79,11 +69,8 @@ namespace pizda {
 					}
 				}
 				
-				if (_connectionState == ConnectionState::connected) {
-					if (esp_timer_get_time() >= _connectionLostTimeUs) {
-						setConnectionState(ConnectionState::disconnected);
-					}
-				}
+				if (_connectionState == ConnectionState::connected && esp_timer_get_time() >= _connectionLostTimeUs)
+					setConnectionState(ConnectionState::disconnected);
 				
 				return false;
 			}
@@ -260,7 +247,7 @@ namespace pizda {
 			// ----------------------------- Connection state -----------------------------
 			
 			constexpr static uint32_t _connectionLostIntervalUs = 5'000'000;
-			uint32_t _connectionLostTimeUs = 0;
+			int64_t _connectionLostTimeUs = 0;
 			ConnectionState _connectionState = ConnectionState::initial;
 			
 			void setConnectionState(ConnectionState state) {

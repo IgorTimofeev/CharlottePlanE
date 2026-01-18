@@ -2,7 +2,7 @@
 
 #include "types/settings/motorsSettings.h"
 #include "types/settings/ADIRSSettings.h"
-#include "types/settings/controlSettings.h"
+#include "types/settings/trimSettings.h"
 #include "types/settings/lightsSettings.h"
 
 namespace pizda {
@@ -11,11 +11,11 @@ namespace pizda {
 			MotorsSettings motors {};
 			ADIRSSettings adirs {};
 			LightsSettings lights {};
-			ControlSettings controls {};
+			TrimSettings trim {};
 
 			void setup() {
 				motors.read();
-				controls.read();
+				trim.read();
 				lights.read();
 				adirs.read();
 			}

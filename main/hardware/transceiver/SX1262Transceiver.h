@@ -7,7 +7,7 @@
 #include <esp_log.h>
 #include <esp_timer.h>
 
-#include <SX1262Ex.h>
+#include <SX1262.h>
 
 #include "hardware/transceiver/transceiver.h"
 #include "config.h"
@@ -28,7 +28,7 @@ namespace pizda {
 					config::transceiver::DIO1,
 					
 					config::transceiver::RFFrequencyMHz,
-					config::transceiver::bandwidthKHz,
+					config::transceiver::bandwidth,
 					config::transceiver::spreadingFactor,
 					config::transceiver::codingRate,
 					config::transceiver::syncWord,
@@ -89,7 +89,7 @@ namespace pizda {
 			constexpr static uint32_t _RSSIAndSNRUpdateIntervalUs = 1'000'000 / _RSSIAndASNRUpdateFrequencyHz;
 			int64_t _RSSIAndSNRUpdateTimeUs = 0;
 			
-			SX1262Ex _SX {};
+			SX1262 _SX {};
 			float _RSSI = 0;
 			float _SNR = 0;
 	};

@@ -126,20 +126,17 @@ namespace pizda {
 			return false;
 		
 		const auto read = [&stream]() {
-			return static_cast<int16_t>(
-				// Mapping [0; bits] to [0; motorPowerMaxValue]
-				static_cast<int32_t>(stream.readUint16(RemoteTrimPacket::valueLengthBits))
-				* Motor::powerMax
-				/ ((1 << RemoteTrimPacket::valueLengthBits) - 1)
-				// Mapping [0; motorPowerMaxValue] to [-motorPowerMaxValue / 2; motorPowerMaxValue / 2]
-				- Motor::powerMax / 2
-			);
+			return
+				// Mapping [0; bits] to [-0.5; 0.5]
+				static_cast<float>(stream.readUint16(RemoteTrimPacket::valueLengthBits))
+				/ static_cast<float>((1 << RemoteTrimPacket::valueLengthBits) - 1)
+				- 0.5f;
 		};
 
-		ac.settings.controls.aileronsTrim = read();
-		ac.settings.controls.elevatorTrim = read();
-		ac.settings.controls.rudderTrim = read();
-		ac.settings.controls.scheduleWrite();
+		ac.settings.trim.aileronsTrim = read();
+		ac.settings.trim.elevatorTrim = read();
+		ac.settings.trim.rudderTrim = read();
+		ac.settings.trim.scheduleWrite();
 		
 		ac.fbw.applyData();
 		

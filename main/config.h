@@ -9,6 +9,7 @@
 #include <driver/i2c_master.h>
 
 #include <units.h>
+#include <SX1262.h>
 
 #include "utilities/math.h"
 
@@ -105,9 +106,9 @@ namespace pizda {
 					constexpr static gpio_num_t DIO1 = GPIO_NUM_7;
 					
 					constexpr static uint16_t RFFrequencyMHz = 915;
-					constexpr static float bandwidthKHz = 500;
+					constexpr static uint8_t bandwidth = SX1262::LORA_BW_500_0;
 					constexpr static uint8_t spreadingFactor = 7;
-					constexpr static uint8_t codingRate = 5;
+					constexpr static uint8_t codingRate = SX1262::LORA_CR_4_5;
 					constexpr static uint8_t syncWord = 0x34;
 					constexpr static uint16_t powerDBm = 22;
 					constexpr static uint16_t preambleLength = 8;
