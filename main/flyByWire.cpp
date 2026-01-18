@@ -14,10 +14,6 @@
 
 namespace pizda {
 	void FlyByWire::setup() {
-	
-	}
-	
-	void FlyByWire::start() {
 		xTaskCreate(
 			[](void* arg) {
 				reinterpret_cast<FlyByWire*>(arg)->taskBody();
@@ -439,13 +435,13 @@ namespace pizda {
 		// Flaps
 		{
 			const auto leftFlapMotor = ac.motors.getMotor(MotorType::flapLeft);
-//				const auto rightFlapMotor = ac.motors.getMotor(MotorType::rightAileron);
+			const auto rightFlapMotor = ac.motors.getMotor(MotorType::flapRight);
 			
-			if (!leftFlapMotor)
+			if (!leftFlapMotor || !rightFlapMotor)
 				return;
 			
 			leftFlapMotor->setPowerF(ac.remoteData.raw.controls.flaps);
-//				rightFlapMotor->setPower(aileronsChannel->getValue());
+			rightFlapMotor->setPowerF(ac.remoteData.raw.controls.flaps);
 		}
 	}
 	

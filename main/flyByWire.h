@@ -10,7 +10,6 @@ namespace pizda {
 	class FlyByWire {
 		public:
 			void setup();
-			void start();
 			
 			float getSelectedSpeedMps() const;
 			void setSelectedSpeedMps(float value);

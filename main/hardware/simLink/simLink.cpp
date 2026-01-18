@@ -76,10 +76,10 @@ namespace pizda {
 				packet->flaps = flaps ? flaps->getPowerF() : 0;
 
 				packet->lights =
-					(ac.lights.isNavigationEnabled() << 0)
-					| (ac.lights.isStrobeEnabled() << 1)
-					| (ac.lights.isLandingEnabled() << 2)
-					| (ac.lights.isCabinEnabled() << 3);
+					(ac.settings.lights.nav << 0)
+					| (ac.settings.lights.strobe << 1)
+					| (ac.settings.lights.landing << 2)
+					| (ac.settings.lights.cabin << 3);
 
 				uart_write_bytes(UART_NUM_0, _buffer, sizeof(SimLinkAircraftPacket));
 			}

@@ -38,7 +38,6 @@ namespace pizda {
 		
 		// Autopilot
 		fbw.setup();
-		fbw.start();
 		
 		#ifdef SIM
 			simLink.setup();

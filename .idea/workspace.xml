@@ -170,13 +170,24 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="хотя хз, чота доверия не внушает">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="лан, пох, пока так">
+      <change afterPath="$PROJECT_DIR$/main/types/settings/motorsSettings.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/aircraft.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/config.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/flyByWire.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/flyByWire.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/flyByWire.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/flyByWire.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/lights.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/lights.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/lights.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/lights.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/motors.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/motors.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/simLink/simLink.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/simLink/simLink.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftCommunicationManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftCommunicationManager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftCommunicationManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftCommunicationManager.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/communicationManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/communicationManager.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/generic.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/generic.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/remoteData.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/remoteData.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/settings/motorSettings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/settings/lightsSettings.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/settings/settings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/settings/settings.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -750,11 +761,6 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="apidoc" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="apidoc" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -1228,14 +1234,8 @@
       <workItem from="1768132671324" duration="4191000" />
       <workItem from="1768568483298" duration="3952000" />
       <workItem from="1768592702688" duration="18749000" />
-    </task>
-    <task id="LOCAL-00080" summary="то ли флоаты пиздливые, то ли че">
-      <option name="closed" value="true" />
-      <created>1766611372107</created>
-      <option name="number" value="00080" />
-      <option name="presentableId" value="LOCAL-00080" />
-      <option name="project" value="LOCAL" />
-      <updated>1766611372107</updated>
+      <workItem from="1768673147400" duration="7791000" />
+      <workItem from="1768740616435" duration="78000" />
     </task>
     <task id="LOCAL-00081" summary="то ли флоаты пиздливые, то ли че">
       <option name="closed" value="true" />
@@ -1621,7 +1621,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768665806178</updated>
     </task>
-    <option name="localTasksCounter" value="129" />
+    <task id="LOCAL-00129" summary="лан, пох, пока так">
+      <option name="closed" value="true" />
+      <created>1768669756278</created>
+      <option name="number" value="00129" />
+      <option name="presentableId" value="LOCAL-00129" />
+      <option name="project" value="LOCAL" />
+      <updated>1768669756278</updated>
+    </task>
+    <option name="localTasksCounter" value="130" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1644,7 +1652,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="фиксики закоптились" />
     <MESSAGE value="автопилик готов к труду и обороне!" />
     <MESSAGE value="с новым годом, посоны и посонессы!!1" />
     <MESSAGE value="попробовать что ли к флайтсиму подрубить эту хуйню - по идее удобно будет" />
@@ -1669,7 +1676,8 @@
     <MESSAGE value="бля да че за интерференции откуда" />
     <MESSAGE value="так, ну вроде с костыльынм интервалом пиздато работает - можно оставить" />
     <MESSAGE value="хотя хз, чота доверия не внушает" />
-    <option name="LAST_COMMIT_MESSAGE" value="хотя хз, чота доверия не внушает" />
+    <MESSAGE value="лан, пох, пока так" />
+    <option name="LAST_COMMIT_MESSAGE" value="лан, пох, пока так" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

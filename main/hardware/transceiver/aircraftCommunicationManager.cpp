@@ -261,8 +261,6 @@ namespace pizda {
 			(
 				RemoteMotorConfigurationPacket::minLengthBits
 				+ RemoteMotorConfigurationPacket::maxLengthBits
-				+ RemoteMotorConfigurationPacket::startupLengthBits
-				+ RemoteMotorConfigurationPacket::offsetLengthBits
 				+ 1
 			)
 			* 8,
@@ -273,20 +271,21 @@ namespace pizda {
 		const auto read = [&stream](MotorConfiguration& configuration) {
 			configuration.min = stream.readUint16(RemoteMotorConfigurationPacket::minLengthBits);
 			configuration.max = stream.readUint16(RemoteMotorConfigurationPacket::maxLengthBits);
-			configuration.startup = stream.readUint16(RemoteMotorConfigurationPacket::startupLengthBits);
-			configuration.offset = stream.readInt16(RemoteMotorConfigurationPacket::offsetLengthBits);
 			configuration.reverse = stream.readBool();
 			configuration.sanitize();
 			
-			ESP_LOGI(_logTag, "min: %d, max: %d, startup: %d, offset: %d, reverse: %d", configuration.min, configuration.max, configuration.startup, configuration.offset, configuration.reverse);
+			ESP_LOGI(_logTag, "min: %d, max: %d, reverse: %d", configuration.min, configuration.max, configuration.reverse);
 		};
 		
 		read(ac.settings.motors.throttle);
 		read(ac.settings.motors.noseWheel);
-		read(ac.settings.motors.aileronLeft);
-		read(ac.settings.motors.aileronRight);
+		
 		read(ac.settings.motors.flapLeft);
+		read(ac.settings.motors.aileronLeft);
+
 		read(ac.settings.motors.flapRight);
+		read(ac.settings.motors.aileronRight);
+
 		read(ac.settings.motors.tailLeft);
 		read(ac.settings.motors.tailRight);
 		
@@ -439,10 +438,10 @@ namespace pizda {
 		
 		// -------------------------------- Lights --------------------------------
 		
-		stream.writeBool(ac.lights.isNavigationEnabled());
-		stream.writeBool(ac.lights.isStrobeEnabled());
-		stream.writeBool(ac.lights.isLandingEnabled());
-		stream.writeBool(ac.lights.isCabinEnabled());
+		stream.writeBool(ac.settings.lights.nav);
+		stream.writeBool(ac.settings.lights.strobe);
+		stream.writeBool(ac.settings.lights.landing);
+		stream.writeBool(ac.settings.lights.cabin);
 		
 		// -------------------------------- Autopilot --------------------------------
 		

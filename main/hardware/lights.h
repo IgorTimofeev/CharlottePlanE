@@ -12,44 +12,38 @@ namespace pizda {
 			void setup();
 			void start();
 			
-			bool isCabinEnabled() const;
 			void setCabinEnabled(bool value);
-			
-			bool isNavigationEnabled() const;
 			void setNavigationEnabled(bool value);
-
-			bool isStrobeEnabled() const;
 			void setStrobeEnabled(bool value);
-
-			bool isLandingEnabled() const;
 			void setLandingEnabled(bool value);
-
-			bool isEmergencyEnabled() const;
 			void setEmergencyEnabled(bool emergencyEnabled);
 
 		private:
+			constexpr static uint8_t tailDimmedValue = 0x22;
+			
 			TaskHandle_t taskHandle = nullptr;
-
-//			Strip tail {
-//				config::lights::tail::pin,
-//				config::lights::tail::length
-//			};
+			
+			bool _emergency = false;
+			
+			Light leftWing {
+				config::lights::wingLeft::pin,
+				config::lights::wingLeft::length
+			};
+			
+			Light rightWing {
+				config::lights::wingRight::pin,
+				config::lights::wingRight::length
+			};
+			
+			Light tail {
+				config::lights::tail::pin,
+				config::lights::tail::length
+			};
 			
 			Light cabin {
 				config::lights::cabin::pin,
 				config::lights::cabin::length
 			};
-
-			Light leftWing {
-				config::lights::leftWing::pin,
-				config::lights::leftWing::length
-			};
-			
-			bool cabinEnabled = false;
-			bool navigationEnabled = false;
-			bool strobeEnabled = false;
-			bool landingEnabled = false;
-			bool emergencyEnabled = false;
 			
 			bool delay(uint32_t ms);
 			void wake();

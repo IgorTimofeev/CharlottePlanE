@@ -25,67 +25,59 @@ namespace pizda {
 		);
 	}
 	
-	bool Lights::isCabinEnabled() const {
-		return cabinEnabled;
-	}
-	
 	void Lights::setCabinEnabled(bool value) {
-		if (value == cabinEnabled)
+		auto& ac = Aircraft::getInstance();
+		
+		if (value == ac.settings.lights.cabin)
 			return;
 		
-		cabinEnabled = value;
+		ac.settings.lights.cabin = value;
+		ac.settings.lights.scheduleWrite();
 		
 		wake();
-	}
-
-	bool Lights::isNavigationEnabled() const {
-		return navigationEnabled;
 	}
 
 	void Lights::setNavigationEnabled(bool value) {
-		if (value == navigationEnabled)
+		auto& ac = Aircraft::getInstance();
+		
+		if (value == ac.settings.lights.nav)
 			return;
-
-		navigationEnabled = value;
+		
+		ac.settings.lights.nav = value;
+		ac.settings.lights.scheduleWrite();
 		
 		wake();
-	}
-
-	bool Lights::isStrobeEnabled() const {
-		return strobeEnabled;
 	}
 
 	void Lights::setStrobeEnabled(bool value) {
-		if (value == strobeEnabled)
+		auto& ac = Aircraft::getInstance();
+		
+		if (value == ac.settings.lights.strobe)
 			return;
-
-		strobeEnabled = value;
+		
+		ac.settings.lights.strobe = value;
+		ac.settings.lights.scheduleWrite();
 		
 		wake();
-	}
-
-	bool Lights::isLandingEnabled() const {
-		return landingEnabled;
 	}
 
 	void Lights::setLandingEnabled(bool value) {
-		if (value == landingEnabled)
+		auto& ac = Aircraft::getInstance();
+		
+		if (value == ac.settings.lights.landing)
 			return;
-
-		landingEnabled = value;
+		
+		ac.settings.lights.landing = value;
+		ac.settings.lights.scheduleWrite();
 		
 		wake();
 	}
 
-	bool Lights::isEmergencyEnabled() const {
-		return emergencyEnabled;
-	}
-
 	void Lights::setEmergencyEnabled(bool value) {
-		if (value == emergencyEnabled)
+		if (value == _emergency)
 			return;
 
-		emergencyEnabled = value;
+		_emergency = value;
 		
 		wake();
 	}
@@ -101,8 +93,10 @@ namespace pizda {
 	}
 	
 	void Lights::updateNavOrLanding(Light& light, const uint8_t r, const uint8_t g, const uint8_t b) const {
+		const auto& ac = Aircraft::getInstance();
+		
 		// Navigation
-		if (navigationEnabled) {
+		if (ac.settings.lights.nav) {
 			light.fill(r, g, b);
 		}
 		else {
@@ -110,14 +104,16 @@ namespace pizda {
 		}
 
 		// Landing
-		if (landingEnabled)
+		if (ac.settings.lights.landing)
 			light.fill(0, light.getLength() / 2, 0xFF, 0xFF, 0xFF);
 
 		light.flush();
 	}
 
 	void Lights::updateStrobes(Light& light, const uint8_t r, const uint8_t g, const uint8_t b) {
-		if (strobeEnabled) {
+		const auto& ac = Aircraft::getInstance();
+		
+		if (ac.settings.lights.strobe) {
 			light.fill(0xFF);
 			light.flush();
 		}
@@ -127,6 +123,8 @@ namespace pizda {
 	}
 	
 	[[noreturn]] void Lights::onStart() {
+		const auto& ac = Aircraft::getInstance();
+		
 		//             0       500       1000 ms
 		//             +--------+---------+
 		// Left wing:  WRWRRRRRRRRRRRRRRRRR
@@ -134,40 +132,59 @@ namespace pizda {
 		// Tail:       DDDWDDDDDDDDDDDDDDDD
 
 		while (true) {
-			if (emergencyEnabled) {
-				// Cabin
-				cabin.fill(0xFF, 0x00, 0x00);
-				cabin.flush();
-				
+			if (_emergency) {
 				// Left wing
 				leftWing.fill(0xFF, 0x00, 0x00);
 				leftWing.flush();
+				
+				// Right wing
+				leftWing.fill(0xFF, 0x00, 0x00);
+				leftWing.flush();
+				
+				// Tail
+				leftWing.fill(0xFF, 0x00, 0x00);
+				leftWing.flush();
+				
+				// Cabin
+				cabin.fill(0xFF, 0x00, 0x00);
+				cabin.flush();
 
 				if (delay(500))
 					continue;
 				
-				// Cabin
-				cabin.fill(0x00);
-				cabin.flush();
-				
 				// Left wing
 				leftWing.fill(0x00);
 				leftWing.flush();
+				
+				// Right wing
+				leftWing.fill(0x00);
+				leftWing.flush();
+				
+				// Tail
+				leftWing.fill(0x00);
+				leftWing.flush();
+				
+				// Cabin
+				cabin.fill(0x00);
+				cabin.flush();
 				
 				if (delay(500))
 					continue;
 			}
 			else {
 				// Cabin
-				cabin.fill(cabinEnabled ? 0xFF : 0x00);
+				cabin.fill(ac.settings.lights.cabin ? 0xFF : 0x00);
 				cabin.flush();
 				
-				// Left wing (strobe 1)
+				// Left wing (strobe 1 or red)
 				updateStrobes(leftWing, 0xFF, 0x00, 0x00);
+				
+				// Right wing (strobe 1 or green)
+				updateStrobes(rightWing, 0x00, 0xFF, 0x00);
 
 				// Tail (dimmed)
-//					tail.fill(dimmedChannelValue);
-//					tail.flush();
+				tail.fill(tailDimmedValue);
+				tail.flush();
 				
 				if (delay(50))
 					continue;
@@ -178,25 +195,31 @@ namespace pizda {
 				if (delay(50))
 					continue;
 
-				// Left wing (strobe 2)
+				// Left wing (strobe 2 or red)
 				updateStrobes(leftWing, 0xFF, 0x00, 0x00);
 				
+				// Right wing (strobe 2 or green)
+				updateStrobes(rightWing, 0x00, 0xFF, 0x00);
+				
 				if (delay(50))
 					continue;
 
 				// Left wing (red)
 				updateNavOrLanding(leftWing, 0xFF, 0x00, 0x00);
-
+				
+				// Right wing (green)
+				updateNavOrLanding(rightWing, 0x00, 0xFF, 0x00);
+				
 				// Tail (strobe)
-//					tail.fill(0xFF);
-//					tail.flush();
+				tail.fill(0xFF);
+				tail.flush();
 				
 				if (delay(50))
 					continue;
 
 				// Tail (dimmed)
-//					tail.fill(dimmedChannelValue);
-//					tail.flush();
+				tail.fill(tailDimmedValue);
+				tail.flush();
 				
 				if (delay(16 * 50))
 					continue;

@@ -60,13 +60,13 @@ namespace pizda {
 							constexpr static uint8_t length = 1;
 					};
 
-					class leftWing {
+					class wingLeft {
 						public:
 							constexpr static gpio_num_t pin = GPIO_NUM_40;
 							constexpr static uint8_t length = 6;
 					};
 
-					class rightWing {
+					class wingRight {
 						public:
 							constexpr static gpio_num_t pin = GPIO_NUM_37;
 							constexpr static uint8_t length = 6;

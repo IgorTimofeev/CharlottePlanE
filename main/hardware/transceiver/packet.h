@@ -27,8 +27,6 @@ namespace pizda {
 		public:
 			constexpr static uint8_t minLengthBits = 12;
 			constexpr static uint8_t maxLengthBits = minLengthBits;
-			constexpr static uint8_t startupLengthBits = minLengthBits;
-			constexpr static uint8_t offsetLengthBits = minLengthBits;
 	};
 	
 	class RemoteCalibratePacket {
