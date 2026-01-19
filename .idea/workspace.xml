@@ -8,6 +8,12 @@
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
+  <component name="BackendCodeEditorMiscSettings">
+    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="6" type="long" />
+    <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexedValue" value="true" type="bool" />
+    <option name="/Default/Housekeeping/GlobalSettingsUpgraded/IsUpgraded/@EntryValue" value="true" type="bool" />
+    <option name="/Default/RiderDebugger/RiderRestoreDecompile/RestoreDecompileSetting/@EntryValue" value="false" type="bool" />
+  </component>
   <component name="CMakePresetLoader">{
   &quot;useNewFormat&quot;: true
 }</component>
@@ -19,149 +25,149 @@
   </component>
   <component name="CMakeRunConfigurationManager">
     <generated>
-      <config projectName="CharlottePlanE" targetName="__idf_esp_local_ctrl" />
-      <config projectName="CharlottePlanE" targetName="__idf_tcp_transport" />
-      <config projectName="CharlottePlanE" targetName="partition_table" />
-      <config projectName="CharlottePlanE" targetName="dfu-list" />
-      <config projectName="CharlottePlanE" targetName="menuconfig" />
-      <config projectName="CharlottePlanE" targetName="apidoc" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_common" />
-      <config projectName="CharlottePlanE" targetName="__idf_protocomm" />
-      <config projectName="CharlottePlanE" targetName="efuse_test_table" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_hw_support" />
-      <config projectName="CharlottePlanE" targetName="partition-table-flash" />
-      <config projectName="CharlottePlanE" targetName="encrypted-partition-table-flash" />
-      <config projectName="CharlottePlanE" targetName="partition_table-flash" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_sdm" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_https_server" />
-      <config projectName="CharlottePlanE" targetName="size-components" />
-      <config projectName="CharlottePlanE" targetName="merge-bin" />
-      <config projectName="CharlottePlanE" targetName="confserver" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_touch_sens" />
-      <config projectName="CharlottePlanE" targetName="__idf_bootloader_support" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_lcd" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_rom" />
-      <config projectName="CharlottePlanE" targetName="mbedcrypto" />
-      <config projectName="CharlottePlanE" targetName="__idf_sdmmc" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_ledc" />
-      <config projectName="CharlottePlanE" targetName="__idf_spiffs" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_pm" />
       <config projectName="CharlottePlanE" targetName="size-files" />
-      <config projectName="CharlottePlanE" targetName="__idf_espcoredump" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_mcpwm" />
-      <config projectName="CharlottePlanE" targetName="efuse_common_table" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_bootloader_format" />
-      <config projectName="CharlottePlanE" targetName="encrypted-bootloader-flash" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_security" />
-      <config projectName="CharlottePlanE" targetName="dfu" />
-      <config projectName="CharlottePlanE" targetName="__idf_driver" />
-      <config projectName="CharlottePlanE" targetName="monitor" />
+      <config projectName="CharlottePlanE" targetName="lib" />
+      <config projectName="CharlottePlanE" targetName="flash" />
       <config projectName="CharlottePlanE" targetName="__idf_esp_event" />
-      <config projectName="CharlottePlanE" targetName="CharlottePlanE.elf" />
-      <config projectName="CharlottePlanE" targetName="__ldgen_output_sections.ld" />
-      <config projectName="CharlottePlanE" targetName="encrypted-app-flash" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_partition" />
-      <config projectName="CharlottePlanE" targetName="efuse_custom_table" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_coex" />
-      <config projectName="CharlottePlanE" targetName="partition-table" />
-      <config projectName="CharlottePlanE" targetName="__idf_main" />
-      <config projectName="CharlottePlanE" targetName="__idf_app_trace" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_http_server" />
-      <config projectName="CharlottePlanE" targetName="__idf_newlib" />
-      <config projectName="CharlottePlanE" targetName="__idf_wpa_supplicant" />
-      <config projectName="CharlottePlanE" targetName="dfu-flash" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_phy" />
-      <config projectName="CharlottePlanE" targetName="size" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_hid" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_wifi" />
-      <config projectName="CharlottePlanE" targetName="__idf_ESP-IDF-NVSExtensions" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_mm" />
-      <config projectName="CharlottePlanE" targetName="app" />
-      <config projectName="CharlottePlanE" targetName="_project_elf_src" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_https_ota" />
-      <config projectName="CharlottePlanE" targetName="__idf_freertos" />
-      <config projectName="CharlottePlanE" targetName="__idf_wear_levelling" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_gptimer" />
-      <config projectName="CharlottePlanE" targetName="uf2-app" />
-      <config projectName="CharlottePlanE" targetName="p256m" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_adc" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_eth" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_i2c" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp-tls" />
       <config projectName="CharlottePlanE" targetName="__idf_esp_driver_rmt" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_tsens" />
+      <config projectName="CharlottePlanE" targetName="__idf_nvs_flash" />
+      <config projectName="CharlottePlanE" targetName="partition_table" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_http_server" />
       <config projectName="CharlottePlanE" targetName="__idf_ESP-IDF-Units" />
-      <config projectName="CharlottePlanE" targetName="__idf_json" />
-      <config projectName="CharlottePlanE" targetName="encrypted-flash" />
-      <config projectName="CharlottePlanE" targetName="__idf_fatfs" />
-      <config projectName="CharlottePlanE" targetName="efuse-common-table" />
-      <config projectName="CharlottePlanE" targetName="__idf_vfs" />
-      <config projectName="CharlottePlanE" targetName="app-flash" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_spi" />
-      <config projectName="CharlottePlanE" targetName="efuse-custom-table" />
+      <config projectName="CharlottePlanE" targetName="uf2-app" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_twai" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_touch_sens" />
+      <config projectName="CharlottePlanE" targetName="__idf_protobuf-c" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_common" />
+      <config projectName="CharlottePlanE" targetName="gen_project_binary" />
+      <config projectName="CharlottePlanE" targetName="bootloader-flash" />
+      <config projectName="CharlottePlanE" targetName="dfu" />
+      <config projectName="CharlottePlanE" targetName="__idf_bootloader_support" />
+      <config projectName="CharlottePlanE" targetName="__idf_espressif__led_strip" />
+      <config projectName="CharlottePlanE" targetName="memory.ld" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_pcnt" />
+      <config projectName="CharlottePlanE" targetName="__idf_main" />
+      <config projectName="CharlottePlanE" targetName="__idf_log" />
+      <config projectName="CharlottePlanE" targetName="__ldgen_output_sections.ld" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_https_ota" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_i2c" />
+      <config projectName="CharlottePlanE" targetName="confserver" />
+      <config projectName="CharlottePlanE" targetName="mbedcrypto" />
+      <config projectName="CharlottePlanE" targetName="app" />
+      <config projectName="CharlottePlanE" targetName="show-efuse-table" />
+      <config projectName="CharlottePlanE" targetName="__idf_touch_element" />
+      <config projectName="CharlottePlanE" targetName="__idf_spi_flash" />
+      <config projectName="CharlottePlanE" targetName="efuse_test_table" />
+      <config projectName="CharlottePlanE" targetName="erase_flash" />
+      <config projectName="CharlottePlanE" targetName="partition_table-flash" />
+      <config projectName="CharlottePlanE" targetName="__idf_soc" />
       <config projectName="CharlottePlanE" targetName="__idf_esp_driver_i2s" />
       <config projectName="CharlottePlanE" targetName="__idf_xtensa" />
-      <config projectName="CharlottePlanE" targetName="sections.ld.in" />
-      <config projectName="CharlottePlanE" targetName="lib" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_vfs_console" />
-      <config projectName="CharlottePlanE" targetName="custom_bundle" />
-      <config projectName="CharlottePlanE" targetName="mbedx509" />
-      <config projectName="CharlottePlanE" targetName="__idf_heap" />
-      <config projectName="CharlottePlanE" targetName="__idf_rt" />
-      <config projectName="CharlottePlanE" targetName="bootloader-flash" />
-      <config projectName="CharlottePlanE" targetName="__idf_lwip" />
-      <config projectName="CharlottePlanE" targetName="save-defconfig" />
-      <config projectName="CharlottePlanE" targetName="__idf_pthread" />
-      <config projectName="CharlottePlanE" targetName="__idf_console" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp-tls" />
-      <config projectName="CharlottePlanE" targetName="erase_flash" />
-      <config projectName="CharlottePlanE" targetName="__idf_ESP-IDF-SX1262" />
-      <config projectName="CharlottePlanE" targetName="mbedtls" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_http_client" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_tsens" />
-      <config projectName="CharlottePlanE" targetName="__idf_http_parser" />
-      <config projectName="CharlottePlanE" targetName="__idf_spi_flash" />
-      <config projectName="CharlottePlanE" targetName="__idf_cxx" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_netif" />
-      <config projectName="CharlottePlanE" targetName="__idf_usb" />
-      <config projectName="CharlottePlanE" targetName="memory.ld" />
-      <config projectName="CharlottePlanE" targetName="__idf_soc" />
-      <config projectName="CharlottePlanE" targetName="__idf_wifi_provisioning" />
-      <config projectName="CharlottePlanE" targetName="show_efuse_table" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_gpio" />
-      <config projectName="CharlottePlanE" targetName="__idf_perfmon" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_cam" />
-      <config projectName="CharlottePlanE" targetName="__idf_hal" />
-      <config projectName="CharlottePlanE" targetName="__idf_mbedtls" />
-      <config projectName="CharlottePlanE" targetName="gen_project_binary" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_uart" />
-      <config projectName="CharlottePlanE" targetName="partition_table_bin" />
-      <config projectName="CharlottePlanE" targetName="__idf_mqtt" />
-      <config projectName="CharlottePlanE" targetName="bootloader" />
-      <config projectName="CharlottePlanE" targetName="app_check_size" />
-      <config projectName="CharlottePlanE" targetName="__idf_protobuf-c" />
-      <config projectName="CharlottePlanE" targetName="everest" />
-      <config projectName="CharlottePlanE" targetName="flash" />
-      <config projectName="CharlottePlanE" targetName="uf2" />
-      <config projectName="CharlottePlanE" targetName="__idf_ESP-IDF-BitStream" />
-      <config projectName="CharlottePlanE" targetName="__idf_touch_element" />
-      <config projectName="CharlottePlanE" targetName="show-efuse-table" />
-      <config projectName="CharlottePlanE" targetName="__idf_efuse" />
+      <config projectName="CharlottePlanE" targetName="__idf_driver" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_pm" />
       <config projectName="CharlottePlanE" targetName="__idf_esp_driver_usb_serial_jtag" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_twai" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_sdspi" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_timer" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_wifi" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_sdm" />
+      <config projectName="CharlottePlanE" targetName="__idf_sdmmc" />
+      <config projectName="CharlottePlanE" targetName="__idf_vfs" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_phy" />
+      <config projectName="CharlottePlanE" targetName="CharlottePlanE.elf" />
+      <config projectName="CharlottePlanE" targetName="__idf_mqtt" />
       <config projectName="CharlottePlanE" targetName="__idf_cmock" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_pcnt" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_system" />
-      <config projectName="CharlottePlanE" targetName="__idf_log" />
-      <config projectName="CharlottePlanE" targetName="__idf_unity" />
+      <config projectName="CharlottePlanE" targetName="everest" />
       <config projectName="CharlottePlanE" targetName="__idf_nvs_sec_provider" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_gdbstub" />
-      <config projectName="CharlottePlanE" targetName="__idf_esp_ringbuf" />
-      <config projectName="CharlottePlanE" targetName="__idf_app_update" />
+      <config projectName="CharlottePlanE" targetName="encrypted-partition-table-flash" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_security" />
+      <config projectName="CharlottePlanE" targetName="encrypted-bootloader-flash" />
       <config projectName="CharlottePlanE" targetName="__idf_esp_app_format" />
-      <config projectName="CharlottePlanE" targetName="__idf_espressif__led_strip" />
-      <config projectName="CharlottePlanE" targetName="__idf_nvs_flash" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_vfs_console" />
+      <config projectName="CharlottePlanE" targetName="__idf_app_update" />
+      <config projectName="CharlottePlanE" targetName="__idf_wifi_provisioning" />
+      <config projectName="CharlottePlanE" targetName="partition_table_bin" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_bootloader_format" />
+      <config projectName="CharlottePlanE" targetName="__idf_heap" />
+      <config projectName="CharlottePlanE" targetName="save-defconfig" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_hid" />
+      <config projectName="CharlottePlanE" targetName="efuse-custom-table" />
+      <config projectName="CharlottePlanE" targetName="__idf_lwip" />
+      <config projectName="CharlottePlanE" targetName="__idf_http_parser" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_lcd" />
+      <config projectName="CharlottePlanE" targetName="efuse_custom_table" />
+      <config projectName="CharlottePlanE" targetName="dfu-flash" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_mm" />
+      <config projectName="CharlottePlanE" targetName="app_check_size" />
+      <config projectName="CharlottePlanE" targetName="__idf_unity" />
+      <config projectName="CharlottePlanE" targetName="p256m" />
+      <config projectName="CharlottePlanE" targetName="__idf_ESP-IDF-NVSExtensions" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_adc" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_uart" />
+      <config projectName="CharlottePlanE" targetName="_project_elf_src" />
+      <config projectName="CharlottePlanE" targetName="__idf_mbedtls" />
+      <config projectName="CharlottePlanE" targetName="__idf_newlib" />
+      <config projectName="CharlottePlanE" targetName="__idf_efuse" />
+      <config projectName="CharlottePlanE" targetName="__idf_perfmon" />
+      <config projectName="CharlottePlanE" targetName="__idf_ESP-IDF-BitStream" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_hw_support" />
+      <config projectName="CharlottePlanE" targetName="dfu-list" />
+      <config projectName="CharlottePlanE" targetName="encrypted-flash" />
+      <config projectName="CharlottePlanE" targetName="custom_bundle" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_system" />
+      <config projectName="CharlottePlanE" targetName="menuconfig" />
+      <config projectName="CharlottePlanE" targetName="efuse_common_table" />
+      <config projectName="CharlottePlanE" targetName="__idf_cxx" />
+      <config projectName="CharlottePlanE" targetName="__idf_spiffs" />
+      <config projectName="CharlottePlanE" targetName="bootloader" folderName="ExternalProjectTargets/bootloader" />
+      <config projectName="CharlottePlanE" targetName="__idf_freertos" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_eth" />
+      <config projectName="CharlottePlanE" targetName="app-flash" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_ledc" />
+      <config projectName="CharlottePlanE" targetName="monitor" />
+      <config projectName="CharlottePlanE" targetName="mbedx509" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_gpio" />
+      <config projectName="CharlottePlanE" targetName="__idf_hal" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_cam" />
+      <config projectName="CharlottePlanE" targetName="apidoc" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_https_server" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_coex" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_mcpwm" />
+      <config projectName="CharlottePlanE" targetName="size-components" />
+      <config projectName="CharlottePlanE" targetName="__idf_wear_levelling" />
+      <config projectName="CharlottePlanE" targetName="show_efuse_table" />
+      <config projectName="CharlottePlanE" targetName="__idf_fatfs" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_rom" />
+      <config projectName="CharlottePlanE" targetName="__idf_espcoredump" />
+      <config projectName="CharlottePlanE" targetName="partition-table" />
+      <config projectName="CharlottePlanE" targetName="uf2" />
+      <config projectName="CharlottePlanE" targetName="__idf_pthread" />
+      <config projectName="CharlottePlanE" targetName="encrypted-app-flash" />
+      <config projectName="CharlottePlanE" targetName="__idf_json" />
+      <config projectName="CharlottePlanE" targetName="__idf_tcp_transport" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_sdspi" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_netif" />
+      <config projectName="CharlottePlanE" targetName="__idf_app_trace" />
+      <config projectName="CharlottePlanE" targetName="size" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_timer" />
+      <config projectName="CharlottePlanE" targetName="__idf_wpa_supplicant" />
+      <config projectName="CharlottePlanE" targetName="__idf_rt" />
+      <config projectName="CharlottePlanE" targetName="mbedtls" />
+      <config projectName="CharlottePlanE" targetName="__idf_protocomm" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_partition" />
+      <config projectName="CharlottePlanE" targetName="efuse-common-table" />
+      <config projectName="CharlottePlanE" targetName="__idf_ESP-IDF-SX1262" />
+      <config projectName="CharlottePlanE" targetName="__idf_usb" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_local_ctrl" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_http_client" />
       <config projectName="CharlottePlanE" targetName="__idf_esp_driver_sdmmc" />
+      <config projectName="CharlottePlanE" targetName="partition-table-flash" />
+      <config projectName="CharlottePlanE" targetName="__idf_console" />
+      <config projectName="CharlottePlanE" targetName="sections.ld.in" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_gptimer" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_driver_spi" />
+      <config projectName="CharlottePlanE" targetName="merge-bin" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_ringbuf" />
+      <config projectName="CharlottePlanE" targetName="__idf_esp_gdbstub" />
     </generated>
   </component>
   <component name="CMakeSettings">
@@ -171,18 +177,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="пойдет">
+      <change beforePath="$PROJECT_DIR$/.idea/PlanE.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/PlanE.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262Ex.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/config.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/flyByWire.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/flyByWire.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/SX1262Transceiver.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/SX1262Transceiver.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftCommunicationManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/aircraftCommunicationManager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/communicationManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/communicationManager.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/transceiver.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/transceiver.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/types/settings/controlSettings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/settings/trimSettings.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/types/settings/settings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/settings/settings.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/simLink/simLink.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/simLink/simLink.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -210,11 +207,14 @@
     &quot;accountId&quot;: &quot;b6e59770-aacc-4d0a-9c35-a4c42d46b1c1&quot;
   }
 }</component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="LL9D3MHb" />
+  </component>
   <component name="OCResolveContextSettings">
     <option name="configuration" value="0-Debug-__idf_main" />
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
+    <option name="selectedTabId" value="ProjectErrors" />
   </component>
   <component name="ProjectApplicationVersion">
     <option name="ide" value="CLion" />
@@ -234,31 +234,33 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;CMake Application.CharlottePlanE.elf.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.west.config.association.type.startup.service&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Igor/Documents/Code/MCU/ESP32/Charlotte/PlanE/main/types/settings&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.sourceCode.C/C++&quot;,
-    &quot;structure.view.defaults.are.configured&quot;: &quot;true&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "CMake Application.CharlottePlanE.elf.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.RadMigrateCodeStyle": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "RunOnceActivity.west.config.association.type.startup.service": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "C:/Users/Igor/Documents/Code/MCU/ESP32/Charlotte/PlanE/main/types/settings",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "preferences.sourceCode.C/C++",
+    "structure.view.defaults.are.configured": "true",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\types\settings" />
@@ -756,6 +758,11 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="apidoc" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="apidoc" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -781,7 +788,7 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="bootloader" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="bootloader" CONFIG_NAME="Debug">
+    <configuration name="bootloader" type="CMakeRunConfiguration" factoryName="Application" folderName="ExternalProjectTargets/bootloader" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="bootloader" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -992,6 +999,7 @@
       </method>
     </configuration>
     <list>
+      <item itemvalue="CMake Application.bootloader" />
       <item itemvalue="CMake Application.CharlottePlanE.elf" />
       <item itemvalue="CMake Application.__idf_ESP-IDF-BitStream" />
       <item itemvalue="CMake Application.__idf_ESP-IDF-NVSExtensions" />
@@ -1093,7 +1101,6 @@
       <item itemvalue="CMake Application.app" />
       <item itemvalue="CMake Application.app_check_size" />
       <item itemvalue="CMake Application.bootloader-flash" />
-      <item itemvalue="CMake Application.bootloader" />
       <item itemvalue="CMake Application.confserver" />
       <item itemvalue="CMake Application.custom_bundle" />
       <item itemvalue="CMake Application.dfu-flash" />
@@ -1234,23 +1241,9 @@
       <workItem from="1768759346583" duration="1034000" />
       <workItem from="1768761459314" duration="4248000" />
       <workItem from="1768766500448" duration="2000" />
-      <workItem from="1768766919431" duration="127000" />
-    </task>
-    <task id="LOCAL-00082" summary="уууу, а РССИ-то я чет забыл">
-      <option name="closed" value="true" />
-      <created>1766613118689</created>
-      <option name="number" value="00082" />
-      <option name="presentableId" value="LOCAL-00082" />
-      <option name="project" value="LOCAL" />
-      <updated>1766613118689</updated>
-    </task>
-    <task id="LOCAL-00083" summary="щас надо подсосать эту хуйню с битстримом">
-      <option name="closed" value="true" />
-      <created>1766667384337</created>
-      <option name="number" value="00083" />
-      <option name="presentableId" value="LOCAL-00083" />
-      <option name="project" value="LOCAL" />
-      <updated>1766667384338</updated>
+      <workItem from="1768766919431" duration="1559000" />
+      <workItem from="1768781316350" duration="79000" />
+      <workItem from="1768828897930" duration="1170000" />
     </task>
     <task id="LOCAL-00084" summary="все, заебумба, можно делать 2-стороннюю отсылку">
       <option name="closed" value="true" />
@@ -1628,7 +1621,23 @@
       <option name="project" value="LOCAL" />
       <updated>1768741078598</updated>
     </task>
-    <option name="localTasksCounter" value="131" />
+    <task id="LOCAL-00131" summary="пойдет">
+      <option name="closed" value="true" />
+      <created>1768767268590</created>
+      <option name="number" value="00131" />
+      <option name="presentableId" value="LOCAL-00131" />
+      <option name="project" value="LOCAL" />
+      <updated>1768767268590</updated>
+    </task>
+    <task id="LOCAL-00132" summary="пойдет">
+      <option name="closed" value="true" />
+      <created>1768767298130</created>
+      <option name="number" value="00132" />
+      <option name="presentableId" value="LOCAL-00132" />
+      <option name="project" value="LOCAL" />
+      <updated>1768767298130</updated>
+    </task>
+    <option name="localTasksCounter" value="133" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
