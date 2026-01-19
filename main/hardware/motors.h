@@ -29,12 +29,12 @@ namespace pizda {
 			constexpr static uint8_t dutyLengthBits = 13;
 			constexpr static uint32_t dutyMax = (1 << dutyLengthBits) - 1;
 			
-			void setup();
+			void setup() const;
 			void setPulseWidth(uint16_t pulseWidth) const;
 			void setDuty(uint32_t duty) const;
 			
 			uint16_t getPower() const;
-			float getPowerF();
+			float getPowerF() const;
 			
 			void setPower(uint16_t value);
 			void setPowerF(float value);

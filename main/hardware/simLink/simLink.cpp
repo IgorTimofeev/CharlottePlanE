@@ -42,7 +42,7 @@ namespace pizda {
 			
 			// Reading
 			if (bytesRead >= sizeof(SimLinkSimPacket)) {
-				auto packet = reinterpret_cast<SimLinkSimPacket*>(_buffer);
+				const auto packet = reinterpret_cast<SimLinkSimPacket*>(_buffer);
 
 				if (packet->header == SimLinkPacket::header) {
 					_lastSimPacket = *packet;
@@ -60,7 +60,7 @@ namespace pizda {
 			{
 //				ESP_LOGI("SimLink", "writing");
 
-				auto packet = reinterpret_cast<SimLinkAircraftPacket*>(_buffer);
+				const auto packet = reinterpret_cast<SimLinkAircraftPacket*>(_buffer);
 
 				const auto throttle = ac.motors.getMotor(MotorType::throttle);
 				const auto ailerons = ac.motors.getMotor(MotorType::aileronLeft);

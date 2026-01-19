@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vector>
-
 #include <NVSSettings.h>
 #include <NVSStream.h>
 
@@ -70,7 +68,7 @@ namespace pizda {
 				const char* magBiasXKey,
 				const char* magBiasYKey,
 				const char* magBiasZKey
-			) {
+			) const {
 				writeVec(
 					stream,
 					accelBiasXKey,

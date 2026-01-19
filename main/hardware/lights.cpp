@@ -4,7 +4,7 @@
 #include "aircraft.h"
 
 namespace pizda {
-	void Lights::setup() {
+	void Lights::setup() const {
 //				tail.fill(0x00);
 //				tail.flush();
 
@@ -15,7 +15,7 @@ namespace pizda {
 	void Lights::start() {
 		xTaskCreate(
 			[](void* arg) {
-				reinterpret_cast<Lights*>(arg)->onStart();
+				static_cast<Lights*>(arg)->onStart();
 			},
 			"lights",
 			4096,
@@ -25,7 +25,7 @@ namespace pizda {
 		);
 	}
 	
-	void Lights::setCabinEnabled(bool value) {
+	void Lights::setCabinEnabled(const bool value) const {
 		auto& ac = Aircraft::getInstance();
 		
 		if (value == ac.settings.lights.cabin)
@@ -37,7 +37,7 @@ namespace pizda {
 		wake();
 	}
 
-	void Lights::setNavigationEnabled(bool value) {
+	void Lights::setNavigationEnabled(const bool value) const {
 		auto& ac = Aircraft::getInstance();
 		
 		if (value == ac.settings.lights.nav)
@@ -49,7 +49,7 @@ namespace pizda {
 		wake();
 	}
 
-	void Lights::setStrobeEnabled(bool value) {
+	void Lights::setStrobeEnabled(const bool value) const {
 		auto& ac = Aircraft::getInstance();
 		
 		if (value == ac.settings.lights.strobe)
@@ -61,7 +61,7 @@ namespace pizda {
 		wake();
 	}
 
-	void Lights::setLandingEnabled(bool value) {
+	void Lights::setLandingEnabled(const bool value) const {
 		auto& ac = Aircraft::getInstance();
 		
 		if (value == ac.settings.lights.landing)
@@ -73,7 +73,7 @@ namespace pizda {
 		wake();
 	}
 
-	void Lights::setEmergencyEnabled(bool value) {
+	void Lights::setEmergencyEnabled(const bool value) {
 		if (value == _emergency)
 			return;
 
@@ -84,15 +84,15 @@ namespace pizda {
 	
 	// -------------------------------- Processing --------------------------------
 	
-	bool Lights::delay(uint32_t ms) {
+	bool Lights::delay(const uint32_t ms) {
 		return ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(ms)) > 0;
 	}
 	
-	void Lights::wake() {
+	void Lights::wake() const {
 		xTaskNotifyGive(taskHandle);
 	}
 	
-	void Lights::updateNavOrLanding(Light& light, const uint8_t r, const uint8_t g, const uint8_t b) const {
+	void Lights::updateNavOrLanding(const Light& light, const uint8_t r, const uint8_t g, const uint8_t b) {
 		const auto& ac = Aircraft::getInstance();
 		
 		// Navigation
@@ -110,7 +110,7 @@ namespace pizda {
 		light.flush();
 	}
 
-	void Lights::updateStrobes(Light& light, const uint8_t r, const uint8_t g, const uint8_t b) {
+	void Lights::updateStrobes(const Light& light, const uint8_t r, const uint8_t g, const uint8_t b) {
 		const auto& ac = Aircraft::getInstance();
 		
 		if (ac.settings.lights.strobe) {
@@ -122,7 +122,7 @@ namespace pizda {
 		}
 	}
 	
-	[[noreturn]] void Lights::onStart() {
+	[[noreturn]] void Lights::onStart() const {
 		const auto& ac = Aircraft::getInstance();
 		
 		//             0       500       1000 ms

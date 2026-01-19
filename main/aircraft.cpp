@@ -58,7 +58,7 @@ namespace pizda {
 		}
 	}
 
-	void Aircraft::SPIBusSetup() const {
+	void Aircraft::SPIBusSetup() {
 		spi_bus_config_t busConfig {};
 		busConfig.mosi_io_num = config::spi::MOSI;
 		busConfig.miso_io_num = config::spi::MISO;

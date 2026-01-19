@@ -118,11 +118,11 @@ namespace pizda {
 			constexpr static int16_t altitudeMinM = RemoteAutopilotPacket::altitudeMinM;
 			constexpr static int16_t altitudeMaxM = RemoteAutopilotPacket::altitudeMaxM;
 			
-			constexpr static uint8_t autopilotRollLengthBits = AircraftADIRSPacket::rollLengthBits;
-			constexpr static float autopilotRollRangeRad = AircraftADIRSPacket::rollRangeRad;
+			constexpr static uint8_t autopilotRollLengthBits = rollLengthBits;
+			constexpr static float autopilotRollRangeRad = rollRangeRad;
 			
-			constexpr static uint8_t autopilotPitchLengthBits = AircraftADIRSPacket::pitchLengthBits;
-			constexpr static float autopilotPitchRangeRad = AircraftADIRSPacket::pitchRangeRad;
+			constexpr static uint8_t autopilotPitchLengthBits = pitchLengthBits;
+			constexpr static float autopilotPitchRangeRad = pitchRangeRad;
 	};
 	
 	class AircraftCalibrationPacket {

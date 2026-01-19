@@ -7,7 +7,7 @@
 namespace pizda {
 	class Light {
 		public:
-			Light(gpio_num_t pin, uint8_t length) : _length(length) {
+			Light(const gpio_num_t pin, const uint8_t length) : _length(length) {
 				led_strip_config_t strip_config {};
 				strip_config.strip_gpio_num = pin;
 				strip_config.max_leds = length;
@@ -28,24 +28,24 @@ namespace pizda {
 				return _length;
 			}
 
-			void set(uint8_t index, uint8_t r, uint8_t g, uint8_t b) {
+			void set(const uint8_t index, const uint8_t r, const uint8_t g, const uint8_t b) const {
 				led_strip_set_pixel(_stripHandle, index, r, g, b);
 			}
 
-			void fill(uint8_t index, uint8_t count, uint8_t r, uint8_t g, uint8_t b) {
+			void fill(const uint8_t index, const uint8_t count, const uint8_t r, const uint8_t g, const uint8_t b) const {
 				for (uint8_t i = index; i < index + count; i++)
 					set(i, r, g, b);
 			}
 
-			void fill(uint8_t r, uint8_t g, uint8_t b) {
+			void fill(const uint8_t r, const uint8_t g, const uint8_t b) const {
 				fill(0, _length, r, g, b);
 			}
 
-			void fill(uint8_t value) {
+			void fill(const uint8_t value) const {
 				fill(value, value, value);
 			}
 
-			void flush() {
+			void flush() const {
 				led_strip_refresh(_stripHandle);
 			}
 

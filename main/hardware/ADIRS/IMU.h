@@ -22,31 +22,31 @@ namespace pizda {
 				const Vector3F& gyroData,
 				const Vector3F& magData,
 
-				float deltaTimeS,
+				const float deltaTimeS,
 
-				float accelGyroTrustFactorMin,
-				float accelGyroTrustFactorMax,
+				const float accelGyroTrustFactorMin,
+				const float accelGyroTrustFactorMax,
 
-				float magGyroTrustFactorMin,
-				float magGyroTrustFactorMax,
+				const float magGyroTrustFactorMin,
+				const float magGyroTrustFactorMax,
 
 				float& rollRad,
 				float& pitchRad,
 				float& yawRad,
 
-				bool log
+				const bool log
 			) {
 				const float accelMagnitude = accelData.getLength();
 
-				float accelRoll = -std::atan2(accelData.getX(), accelData.getZ());
-				float accelPitch = std::atan2(accelData.getY(), accelData.getZ());
+				const float accelRoll = -std::atan2(accelData.getX(), accelData.getZ());
+				const float accelPitch = std::atan2(accelData.getY(), accelData.getZ());
 
 //				float accelRoll = -std::atan2(accelData.getX(), std::sqrt(accelData.getY() * accelData.getY() + accelData.getZ() * accelData.getZ()));
 //				float accelPitch = std::atan2(accelData.getY(), std::sqrt(accelData.getX() * accelData.getX() + accelData.getZ() * accelData.getZ()));
 
-				float gyroRoll = rollRad + toRadians(gyroData.getY()) * deltaTimeS;
-				float gyroPitch = pitchRad + toRadians(gyroData.getX()) * deltaTimeS;
-				float gyroYaw = yawRad + toRadians(gyroData.getX()) * deltaTimeS;
+				const float gyroRoll = rollRad + toRadians(gyroData.getY()) * deltaTimeS;
+				const float gyroPitch = pitchRad + toRadians(gyroData.getX()) * deltaTimeS;
+				const float gyroYaw = yawRad + toRadians(gyroData.getX()) * deltaTimeS;
 
 				// Filter itself
 
@@ -78,23 +78,23 @@ namespace pizda {
 				}
 			}
 
-			static Vector3F applyTiltCompensation(const Vector3F& vec, float rollRad, float pitchRad) {
-				auto result = vec.rotateAroundXAxis(pitchRad);
+			static Vector3F applyTiltCompensation(const Vector3F& vec, const float rollRad, const float pitchRad) {
+				const auto result = vec.rotateAroundXAxis(pitchRad);
 				return result.rotateAroundYAxis(rollRad);
 			}
 
 		private:
-			static float getGyroTrustFactor(float trustFactorMin, float trustFactorMax, float accelMagnitude) {
+			static float getGyroTrustFactor(const float trustFactorMin, const float trustFactorMax, const float accelMagnitude) {
 				// Normally accel magnitude should ~= 1G
 				const float accelError = std::abs(accelMagnitude - 1);
 				// Let error threshold also be 1G
-				const float accelErrorThreshold = 1;
+				constexpr static float accelErrorThreshold = 1;
 				const float accelMagnitudeFactor = std::clamp(accelError / accelErrorThreshold, 0.0f, 1.0f);
 
 				return trustFactorMin + (trustFactorMax - trustFactorMin) * accelMagnitudeFactor;
 			}
 
-			static float applyGyroTrustFactor(float gyroValue, float nonGyroValue, float gyroTrustFactor) {
+			static float applyGyroTrustFactor(const float gyroValue, const float nonGyroValue, const float gyroTrustFactor) {
 				return gyroTrustFactor * gyroValue + (1.0f - gyroTrustFactor) * nonGyroValue;
 			}
 	};

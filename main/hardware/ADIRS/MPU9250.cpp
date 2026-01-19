@@ -20,7 +20,6 @@
 
 #include "MPU9250.h"
 
-#include <cstdint>
 #include <cmath>
 #include <esp_log.h>
 
@@ -52,7 +51,7 @@ namespace pizda {
 		return true;
 	}
 
-	uint8_t MPU9250::getWhoAmI() {
+	uint8_t MPU9250::getWhoAmI() const {
 		return readMPU9250Register8(REGISTER_WHO_AM_I);
 	}
 
@@ -91,18 +90,18 @@ namespace pizda {
 //		gyrOffsetVal = gyroAcc;
 //	}
 
-	void MPU9250::setGyroDLPF(MPU9250_dlpf dlpf) {
+	void MPU9250::setGyroDLPF(const MPU9250_dlpf dlpf) const {
 		uint8_t regVal = readMPU9250Register8(REGISTER_CONFIG);
 		regVal &= 0xF8;
 		regVal |= dlpf;
 		writeMPU9250Register(REGISTER_CONFIG, regVal);
 	}
 
-	void MPU9250::setSRD(uint8_t splRateDiv) {
+	void MPU9250::setSRD(const uint8_t splRateDiv) const {
 		writeMPU9250Register(REGISTER_SMPLRT_DIV, splRateDiv);
 	}
 
-	void MPU9250::setGyroRange(MPU9250_gyroRange gyroRange) {
+	void MPU9250::setGyroRange(const MPU9250_gyroRange gyroRange) {
 		uint8_t regVal = readMPU9250Register8(REGISTER_GYRO_CONFIG);
 		regVal &= 0xE7;
 		regVal |= (gyroRange << 3);
@@ -111,20 +110,20 @@ namespace pizda {
 		gyroScaleFactor = static_cast<float>(1 << gyroRange) * 250.f / 32768.0f;
 	}
 
-	void MPU9250::enableGyroDLPF() {
+	void MPU9250::enableGyroDLPF() const {
 		uint8_t regVal = readMPU9250Register8(REGISTER_GYRO_CONFIG);
 		regVal &= 0xFC;
 		writeMPU9250Register(REGISTER_GYRO_CONFIG, regVal);
 	}
 
-	void MPU9250::disableGyroDLPF(MPU9250_bw_wo_dlpf bw) {
+	void MPU9250::disableGyroDLPF(const MPU9250_bw_wo_dlpf bw) const {
 		uint8_t regVal = readMPU9250Register8(REGISTER_GYRO_CONFIG);
 		regVal &= 0xFC;
 		regVal |= bw;
 		writeMPU9250Register(REGISTER_GYRO_CONFIG, regVal);
 	}
 
-	void MPU9250::setAccelRange(MPU9250_accRange accRange) {
+	void MPU9250::setAccelRange(const MPU9250_accRange accRange) {
 		uint8_t regVal = readMPU9250Register8(REGISTER_ACCEL_CONFIG);
 		regVal &= 0xE7;
 		regVal |= (accRange << 3);
@@ -133,44 +132,44 @@ namespace pizda {
 		accelScaleFactor = (static_cast<float>(1 << accRange) * 2.f / 32768.0f);
 	}
 
-	void MPU9250::enableAccelDLPF() {
+	void MPU9250::enableAccelDLPF() const {
 		uint8_t regVal = readMPU9250Register8(REGISTER_ACCEL_CONFIG_2);
 		regVal &= ~8;
 		writeMPU9250Register(REGISTER_ACCEL_CONFIG_2, regVal);
 	}
 
-	void MPU9250::disableAccelDLPF() {
+	void MPU9250::disableAccelDLPF() const {
 		uint8_t regVal = readMPU9250Register8(REGISTER_ACCEL_CONFIG_2);
 		regVal |= 8;
 		writeMPU9250Register(REGISTER_ACCEL_CONFIG_2, regVal);
 	}
 
-	void MPU9250::setAccelDLPF(MPU9250_dlpf dlpf) {
+	void MPU9250::setAccelDLPF(const MPU9250_dlpf dlpf) const {
 		uint8_t regVal = readMPU9250Register8(REGISTER_ACCEL_CONFIG_2);
 		regVal &= 0xF8;
 		regVal |= dlpf;
 		writeMPU9250Register(REGISTER_ACCEL_CONFIG_2, regVal);
 	}
 
-	void MPU9250::setLowPowerAccelDataRate(MPU9250_lpAccODR lpaodr) {
+	void MPU9250::setLowPowerAccelDataRate(const MPU9250_lpAccODR lpaodr) const {
 		writeMPU9250Register(REGISTER_LP_ACCEL_ODR, lpaodr);
 	}
 
-	void MPU9250::enableAccelAxes(MPU9250_xyzEn enable) {
+	void MPU9250::enableAccelAxes(const MPU9250_xyzEn enable) const {
 		uint8_t regVal = readMPU9250Register8(REGISTER_PWR_MGMT_2);
 		regVal &= ~(0x38);
 		regVal |= (enable << 3);
 		writeMPU9250Register(REGISTER_PWR_MGMT_2, regVal);
 	}
 
-	void MPU9250::enableGyroAxes(MPU9250_xyzEn enable) {
+	void MPU9250::enableGyroAxes(const MPU9250_xyzEn enable) const {
 		uint8_t regVal = readMPU9250Register8(REGISTER_PWR_MGMT_2);
 		regVal &= ~(0x07);
 		regVal |= enable;
 		writeMPU9250Register(REGISTER_PWR_MGMT_2, regVal);
 	}
 
-	Vector3F MPU9250::getAccelData(uint8_t* buffer) {
+	Vector3F MPU9250::getAccelData(const uint8_t* buffer) const {
 		const auto x = static_cast<int16_t>((buffer[0] << 8) | buffer[1]);
 		const auto y = static_cast<int16_t>((buffer[2] << 8) | buffer[3]);
 		const auto z = static_cast<int16_t>((buffer[4] << 8) | buffer[5]);
@@ -182,14 +181,14 @@ namespace pizda {
 		};
 	}
 
-	Vector3F MPU9250::getAccelData() {
+	Vector3F MPU9250::getAccelData() const {
 		uint8_t buffer[6];
 		_bus->read(REGISTER_ACCEL_OUT | 0x80, buffer, 6);
 
 		return getAccelData(buffer);
 	}
 
-	Vector3F MPU9250::getGyroData(uint8_t* buffer) {
+	Vector3F MPU9250::getGyroData(const uint8_t* buffer) const {
 		const auto x = static_cast<int16_t>((buffer[0] << 8) | buffer[1]);
 		const auto y = static_cast<int16_t>((buffer[2] << 8) | buffer[3]);
 		const auto z = static_cast<int16_t>((buffer[4] << 8) | buffer[5]);
@@ -201,14 +200,14 @@ namespace pizda {
 		};
 	}
 
-	Vector3F MPU9250::getGyroData() {
+	Vector3F MPU9250::getGyroData() const {
 		uint8_t buffer[6];
 		_bus->read(REGISTER_GYRO_OUT | 0x80, buffer, 6);
 
 		return getGyroData(buffer);
 	}
 
-	float MPU9250::getTemperature() {
+	float MPU9250::getTemperature() const {
 		int16_t value = 0;
 		_bus->readInt16BE(REGISTER_TEMP_OUT | 0x80, value);
 
@@ -217,7 +216,7 @@ namespace pizda {
 
 	/********* Power, Sleep, Standby *********/
 
-	void MPU9250::setSleepPowerMode(bool sleep) {
+	void MPU9250::setSleepPowerMode(const bool sleep) const {
 		uint8_t regVal = readMPU9250Register8(REGISTER_PWR_MGMT_1);
 		if (sleep) {
 			regVal |= 0x40;
@@ -227,7 +226,7 @@ namespace pizda {
 		writeMPU9250Register(REGISTER_PWR_MGMT_1, regVal);
 	}
 
-	void MPU9250::setCyclePowerMode(bool cycle) {
+	void MPU9250::setCyclePowerMode(const bool cycle) const {
 		uint8_t regVal = readMPU9250Register8(REGISTER_PWR_MGMT_1);
 		if (cycle) {
 			regVal |= 0x20;
@@ -237,7 +236,7 @@ namespace pizda {
 		writeMPU9250Register(REGISTER_PWR_MGMT_1, regVal);
 	}
 
-	void MPU9250::setStandbyPowerMode(bool gyroStandby) {
+	void MPU9250::setStandbyPowerMode(const bool gyroStandby) const {
 		uint8_t regVal = readMPU9250Register8(REGISTER_PWR_MGMT_1);
 		if (gyroStandby) {
 			regVal |= 0x10;
@@ -250,7 +249,7 @@ namespace pizda {
 
 /************** Interrupts ***************/
 
-	void MPU9250::setIntPinPolarity(MPU9250_intPinPol pol) {
+	void MPU9250::setIntPinPolarity(const MPU9250_intPinPol pol) const {
 		uint8_t regVal = readMPU9250Register8(REGISTER_INT_PIN_CFG);
 		if (pol) {
 			regVal |= 0x80;
@@ -260,7 +259,7 @@ namespace pizda {
 		writeMPU9250Register(REGISTER_INT_PIN_CFG, regVal);
 	}
 
-	void MPU9250::enableIntLatch(bool latch) {
+	void MPU9250::enableIntLatch(const bool latch) const {
 		uint8_t regVal = readMPU9250Register8(REGISTER_INT_PIN_CFG);
 		if (latch) {
 			regVal |= 0x20;
@@ -270,7 +269,7 @@ namespace pizda {
 		writeMPU9250Register(REGISTER_INT_PIN_CFG, regVal);
 	}
 
-	void MPU9250::enableClearIntByAnyRead(bool clearByAnyRead) {
+	void MPU9250::enableClearIntByAnyRead(const bool clearByAnyRead) const {
 		uint8_t regVal = readMPU9250Register8(REGISTER_INT_PIN_CFG);
 		if (clearByAnyRead) {
 			regVal |= 0x10;
@@ -280,33 +279,32 @@ namespace pizda {
 		writeMPU9250Register(REGISTER_INT_PIN_CFG, regVal);
 	}
 
-	void MPU9250::enableInterrupt(MPU9250_intType intType) {
+	void MPU9250::enableInterrupt(const MPU9250_intType intType) const {
 		uint8_t regVal = readMPU9250Register8(REGISTER_INT_ENABLE);
 		regVal |= intType;
 		writeMPU9250Register(REGISTER_INT_ENABLE, regVal);
 	}
 
-	void MPU9250::disableInterrupt(MPU9250_intType intType) {
+	void MPU9250::disableInterrupt(const MPU9250_intType intType) const {
 		uint8_t regVal = readMPU9250Register8(REGISTER_INT_ENABLE);
 		regVal &= ~intType;
 		writeMPU9250Register(REGISTER_INT_ENABLE, regVal);
 	}
 
-	bool MPU9250::checkInterrupt(uint8_t source, MPU9250_intType type) {
+	bool MPU9250::checkInterrupt(uint8_t source, const MPU9250_intType type) {
 		source &= type;
 		return source;
 	}
 
-	uint8_t MPU9250::readAndClearInterruptStatus() {
-		uint8_t regVal = readMPU9250Register8(REGISTER_INT_STATUS);
-		return regVal;
+	uint8_t MPU9250::readAndClearInterruptStatus() const {
+		return readMPU9250Register8(REGISTER_INT_STATUS);
 	}
 
-	void MPU9250::setWakeOnMotionThreshold(uint8_t womthresh) {
+	void MPU9250::setWakeOnMotionThreshold(const uint8_t womthresh) const {
 		writeMPU9250Register(REGISTER_WOM_THR, womthresh);
 	}
 
-	void MPU9250::enableWakeOnMotion(MPU9250_womEn womEn, MPU9250_womCompEn womCompEn) {
+	void MPU9250::enableWakeOnMotion(const MPU9250_womEn womEn, const MPU9250_womCompEn womCompEn) const {
 		uint8_t regVal = 0;
 		if (womEn) {
 			regVal |= 0x80;
@@ -319,36 +317,36 @@ namespace pizda {
 
 /***************** FIFO ******************/
 
-	void MPU9250::setFIFODataSource(MPU9250_fifo_data_source dataSourceBitMask) {
+	void MPU9250::setFIFODataSource(const MPU9250_fifo_data_source dataSourceBitMask) const {
 		writeMPU9250Register(REGISTER_FIFO_EN, dataSourceBitMask);
 	}
 
-	void MPU9250::enableFIFO() {
+	void MPU9250::enableFIFO() const {
 		uint8_t regVal = readMPU9250Register8(REGISTER_USER_CTRL);
 		regVal |= 0x40;
 		writeMPU9250Register(REGISTER_USER_CTRL, regVal);
 	}
 
-	void MPU9250::disableFIFO() {
+	void MPU9250::disableFIFO() const {
 		uint8_t regVal = readMPU9250Register8(REGISTER_USER_CTRL);
 		regVal &= ~(0x40);
 		writeMPU9250Register(REGISTER_USER_CTRL, regVal);
 	}
 
-	void MPU9250::resetFIFO() {
+	void MPU9250::resetFIFO() const {
 		uint8_t regVal = readMPU9250Register8(REGISTER_USER_CTRL);
 		regVal |= 0x04;
 		writeMPU9250Register(REGISTER_USER_CTRL, regVal);
 	}
 
-	uint16_t MPU9250::getFIFOCount() {
+	uint16_t MPU9250::getFIFOCount() const {
 		uint16_t value = 0;
 		_bus->readUint16BE(REGISTER_FIFO_COUNT | 0x80, value);
 
 		return value;
 	}
 
-	void MPU9250::setFIFOMode(MPU9250_fifoMode mode) {
+	void MPU9250::setFIFOMode(const MPU9250_fifoMode mode) const {
 		uint8_t regVal = readMPU9250Register8(REGISTER_CONFIG);
 
 		if (mode) {
@@ -407,11 +405,11 @@ namespace pizda {
 		delayMs(10);
 	}
 
-	void MPU9250::writeMPU9250Register(uint8_t reg, uint8_t val) {
+	void MPU9250::writeMPU9250Register(const uint8_t reg, const uint8_t val) const {
 		_bus->writeUint8(reg, val);
 	}
 
-	uint8_t MPU9250::readMPU9250Register8(uint8_t reg) {
+	uint8_t MPU9250::readMPU9250Register8(const uint8_t reg) const {
 		uint8_t result = 0;
 
 		_bus->readUint8(reg | 0x80, result);
@@ -453,7 +451,7 @@ namespace pizda {
 		return readAK8963Register8(REGISTER_AK8963_WIA);
 	}
 
-	void MPU9250::setMagOpMode(AK8963_opMode opMode) {
+	void MPU9250::setMagOpMode(const AK8963_opMode opMode) {
 		uint8_t regVal = readAK8963Register8(REGISTER_AK8963_CNTL_1);
 		regVal &= 0xF0;
 		regVal |= opMode;
@@ -468,7 +466,7 @@ namespace pizda {
      Private Functions
 *************************************************/
 
-	void MPU9250::enableAK8963DataRead(uint8_t reg, uint8_t bytes) {
+	void MPU9250::enableAK8963DataRead(const uint8_t reg, const uint8_t bytes) {
 		writeMPU9250Register(REGISTER_I2C_SLV0_ADDR, MAGNETOMETER_I2C_ADDRESS | REGISTER_VALUE_AK8963_READ); // read AK8963
 		writeMPU9250Register(REGISTER_I2C_SLV0_REG, reg); // define AK8963 register to be read
 		writeMPU9250Register(REGISTER_I2C_SLV0_CTRL, 0b1000'0000 | bytes); // Enable read | number of byte
@@ -480,7 +478,7 @@ namespace pizda {
 		delayMs(100);
 	}
 
-	Vector3F MPU9250::getMagData(uint8_t* buffer) {
+	Vector3F MPU9250::getMagData(const uint8_t* buffer) const {
 		const auto x = static_cast<int16_t>((buffer[1] << 8) | buffer[0]);
 		const auto y = static_cast<int16_t>((buffer[3] << 8) | buffer[2]);
 		const auto z = static_cast<int16_t>((buffer[5] << 8) | buffer[4]);
@@ -492,14 +490,14 @@ namespace pizda {
 		};
 	}
 
-	Vector3F MPU9250::getMagData() {
+	Vector3F MPU9250::getMagData() const {
 		uint8_t rawData[6];
 		readAK8963Data(rawData);
 
 		return getMagData(rawData);
 	}
 
-	void MPU9250::getFIFOData(uint8_t* buffer, uint16_t count) {
+	void MPU9250::getFIFOData(uint8_t* buffer, const uint16_t count) const {
 		_bus->read(REGISTER_FIFO_R_W | 0x80, buffer, count);
 	}
 
@@ -515,13 +513,13 @@ namespace pizda {
 //		ESP_LOGI(_logTag, "ASA vals: %f, %f, %f", magASAFactor.getX(), magASAFactor.getY(), magASAFactor.getZ());
 	}
 
-	void MPU9250::writeAK8963Register(uint8_t reg, uint8_t val) {
+	void MPU9250::writeAK8963Register(const uint8_t reg, const uint8_t val) const {
 		writeMPU9250Register(REGISTER_I2C_SLV0_ADDR, MAGNETOMETER_I2C_ADDRESS); // write AK8963
 		writeMPU9250Register(REGISTER_I2C_SLV0_REG, reg); // define AK8963 register to be written to
 		writeMPU9250Register(REGISTER_I2C_SLV0_DO, val);
 	}
 
-	uint8_t MPU9250::readAK8963Register8(uint8_t reg) {
+	uint8_t MPU9250::readAK8963Register8(const uint8_t reg) {
 		enableAK8963DataRead(reg, 0x01);
 		uint8_t const regVal = readMPU9250Register8(REGISTER_EXT_SLV_SENS_DATA_00);
 		enableAK8963DataRead(REGISTER_AK8963_HXL, 0x08);
@@ -529,7 +527,7 @@ namespace pizda {
 		return regVal;
 	}
 
-	void MPU9250::readAK8963Data(uint8_t* buf) {
+	void MPU9250::readAK8963Data(uint8_t* buf) const {
 		_bus->read(REGISTER_EXT_SLV_SENS_DATA_00 | 0x80, buf, 6);
 
 //	if(!useSPI){
@@ -566,7 +564,7 @@ namespace pizda {
 		return readAK8963Register8(REGISTER_AK8963_STATUS_2);
 	}
 
-	void MPU9250::delayMs(uint32_t ms) {
+	void MPU9250::delayMs(const uint32_t ms) {
 		vTaskDelay(ms <= portTICK_PERIOD_MS ? portTICK_PERIOD_MS : pdMS_TO_TICKS(ms));
 	}
 }

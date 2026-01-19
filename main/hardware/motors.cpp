@@ -4,11 +4,11 @@
 #include "aircraft.h"
 
 namespace pizda {
-	Motor::Motor(const gpio_num_t pin, ledc_channel_t channel) : _pin(pin), _channel(channel) {
+	Motor::Motor(const gpio_num_t pin, const ledc_channel_t channel) : _pin(pin), _channel(channel) {
 	
 	}
 	
-	void Motor::setup() {
+	void Motor::setup() const {
 		ledc_timer_config_t timerConfig {};
 		timerConfig.speed_mode = LEDC_LOW_SPEED_MODE;
 		timerConfig.duty_resolution = static_cast<ledc_timer_bit_t>(dutyLengthBits);
@@ -28,12 +28,12 @@ namespace pizda {
 		ESP_ERROR_CHECK(ledc_channel_config(&channelConfig));
 	}
 	
-	void Motor::setDuty(uint32_t duty) const {
+	void Motor::setDuty(const uint32_t duty) const {
 		ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, _channel, duty));
 		ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, _channel));
 	}
 	
-	void Motor::setPulseWidth(uint16_t pulseWidth) const {
+	void Motor::setPulseWidth(const uint16_t pulseWidth) const {
 		// Pulse width -> duty cycle conversion
 		const auto duty = static_cast<uint32_t>(pulseWidth * dutyMax / tickDurationUs);
 		
@@ -44,15 +44,15 @@ namespace pizda {
 		return _power;
 	}
 	
-	float Motor::getPowerF() {
-		return static_cast<float>(getPower()) / static_cast<float>(Motor::powerMax);
+	float Motor::getPowerF() const {
+		return static_cast<float>(getPower()) / static_cast<float>(powerMax);
 	}
 	
 	// Value range is [0; 0xFFFF]
-	void Motor::setPower(uint16_t value) {
+	void Motor::setPower(const uint16_t value) {
 		_power = value;
 		
-		auto pulseWidthUs = _configuration.min + (_configuration.max - _configuration.min) * _power / Motor::powerMax;
+		auto pulseWidthUs = _configuration.min + (_configuration.max - _configuration.min) * _power / powerMax;
 		
 		if (_configuration.reverse)
 			pulseWidthUs = _configuration.min + _configuration.max - pulseWidthUs;
@@ -64,8 +64,8 @@ namespace pizda {
 		setPulseWidth(pulseWidthUs);
 	}
 	
-	void Motor::setPowerF(float value) {
-		setPower(value * Motor::powerMax);
+	void Motor::setPowerF(const float value) {
+		setPower(value * powerMax);
 	}
 	
 	void Motor::updateCurrentPowerFromConfiguration() {
@@ -83,7 +83,7 @@ namespace pizda {
 		updateConfigurationsFromSettings();
 	}
 	
-	Motor* Motors::getMotor(uint8_t index) {
+	Motor* Motors::getMotor(const uint8_t index) {
 		if (index >= _motors.size()) {
 			ESP_LOGI(_logTag, "index %d >= motors count %d", index, _motors.size());
 			return nullptr;
@@ -92,12 +92,12 @@ namespace pizda {
 		return &_motors[index];
 	}
 	
-	Motor* Motors::getMotor(MotorType type) {
+	Motor* Motors::getMotor(const MotorType type) {
 		return getMotor(std::to_underlying(type));
 	}
 	
 	void Motors::updateConfigurationsFromSettings() {
-		auto& ac = Aircraft::getInstance();
+		const auto& ac = Aircraft::getInstance();
 		
 		getMotor(MotorType::throttle)->setConfiguration(ac.settings.motors.throttle);
 		getMotor(MotorType::noseWheel)->setConfiguration(ac.settings.motors.noseWheel);

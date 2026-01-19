@@ -1,23 +1,19 @@
 #pragma once
 
-#include <array>
 #include <cmath>
-#include <optional>
 #include <algorithm>
 
 #include <driver/uart.h>
-#include <driver/gpio.h>
 #include <esp_log.h>
-#include <esp_timer.h>
 
 #include "utilities/math.h"
-#include "types/vector3.h"
 #include "types/geographicCoordinates.h"
-#include "types/generic.h"
 
 namespace pizda {
 	class ADIRS {
 		public:
+			virtual ~ADIRS() = default;
+
 			uint32_t getReferencePressurePa() const {
 				return _referencePressurePa;
 			}
@@ -45,7 +41,7 @@ namespace pizda {
 				return _slipAndSkidFactor;
 			}
 			
-			const GeographicCoordinates& getCoordinates() {
+			const GeographicCoordinates& getCoordinates() const {
 				return _coordinates;
 			}
 			
@@ -61,7 +57,7 @@ namespace pizda {
 				return _accelSpeedMPS;
 			}
 			
-			void setReferencePressurePa(uint32_t value) {
+			void setReferencePressurePa(const uint32_t value) {
 				_referencePressurePa = value;
 			}
 			
@@ -75,7 +71,7 @@ namespace pizda {
 			void start() {
 				xTaskCreate(
 					[](void* arg) {
-						reinterpret_cast<ADIRS*>(arg)->onStart();
+						static_cast<ADIRS*>(arg)->onStart();
 					},
 					"ADIRS",
 					4 * 1024,
@@ -85,15 +81,15 @@ namespace pizda {
 				);
 			}
 			
-			void setRollRad(float rollRad) {
+			void setRollRad(const float rollRad) {
 				_rollRad = rollRad;
 			}
 			
-			void setPitchRad(float pitchRad) {
+			void setPitchRad(const float pitchRad) {
 				_pitchRad = pitchRad;
 			}
 			
-			void setYawRad(float value) {
+			void setYawRad(const float value) {
 				_yawRad = value;
 			}
 			
@@ -101,15 +97,15 @@ namespace pizda {
 				_headingDeg = toDegrees(-_yawRad);
 			}
 			
-			void setAccelSpeedMPS(float accelSpeedMPS) {
+			void setAccelSpeedMPS(const float accelSpeedMPS) {
 				_accelSpeedMPS = accelSpeedMPS;
 			}
 			
 			static float computeAltitude(
-				float pressurePa,
-				float temperatureC,
-				uint32_t referencePressurePa,
-				float lapseRateKpm = -0.0065f
+				const float pressurePa,
+				const float temperatureC,
+				const uint32_t referencePressurePa,
+				const float lapseRateKpm = -0.0065f
 			) {
 				// Physical constants
 				constexpr static float g = 9.80665f;       // Gravitational acceleration (m/s²)
@@ -141,17 +137,17 @@ namespace pizda {
 				return altitude;
 			}
 			
-			void updateSlipAndSkidFactor(float lateralAcceleration, float GMax) {
+			void updateSlipAndSkidFactor(const float lateralAcceleration, const float GMax) {
 				_slipAndSkidFactor =
 					std::clamp<float>(-lateralAcceleration - std::sin(getRollRad()), -GMax, GMax)
 					/ static_cast<float>(GMax);
 			}
 			
-			void setPressurePa(float pressurePa) {
+			void setPressurePa(const float pressurePa) {
 				_pressurePa = pressurePa;
 			}
 			
-			void setTemperatureC(float temperatureC) {
+			void setTemperatureC(const float temperatureC) {
 				_temperatureC = temperatureC;
 			}
 			
@@ -159,11 +155,11 @@ namespace pizda {
 				_coordinates.setAltitude(computeAltitude(_pressurePa, _temperatureC, _referencePressurePa));
 			}
 			
-			void setLatitude(float value) {
+			void setLatitude(const float value) {
 				_coordinates.setLatitude(value);
 			}
 			
-			void setLongitude(float value) {
+			void setLongitude(const float value) {
 				_coordinates.setLongitude(value);
 			}
 		

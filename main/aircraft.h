@@ -58,8 +58,8 @@ namespace pizda {
 			
 			Aircraft() = default;
 
-			void SPIBusSetup() const;
+			static void SPIBusSetup();
 			
-			[[noreturn]] void startErrorLoop(const char* error);
+			[[noreturn]] static void startErrorLoop(const char* error);
 	};
 }

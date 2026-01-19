@@ -6,18 +6,18 @@
 namespace pizda {
 	class LowPassFilter {
 		public:
-			static float getFactor(float factorPerSecond, uint32_t deltaTimeUs) {
+			static float getFactor(const float factorPerSecond, const uint32_t deltaTimeUs) {
 				return factorPerSecond * static_cast<float>(deltaTimeUs) / 1'000'000.f;
 			}
 			
-			static float apply(float oldValue, float newValue, float factor) {
+			static float apply(const float oldValue, const float newValue, float factor) {
 				// Just in case
 				factor = std::clamp(factor, 0.f, 1.f);
 				
 				return oldValue * (1.f - factor) + newValue * factor;
 			}
 			
-			static float applyForAngleRad(float oldValue, float newValue, float factor) {
+			static float applyForAngleRad(float oldValue, const float newValue, const float factor) {
 				auto delta = newValue - oldValue;
 				
 				// -170 to 170

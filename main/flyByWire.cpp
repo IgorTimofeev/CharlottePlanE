@@ -16,7 +16,7 @@ namespace pizda {
 	void FlyByWire::setup() {
 		xTaskCreate(
 			[](void* arg) {
-				reinterpret_cast<FlyByWire*>(arg)->taskBody();
+				static_cast<FlyByWire*>(arg)->taskBody();
 			},
 			"Autopilot",
 			4 * 1024,
@@ -30,7 +30,7 @@ namespace pizda {
 		return _speedSelectedMPS;
 	}
 	
-	void FlyByWire::setSelectedSpeedMps(float value) {
+	void FlyByWire::setSelectedSpeedMps(const float value) {
 		_speedSelectedMPS = value;
 	}
 	
@@ -38,7 +38,7 @@ namespace pizda {
 		return _headingSelectedDeg;
 	}
 	
-	void FlyByWire::setSelectedHeadingDeg(uint16_t value) {
+	void FlyByWire::setSelectedHeadingDeg(const uint16_t value) {
 		_headingSelectedDeg = value;
 	}
 	
@@ -46,7 +46,7 @@ namespace pizda {
 		return _altitudeSelectedM;
 	}
 	
-	void FlyByWire::setSelectedAltitudeM(float value) {
+	void FlyByWire::setSelectedAltitudeM(const float value) {
 		_altitudeSelectedM = value;
 	}
 	
@@ -54,7 +54,7 @@ namespace pizda {
 		return _lateralMode;
 	}
 	
-	void FlyByWire::setLateralMode(AutopilotLateralMode value) {
+	void FlyByWire::setLateralMode(const AutopilotLateralMode value) {
 		_lateralMode = value;
 	}
 	
@@ -62,7 +62,7 @@ namespace pizda {
 		return _verticalMode;
 	}
 	
-	void FlyByWire::setVerticalMode(AutopilotVerticalMode value) {
+	void FlyByWire::setVerticalMode(const AutopilotVerticalMode value) {
 		_verticalMode = value;
 	}
 	
@@ -70,7 +70,7 @@ namespace pizda {
 		return _autothrottle;
 	}
 	
-	void FlyByWire::setAutothrottle(bool value) {
+	void FlyByWire::setAutothrottle(const bool value) {
 		_autothrottle = value;
 	}
 	
@@ -78,7 +78,7 @@ namespace pizda {
 		return _autopilot;
 	}
 	
-	void FlyByWire::setAutopilot(bool value) {
+	void FlyByWire::setAutopilot(const bool value) {
 		_autopilot = value;
 	}
 	
@@ -90,18 +90,17 @@ namespace pizda {
 		return _pitchTargetRad;
 	}
 	
-	float FlyByWire::mapPizda(float min, float max, float factor) {
+	float FlyByWire::mapPizda(const float min, const float max, const float factor) {
 		return min + (max - min) * factor;
 	}
 	
-	float FlyByWire::getInterpolationFactor(float range, float rangeMax) {
+	float FlyByWire::getInterpolationFactor(const float range, const float rangeMax) {
 		return std::min(std::abs(range), rangeMax) / rangeMax;
 	}
 	
-	float FlyByWire::predictValue(float valueDelta, uint32_t deltaTimeUs, uint32_t dueTimeUs) {
+	float FlyByWire::predictValue(const float valueDelta, const uint32_t deltaTimeUs, const uint32_t dueTimeUs) {
 		// valueDelta - deltaTimeUs
 		// x          - dueTimeUs
-		
 		return valueDelta * static_cast<float>(dueTimeUs) / static_cast<float>(deltaTimeUs);
 	}
 	
@@ -242,8 +241,8 @@ namespace pizda {
 						else {
 							pitchTargetRad = 0;
 						}
-					};
-					
+					}
+
 					break;
 				}
 				// Won't ever happen, BUT
@@ -353,7 +352,7 @@ namespace pizda {
 		);
 	}
 	
-	void FlyByWire::applyData() {
+	void FlyByWire::applyData() const {
 		auto& ac = Aircraft::getInstance();
 		
 		// Throttle

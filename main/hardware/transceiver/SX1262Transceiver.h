@@ -53,7 +53,7 @@ namespace pizda {
 				return _RSSI;
 			}
 			
-			bool transmit(const uint8_t* buffer, uint8_t length, uint32_t timeoutUs) override {
+			bool transmit(const uint8_t* buffer, const uint8_t length, const uint32_t timeoutUs) override {
 //		ESP_LOGI(_logTag, "write length: %d", length);
 //
 //		for (int i = 0; i < length; ++i) {
@@ -63,7 +63,7 @@ namespace pizda {
 				return _SX.transmit(buffer, length, timeoutUs) == SX1262Error::none;
 			}
 			
-			bool receive(uint8_t* buffer, uint8_t& length, uint32_t timeoutUs) override {
+			bool receive(uint8_t* buffer, uint8_t& length, const uint32_t timeoutUs) override {
 				const auto state = _SX.receive(buffer, length, timeoutUs) == SX1262Error::none;
 //		ESP_LOGI(_logTag, "read length: %d", length);
 //

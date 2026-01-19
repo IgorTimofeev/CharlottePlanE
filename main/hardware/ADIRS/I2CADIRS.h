@@ -17,7 +17,7 @@ namespace pizda {
 	template<typename TUnit>
 	class I2CADIRSUnit {
 		public:
-			explicit I2CADIRSUnit(uint8_t address) : address(address) {
+			explicit I2CADIRSUnit(const uint8_t address) : address(address) {
 
 			}
 
@@ -40,7 +40,7 @@ namespace pizda {
 
 				xTaskCreate(
 					[](void* arg) {
-						reinterpret_cast<I2CADIRS*>(arg)->taskBody();
+						static_cast<I2CADIRS*>(arg)->taskBody();
 					},
 					"ADIRS",
 					4096,

@@ -124,7 +124,7 @@ namespace pizda {
 				return true;
 			}
 
-			void reset() {
+			void reset() const {
 				// Magical constant, only B6 will put to reset, who knows why
 				writeUint8(BMP280Register::softReset, 0xB6);
 
@@ -132,12 +132,12 @@ namespace pizda {
 			}
 
 			void reconfigure(
-				BMP280Mode mode,
-				BMP280Oversampling pressureOversampling,
-				BMP280Oversampling temperatureOversampling,
-				BMP280Filter filter,
-				BMP280StandbyDuration standbyDuration
-			) {
+				const BMP280Mode mode,
+				const BMP280Oversampling pressureOversampling,
+				const BMP280Oversampling temperatureOversampling,
+				const BMP280Filter filter,
+				const BMP280StandbyDuration standbyDuration
+			) const {
 				// t_sb = standbyDuration
 				// filter = filter
 				// spi3w_en = 0
@@ -172,44 +172,44 @@ namespace pizda {
 				uint8_t buffer[6];
 				read(BMP280Register::pressureData, buffer, 6);
 
-				int32_t adc_P = buffer[0] << 12 | buffer[1] << 4 | buffer[2] >> 4;
-				int32_t adc_T = buffer[3] << 12 | buffer[4] << 4 | buffer[5] >> 4;
+				const int32_t adc_P = buffer[0] << 12 | buffer[1] << 4 | buffer[2] >> 4;
+				const int32_t adc_T = buffer[3] << 12 | buffer[4] << 4 | buffer[5] >> 4;
 
 //				ESP_LOGI(_logTag, "adc_P: %d, adc_T: %d", adc_P, adc_T);
 
 				// Temperature should be processed first for tFine
 				{
-					int32_t var1, var2, T;
-					var1 = ((((adc_T>>3) - ((int32_t)_calibrationDigT1<<1))) * ((int32_t)_calibrationDigT2)) >> 11;
-					var2 = (((((adc_T>>4) - ((int32_t)_calibrationDigT1)) * ((adc_T>>4) - ((int32_t)_calibrationDigT1))) >> 12) *
-						((int32_t)_calibrationDigT3)) >> 14;
+					const int32_t var1 = ((((adc_T >> 3) - (static_cast<int32_t>(_calibrationDigT1) << 1))) * static_cast<int32_t>(
+						_calibrationDigT2)) >> 11;
+					const int32_t var2 = (((((adc_T >> 4) - static_cast<int32_t>(_calibrationDigT1)) * ((adc_T >> 4) - static_cast<int32_t>(
+							_calibrationDigT1))) >> 12) *
+						static_cast<int32_t>(_calibrationDigT3)) >> 14;
 					_tFine = var1 + var2;
-					T = (_tFine * 5 + 128) >> 8;
+					const int32_t T = (_tFine * 5 + 128) >> 8;
 
 					temperature = T / 100.f;
 				}
 
 				// Pressure
 				{
-					int64_t var1, var2, p;
-					var1 = ((int64_t)_tFine) - 128000;
-					var2 = var1 * var1 * (int64_t)_calibrationDigP6;
-					var2 = var2 + ((var1*(int64_t)_calibrationDigP5)<<17);
-					var2 = var2 + (((int64_t)_calibrationDigP4)<<35);
-					var1 = ((var1 * var1 * (int64_t)_calibrationDigP3)>>8) + ((var1 * (int64_t)_calibrationDigP2)<<12);
-					var1 = (((((int64_t)1)<<47)+var1))*((int64_t)_calibrationDigP1)>>33;
+					int64_t var1 = static_cast<int64_t>(_tFine) - 128000;
+					int64_t var2 = var1 * var1 * static_cast<int64_t>(_calibrationDigP6);
+					var2 = var2 + ((var1*static_cast<int64_t>(_calibrationDigP5))<<17);
+					var2 = var2 + (static_cast<int64_t>(_calibrationDigP4)<<35);
+					var1 = ((var1 * var1 * static_cast<int64_t>(_calibrationDigP3))>>8) + ((var1 * static_cast<int64_t>(_calibrationDigP2))<<12);
+					var1 = (((static_cast<int64_t>(1)<<47)+var1))*static_cast<int64_t>(_calibrationDigP1)>>33;
 					if (var1 == 0)
 					{
 						pressure = 0;
 						return; // avoid exception caused by division by zero
 					}
-					p = 1048576-adc_P;
+					int64_t p = 1048576 - adc_P;
 					p = (((p<<31)-var2)*3125)/var1;
-					var1 = (((int64_t)_calibrationDigP9) * (p>>13) * (p>>13)) >> 25;
-					var2 = (((int64_t)_calibrationDigP8) * p) >> 19;
-					p = ((p + var1 + var2) >> 8) + (((int64_t)_calibrationDigP7)<<4);
+					var1 = (static_cast<int64_t>(_calibrationDigP9) * (p>>13) * (p>>13)) >> 25;
+					var2 = (static_cast<int64_t>(_calibrationDigP8) * p) >> 19;
+					p = ((p + var1 + var2) >> 8) + (static_cast<int64_t>(_calibrationDigP7)<<4);
 
-					pressure = ((uint32_t) p) / 256.0f;
+					pressure = static_cast<uint32_t>(p) / 256.0f;
 				}
 			}
 
@@ -242,28 +242,28 @@ namespace pizda {
 			int16_t _calibrationDigP9 = 0;
 
 			// Writing
-			bool writeUint8(BMP280Register reg, uint8_t value) {
+			bool writeUint8(const BMP280Register reg, const uint8_t value) const {
 				return _busStream->writeUint8(std::to_underlying(reg), value);
 			}
 
 			// Reading
-			uint8_t getRegisterValueForReading(BMP280Register reg) {
+			static uint8_t getRegisterValueForReading(const BMP280Register reg) {
 				return static_cast<uint8_t>(std::to_underlying(reg) | 0x80);
 			}
 
-			bool read(BMP280Register reg, uint8_t* buffer, size_t length) {
+			bool read(const BMP280Register reg, uint8_t* buffer, const size_t length) const {
 				return _busStream->read(getRegisterValueForReading(reg), buffer, length);
 			}
 
-			bool readUint8(BMP280Register reg, uint8_t& value) {
+			bool readUint8(const BMP280Register reg, uint8_t& value) const {
 				return _busStream->readUint8(getRegisterValueForReading(reg), value);
 			}
 
-			bool readUint16LE(BMP280Register reg, uint16_t& value) {
+			bool readUint16LE(const BMP280Register reg, uint16_t& value) const {
 				return _busStream->readUint16LE(getRegisterValueForReading(reg), value);
 			}
 
-			bool readInt16LE(BMP280Register reg, int16_t& value) {
+			bool readInt16LE(const BMP280Register reg, int16_t& value) const {
 				return _busStream->readInt16LE(getRegisterValueForReading(reg), value);
 			}
 
@@ -322,7 +322,7 @@ namespace pizda {
 				return true;
 			}
 
-			void delayMs(uint32_t ms) {
+			static void delayMs(const uint32_t ms) {
 				vTaskDelay(ms <= portTICK_PERIOD_MS ? portTICK_PERIOD_MS : pdMS_TO_TICKS(ms));
 			}
 	};

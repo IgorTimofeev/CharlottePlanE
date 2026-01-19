@@ -129,14 +129,14 @@ namespace pizda {
 		public:
 			bool setup(BusStream* bus);
 
-			uint8_t getWhoAmI();
+			uint8_t getWhoAmI() const;
 
 			/*  Sample rate divider divides the output rate of the gyroscope and accelerometer.
 			 *  Sample rate = Internal sample rate / (1 + divider)
 			 *  It can only be applied if the corresponding DLPF is enabled and 0<DLPF<7!
 			 *  Divider is a number 0...255
 			 */
-			void setSRD(uint8_t splRateDiv);
+			void setSRD(uint8_t splRateDiv) const;
 
 			/*  Digital Low Pass Filter for the gyroscope must be enabled to choose the level.
 			 *
@@ -152,7 +152,7 @@ namespace pizda {
 			 *
 			 *    You achieve the lowest noise using level 6
 			 */
-			void setGyroDLPF(MPU9250_dlpf dlpf);
+			void setGyroDLPF(MPU9250_dlpf dlpf) const;
 			void setGyroRange(MPU9250_gyroRange gyroRange);
 
 			/*  You can enable or disable the digital low pass filter (DLPF). If you disable the DLPF, you
@@ -161,17 +161,17 @@ namespace pizda {
 		  *  MPU9250_BW_WO_DLPF_3600
 		  *  MPU9250_BW_WO_DLPF_8800
 		  */
-			void enableGyroDLPF();
+			void enableGyroDLPF() const;
 
-			void disableGyroDLPF(MPU9250_bw_wo_dlpf bw);
+			void disableGyroDLPF(MPU9250_bw_wo_dlpf bw) const;
 
 			void setAccelRange(MPU9250_accRange accRange);
 
 			/* Enable/disable the digital low pass filter for the accelerometer
 			*  If disabled the bandwidth is 1.13 kHz, delay is 0.75 ms, output rate is 4 kHz
 			*/
-			void enableAccelDLPF();
-			void disableAccelDLPF();
+			void enableAccelDLPF() const;
+			void disableAccelDLPF() const;
 
 			/*  Digital low pass filter (DLPF) for the accelerometer (if DLPF enabled)
 			*
@@ -185,45 +185,45 @@ namespace pizda {
 			*     6             5              66.96           1
 			*     7           460               1.94           1
 			*/
-			void setAccelDLPF(MPU9250_dlpf dlpf);
+			void setAccelDLPF(MPU9250_dlpf dlpf) const;
 
-			void setLowPowerAccelDataRate(MPU9250_lpAccODR lpaodr);
+			void setLowPowerAccelDataRate(MPU9250_lpAccODR lpaodr) const;
 
-			void enableAccelAxes(MPU9250_xyzEn enable);
+			void enableAccelAxes(MPU9250_xyzEn enable) const;
 
-			void enableGyroAxes(MPU9250_xyzEn enable);
+			void enableGyroAxes(MPU9250_xyzEn enable) const;
 
 			/* x,y,z results */
 
-			Vector3F getAccelData(uint8_t* buffer);
-			Vector3F getAccelData();
+			Vector3F getAccelData(const uint8_t* buffer) const;
+			Vector3F getAccelData() const;
 
-			Vector3F getGyroData(uint8_t* buffer);
-			Vector3F getGyroData();
+			Vector3F getGyroData(const uint8_t* buffer) const;
+			Vector3F getGyroData() const;
 
-			float getTemperature();
+			float getTemperature() const;
 
 			/* Power, Sleep, Standby */
 
-			void setSleepPowerMode(bool sleep);
+			void setSleepPowerMode(bool sleep) const;
 
-			void setCyclePowerMode(bool cycle);
+			void setCyclePowerMode(bool cycle) const;
 
-			void setStandbyPowerMode(bool gyroStandby);
+			void setStandbyPowerMode(bool gyroStandby) const;
 
 			/* Interrupts */
 
-			void setIntPinPolarity(MPU9250_intPinPol pol);
+			void setIntPinPolarity(MPU9250_intPinPol pol) const;
 
 			/*  If latch is enabled the interrupt pin level is held until the interrupt status
 			 *  is cleared. If latch is disabled the interrupt pulse is ~50µs (default).
 			 */
-			void enableIntLatch(bool latch);
+			void enableIntLatch(bool latch) const;
 
 			/*  The interrupt can be cleared by any read or it will only be cleared if the interrupt
 			 *  status register is read (default).
 			 */
-			void enableClearIntByAnyRead(bool clearByAnyRead);
+			void enableClearIntByAnyRead(bool clearByAnyRead) const;
 
 			/*  Enable/disable interrupts:
 			 *  MPU9250_DATA_READY
@@ -232,32 +232,32 @@ namespace pizda {
 			 *
 			 *  You can enable all interrupts.
 			 */
-			void enableInterrupt(MPU9250_intType intType);
+			void enableInterrupt(MPU9250_intType intType) const;
 
-			void disableInterrupt(MPU9250_intType intType);
+			void disableInterrupt(MPU9250_intType intType) const;
 
 			bool checkInterrupt(uint8_t source, MPU9250_intType type);
 
-			uint8_t readAndClearInterruptStatus();
+			uint8_t readAndClearInterruptStatus() const;
 
-			void setWakeOnMotionThreshold(uint8_t womthresh);
+			void setWakeOnMotionThreshold(uint8_t womthresh) const;
 
-			void enableWakeOnMotion(MPU9250_womEn womEn, MPU9250_womCompEn womCompEn);
+			void enableWakeOnMotion(MPU9250_womEn womEn, MPU9250_womCompEn womCompEn) const;
 
-			void setFIFODataSource(MPU9250_fifo_data_source dataSourceBitMask);
+			void setFIFODataSource(MPU9250_fifo_data_source dataSourceBitMask) const;
 
-			void enableFIFO();
-			void disableFIFO();
+			void enableFIFO() const;
+			void disableFIFO() const;
 
-			void resetFIFO();
+			void resetFIFO() const;
 
-			uint16_t getFIFOCount();
-			void getFIFOData(uint8_t* buffer, uint16_t count);
+			uint16_t getFIFOCount() const;
+			void getFIFOData(uint8_t* buffer, uint16_t count) const;
 
-			void setFIFOMode(MPU9250_fifoMode mode);
+			void setFIFOMode(MPU9250_fifoMode mode) const;
 
-			Vector3F getMagData(uint8_t* buffer);
-			Vector3F getMagData();
+			Vector3F getMagData(const uint8_t* buffer) const;
+			Vector3F getMagData() const;
 
 			uint8_t readWhoAmIMag();
 
@@ -361,25 +361,25 @@ namespace pizda {
 
 			BusStream* _bus = nullptr;
 
-			void delayMs(uint32_t ms);
+			static void delayMs(uint32_t ms);
 			void resetMPU9250();
 
 			bool setupMagnetometer();
 
 			void raedAK8963ASAVals();
 			void enableI2CMaster();
-			void writeMPU9250Register(uint8_t reg, uint8_t val);
+			void writeMPU9250Register(uint8_t reg, uint8_t val) const;
 
-			uint8_t readMPU9250Register8(uint8_t reg);
+			uint8_t readMPU9250Register8(uint8_t reg) const;
 
 			void enableAK8963DataRead(uint8_t reg, uint8_t bytes);
 
 			void resetAK8963();
 
-			void writeAK8963Register(uint8_t reg, uint8_t val);
+			void writeAK8963Register(uint8_t reg, uint8_t val) const;
 			uint8_t readAK8963Register8(uint8_t reg);
 
-			void readAK8963Data(uint8_t* buf);
+			void readAK8963Data(uint8_t* buf) const;
 			void setAK896316Bit();
 			uint8_t readAK8963Status2Register();
 	};

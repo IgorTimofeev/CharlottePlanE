@@ -36,14 +36,14 @@ namespace pizda {
 			Vector3& operator+=(const Vector3& right);
 			Vector3 operator-(const Vector3& right) const;
 			Vector3 operator-() const;
-			Vector3<T>& operator-=(const Vector3& right);
+			Vector3& operator-=(const Vector3& right);
 			Vector3 operator*(T factor) const;
 			Vector3 operator*(const Vector3& factor) const;
 			Vector3 operator*=(T factor);
 			Vector3& operator*=(const Vector3& right);
 			Vector3 operator/(T factor) const;
 			Vector3 operator/(const Vector3& factor) const;
-			Vector3 operator/=(T factor);;
+			Vector3 operator/=(T factor);
 			Vector3& operator/=(const Vector3& right);
 			bool operator==(const Vector3 &right) const;
 			bool operator!=(const Vector3 &right) const;

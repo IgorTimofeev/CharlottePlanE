@@ -24,10 +24,12 @@ namespace pizda {
 	template<typename TLocalPacketType, typename TRemotePacketType>
 	class CommunicationManager {
 		public:
+			virtual ~CommunicationManager() = default;
+
 			void start() {
 				xTaskCreate(
 					[](void* arg) {
-						reinterpret_cast<CommunicationManager*>(arg)->onStart();
+						static_cast<CommunicationManager*>(arg)->onStart();
 					},
 					"CommunicationManager",
 					8 * 1024,
@@ -37,7 +39,7 @@ namespace pizda {
 				);
 			}
 			
-			bool receive(uint32_t timeoutUs) {
+			bool receive(const uint32_t timeoutUs) {
 				const auto receiveStartTimeUs = esp_timer_get_time();
 				
 				uint8_t receivedLength = 0;
@@ -75,7 +77,7 @@ namespace pizda {
 				return false;
 			}
 			
-			bool transmit(uint32_t timeoutUs) {
+			bool transmit(const uint32_t timeoutUs) {
 				const auto transmitStartTimeUs = esp_timer_get_time();
 				
 				BitStream stream { _buffer };
@@ -128,14 +130,13 @@ namespace pizda {
 		protected:
 			constexpr static const char* _logTag = "CommunicationManager";
 			
-			static uint8_t getCRC8(const uint8_t* buffer, size_t length) {
+			static uint8_t getCRC8(const uint8_t* buffer, const size_t length) {
 				uint8_t crc = 0xff;
-				size_t i, j;
-				
-				for (i = 0; i < length; i++) {
+
+				for (size_t i = 0; i < length; i++) {
 					crc ^= buffer[i];
 					
-					for (j = 0; j < 8; j++) {
+					for (size_t j = 0; j < 8; j++) {
 						if ((crc & 0x80) != 0)
 							crc = static_cast<uint8_t>((crc << 1) ^ 0x31);
 						else
@@ -186,7 +187,7 @@ namespace pizda {
 				return value;
 			}
 			
-			static float readRadians(BitStream& stream, float range, uint8_t bits) {
+			static float readRadians(BitStream& stream, const float range, const uint8_t bits) {
 				auto value = static_cast<float>(stream.readUint16(bits)) / static_cast<float>((1 << bits) - 1);
 				value = value - 0.5f;
 				value = value * range;
@@ -194,13 +195,13 @@ namespace pizda {
 				return sanitizeValue<float>(value, toRadians(-180), toRadians(180));
 			}
 			
-			static void writeRadians(BitStream& stream, float value, float range, uint8_t bits) {
+			static void writeRadians(BitStream& stream, const float value, const float range, const uint8_t bits) {
 				const auto uintValue = static_cast<uint16_t>((value / range + 0.5f) * ((1 << bits) - 1));
 				
 				stream.writeUint16(uintValue, bits);
 			}
 			
-			static int16_t readAltitude(BitStream& stream, uint8_t lengthBits, int16_t min, int16_t max) {
+			static int16_t readAltitude(BitStream& stream, const uint8_t lengthBits, const int16_t min, const int16_t max) {
 				const auto factor =
 					static_cast<float>(stream.readUint16(lengthBits))
 					/ static_cast<float>((1 << lengthBits) - 1);
@@ -208,7 +209,7 @@ namespace pizda {
 				return min + (max - min) * factor;
 			}
 			
-			static void writeAltitude(BitStream& stream, float valueM, uint8_t lengthBits, int16_t min, int16_t max) {
+			static void writeAltitude(BitStream& stream, const float valueM, const uint8_t lengthBits, const int16_t min, const int16_t max) {
 				const auto factor =
 					(std::clamp<float>(valueM, min, max) - static_cast<float>(min))
 					/ static_cast<float>(max - min);
@@ -250,7 +251,7 @@ namespace pizda {
 			int64_t _connectionLostTimeUs = 0;
 			ConnectionState _connectionState = ConnectionState::initial;
 			
-			void setConnectionState(ConnectionState state) {
+			void setConnectionState(const ConnectionState state) {
 				_connectionState = state;
 				
 				onConnectionStateChanged();

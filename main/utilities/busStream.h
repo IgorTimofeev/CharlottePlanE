@@ -6,15 +6,17 @@
 namespace pizda{
 	class BusStream {
 		public:
-			virtual bool write(const uint8_t* buffer, const size_t length) = 0;
-			virtual bool read(uint8_t* buffer, const size_t length) = 0;
+			virtual ~BusStream() = default;
 
-			virtual bool read(const uint8_t reg, uint8_t* buffer, const size_t length) = 0;
-			virtual bool write(const uint8_t reg, const uint8_t* buffer, const size_t length) = 0;
+			virtual bool write(const uint8_t* buffer, size_t length) = 0;
+			virtual bool read(uint8_t* buffer, size_t length) = 0;
+
+			virtual bool read(uint8_t reg, uint8_t* buffer, size_t length) = 0;
+			virtual bool write(uint8_t reg, const uint8_t* buffer, size_t length) = 0;
 
 			// 8
-			bool writeUint8(const uint8_t reg, uint8_t value) {
-				uint8_t buffer[2] {
+			bool writeUint8(const uint8_t reg, const uint8_t value) {
+				const uint8_t buffer[2] {
 					reg,
 					value
 				};

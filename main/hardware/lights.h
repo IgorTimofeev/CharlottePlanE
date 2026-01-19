@@ -9,14 +9,14 @@
 namespace pizda {
 	class Lights {
 		public:
-			void setup();
+			void setup() const;
 			void start();
 			
-			void setCabinEnabled(bool value);
-			void setNavigationEnabled(bool value);
-			void setStrobeEnabled(bool value);
-			void setLandingEnabled(bool value);
-			void setEmergencyEnabled(bool emergencyEnabled);
+			void setCabinEnabled(bool value) const;
+			void setNavigationEnabled(bool value) const;
+			void setStrobeEnabled(bool value) const;
+			void setLandingEnabled(bool value) const;
+			void setEmergencyEnabled(bool value);
 
 		private:
 			constexpr static uint8_t tailDimmedValue = 0x22;
@@ -44,12 +44,12 @@ namespace pizda {
 				config::lights::cabin::pin,
 				config::lights::cabin::length
 			};
+
+			static bool delay(uint32_t ms);
+			void wake() const;
+			static void updateNavOrLanding(const Light& light, uint8_t r, uint8_t g, uint8_t b);
+			static void updateStrobes(const Light& light, uint8_t r, uint8_t g, uint8_t b);
 			
-			bool delay(uint32_t ms);
-			void wake();
-			void updateNavOrLanding(Light& light, const uint8_t r, const uint8_t g, const uint8_t b) const;
-			void updateStrobes(Light& light, const uint8_t r, const uint8_t g, const uint8_t b);
-			
-			[[noreturn]] void onStart();
+			[[noreturn]] void onStart() const;
 	};
 }

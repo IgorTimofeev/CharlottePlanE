@@ -35,7 +35,7 @@ namespace pizda {
 			float getTargetRollRad() const;
 			float getTargetPitchRad() const;
 			
-			void applyData();
+			void applyData() const;
 		
 		private:
 			constexpr static const char* _logTag = "Aircraft";
@@ -70,7 +70,7 @@ namespace pizda {
 			
 			static float mapPizda(float min, float max, float factor);
 			static float getInterpolationFactor(float range, float rangeMax);
-			static float predictValue(float valueDelta, uint32_t dueTimeUs, uint32_t deltaTimeUs);
+			static float predictValue(float valueDelta, uint32_t deltaTimeUs, uint32_t dueTimeUs);
 			
 			void computeData();
 			[[noreturn]] void taskBody();
