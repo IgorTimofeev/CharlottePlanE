@@ -176,9 +176,8 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="пойдет">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="надо ебануть кредитов">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -1243,15 +1242,7 @@
       <workItem from="1768766500448" duration="2000" />
       <workItem from="1768766919431" duration="1559000" />
       <workItem from="1768781316350" duration="79000" />
-      <workItem from="1768828897930" duration="3522000" />
-    </task>
-    <task id="LOCAL-00086" summary="чота медленновато пока">
-      <option name="closed" value="true" />
-      <created>1766695788971</created>
-      <option name="number" value="00086" />
-      <option name="presentableId" value="LOCAL-00086" />
-      <option name="project" value="LOCAL" />
-      <updated>1766695788972</updated>
+      <workItem from="1768828897930" duration="5184000" />
     </task>
     <task id="LOCAL-00087" summary="по ходу надо покомпактнее паковать дату">
       <option name="closed" value="true" />
@@ -1637,7 +1628,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768833652198</updated>
     </task>
-    <option name="localTasksCounter" value="135" />
+    <task id="LOCAL-00135" summary="надо ебануть кредитов">
+      <option name="closed" value="true" />
+      <created>1768834092423</created>
+      <option name="number" value="00135" />
+      <option name="presentableId" value="LOCAL-00135" />
+      <option name="project" value="LOCAL" />
+      <updated>1768834092423</updated>
+    </task>
+    <option name="localTasksCounter" value="136" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1660,7 +1659,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="с новым годом, посоны и посонессы!!1" />
     <MESSAGE value="попробовать что ли к флайтсиму подрубить эту хуйню - по идее удобно будет" />
     <MESSAGE value="симконнект успешно захуячен - пока что в тестовом формате, но уже даж летать можно" />
     <MESSAGE value="пашет, но нужно затюнить кэфики" />
@@ -1685,7 +1683,8 @@
     <MESSAGE value="хотя хз, чота доверия не внушает" />
     <MESSAGE value="лан, пох, пока так" />
     <MESSAGE value="пойдет" />
-    <option name="LAST_COMMIT_MESSAGE" value="пойдет" />
+    <MESSAGE value="надо ебануть кредитов" />
+    <option name="LAST_COMMIT_MESSAGE" value="надо ебануть кредитов" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
