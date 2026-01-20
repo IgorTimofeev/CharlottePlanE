@@ -40,8 +40,10 @@ namespace pizda {
 		
 		while (true) {
 //			ESP_LOGI("Main", "Pizda");
+
+			battery.tick();
 			
-			vTaskDelay(pdMS_TO_TICKS(1000));
+			vTaskDelay(pdMS_TO_TICKS(1'000 / 30));
 		}
 	}
 	

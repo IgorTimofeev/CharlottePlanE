@@ -49,7 +49,9 @@ namespace pizda {
 					constexpr static uint32_t voltageMax = 4 * 4'200;
 
 					constexpr static uint32_t voltageDividerR1 = 220'000;
-					constexpr static uint32_t voltageDividerR2 = 51'000;
+					// Should be 51
+					constexpr static uint32_t voltageDividerR2 = 42'000;
+
 			};
 
 			class motors {

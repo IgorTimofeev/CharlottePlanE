@@ -106,6 +106,9 @@ namespace pizda {
 			float _SNR = 0;
 
 			static void logError(const char* key, const SX1262Error error) {
+				if (error == SX1262Error::timeout)
+					return;
+
 				constexpr static uint8_t errorBufferLength = 255;
 				char errorBuffer[errorBufferLength];
 
