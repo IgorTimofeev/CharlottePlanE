@@ -1,14 +1,8 @@
 #include "aircraft.h"
 
-#include <string>
-#include <iostream>
+#include <esp_log.h>
 
-#include "esp_log.h"
 #include "config.h"
-
-#include <bitStream.h>
-
-#include "utilities/lowPassFilter.h"
 
 namespace pizda {
 	Aircraft& Aircraft::getInstance() {
@@ -18,13 +12,14 @@ namespace pizda {
 	}
 	
 	[[noreturn]] void Aircraft::start() {
+		SPIBusSetup();
+		ADCSetup();
+
 		settings.setup();
 
-		SPIBusSetup();
-		
 		adirs.setup();
-		
 		motors.setup();
+		battery.setup();
 
 		lights.setup();
 		lights.start();
@@ -68,5 +63,13 @@ namespace pizda {
 		busConfig.max_transfer_sz = 320 * 240;
 
 		ESP_ERROR_CHECK(spi_bus_initialize(config::spi::device, &busConfig, SPI_DMA_CH_AUTO));
+	}
+
+	void Aircraft::ADCSetup() {
+		adc_oneshot_unit_init_cfg_t unitConfig {};
+		unitConfig.unit_id = ADC_UNIT_2;
+		unitConfig.clk_src = ADC_RTC_CLK_SRC_DEFAULT;
+		unitConfig.ulp_mode = ADC_ULP_MODE_DISABLE;
+		ESP_ERROR_CHECK(adc_oneshot_new_unit(&unitConfig, &_ADCOneshotUnit2));
 	}
 }

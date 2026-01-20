@@ -2,9 +2,11 @@
 
 #include <cstdint>
 
+#include <driver/ledc.h>
 #include <driver/uart.h>
 #include <driver/ledc.h>
 #include <driver/gpio.h>
+#include <esp_adc/adc_oneshot.h>
 #include <driver/spi_master.h>
 #include <driver/i2c_master.h>
 
@@ -36,6 +38,18 @@ namespace pizda {
 				public:
 					constexpr static gpio_num_t SCL = GPIO_NUM_9;
 					constexpr static gpio_num_t SDA = GPIO_NUM_8;
+			};
+
+			class battery {
+				public:
+					constexpr static adc_unit_t unit = ADC_UNIT_2;
+					constexpr static adc_channel_t channel = ADC_CHANNEL_3;
+
+					constexpr static uint32_t voltageMin = 4 * 3'000;
+					constexpr static uint32_t voltageMax = 4 * 4'200;
+
+					constexpr static uint32_t voltageDividerR1 = 220'000;
+					constexpr static uint32_t voltageDividerR2 = 51'000;
 			};
 
 			class motors {
@@ -98,7 +112,7 @@ namespace pizda {
 			class transceiver {
 				public:
 					// SX1262 supports up to 16 MHz, but with long wires (10+ cm) there will be troubles, so
-					constexpr static uint32_t SPIFrequencyHz = 4'000'000;
+					constexpr static uint32_t SPIFrequencyHz = 10'000'000;
 					
 					constexpr static gpio_num_t SS = GPIO_NUM_5;
 					constexpr static gpio_num_t RST = GPIO_NUM_4;

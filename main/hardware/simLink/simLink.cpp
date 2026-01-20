@@ -4,30 +4,30 @@
 
 namespace pizda {
 	void SimLink::setup() {
-		QueueHandle_t queue;
-		ESP_ERROR_CHECK(uart_driver_install(UART_NUM_0, _bufferLength, _bufferLength, 10, &queue, 0));
-
-		uart_config_t uartConfig {};
-		uartConfig.baud_rate = 115200;
-		uartConfig.data_bits = UART_DATA_8_BITS;
-		uartConfig.parity = UART_PARITY_DISABLE;
-		uartConfig.stop_bits = UART_STOP_BITS_1;
-		uartConfig.flow_ctrl = UART_HW_FLOWCTRL_DISABLE;
-		uartConfig.source_clk = UART_SCLK_DEFAULT;
-		ESP_ERROR_CHECK(uart_param_config(UART_NUM_0, &uartConfig));
-
-		ESP_ERROR_CHECK(uart_set_pin(UART_NUM_0, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
-
-		xTaskCreate(
-			[](void* arg) {
-				static_cast<SimLink*>(arg)->taskBody();
-			},
-			"SimLink",
-			8 * 1024,
-			this,
-			10,
-			nullptr
-		);
+		// QueueHandle_t queue;
+		// ESP_ERROR_CHECK(uart_driver_install(UART_NUM_0, _bufferLength, _bufferLength, 10, &queue, 0));
+		//
+		// uart_config_t uartConfig {};
+		// uartConfig.baud_rate = 115200;
+		// uartConfig.data_bits = UART_DATA_8_BITS;
+		// uartConfig.parity = UART_PARITY_DISABLE;
+		// uartConfig.stop_bits = UART_STOP_BITS_1;
+		// uartConfig.flow_ctrl = UART_HW_FLOWCTRL_DISABLE;
+		// uartConfig.source_clk = UART_SCLK_DEFAULT;
+		// ESP_ERROR_CHECK(uart_param_config(UART_NUM_0, &uartConfig));
+		//
+		// ESP_ERROR_CHECK(uart_set_pin(UART_NUM_0, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+		//
+		// xTaskCreate(
+		// 	[](void* arg) {
+		// 		static_cast<SimLink*>(arg)->taskBody();
+		// 	},
+		// 	"SimLink",
+		// 	8 * 1024,
+		// 	this,
+		// 	10,
+		// 	nullptr
+		// );
 	}
 	
 	const SimLinkSimPacket& SimLink::getLastSimPacket() const {

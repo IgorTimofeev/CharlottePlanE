@@ -427,8 +427,9 @@ namespace pizda {
 		stream.writeUint32(lonValue, AircraftAuxiliaryPacket::lonLengthBits);
 		
 		// -------------------------------- Battery --------------------------------
-		
-		stream.writeUint16(125, AircraftAuxiliaryPacket::batteryLengthBits);
+
+		// Decavolts
+		stream.writeUint16(ac.battery.getVoltage() / 100, AircraftAuxiliaryPacket::batteryLengthBits);
 		
 		// -------------------------------- Lights --------------------------------
 		

@@ -59,38 +59,59 @@ namespace pizda {
 //		for (int i = 0; i < length; ++i) {
 //			ESP_LOGI(_logTag, "write buffer[%d]: %d", i, _buffer[i]);
 //		}
-				
-				return _SX.transmit(buffer, length, timeoutUs) == SX1262Error::none;
+
+				const auto error = _SX.transmit(buffer, length, timeoutUs);
+
+				if (error == SX1262Error::none)
+					return true;
+
+				logError("transmit error", error);
+
+				return false;
 			}
 			
 			bool receive(uint8_t* buffer, uint8_t& length, const uint32_t timeoutUs) override {
-				const auto state = _SX.receive(buffer, length, timeoutUs) == SX1262Error::none;
-//		ESP_LOGI(_logTag, "read length: %d", length);
-//
-//		for (int i = 0; i < length; ++i) {
-//			ESP_LOGI(_logTag, "read buffer[%d]: %d", i, _buffer[i]);
-//		}
-				if (state) {
+				const auto error = _SX.receive(buffer, length, timeoutUs);
+
+				if (error == SX1262Error::none) {
+					//		ESP_LOGI(_logTag, "read length: %d", length);
+					//
+					//		for (int i = 0; i < length; ++i) {
+					//			ESP_LOGI(_logTag, "read buffer[%d]: %d", i, _buffer[i]);
+					//		}
 					if (esp_timer_get_time() > _RSSIAndSNRUpdateTimeUs) {
 						_SX.getRSSI(_RSSI);
 						_SX.getSNR(_SNR);
-						
+
 						_RSSIAndSNRUpdateTimeUs = esp_timer_get_time() + _RSSIAndSNRUpdateIntervalUs;
 					}
+
+					return true;
 				}
-				
-				return state;
+
+				logError("receive error", error);
+
+				return false;
 			}
 		
 		private:
 			constexpr static const char* _logTag = "XCVR";
 			
-			constexpr static uint8_t _RSSIAndASNRUpdateFrequencyHz = 1;
-			constexpr static uint32_t _RSSIAndSNRUpdateIntervalUs = 1'000'000 / _RSSIAndASNRUpdateFrequencyHz;
+			constexpr static uint8_t _RSSIAndSNRUpdateFrequencyHz = 1;
+			constexpr static uint32_t _RSSIAndSNRUpdateIntervalUs = 1'000'000 / _RSSIAndSNRUpdateFrequencyHz;
 			int64_t _RSSIAndSNRUpdateTimeUs = 0;
 			
 			SX1262 _SX {};
 			float _RSSI = 0;
 			float _SNR = 0;
+
+			static void logError(const char* key, const SX1262Error error) {
+				constexpr static uint8_t errorBufferLength = 255;
+				char errorBuffer[errorBufferLength];
+
+				SX1262::errorToString(error, errorBuffer, errorBufferLength);
+
+				ESP_LOGI(_logTag, "%s: %s", key, errorBuffer);
+			}
 	};
 }
