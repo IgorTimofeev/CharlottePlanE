@@ -8,22 +8,22 @@
 
 #include "config.h"
 #include "settings/settings.h"
-#include "hardware/lights.h"
-#include "hardware/motors.h"
-#include "hardware/transceiver/SX1262Transceiver.h"
-#include "core/aircraftCommunicationManager.h"
-#include "core/aircraftData.h"
-#include "core/remoteData.h"
-#include "core/flyByWire.h"
+#include "systems/lights.h"
+#include "systems/motors.h"
+#include "systems/transceiver/SX1262Transceiver.h"
+#include "systems/aircraftCommunicationManager.h"
+#include "types/aircraftData.h"
+#include "types/remoteData.h"
+#include "systems/flyByWire.h"
 
 #ifdef SIM
-	#include "hardware/ADIRS/simADIRS.h"
-	#include "hardware/simLink/simLink.h"
+	#include "systems/ADIRS/simADIRS.h"
+#include "systems/simLink/simLink.h"
 #else
-	#include "hardware/ADIRS/I2CADIRS.h"
+	#include "systems/ADIRS/I2CADIRS.h"
 #endif
 
-namespace pizda {
+namespace YOBA {
 	using namespace YOBA;
 
 	class Aircraft {

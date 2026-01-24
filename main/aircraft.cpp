@@ -4,7 +4,7 @@
 
 #include "config.h"
 
-namespace pizda {
+namespace YOBA {
 	Aircraft& Aircraft::getInstance() {
 		static auto instance = Aircraft();
 

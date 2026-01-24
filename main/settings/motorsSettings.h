@@ -4,9 +4,9 @@
 
 #include <NVSSettings.h>
 
-#include "core/generic.h"
+#include "types/generic.h"
 
-namespace pizda {
+namespace YOBA {
 	using namespace YOBA;
 	
 	class MotorsSettings : public NVSSettings {

@@ -5,7 +5,7 @@
 #include "settings/trimSettings.h"
 #include "settings/lightsSettings.h"
 
-namespace pizda {
+namespace YOBA {
 	class Settings {
 		public:
 			MotorsSettings motors {};

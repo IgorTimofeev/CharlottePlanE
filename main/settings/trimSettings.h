@@ -5,7 +5,7 @@
 #include <NVSSettings.h>
 #include <NVSStream.h>
 
-namespace pizda {
+namespace YOBA {
 	using namespace YOBA;
 	
 	class TrimSettings : public NVSSettings {

@@ -5,7 +5,7 @@
 #include <numbers>
 #include <cmath>
 
-namespace pizda {
+namespace YOBA {
 	template<typename T>
 	T round(T value, const uint8_t decimalPlaces) {
 		const float factor = std::pow(10.0, decimalPlaces);

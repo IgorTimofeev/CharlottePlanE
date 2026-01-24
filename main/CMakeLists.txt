@@ -6,5 +6,5 @@ idf_component_register(
     SRCS ${pizda_sources}
     PRIV_REQUIRES spi_flash
     INCLUDE_DIRS "."
-    REQUIRES esp_timer esp_driver_ledc esp_driver_i2c esp_driver_uart esp_adc esp_driver_gptimer nvs_flash ESP-IDF-NVSExtensions ESP-IDF-Units ESP-IDF-BitStream ESP-IDF-SX1262 ESP-IDF-Battery
+    REQUIRES esp_timer esp_driver_ledc esp_driver_i2c esp_driver_uart esp_adc esp_driver_gptimer nvs_flash ESP-IDF-NVSExtensions ESP-IDF-Units ESP-IDF-Vector3 ESP-IDF-GeoCoordinates ESP-IDF-BitStream ESP-IDF-SX1262 ESP-IDF-MPU9250 ESP-IDF-BMP280 ESP-IDF-Battery
 )

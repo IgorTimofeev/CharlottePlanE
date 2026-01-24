@@ -2,10 +2,9 @@
 
 #include <NVSSettings.h>
 #include <NVSStream.h>
+#include <vector3.h>
 
-#include "core/vector3.h"
-
-namespace pizda {
+namespace YOBA {
 	using namespace YOBA;
 	
 	class ADIRSSettingsUnit {

@@ -3,7 +3,7 @@
 #include <cmath>
 #include <numbers>
 
-namespace pizda {
+namespace YOBA {
 	class LowPassFilter {
 		public:
 			static float getFactor(const float factorPerSecond, const uint32_t deltaTimeUs) {

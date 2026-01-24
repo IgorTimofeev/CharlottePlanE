@@ -15,7 +15,7 @@
 
 #include "utilities/math.h"
 
-namespace pizda {
+namespace YOBA {
 	using namespace YOBA;
 	
 	class config {

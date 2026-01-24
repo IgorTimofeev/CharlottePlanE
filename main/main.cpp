@@ -1,6 +1,6 @@
 #include "aircraft.h"
 
-using namespace pizda;
+using namespace YOBA;
 
 extern "C" void app_main(void) {
 	Aircraft::getInstance().start();
