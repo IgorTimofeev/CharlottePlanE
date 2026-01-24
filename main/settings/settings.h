@@ -1,9 +1,9 @@
 #pragma once
 
-#include "types/settings/motorsSettings.h"
-#include "types/settings/ADIRSSettings.h"
-#include "types/settings/trimSettings.h"
-#include "types/settings/lightsSettings.h"
+#include "settings/motorsSettings.h"
+#include "settings/ADIRSSettings.h"
+#include "settings/trimSettings.h"
+#include "settings/lightsSettings.h"
 
 namespace pizda {
 	class Settings {

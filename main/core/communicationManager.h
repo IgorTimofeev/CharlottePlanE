@@ -13,10 +13,10 @@
 #include "utilities/math.h"
 
 #include "config.h"
-#include "types/generic.h"
+#include "core/generic.h"
 
 #include "hardware/transceiver/SX1262Transceiver.h"
-#include "hardware/transceiver/packet.h"
+#include "packet.h"
 
 namespace pizda {
 	using namespace YOBA;
@@ -128,7 +128,7 @@ namespace pizda {
 			}
 		
 		protected:
-			constexpr static const char* _logTag = "CommunicationManager";
+			constexpr static auto _logTag = "CommunicationManager";
 			
 			static uint8_t getCRC8(const uint8_t* buffer, const size_t length) {
 				uint8_t crc = 0xff;

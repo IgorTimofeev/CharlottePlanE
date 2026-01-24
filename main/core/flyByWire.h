@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "types/generic.h"
+#include "core/generic.h"
 
 namespace pizda {
 	
@@ -38,11 +38,10 @@ namespace pizda {
 			void applyData() const;
 		
 		private:
-			constexpr static const char* _logTag = "Aircraft";
+			constexpr static auto _logTag = "FlyByWire";
 			
 			constexpr static uint32_t _tickFrequencyHz = 20;
-			constexpr static uint32_t _tickIntervalUs = 1'000'000 / _tickFrequencyHz;
-			
+
 			int64_t _computationTimeUs = 0;
 			
 			float _speedPrevMPS = 0;

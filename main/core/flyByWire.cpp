@@ -1,4 +1,4 @@
-#include "flyByWire.h"
+#include "core/flyByWire.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -459,7 +459,7 @@ namespace pizda {
 			computeData();
 			applyData();
 			
-			vTaskDelay(pdMS_TO_TICKS(_tickIntervalUs / 1'000));
+			vTaskDelay(pdMS_TO_TICKS(1'000 / _tickFrequencyHz));
 		}
 	}
 }

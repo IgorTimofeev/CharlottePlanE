@@ -1,20 +1,20 @@
 #pragma once
 
+#define SIM
+
 #include <esp_adc/adc_oneshot.h>
 
 #include <battery.h>
 
 #include "config.h"
-#include "types/settings/settings.h"
+#include "settings/settings.h"
 #include "hardware/lights.h"
 #include "hardware/motors.h"
 #include "hardware/transceiver/SX1262Transceiver.h"
-#include "hardware/transceiver/aircraftCommunicationManager.h"
-#include "types/aircraftData.h"
-#include "types/remoteData.h"
-#include "flyByWire.h"
-
-#define SIM
+#include "core/aircraftCommunicationManager.h"
+#include "core/aircraftData.h"
+#include "core/remoteData.h"
+#include "core/flyByWire.h"
 
 #ifdef SIM
 	#include "hardware/ADIRS/simADIRS.h"
@@ -64,7 +64,7 @@ namespace pizda {
 			[[noreturn]] void start();
 
 		private:
-			constexpr static const char* _logTag = "Aircraft";
+			constexpr static auto _logTag = "Aircraft";
 			
 			Aircraft() = default;
 

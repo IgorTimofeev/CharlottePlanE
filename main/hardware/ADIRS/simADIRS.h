@@ -14,7 +14,7 @@
 #include "hardware/ADIRS/ADIRS.h"
 #include "hardware/simLink/simLink.h"
 
-#include "types/generic.h"
+#include "core/generic.h"
 #include "config.h"
 
 namespace pizda {

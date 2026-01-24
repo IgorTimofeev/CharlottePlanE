@@ -77,7 +77,7 @@ namespace pizda{
 			}
 			
 		protected:
-			constexpr static const char* _logTag = "BusStream";
+			constexpr static auto _logTag = "BusStream";
 
 		private:
 			template<std::unsigned_integral T>

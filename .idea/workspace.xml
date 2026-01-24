@@ -179,13 +179,47 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="CERF">
+      <change afterPath="$PROJECT_DIR$/main/hardware/PWM/LEDCPulseWidthModulator.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/main/hardware/PWM/pulseWidthModulator.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/main/hardware/motor.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/main/hardware/motor.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ESP-IDF-Battery" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-Battery" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-BitStream" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-BitStream" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-Battery/src/battery.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-Battery/src/battery.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/aircraft.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/aircraft.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/config.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/flyByWire.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/core/flyByWire.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/flyByWire.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/core/flyByWire.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/ADIRS.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/BMP280.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/BMP280.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/IMU.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/IMU.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/MPU9250.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/MPU9250.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/ADIRS/simADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/ADIRS/simADIRS.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/light.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/light.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/lights.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/lights.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/motors.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/motors.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/motors.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/simLink/simLink.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/simLink/simLink.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/SX1262Transceiver.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/hardware/transceiver/SX1262Transceiver.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftCommunicationManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/core/aircraftCommunicationManager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/aircraftCommunicationManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/core/aircraftCommunicationManager.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/communicationManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/core/communicationManager.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/hardware/transceiver/packet.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/core/packet.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/aircraftData.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/core/aircraftData.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/generic.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/core/generic.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/geographicCoordinates.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/core/geographicCoordinates.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/remoteData.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/core/remoteData.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/settings/ADIRSSettings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/settings/ADIRSSettings.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/settings/lightsSettings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/settings/lightsSettings.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/settings/motorsSettings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/settings/motorsSettings.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/settings/settings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/settings/settings.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/settings/trimSettings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/settings/trimSettings.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/sinAndCos.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/core/sinAndCos.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/vector3.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/core/vector3.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/utilities/busStream.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/utilities/busStream.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -213,6 +247,9 @@
     &quot;accountId&quot;: &quot;b6e59770-aacc-4d0a-9c35-a4c42d46b1c1&quot;
   }
 }</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/main/types/communicationManager.h" root0="FORCE_HIGHLIGHTING" />
+  </component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="LL9D3MHb" />
   </component>
@@ -256,7 +293,7 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "git-widget-placeholder": "master",
-    "last_opened_file_path": "C:/Users/Igor/Documents/Code/MCU/ESP32/Charlotte/PlanE/main",
+    "last_opened_file_path": "C:/Users/Igor/Documents/Code/MCU/ESP32/Charlotte/PlanE/main/hardware/PWM",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -270,26 +307,21 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main" />
+      <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\hardware\PWM" />
       <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\hardware" />
+      <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main" />
       <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\types\settings" />
       <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\hardware\ADIRS" />
-      <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\utils" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\types" />
       <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main" />
+      <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\types" />
+      <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\hardware\PWM" />
       <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\components\ESP-IDF-NVSExtensions\src" />
       <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\components\ESP-IDF-BitStream\src" />
-      <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\components\ESP-IDF-SX1262" />
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.CharlottePlanE.elf">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="CharlottePlanE.elf" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="CharlottePlanE.elf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="CharlottePlanE" RUN_TARGET_NAME="CharlottePlanE.elf">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -1013,6 +1045,7 @@
     <list>
       <item itemvalue="CMake Application.bootloader" />
       <item itemvalue="CMake Application.CharlottePlanE.elf" />
+      <item itemvalue="CMake Application.__idf_ESP-IDF-Battery" />
       <item itemvalue="CMake Application.__idf_ESP-IDF-BitStream" />
       <item itemvalue="CMake Application.__idf_ESP-IDF-NVSExtensions" />
       <item itemvalue="CMake Application.__idf_ESP-IDF-SX1262" />
@@ -1153,7 +1186,6 @@
       <item itemvalue="CMake Application.size-files" />
       <item itemvalue="CMake Application.size" />
       <item itemvalue="CMake Application.uf2-app" />
-      <item itemvalue="CMake Application.__idf_ESP-IDF-Battery" />
       <item itemvalue="CMake Application.uf2" />
     </list>
   </component>
@@ -1258,6 +1290,9 @@
       <workItem from="1768781316350" duration="79000" />
       <workItem from="1768828897930" duration="6031000" />
       <workItem from="1768910108784" duration="19906000" />
+      <workItem from="1769034020911" duration="1313000" />
+      <workItem from="1769268086031" duration="2533000" />
+      <workItem from="1769290805165" duration="1980000" />
     </task>
     <task id="LOCAL-00090" summary="сэкономили бля пару битиков">
       <option name="closed" value="true" />

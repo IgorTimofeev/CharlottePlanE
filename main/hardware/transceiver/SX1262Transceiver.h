@@ -95,7 +95,7 @@ namespace pizda {
 			}
 		
 		private:
-			constexpr static const char* _logTag = "XCVR";
+			constexpr static auto _logTag = "XCVR";
 			
 			constexpr static uint8_t _RSSIAndSNRUpdateFrequencyHz = 1;
 			constexpr static uint32_t _RSSIAndSNRUpdateIntervalUs = 1'000'000 / _RSSIAndSNRUpdateFrequencyHz;

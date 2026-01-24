@@ -4,7 +4,7 @@
 
 #include "config.h"
 #include "hardware/light.h"
-#include "types/settings/settings.h"
+#include "settings/settings.h"
 
 namespace pizda {
 	class Lights {

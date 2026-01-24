@@ -1,85 +1,12 @@
-#include <soc/gpio_struct.h>
 #include "motors.h"
 
 #include "aircraft.h"
 
 namespace pizda {
-	Motor::Motor(const gpio_num_t pin, const ledc_channel_t channel) : _pin(pin), _channel(channel) {
-	
-	}
-	
-	void Motor::setup() const {
-		ledc_timer_config_t timerConfig {};
-		timerConfig.speed_mode = LEDC_LOW_SPEED_MODE;
-		timerConfig.duty_resolution = static_cast<ledc_timer_bit_t>(dutyLengthBits);
-		timerConfig.timer_num = LEDC_TIMER_0;
-		timerConfig.freq_hz = tickFrequencyHz;
-		timerConfig.clk_cfg = LEDC_AUTO_CLK;
-		ESP_ERROR_CHECK(ledc_timer_config(&timerConfig));
-		
-		ledc_channel_config_t channelConfig {};
-		channelConfig.speed_mode = LEDC_LOW_SPEED_MODE;
-		channelConfig.channel = _channel;
-		channelConfig.timer_sel = LEDC_TIMER_0;
-		channelConfig.intr_type = LEDC_INTR_DISABLE;
-		channelConfig.gpio_num = _pin;
-		channelConfig.duty = 0;
-		channelConfig.hpoint = 0;
-		ESP_ERROR_CHECK(ledc_channel_config(&channelConfig));
-	}
-	
-	void Motor::setDuty(const uint32_t duty) const {
-		ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, _channel, duty));
-		ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, _channel));
-	}
-	
-	void Motor::setPulseWidth(const uint16_t pulseWidth) const {
-		// Pulse width -> duty cycle conversion
-		const auto duty = static_cast<uint32_t>(pulseWidth * dutyMax / tickDurationUs);
-		
-		setDuty(duty);
-	}
-	
-	uint16_t Motor::getPower() const {
-		return _power;
-	}
-	
-	float Motor::getPowerF() const {
-		return static_cast<float>(getPower()) / static_cast<float>(powerMax);
-	}
-	
-	// Value range is [0; 0xFFFF]
-	void Motor::setPower(const uint16_t value) {
-		_power = value;
-		
-		auto pulseWidthUs = _configuration.min + (_configuration.max - _configuration.min) * _power / powerMax;
-		
-		if (_configuration.reverse)
-			pulseWidthUs = _configuration.min + _configuration.max - pulseWidthUs;
-		
-		pulseWidthUs = std::clamp<int32_t>(pulseWidthUs, _configuration.min, _configuration.max);
-
-//		ESP_LOGI("ppizda", "pulse: %d", pulseWidthUs);
-		
-		setPulseWidth(pulseWidthUs);
-	}
-	
-	void Motor::setPowerF(const float value) {
-		setPower(value * powerMax);
-	}
-	
-	void Motor::updateCurrentPowerFromConfiguration() {
-		setPower(_power);
-	}
-	
-	void Motor::setConfiguration(const MotorConfiguration& configuration) {
-		_configuration = configuration;
-	}
-	
 	void Motors::setup() {
-		for (auto& motor : _motors)
-			motor.setup();
-		
+		for (auto& pwm : _LEDCPWMs)
+			pwm.setup();
+
 		updateConfigurationsFromSettings();
 	}
 	

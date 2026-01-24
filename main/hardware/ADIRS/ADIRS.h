@@ -7,7 +7,7 @@
 #include <esp_log.h>
 
 #include "utilities/math.h"
-#include "types/geographicCoordinates.h"
+#include "core/geographicCoordinates.h"
 
 namespace pizda {
 	class ADIRS {
@@ -62,7 +62,7 @@ namespace pizda {
 			}
 			
 		protected:
-			constexpr static const char* _logTag = "ADIRS";
+			constexpr static auto _logTag = "ADIRS";
 			
 			virtual void onTick() = 0;
 			virtual void onCalibrateAccelAndGyro() = 0;

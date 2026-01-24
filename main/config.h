@@ -49,9 +49,7 @@ namespace pizda {
 					constexpr static uint32_t voltageMax = 4 * 4'200;
 
 					constexpr static uint32_t voltageDividerR1 = 220'000;
-					// Should be 51
-					constexpr static uint32_t voltageDividerR2 = 42'000;
-
+					constexpr static uint32_t voltageDividerR2 = 51'000;
 			};
 
 			class motors {
@@ -120,7 +118,8 @@ namespace pizda {
 					constexpr static gpio_num_t RST = GPIO_NUM_4;
 					constexpr static gpio_num_t busy = GPIO_NUM_6;
 					constexpr static gpio_num_t DIO1 = GPIO_NUM_7;
-					
+
+					// Initial values, can be changed and stored in NVS
 					constexpr static uint16_t RFFrequencyMHz = 915;
 					constexpr static uint8_t bandwidth = SX1262::LORA_BW_500_0;
 					constexpr static uint8_t spreadingFactor = 7;

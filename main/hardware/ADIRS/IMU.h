@@ -249,7 +249,7 @@ namespace pizda {
 			}
 		
 		private:
-			constexpr static const char* _logTag = "IMU";
+			constexpr static auto _logTag = "IMU";
 			
 			// -------------------------------- MPU --------------------------------
 			

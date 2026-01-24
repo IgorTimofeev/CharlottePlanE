@@ -25,7 +25,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
-#include "types/vector3.h"
+#include "core/vector3.h"
 #include "utilities/busStream.h"
 
 namespace pizda {
@@ -264,7 +264,7 @@ namespace pizda {
 			void setMagOpMode(AK8963_opMode opMode);
 
 		private:
-			constexpr static const char* _logTag = "MPU-9250";
+			constexpr static auto _logTag = "MPU-9250";
 
 			/* Registers MPU6500 */
 			constexpr static uint8_t REGISTER_SELF_TEST_X_GYRO = 0x00;

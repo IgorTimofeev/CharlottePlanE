@@ -214,7 +214,7 @@ namespace pizda {
 			}
 
 		private:
-			constexpr static const char* _logTag = "BMP280";
+			constexpr static auto _logTag = "BMP280";
 			constexpr static uint8_t BMP280ChipID = 0x58;
 			
 

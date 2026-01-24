@@ -3,7 +3,7 @@
 #include <NVSSettings.h>
 #include <NVSStream.h>
 
-#include "types/vector3.h"
+#include "core/vector3.h"
 
 namespace pizda {
 	using namespace YOBA;

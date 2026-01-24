@@ -50,7 +50,7 @@ namespace pizda {
 			}
 
 		private:
-			constexpr static const char* _logTag = "Light";
+			constexpr static auto _logTag = "Light";
 
 			uint8_t _length;
 			led_strip_handle_t _stripHandle {};

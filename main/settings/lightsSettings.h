@@ -4,7 +4,7 @@
 
 #include <NVSSettings.h>
 
-#include "types/generic.h"
+#include "core/generic.h"
 
 namespace pizda {
 	using namespace YOBA;
