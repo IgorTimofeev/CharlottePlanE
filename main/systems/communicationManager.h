@@ -16,7 +16,7 @@
 #include "types/generic.h"
 
 #include "systems/transceiver/SX1262Transceiver.h"
-#include "../types/packet.h"
+#include "types/packet.h"
 
 namespace YOBA {
 	using namespace YOBA;
