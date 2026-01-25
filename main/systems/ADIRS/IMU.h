@@ -15,7 +15,7 @@
 #include "utilities/math.h"
 #include "utilities/lowPassFilter.h"
 
-namespace YOBA {
+namespace pizda {
 	class AdaptiveComplimentaryFiler {
 		public:
 			static void apply(

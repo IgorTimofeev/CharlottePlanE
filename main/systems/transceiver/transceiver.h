@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace YOBA {
+namespace pizda {
 	class Transceiver {
 		public:
 			virtual ~Transceiver() = default;

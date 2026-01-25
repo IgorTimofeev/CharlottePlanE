@@ -2,7 +2,7 @@
 
 #include "aircraft.h"
 
-namespace YOBA {
+namespace pizda {
 	void ADIRS::onStart() {
 		auto& ac = Aircraft::getInstance();
 		

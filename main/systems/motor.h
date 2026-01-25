@@ -3,7 +3,7 @@
 #include "types/generic.h"
 #include "PWM/pulseWidthModulator.h"
 
-namespace YOBA {
+namespace pizda {
 	class Motor {
 		public:
 			Motor(PulseWidthModulator* PWM);

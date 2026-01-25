@@ -4,7 +4,7 @@
 
 #include "types/generic.h"
 
-namespace YOBA {
+namespace pizda {
 	class RemoteDataRawControls {
 		public:
 			// Factor in [0.0; 1.0] range

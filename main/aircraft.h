@@ -23,7 +23,7 @@
 	#include "systems/ADIRS/I2CADIRS.h"
 #endif
 
-namespace YOBA {
+namespace pizda {
 	using namespace YOBA;
 
 	class Aircraft {

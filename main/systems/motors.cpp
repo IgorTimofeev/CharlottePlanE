@@ -2,7 +2,7 @@
 
 #include "aircraft.h"
 
-namespace YOBA {
+namespace pizda {
 	void Motors::setup() {
 		for (auto& pwm : _LEDCPWMs)
 			pwm.setup();

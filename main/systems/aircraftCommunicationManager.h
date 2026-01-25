@@ -9,7 +9,7 @@
 
 #include <bitStream.h>
 
-namespace YOBA {
+namespace pizda {
 	class PacketSequenceItem {
 		public:
 			PacketSequenceItem(AircraftPacketType type, uint8_t count, bool useEnqueued = false);

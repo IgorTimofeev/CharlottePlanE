@@ -2,7 +2,7 @@
 
 #include "aircraft.h"
 
-namespace YOBA {
+namespace pizda {
 	void SimLink::setup() {
 		QueueHandle_t queue;
 		ESP_ERROR_CHECK(uart_driver_install(UART_NUM_0, _bufferLength, _bufferLength, 10, &queue, 0));

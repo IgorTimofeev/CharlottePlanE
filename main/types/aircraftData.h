@@ -4,7 +4,7 @@
 
 #include "types/generic.h"
 
-namespace YOBA {
+namespace pizda {
 	class AircraftDataCalibration {
 		public:
 			bool calibrating = false;

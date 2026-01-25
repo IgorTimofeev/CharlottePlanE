@@ -6,7 +6,7 @@
 
 #include "types/generic.h"
 
-namespace YOBA {
+namespace pizda {
 	using namespace YOBA;
 	
 	class LightsSettings : public NVSSettings {

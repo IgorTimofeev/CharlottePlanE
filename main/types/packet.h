@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace YOBA {
+namespace pizda {
 	#pragma pack(push, 1)
 	
 	class Packet {

@@ -5,7 +5,7 @@
 
 #include "systems/PWM/pulseWidthModulator.h"
 
-namespace YOBA {
+namespace pizda {
 	class LEDCPulseWidthModulator : public PulseWidthModulator {
 		public:
 			LEDCPulseWidthModulator(

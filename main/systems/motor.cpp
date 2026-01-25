@@ -2,7 +2,7 @@
 
 #include "aircraft.h"
 
-namespace YOBA {
+namespace pizda {
 	Motor::Motor(PulseWidthModulator* PWM) : _PWM(PWM) {
 	
 	}

@@ -6,7 +6,7 @@
 #include "systems/light.h"
 #include "settings/settings.h"
 
-namespace YOBA {
+namespace pizda {
 	class Lights {
 		public:
 			void setup() const;

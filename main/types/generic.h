@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <algorithm>
 
-namespace YOBA {
+namespace pizda {
 	enum class ConnectionState : uint8_t {
 		initial,
 		connected,

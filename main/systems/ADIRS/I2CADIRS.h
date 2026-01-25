@@ -15,7 +15,7 @@
 #include "config.h"
 #include "systems/ADIRS/IMU.h"
 
-namespace YOBA {
+namespace pizda {
 	template<typename TUnit>
 	class I2CADIRSUnit {
 		public:

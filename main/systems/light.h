@@ -4,7 +4,7 @@
 #include "led_strip_rmt.h"
 #include "led_strip.h"
 
-namespace YOBA {
+namespace pizda {
 	class Light {
 		public:
 			Light(const gpio_num_t pin, const uint8_t length) : _length(length) {

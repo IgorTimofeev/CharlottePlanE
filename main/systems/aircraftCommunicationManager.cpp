@@ -5,7 +5,7 @@
 #include "aircraft.h"
 #include "systems/motors.h"
 
-namespace YOBA {
+namespace pizda {
 	// -------------------------------- PacketSequenceItem --------------------------------
 	
 	PacketSequenceItem::PacketSequenceItem(const AircraftPacketType type, const uint8_t count, const bool useEnqueued) : _type(type), _count(count), _useEnqueued(useEnqueued) {

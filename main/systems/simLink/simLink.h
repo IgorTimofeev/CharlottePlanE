@@ -9,7 +9,7 @@
 
 #include "config.h"
 
-namespace YOBA {
+namespace pizda {
 	#pragma pack(push, 1)
 	
 	class SimLinkPacket {

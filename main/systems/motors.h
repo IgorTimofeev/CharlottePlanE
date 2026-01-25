@@ -7,7 +7,7 @@
 #include "systems/motor.h"
 #include "systems/PWM/LEDCPulseWidthModulator.h"
 
-namespace YOBA {
+namespace pizda {
 	enum class MotorType : uint8_t {
 		throttle,
 		noseWheel,

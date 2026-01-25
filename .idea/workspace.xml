@@ -186,12 +186,45 @@
   <component name="ChangeListManager">
     <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="давно пора было распидорасить проект по отдельным шматкам">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-GeoCoordinates" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-GeoCoordinates" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-GeoCoordinates/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-GeoCoordinates/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-MPU9250" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-MPU9250" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-MPU9250/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-MPU9250/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-Vector3" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-Vector3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-Vector3/src/vector3.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-Vector3/src/vector3.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/aircraft.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/aircraft.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/config.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/settings/ADIRSSettings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/settings/ADIRSSettings.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/settings/lightsSettings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/settings/lightsSettings.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/settings/motorsSettings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/settings/motorsSettings.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/settings/settings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/settings/settings.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/settings/trimSettings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/settings/trimSettings.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/ADIRS/ADIRS.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/ADIRS/ADIRS.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/ADIRS/ADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/ADIRS/ADIRS.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/ADIRS/I2CADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/ADIRS/I2CADIRS.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/ADIRS/IMU.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/ADIRS/IMU.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/ADIRS/simADIRS.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/ADIRS/simADIRS.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/ADIRS/simADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/ADIRS/simADIRS.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/PWM/LEDCPulseWidthModulator.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/PWM/LEDCPulseWidthModulator.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/PWM/pulseWidthModulator.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/PWM/pulseWidthModulator.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/aircraftCommunicationManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/aircraftCommunicationManager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/aircraftCommunicationManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/aircraftCommunicationManager.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/communicationManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/communicationManager.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/flyByWire.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/flyByWire.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/flyByWire.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/flyByWire.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/light.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/light.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/lights.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/lights.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/lights.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/lights.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/motor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/motor.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/motor.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/motor.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/motors.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/motors.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/motors.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/motors.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/simLink/simLink.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/simLink/simLink.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/simLink/simLink.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/simLink/simLink.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/transceiver/SX1262Transceiver.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/transceiver/SX1262Transceiver.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/transceiver/transceiver.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/transceiver/transceiver.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/aircraftData.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/aircraftData.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/generic.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/generic.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/packet.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/packet.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/remoteData.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/remoteData.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/utilities/lowPassFilter.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/utilities/lowPassFilter.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/utilities/math.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/utilities/math.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -1298,15 +1331,7 @@
       <workItem from="1769268086031" duration="2533000" />
       <workItem from="1769290805165" duration="4548000" />
       <workItem from="1769295417143" duration="826000" />
-      <workItem from="1769296270266" duration="3005000" />
-    </task>
-    <task id="LOCAL-00093" summary="))">
-      <option name="closed" value="true" />
-      <created>1766850287413</created>
-      <option name="number" value="00093" />
-      <option name="presentableId" value="LOCAL-00093" />
-      <option name="project" value="LOCAL" />
-      <updated>1766850287413</updated>
+      <workItem from="1769296270266" duration="3255000" />
     </task>
     <task id="LOCAL-00094" summary="заебца">
       <option name="closed" value="true" />
@@ -1692,7 +1717,15 @@
       <option name="project" value="LOCAL" />
       <updated>1769297820295</updated>
     </task>
-    <option name="localTasksCounter" value="142" />
+    <task id="LOCAL-00142" summary="давно пора было распидорасить проект по отдельным шматкам">
+      <option name="closed" value="true" />
+      <created>1769299312341</created>
+      <option name="number" value="00142" />
+      <option name="presentableId" value="LOCAL-00142" />
+      <option name="project" value="LOCAL" />
+      <updated>1769299312341</updated>
+    </task>
+    <option name="localTasksCounter" value="143" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

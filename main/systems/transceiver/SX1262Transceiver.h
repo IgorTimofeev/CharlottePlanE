@@ -12,7 +12,7 @@
 #include "systems/transceiver/transceiver.h"
 #include "config.h"
 
-namespace YOBA {
+namespace pizda {
 	using namespace YOBA;
 	
 	class SX1262Transceiver : public Transceiver {

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace YOBA {
+namespace pizda {
 	class PulseWidthModulator {
 		public:
 			virtual ~PulseWidthModulator() = default;

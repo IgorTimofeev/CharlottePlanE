@@ -18,7 +18,7 @@
 #include "systems/transceiver/SX1262Transceiver.h"
 #include "types/packet.h"
 
-namespace YOBA {
+namespace pizda {
 	using namespace YOBA;
 	
 	template<typename TLocalPacketType, typename TRemotePacketType>

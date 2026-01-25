@@ -17,7 +17,7 @@
 #include "types/generic.h"
 #include "config.h"
 
-namespace YOBA {
+namespace pizda {
 	class SimADIRS : public ADIRS {
 		public:
 			void setup();

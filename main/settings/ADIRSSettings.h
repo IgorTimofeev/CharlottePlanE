@@ -4,7 +4,7 @@
 #include <NVSStream.h>
 #include <vector3.h>
 
-namespace YOBA {
+namespace pizda {
 	using namespace YOBA;
 	
 	class ADIRSSettingsUnit {
