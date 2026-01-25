@@ -25,3 +25,6 @@
 [submodule "components/ESP-IDF-SpatialTypes"]
 	path = components/ESP-IDF-SpatialTypes
 	url = https://github.com/IgorTimofeev/ESP-IDF-SpatialTypes.git
+[submodule "components/ESP-IDF-LowPassFilter"]
+	path = components/ESP-IDF-LowPassFilter
+	url = https://github.com/IgorTimofeev/ESP-IDF-LowPassFilter.git
