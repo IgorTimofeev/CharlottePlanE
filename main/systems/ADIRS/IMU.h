@@ -10,10 +10,10 @@
 #include <esp_timer.h>
 
 #include <MPU9250.h>
+#include <lowPassFilter.h>
 
 #include "config.h"
 #include "utilities/math.h"
-#include "utilities/lowPassFilter.h"
 
 namespace pizda {
 	class AdaptiveComplimentaryFiler {

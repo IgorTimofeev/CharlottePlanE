@@ -6,11 +6,11 @@
 #include <esp_log.h>
 
 #include <units.h>
+#include <lowPassFilter.h>
 
 #include "config.h"
 #include "aircraft.h"
 #include "utilities/math.h"
-#include "utilities/lowPassFilter.h"
 
 namespace pizda {
 	void FlyByWire::setup() {
@@ -173,10 +173,10 @@ namespace pizda {
 			)
 			: 0;
 		
-		_rollTargetRad = LowPassFilter::applyForAngleRad(
+		_rollTargetRad = LowPassFilter::applyToAngle(
 			_rollTargetRad,
 			rollTargetRad,
-			LowPassFilter::getFactor(0.5f, deltaTimeUs)
+			LowPassFilter::getDeltaTimeFactor(0.5f, deltaTimeUs)
 		);
 		
 		// -------------------------------- Pitch --------------------------------
@@ -253,10 +253,10 @@ namespace pizda {
 			}
 		}
 		
-		_pitchTargetRad = LowPassFilter::applyForAngleRad(
+		_pitchTargetRad = LowPassFilter::applyToAngle(
 			_pitchTargetRad,
 			pitchTargetRad,
-			LowPassFilter::getFactor(0.5f, deltaTimeUs)
+			LowPassFilter::getDeltaTimeFactor(0.5f, deltaTimeUs)
 		);
 		
 		// -------------------------------- Ailerons --------------------------------
@@ -280,10 +280,10 @@ namespace pizda {
 			)
 			: 0.5f;
 		
-		_aileronsTargetFactor = LowPassFilter::applyForAngleRad(
+		_aileronsTargetFactor = LowPassFilter::apply(
 			_aileronsTargetFactor,
 			aileronsTargetFactor,
-			LowPassFilter::getFactor(4.5f, deltaTimeUs)
+			LowPassFilter::getDeltaTimeFactor(4.5f, deltaTimeUs)
 		);
 		
 		// -------------------------------- Elevator --------------------------------
@@ -306,10 +306,10 @@ namespace pizda {
 			)
 			: 0.5f;
 		
-		_elevatorTargetFactor = LowPassFilter::applyForAngleRad(
+		_elevatorTargetFactor = LowPassFilter::applyToAngle(
 			_elevatorTargetFactor,
 			elevatorTargetFactor,
-			LowPassFilter::getFactor(4.5f, deltaTimeUs)
+			LowPassFilter::getDeltaTimeFactor(4.5f, deltaTimeUs)
 		);
 		
 		// -------------------------------- Throttle --------------------------------
@@ -345,10 +345,10 @@ namespace pizda {
 			throttleLPFFactor = 0.5f;
 		}
 		
-		_throttleTargetFactor = LowPassFilter::applyForAngleRad(
+		_throttleTargetFactor = LowPassFilter::apply(
 			_throttleTargetFactor,
 			throttleTargetFactor,
-			LowPassFilter::getFactor(throttleLPFFactor, deltaTimeUs)
+			LowPassFilter::getDeltaTimeFactor(throttleLPFFactor, deltaTimeUs)
 		);
 	}
 	

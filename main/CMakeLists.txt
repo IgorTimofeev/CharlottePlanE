@@ -13,9 +13,9 @@ idf_component_register(
         esp_driver_gptimer
         ESP-IDF-NVSExtensions
         ESP-IDF-Units
-        ESP-IDF-Vector3
-        ESP-IDF-GeoCoordinates
+        ESP-IDF-SpatialTypes
         ESP-IDF-BitStream
+        ESP-IDF-LowPassFilter
         ESP-IDF-BusHAL
         ESP-IDF-SX1262
         ESP-IDF-MPU9250

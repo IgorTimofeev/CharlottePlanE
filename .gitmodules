@@ -22,9 +22,6 @@
 [submodule "components/ESP-IDF-BusHAL"]
 	path = components/ESP-IDF-BusHAL
 	url = https://github.com/IgorTimofeev/ESP-IDF-BusHAL.git
-[submodule "components/ESP-IDF-Vector3"]
-	path = components/ESP-IDF-Vector3
-	url = https://github.com/IgorTimofeev/ESP-IDF-Vector3.git
-[submodule "components/ESP-IDF-GeoCoordinates"]
-	path = components/ESP-IDF-GeoCoordinates
-	url = https://github.com/IgorTimofeev/ESP-IDF-GeoCoordinates.git
+[submodule "components/ESP-IDF-SpatialTypes"]
+	path = components/ESP-IDF-SpatialTypes
+	url = https://github.com/IgorTimofeev/ESP-IDF-SpatialTypes.git

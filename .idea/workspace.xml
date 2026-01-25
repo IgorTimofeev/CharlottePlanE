@@ -71,6 +71,7 @@
       <config projectName="CharlottePlanE" targetName="__idf_driver" />
       <config projectName="CharlottePlanE" targetName="__idf_esp_pm" />
       <config projectName="CharlottePlanE" targetName="__idf_esp_driver_usb_serial_jtag" />
+      <config projectName="CharlottePlanE" targetName="__idf_ESP-IDF-SpatialTypes" />
       <config projectName="CharlottePlanE" targetName="__idf_esp_wifi" />
       <config projectName="CharlottePlanE" targetName="__idf_esp_driver_sdm" />
       <config projectName="CharlottePlanE" targetName="__idf_sdmmc" />
@@ -93,7 +94,6 @@
       <config projectName="CharlottePlanE" targetName="__idf_esp_bootloader_format" />
       <config projectName="CharlottePlanE" targetName="__idf_heap" />
       <config projectName="CharlottePlanE" targetName="save-defconfig" />
-      <config projectName="CharlottePlanE" targetName="__idf_ESP-IDF-GeoCoordinates" />
       <config projectName="CharlottePlanE" targetName="__idf_esp_hid" />
       <config projectName="CharlottePlanE" targetName="efuse-custom-table" />
       <config projectName="CharlottePlanE" targetName="__idf_lwip" />
@@ -103,6 +103,7 @@
       <config projectName="CharlottePlanE" targetName="dfu-flash" />
       <config projectName="CharlottePlanE" targetName="__idf_esp_mm" />
       <config projectName="CharlottePlanE" targetName="app_check_size" />
+      <config projectName="CharlottePlanE" targetName="__idf_ESP-IDF-LowPassFilter" />
       <config projectName="CharlottePlanE" targetName="__idf_unity" />
       <config projectName="CharlottePlanE" targetName="p256m" />
       <config projectName="CharlottePlanE" targetName="__idf_ESP-IDF-NVSExtensions" />
@@ -127,7 +128,6 @@
       <config projectName="CharlottePlanE" targetName="bootloader" folderName="ExternalProjectTargets/bootloader" />
       <config projectName="CharlottePlanE" targetName="__idf_freertos" />
       <config projectName="CharlottePlanE" targetName="__idf_esp_eth" />
-      <config projectName="CharlottePlanE" targetName="__idf_ESP-IDF-Vector3" />
       <config projectName="CharlottePlanE" targetName="app-flash" />
       <config projectName="CharlottePlanE" targetName="__idf_esp_driver_ledc" />
       <config projectName="CharlottePlanE" targetName="monitor" />
@@ -184,13 +184,18 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="давно пора было распидорасить проект по отдельным шматкам">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="кек">
+      <change afterPath="$PROJECT_DIR$/components/ESP-IDF-SpatialTypes" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitmodules" beforeDir="false" afterPath="$PROJECT_DIR$/.gitmodules" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-MPU9250" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-MPU9250" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-MPU9250/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-MPU9250/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-MPU9250/src/MPU9250.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-MPU9250/src/MPU9250.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-MPU9250/src/MPU9250.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-MPU9250/src/MPU9250.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-GeoCoordinates" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-Vector3" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dependencies.lock" beforeDir="false" afterPath="$PROJECT_DIR$/dependencies.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/main/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/systems/ADIRS/IMU.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/ADIRS/IMU.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/flyByWire.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/flyByWire.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/utilities/lowPassFilter.h" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -268,7 +273,7 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "preferences.sourceCode.C/C++",
+    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings",
     "structure.view.defaults.are.configured": "true",
     "vue.rearranger.settings.migration": "true"
   }
@@ -320,7 +325,7 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="__idf_ESP-IDF-GeoCoordinates" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="__idf_ESP-IDF-GeoCoordinates" CONFIG_NAME="Debug">
+    <configuration name="__idf_ESP-IDF-LowPassFilter" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="__idf_ESP-IDF-LowPassFilter" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -340,12 +345,12 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="__idf_ESP-IDF-Units" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="__idf_ESP-IDF-Units" CONFIG_NAME="Debug">
+    <configuration name="__idf_ESP-IDF-SpatialTypes" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="__idf_ESP-IDF-SpatialTypes" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="__idf_ESP-IDF-Vector3" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="__idf_ESP-IDF-Vector3" CONFIG_NAME="Debug">
+    <configuration name="__idf_ESP-IDF-Units" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="__idf_ESP-IDF-Units" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -1059,8 +1064,8 @@
       <item itemvalue="CMake Application.__idf_driver" />
       <item itemvalue="CMake Application.__idf_efuse" />
       <item itemvalue="CMake Application.__idf_ESP-IDF-BMP280" />
-      <item itemvalue="CMake Application.__idf_ESP-IDF-GeoCoordinates" />
-      <item itemvalue="CMake Application.__idf_ESP-IDF-Vector3" />
+      <item itemvalue="CMake Application.__idf_ESP-IDF-LowPassFilter" />
+      <item itemvalue="CMake Application.__idf_ESP-IDF-SpatialTypes" />
       <item itemvalue="CMake Application.__idf_esp-tls" />
       <item itemvalue="CMake Application.__idf_esp_adc" />
       <item itemvalue="CMake Application.__idf_esp_app_format" />
@@ -1297,15 +1302,9 @@
       <workItem from="1769268086031" duration="2533000" />
       <workItem from="1769290805165" duration="4548000" />
       <workItem from="1769295417143" duration="826000" />
-      <workItem from="1769296270266" duration="5200000" />
-    </task>
-    <task id="LOCAL-00095" summary="чета хуета какая-то творится с магом на дипике -180 180">
-      <option name="closed" value="true" />
-      <created>1766953473790</created>
-      <option name="number" value="00095" />
-      <option name="presentableId" value="LOCAL-00095" />
-      <option name="project" value="LOCAL" />
-      <updated>1766953473790</updated>
+      <workItem from="1769296270266" duration="5592000" />
+      <workItem from="1769344398121" duration="232000" />
+      <workItem from="1769344747962" duration="756000" />
     </task>
     <task id="LOCAL-00096" summary="вроде получше">
       <option name="closed" value="true" />
@@ -1691,7 +1690,15 @@
       <option name="project" value="LOCAL" />
       <updated>1769299604348</updated>
     </task>
-    <option name="localTasksCounter" value="144" />
+    <task id="LOCAL-00144" summary="Выпилил на хуй эти вектора, а то без пекедж менеджера хуй поставишь либы нормально">
+      <option name="closed" value="true" />
+      <created>1769301800239</created>
+      <option name="number" value="00144" />
+      <option name="presentableId" value="LOCAL-00144" />
+      <option name="project" value="LOCAL" />
+      <updated>1769301800239</updated>
+    </task>
+    <option name="localTasksCounter" value="145" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1714,8 +1721,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="вроде ниче так, более-менее уже даже летать можн" />
-    <MESSAGE value="так, чета я затупил уже" />
     <MESSAGE value="ппц тюнить потно" />
     <MESSAGE value="немного разобрался" />
     <MESSAGE value="))" />
@@ -1739,7 +1744,9 @@
     <MESSAGE value="CERF" />
     <MESSAGE value="чистим вилочкой?" />
     <MESSAGE value="давно пора было распидорасить проект по отдельным шматкам" />
-    <option name="LAST_COMMIT_MESSAGE" value="давно пора было распидорасить проект по отдельным шматкам" />
+    <MESSAGE value="Выпилил на хуй эти вектора, а то без пекедж менеджера хуй поставишь либы нормально" />
+    <MESSAGE value="кек" />
+    <option name="LAST_COMMIT_MESSAGE" value="кек" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
