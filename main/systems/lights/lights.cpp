@@ -1,4 +1,4 @@
-#include "lights.h"
+#include "systems/lights/lights.h"
 
 #include <esp_timer.h>
 #include "aircraft.h"

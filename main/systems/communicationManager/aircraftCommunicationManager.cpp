@@ -1,9 +1,9 @@
-#include "systems/aircraftCommunicationManager.h"
+#include "systems/communicationManager/aircraftCommunicationManager.h"
 
 #include <utility>
 
 #include "aircraft.h"
-#include "systems/motors.h"
+#include "systems/motors/motors.h"
 
 namespace pizda {
 	// -------------------------------- PacketSequenceItem --------------------------------

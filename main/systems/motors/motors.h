@@ -4,7 +4,7 @@
 #include <atomic>
 
 #include "config.h"
-#include "systems/motor.h"
+#include "systems/motors/motor.h"
 #include "systems/PWM/LEDCPulseWidthModulator.h"
 
 namespace pizda {

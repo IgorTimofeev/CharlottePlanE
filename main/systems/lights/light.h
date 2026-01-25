@@ -1,8 +1,6 @@
 #pragma once
 
-#include <esp_timer.h>
-#include "led_strip_rmt.h"
-#include "led_strip.h"
+#include <led_strip.h>
 
 namespace pizda {
 	class Light {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "systems/communicationManager.h"
+#include "communicationManager.h"
 
 #include <queue>
 #include <set>

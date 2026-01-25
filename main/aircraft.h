@@ -8,13 +8,13 @@
 
 #include "config.h"
 #include "settings/settings.h"
-#include "systems/lights.h"
-#include "systems/motors.h"
+#include "systems/lights/lights.h"
+#include "systems/motors/motors.h"
 #include "systems/transceiver/SX1262Transceiver.h"
-#include "systems/aircraftCommunicationManager.h"
+#include "systems/communicationManager/aircraftCommunicationManager.h"
 #include "types/aircraftData.h"
 #include "types/remoteData.h"
-#include "systems/flyByWire.h"
+#include "systems/flyByWire/flyByWire.h"
 
 #ifdef SIM
 	#include "systems/ADIRS/simADIRS.h"

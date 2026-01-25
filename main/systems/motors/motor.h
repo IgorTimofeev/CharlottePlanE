@@ -1,7 +1,7 @@
 #pragma once
 
 #include "types/generic.h"
-#include "PWM/pulseWidthModulator.h"
+#include "systems/PWM/pulseWidthModulator.h"
 
 namespace pizda {
 	class Motor {

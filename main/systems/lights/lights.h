@@ -3,7 +3,7 @@
 #include <esp_timer.h>
 
 #include "config.h"
-#include "systems/light.h"
+#include "systems/lights/light.h"
 #include "settings/settings.h"
 
 namespace pizda {
