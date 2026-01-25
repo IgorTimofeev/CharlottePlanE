@@ -103,11 +103,11 @@ namespace pizda {
 	class IMU {
 		public:
 			bool setup(busHAL* bus) {
-				if (!MPU.setup(bus))
+				if (!_MPU.setup(bus))
 					return false;
 
 				// SRD
-				MPU.setSRD(MPUSRD);
+				_MPU.setSRD(MPUSRD);
 
 //				setMPUOperationalMode();
 				calibrateAccelAndGyro();
@@ -158,31 +158,36 @@ namespace pizda {
 				Vector3F aSum {};
 				Vector3F gSum {};
 
+				float x, y, z;
+
 				for (uint16_t i = 0; i < iterations; ++i) {
-					aSum += MPU.getAccelData();
-					gSum += MPU.getGyroData();
+					_MPU.getAccelData(x, y, z);
+					aSum += Vector3F(x, y, z);
+
+					_MPU.getGyroData(x, y, z);
+					gSum += Vector3F(x, y, z);
 
 					vTaskDelay(pdMS_TO_TICKS(std::max<uint32_t>(1'000 / MPUSampleRateHz, portTICK_PERIOD_MS)));
 				}
 
-				aSum /= static_cast<float>(iterations);
+				aSum /= iterations;
 				// Z axis - 1G
 				aSum.setZ(aSum.getZ() - 1);
 
-				gSum /= static_cast<float>(iterations);
+				gSum /= iterations;
 				
-				accelBias = aSum;
-				gyroBias = gSum;
+				_accelBias = aSum;
+				_gyroBias = gSum;
 				
-				ESP_LOGI(_logTag, "acc bias: %f x %f x %f", accelBias.getX(), accelBias.getY(), accelBias.getZ());
-				ESP_LOGI(_logTag, "gyr bias: %f x %f x %f", gyroBias.getX(), gyroBias.getY(), gyroBias.getZ());
+				ESP_LOGI(_logTag, "acc bias: %f x %f x %f", _accelBias.getX(), _accelBias.getY(), _accelBias.getZ());
+				ESP_LOGI(_logTag, "gyr bias: %f x %f x %f", _gyroBias.getX(), _gyroBias.getY(), _gyroBias.getZ());
 				
 				// Restoring attenuation to operational
 				setMPUOperationalMode();
 			}
 
 			void calibrateMag() {
-				magBias = {
+				_magBias = {
 					11.828777,
 					24.903629,
 					-25.226059
@@ -197,27 +202,28 @@ namespace pizda {
 				
 				Vector3F min {};
 				Vector3F max {};
+				float x, y, z;
 				
 				do {
-					const auto magData = MPU.getMagData();
+					_MPU.getMagData(x, y, z);
+
+					min.setX(std::min(min.getX(), x));
+					min.setY(std::min(min.getY(), y));
+					min.setZ(std::min(min.getZ(), z));
 					
-					min.setX(std::min(min.getX(), magData.getX()));
-					min.setY(std::min(min.getY(), magData.getY()));
-					min.setZ(std::min(min.getZ(), magData.getZ()));
-					
-					max.setX(std::max(max.getX(), magData.getX()));
-					max.setY(std::max(max.getY(), magData.getY()));
-					max.setZ(std::max(max.getZ(), magData.getZ()));
+					max.setX(std::max(max.getX(), x));
+					max.setY(std::max(max.getY(), y));
+					max.setZ(std::max(max.getZ(), z));
 					
 					vTaskDelay(pdMS_TO_TICKS(std::max(magSampleIntervalUs / 1000, portTICK_PERIOD_MS)));
 				}
 				while (esp_timer_get_time() < deadline);
 				
-				magBias.setX(min.getX() + (max.getX() - min.getX()) / 2);
-				magBias.setY(min.getY() + (max.getY() - min.getY()) / 2);
-				magBias.setZ(min.getZ() + (max.getZ() - min.getZ()) / 2);
+				_magBias.setX(min.getX() + (max.getX() - min.getX()) / 2);
+				_magBias.setY(min.getY() + (max.getY() - min.getY()) / 2);
+				_magBias.setZ(min.getZ() + (max.getZ() - min.getZ()) / 2);
 				
-				ESP_LOGI(_logTag, "mag bias: %f x %f x %f", magBias.getX(), magBias.getY(), magBias.getZ());
+				ESP_LOGI(_logTag, "mag bias: %f x %f x %f", _magBias.getX(), _magBias.getY(), _magBias.getZ());
 			}
 			
 			void tick() {
@@ -246,7 +252,7 @@ namespace pizda {
 			}
 			
 			const Vector3F& getAccelerationG() const {
-				return accelerationG;
+				return _accelerationG;
 			}
 		
 		private:
@@ -254,57 +260,57 @@ namespace pizda {
 			
 			// -------------------------------- MPU --------------------------------
 			
-			MPU9250 MPU {};
+			MPU9250 _MPU {};
 			constexpr static uint8_t MPUSRD = 4;
 			constexpr static uint16_t MPUSampleRateHz = 1000 / (1 + MPUSRD);
 			
 			void setMPUCalibrationMode() {
-				MPU.setGyroRange(MPU9250_GYRO_RANGE_250);
-				MPU.setAccelRange(MPU9250_ACC_RANGE_2G);
+				_MPU.setGyroRange(MPU9250_GYRO_RANGE_250);
+				_MPU.setAccelRange(MPU9250_ACC_RANGE_2G);
 				
-				MPU.setAccelDLPF(MPU9250_DLPF_6);
-				MPU.enableAccelDLPF();
+				_MPU.setAccelDLPF(MPU9250_DLPF_6);
+				_MPU.enableAccelDLPF();
 				
-				MPU.setGyroDLPF(MPU9250_DLPF_6);
-				MPU.enableGyroDLPF();
+				_MPU.setGyroDLPF(MPU9250_DLPF_6);
+				_MPU.enableGyroDLPF();
 				
 				vTaskDelay(pdMS_TO_TICKS(100));
 				
-				MPU.disableFIFO();
+				_MPU.disableFIFO();
 			}
 			
 			void setMPUOperationalMode() {
 				// Range
-				MPU.setAccelRange(MPU9250_ACC_RANGE_2G);
-				MPU.setGyroRange(MPU9250_GYRO_RANGE_250);
+				_MPU.setAccelRange(MPU9250_ACC_RANGE_2G);
+				_MPU.setGyroRange(MPU9250_GYRO_RANGE_250);
 				
 				// LPF
-				MPU.setAccelDLPF(MPU9250_DLPF_2);
-				MPU.enableAccelDLPF();
+				_MPU.setAccelDLPF(MPU9250_DLPF_2);
+				_MPU.enableAccelDLPF();
 				
-				MPU.setGyroDLPF(MPU9250_DLPF_2);
-				MPU.enableGyroDLPF();
+				_MPU.setGyroDLPF(MPU9250_DLPF_2);
+				_MPU.enableGyroDLPF();
 				
 				vTaskDelay(pdMS_TO_TICKS(100));
 				
 				// FIFO
-				MPU.setFIFOMode(MPU9250_STOP_WHEN_FULL);
-				MPU.enableFIFO();
+				_MPU.setFIFOMode(MPU9250_STOP_WHEN_FULL);
+				_MPU.enableFIFO();
 				
 				// In some cases a delay after enabling FIFO makes sense
 				vTaskDelay(pdMS_TO_TICKS(100));
 				
-				MPU.setFIFODataSource(FIFODataSource);
+				_MPU.setFIFODataSource(FIFODataSource);
 			}
 			
 			// -------------------------------- Accel --------------------------------
 			
-			Vector3F accelBias {};
-			Vector3F accelerationG {};
+			Vector3F _accelBias {};
+			Vector3F _accelerationG {};
 			
 			// -------------------------------- Gyro --------------------------------
 			
-			Vector3F gyroBias {};
+			Vector3F _gyroBias {};
 			
 			// -------------------------------- Mag --------------------------------
 			
@@ -314,23 +320,23 @@ namespace pizda {
 			constexpr static float magLPFFactorPerSecond = 10.f;
 			constexpr static float magLPFFactor = magLPFFactorPerSecond * static_cast<float>(magSampleIntervalUs) / 1'000'000.f;
 			
-			Vector3F magBias {};
-			uint32_t magSampleTimeUs = 0;
-			Vector3F magDataFiltered { 0, 0, 0 };
-			
-			
+			Vector3F _magBias {};
+			Vector3F _magDataFiltered {};
+			uint32_t _magSampleTimeUs = 0;
+
 			void magTick() {
-				if (esp_timer_get_time() < magSampleTimeUs)
+				if (esp_timer_get_time() < _magSampleTimeUs)
 					return;
-				
-				const auto magData = MPU.getMagData();
+
+				float x, y, z;
+				_MPU.getMagData(x, y, z);
 
 //					ESP_LOGI(_logTag, "mag raw: %f x %f x %f", magData.getX(), magData.getY(), magData.getZ());
 				
 				// Axis swap, fuck MPU
-				magDataFiltered.setX(LowPassFilter::apply(magDataFiltered.getX(), magData.getY() - magBias.getY(), magLPFFactor));
-				magDataFiltered.setY(LowPassFilter::apply(magDataFiltered.getY(), magData.getX() - magBias.getX(), magLPFFactor));
-				magDataFiltered.setZ(LowPassFilter::apply(magDataFiltered.getZ(), -(magData.getZ() - magBias.getZ()), magLPFFactor));
+				_magDataFiltered.setX(LowPassFilter::apply(_magDataFiltered.getX(), y - _magBias.getY(), magLPFFactor));
+				_magDataFiltered.setY(LowPassFilter::apply(_magDataFiltered.getY(), x - _magBias.getX(), magLPFFactor));
+				_magDataFiltered.setZ(LowPassFilter::apply(_magDataFiltered.getZ(), -(z - _magBias.getZ()), magLPFFactor));
 
 //				magSample.setX(magData.getY() - magBias.getY());
 //				magSample.setY(magData.getX() - magBias.getX());
@@ -339,7 +345,7 @@ namespace pizda {
 //				const auto magYaw = std::atan2(magSample.getX(), magSample.getY());
 //				ESP_LOGI(_logTag, "Mag: %f x %f x %f, yaw: %f", magData.getX(), magSample.getY(), magSample.getZ(), toDegrees(magYaw));
 				
-				magSampleTimeUs = esp_timer_get_time() + magSampleIntervalUs;
+				_magSampleTimeUs = esp_timer_get_time() + magSampleIntervalUs;
 			}
 			
 			// -------------------------------- FIFO --------------------------------
@@ -365,7 +371,7 @@ namespace pizda {
 				if (esp_timer_get_time() < FIFOSampleTimeUs)
 					return;
 				
-				const auto sampleCount = MPU.getFIFOCount() / FIFOSampleLength;
+				const auto sampleCount = _MPU.getFIFOCount() / FIFOSampleLength;
 
 //				ESP_LOGI(_logTag, "FIFO sample count %d", sampleCount);
 				
@@ -377,7 +383,7 @@ namespace pizda {
 					ESP_LOGW(_logTag, "FIFO sample count %d exceeds max sample count, data was permanently lost", sampleCount);
 				}
 				
-				MPU.setFIFODataSource(MPU9250_FIFO_DATA_SOURCE_NONE);
+				_MPU.setFIFODataSource(MPU9250_FIFO_DATA_SOURCE_NONE);
 
 //				ESP_LOGI(_logTag, "FIFO sample count: %d", sampleCount);
 				
@@ -385,20 +391,26 @@ namespace pizda {
 				
 				uint8_t sample[FIFOSampleLength] {};
 				Vector3F accelerationGSum {};
+				float x, y, z;
 				
 				for (uint32_t i = 0; i < samplesToRead; i++) {
-					MPU.getFIFOData(sample, FIFOSampleLength);
-					
-					const auto accelData = MPU.getAccelData(sample) - accelBias;
+					// FIFO
+					_MPU.getFIFOData(sample, FIFOSampleLength);
+
+					// Accel
+					_MPU.getAccelData(sample, x, y, z);
+					const auto accelData = Vector3F(x, y, z) - _accelBias;
 					accelerationGSum += accelData;
-					
-					const auto gyroData = MPU.getGyroData(sample + FIFOSampleDataTypeLength) - gyroBias;
+
+					// Gyro
+					_MPU.getGyroData(sample + FIFOSampleDataTypeLength, x, y, z);
+					const auto gyroData = Vector3F(x, y, z) - _gyroBias;
 					
 					// Applying adaptive complimentary filter
 					AdaptiveComplimentaryFiler::apply(
 						accelData,
 						gyroData,
-						magDataFiltered,
+						_magDataFiltered,
 						
 						FIFOSampleIntervalS,
 						
@@ -432,12 +444,12 @@ namespace pizda {
 //				ESP_LOGI(_logTag, "Pos: %f x %f x %f", accelPosM.getX(), accelPosM.getY(), accelPosM.getZ());
 //				ESP_LOGI(_logTag, "Roll pitch yaw: %f x %f x %f", toDegrees(rollRad), toDegrees(pitchRad), toDegrees(yawRad));
 				
-				MPU.resetFIFO();
-				MPU.setFIFODataSource(FIFODataSource);
-				MPU.readAndClearInterruptStatus();
+				_MPU.resetFIFO();
+				_MPU.setFIFODataSource(FIFODataSource);
+				_MPU.readAndClearInterruptStatus();
 				
 				accelerationGSum /= samplesToRead;
-				accelerationG = accelerationGSum;
+				_accelerationG = accelerationGSum;
 				
 				FIFOSampleTimeUs = esp_timer_get_time() + FIFOSafeSampleIntervalUs;
 			}
