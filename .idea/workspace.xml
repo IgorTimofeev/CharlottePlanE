@@ -186,19 +186,12 @@
   <component name="ChangeListManager">
     <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="давно пора было распидорасить проект по отдельным шматкам">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-BMP280" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-BMP280" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-BMP280/src/BMP280.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-BMP280/src/BMP280.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-BusHAL" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-BusHAL" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-BusHAL/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-BusHAL/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-BusHAL/src/busHAL.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-BusHAL/src/busHAL.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-GeoCoordinates" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-GeoCoordinates" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-GeoCoordinates/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-GeoCoordinates/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ESP-IDF-MPU9250" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-MPU9250" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-MPU9250/src/MPU9250.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-MPU9250/src/MPU9250.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/main/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/aircraftCommunicationManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/aircraftCommunicationManager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/aircraftCommunicationManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/aircraftCommunicationManager.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/communicationManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/communicationManager.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-MPU9250/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-MPU9250/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-Vector3" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-Vector3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-Vector3/src/vector3.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-Vector3/src/vector3.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -1305,15 +1298,7 @@
       <workItem from="1769268086031" duration="2533000" />
       <workItem from="1769290805165" duration="4548000" />
       <workItem from="1769295417143" duration="826000" />
-      <workItem from="1769296270266" duration="1436000" />
-    </task>
-    <task id="LOCAL-00092" summary="pizda">
-      <option name="closed" value="true" />
-      <created>1766759394580</created>
-      <option name="number" value="00092" />
-      <option name="presentableId" value="LOCAL-00092" />
-      <option name="project" value="LOCAL" />
-      <updated>1766759394581</updated>
+      <workItem from="1769296270266" duration="3005000" />
     </task>
     <task id="LOCAL-00093" summary="))">
       <option name="closed" value="true" />
@@ -1699,7 +1684,15 @@
       <option name="project" value="LOCAL" />
       <updated>1769295482213</updated>
     </task>
-    <option name="localTasksCounter" value="141" />
+    <task id="LOCAL-00141" summary="давно пора было распидорасить проект по отдельным шматкам">
+      <option name="closed" value="true" />
+      <created>1769297820295</created>
+      <option name="number" value="00141" />
+      <option name="presentableId" value="LOCAL-00141" />
+      <option name="project" value="LOCAL" />
+      <updated>1769297820295</updated>
+    </task>
+    <option name="localTasksCounter" value="142" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
