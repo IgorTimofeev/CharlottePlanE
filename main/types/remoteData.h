@@ -13,7 +13,6 @@ namespace pizda {
 			float elevator = 0.5f;
 			float rudder = 0.5f;
 			float flaps = 0;
-			float unused = 0;
 	};
 	
 	class RemoteDataRaw {

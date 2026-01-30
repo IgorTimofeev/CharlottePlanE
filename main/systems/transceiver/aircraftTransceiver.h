@@ -1,6 +1,6 @@
 #pragma once
 
-#include "communicationManager.h"
+#include "transceiver.h"
 
 #include <queue>
 #include <set>
@@ -23,7 +23,7 @@ namespace pizda {
 			bool _useEnqueued;
 	};
 	
-	class AircraftCommunicationManager : public CommunicationManager<AircraftPacketType, RemotePacketType> {
+	class AircraftTransceiver : public Transceiver<AircraftPacketType, RemotePacketType> {
 		public:
 			void enqueue(AircraftPacketType type);
 		

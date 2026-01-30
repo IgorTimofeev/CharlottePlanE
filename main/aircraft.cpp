@@ -27,10 +27,7 @@ namespace pizda {
 		// Transceiver
 		if (!transceiver.setup())
 			startErrorLoop("failed to setup XCVR");
-		
-		communicationManager.setTransceiver(&transceiver);
-		communicationManager.start();
-		
+
 		// Autopilot
 		fbw.setup();
 		

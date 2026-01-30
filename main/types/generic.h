@@ -41,4 +41,9 @@ namespace pizda {
 					std::swap(min, max);
 			}
 	};
+
+	class PIDCoefficients {
+		public:
+			float p, i, d;
+	};
 }

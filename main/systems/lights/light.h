@@ -13,7 +13,7 @@ namespace pizda {
 				strip_config.led_model = LED_MODEL_WS2812;
 				strip_config.flags.invert_out = false;
 
-				led_strip_rmt_config_t rmt_config{};
+				led_strip_rmt_config_t rmt_config {};
 				rmt_config.clk_src = RMT_CLK_SRC_DEFAULT; // different clock source can lead to different power consumption
 				rmt_config.resolution_hz = 10000000;
 				rmt_config.mem_block_symbols = 0;

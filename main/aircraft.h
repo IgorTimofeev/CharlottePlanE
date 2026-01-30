@@ -10,15 +10,14 @@
 #include "settings/settings.h"
 #include "systems/lights/lights.h"
 #include "systems/motors/motors.h"
-#include "systems/transceiver/SX1262Transceiver.h"
-#include "systems/communicationManager/aircraftCommunicationManager.h"
+#include "systems/transceiver/aircraftTransceiver.h"
 #include "types/aircraftData.h"
 #include "types/remoteData.h"
 #include "systems/flyByWire/flyByWire.h"
 
 #ifdef SIM
 	#include "systems/ADIRS/simADIRS.h"
-#include "systems/simLink/simLink.h"
+	#include "systems/simLink/simLink.h"
 #else
 	#include "systems/ADIRS/I2CADIRS.h"
 #endif
@@ -44,8 +43,7 @@ namespace pizda {
 			>
 			battery { getAssignedADCOneshotUnit(config::battery::unit) };
 			
-			SX1262Transceiver transceiver {};
-			AircraftCommunicationManager communicationManager {};
+			AircraftTransceiver transceiver {};
 			
 			#ifdef SIM
 				SimLink simLink {};

@@ -120,7 +120,7 @@ namespace pizda {
 					constexpr static gpio_num_t DIO1 = GPIO_NUM_7;
 
 					// Initial values, can be changed and stored in NVS
-					constexpr static uint16_t RFFrequencyMHz = 915;
+					constexpr static uint32_t RFFrequencyHz = 915'000'000;
 					constexpr static uint8_t bandwidth = SX1262::LORA_BW_500_0;
 					constexpr static uint8_t spreadingFactor = 7;
 					constexpr static uint8_t codingRate = SX1262::LORA_CR_4_5;

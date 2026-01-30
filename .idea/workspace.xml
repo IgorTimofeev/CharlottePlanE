@@ -186,20 +186,21 @@
   <component name="ChangeListManager">
     <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="кек">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dependencies.lock" beforeDir="false" afterPath="$PROJECT_DIR$/dependencies.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/aircraft.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/aircraft.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/aircraftCommunicationManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/communicationManager/aircraftCommunicationManager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/aircraftCommunicationManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/communicationManager/aircraftCommunicationManager.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/communicationManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/communicationManager/communicationManager.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/flyByWire.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/flyByWire/flyByWire.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/flyByWire.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/flyByWire/flyByWire.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/light.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/lights/light.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/lights.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/lights/lights.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/lights.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/lights/lights.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/motor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/motors/motor.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/motor.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/motors/motor.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/motors.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/motors/motors.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/motors.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/motors/motors.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/config.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/ADIRS/simADIRS.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/ADIRS/simADIRS.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/communicationManager/aircraftCommunicationManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/transceiver/aircraftTransceiver.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/communicationManager/aircraftCommunicationManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/transceiver/aircraftTransceiver.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/communicationManager/communicationManager.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/lights/light.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/lights/light.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/transceiver/SX1262Transceiver.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/transceiver/transceiver.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/transceiver/transceiver.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/generic.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/generic.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/packet.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/transceiver/packet.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/types/remoteData.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/remoteData.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -291,11 +292,11 @@
       <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\systems\transceiver" />
       <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\systems\flyByWire" />
       <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\systems\lights" />
       <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\systems\motors" />
       <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\systems\communicationManager" />
-      <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\components\ESP-IDF-GeoCoordinates\src" />
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.CharlottePlanE.elf">
@@ -809,11 +810,6 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="apidoc" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="apidoc" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -1309,15 +1305,9 @@
       <workItem from="1769296270266" duration="5592000" />
       <workItem from="1769344398121" duration="232000" />
       <workItem from="1769344747962" duration="756000" />
-      <workItem from="1769345576171" duration="375000" />
-    </task>
-    <task id="LOCAL-00096" summary="вроде получше">
-      <option name="closed" value="true" />
-      <created>1766957523014</created>
-      <option name="number" value="00096" />
-      <option name="presentableId" value="LOCAL-00096" />
-      <option name="project" value="LOCAL" />
-      <updated>1766957523014</updated>
+      <workItem from="1769345576171" duration="758000" />
+      <workItem from="1769513512480" duration="1620000" />
+      <workItem from="1769802281452" duration="2957000" />
     </task>
     <task id="LOCAL-00097" summary="ничего себе какая оказия! ебучие флайт директора ПАШУТ БАЛЯ">
       <option name="closed" value="true" />
@@ -1703,7 +1693,15 @@
       <option name="project" value="LOCAL" />
       <updated>1769301800239</updated>
     </task>
-    <option name="localTasksCounter" value="145" />
+    <task id="LOCAL-00145" summary="кек">
+      <option name="closed" value="true" />
+      <created>1769346091283</created>
+      <option name="number" value="00145" />
+      <option name="presentableId" value="LOCAL-00145" />
+      <option name="project" value="LOCAL" />
+      <updated>1769346091283</updated>
+    </task>
+    <option name="localTasksCounter" value="146" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
