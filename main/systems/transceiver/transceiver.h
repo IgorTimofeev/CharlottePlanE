@@ -18,7 +18,12 @@
 #include "packet.h"
 
 namespace pizda {
-	template<typename TLocalPacketType, typename TRemotePacketType>
+	template<
+		typename TLocalPacketType,
+		uint8_t localPacketTypeLengthBits,
+		typename TRemotePacketType,
+		uint8_t remotePacketTypeLengthBits
+	>
 	class Transceiver {
 		public:
 			virtual ~Transceiver() = default;
@@ -96,7 +101,7 @@ namespace pizda {
 						BitStream stream { _buffer };
 
 						// Type
-						const auto packetType = static_cast<TRemotePacketType>(stream.readUint8(Packet::typeLengthBits));
+						const auto packetType = static_cast<TRemotePacketType>(stream.readUint8(remotePacketTypeLengthBits));
 
 						// Reading
 						if (onReceive(stream, packetType, payloadLength)) {
@@ -131,11 +136,10 @@ namespace pizda {
 				const auto packetType = getTransmitPacketType();
 
 				// Type
-				stream.writeUint8(static_cast<uint8_t>(packetType), Packet::typeLengthBits);
+				stream.writeUint8(static_cast<uint8_t>(packetType), localPacketTypeLengthBits);
 
 				// Body
-				if (!onTransmit(stream, packetType))
-					return false;
+				onTransmit(stream, packetType);
 
 				// Checksum
 				const auto payloadLength = stream.getBytesProcessed();
@@ -226,7 +230,10 @@ namespace pizda {
 			}
 
 			static bool validatePayloadChecksumAndLength(BitStream& stream, size_t expectedDataLengthBits, uint8_t payloadLength) {
-				const auto expectedPayloadLengthBytes = static_cast<uint8_t>(divideCeiling<size_t>(static_cast<size_t>(Packet::typeLengthBits) + expectedDataLengthBits, 8));
+				const auto expectedPayloadLengthBytes = static_cast<uint8_t>(divideCeiling<uint16_t>(
+					static_cast<uint16_t>(remotePacketTypeLengthBits) + expectedDataLengthBits,
+					8
+				));
 
 				// Length
 				if (payloadLength != expectedPayloadLengthBytes) {
@@ -302,7 +309,7 @@ namespace pizda {
 			virtual bool onReceive(BitStream& stream, TRemotePacketType packetType, uint8_t payloadLength) = 0;
 
 			virtual TLocalPacketType getTransmitPacketType() = 0;
-			virtual bool onTransmit(BitStream& stream, TLocalPacketType packetType) = 0;
+			virtual void onTransmit(BitStream& stream, TLocalPacketType packetType) = 0;
 			virtual void onConnectionStateChanged() = 0;
 
 		private:
@@ -317,7 +324,6 @@ namespace pizda {
 			constexpr static uint32_t _RSSIAndSNRUpdateIntervalUs = 1'000'000 / _RSSIAndSNRUpdateFrequencyHz;
 
 			int64_t _RSSIAndSNRUpdateTimeUs = 0;
-
 			int8_t _RSSI = 0;
 			int8_t _SNR = 0;
 
