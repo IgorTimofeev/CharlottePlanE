@@ -6,26 +6,16 @@
 #include "systems/motors/motors.h"
 
 namespace pizda {
-	// -------------------------------- PacketSequenceItem --------------------------------
-	
-	PacketSequenceItem::PacketSequenceItem(const AircraftPacketType type, const uint8_t count, const bool useEnqueued) : _type(type), _count(count), _useEnqueued(useEnqueued) {
-	
-	}
-	
-	AircraftPacketType PacketSequenceItem::getType() const {
-		return _type;
-	}
-	
-	uint8_t PacketSequenceItem::getCount() const {
-		return _count;
-	}
-	
-	bool PacketSequenceItem::useEnqueued() const {
-		return _useEnqueued;
-	}
-	
 	// -------------------------------- Generic --------------------------------
-	
+
+	AircraftTransceiver::AircraftTransceiver() : Transceiver({
+		PacketSequenceItem(AircraftPacketType::telemetryPrimary, 3),
+		PacketSequenceItem(AircraftPacketType::telemetryPrimary, 1, true),
+		PacketSequenceItem(AircraftPacketType::telemetrySecondary, 1)
+	}) {
+
+	}
+
 	void AircraftTransceiver::onStart() {
 		while (true) {
 			if (receive(1'000'000))
@@ -34,14 +24,7 @@ namespace pizda {
 			transmit(1'000'000);
 		}
 	}
-	
-	void AircraftTransceiver::enqueueAuxiliary(const AircraftAuxiliaryPacketType type) {
-		_packetQueueIndex++;
-		assert(_packetQueueIndex < std::size(_packetQueue) && "Packet queue overflow");
 
-		_packetQueue[_packetQueueIndex] = type;
-	}
-	
 	void AircraftTransceiver::onConnectionStateChanged() {
 		auto& ac = Aircraft::getInstance();
 		
@@ -125,8 +108,6 @@ namespace pizda {
 				ESP_LOGE(_logTag, "failed to receive packet: unsupported type %d", std::to_underlying(type));
 				return false;
 		}
-
-		return true;
 	}
 	
 	bool AircraftTransceiver::receiveRemoteAuxiliaryTrimPacket(BitStream& stream, const uint8_t payloadLength) {
@@ -134,7 +115,8 @@ namespace pizda {
 		
 		if (!validatePayloadChecksumAndLength(
 			stream,
-			RemoteAuxiliaryTrimPacket::valueLengthBits * 3,
+			RemoteAuxiliaryPacket::typeLengthBits
+				+ RemoteAuxiliaryTrimPacket::valueLengthBits * 3,
 			payloadLength
 		))
 			return false;
@@ -162,7 +144,8 @@ namespace pizda {
 		
 		if (!validatePayloadChecksumAndLength(
 			stream,
-			4,
+			RemoteAuxiliaryPacket::typeLengthBits
+				+ 4,
 			payloadLength
 		))
 			return false;
@@ -180,14 +163,19 @@ namespace pizda {
 		
 		if (!validatePayloadChecksumAndLength(
 			stream,
-			RemoteAuxiliaryBaroPacket::referencePressureLengthBits,
+			RemoteAuxiliaryPacket::typeLengthBits
+				+ RemoteAuxiliaryBaroPacket::referencePressureLengthBits,
 			payloadLength
 		))
 			return false;
 		
 		// Reference pressure
 		const auto referencePressureDaPa = stream.readUint16(RemoteAuxiliaryBaroPacket::referencePressureLengthBits);
-		ac.adirs.setReferencePressurePa(sanitizeValue<uint32_t>(static_cast<uint32_t>(referencePressureDaPa) * 10, 900'00, 1100'00));
+
+		ac.settings.adirs.referencePressurePa = sanitizeValue<uint32_t>(static_cast<uint32_t>(referencePressureDaPa) * 10, 900'00, 1100'00);
+		ac.settings.adirs.scheduleWrite();
+
+		ac.adirs.setReferencePressurePa(ac.settings.adirs.referencePressurePa);
 		
 		return true;
 	}
@@ -197,6 +185,7 @@ namespace pizda {
 		
 		if (!validatePayloadChecksumAndLength(
 			stream,
+			RemoteAuxiliaryPacket::typeLengthBits
 				+ RemoteAuxiliaryAutopilotPacket::speedLengthBits
 				+ RemoteAuxiliaryAutopilotPacket::headingLengthBits
 				+ RemoteAuxiliaryAutopilotPacket::altitudeLengthBits
@@ -244,11 +233,10 @@ namespace pizda {
 	bool AircraftTransceiver::receiveRemoteAuxiliaryCalibratePacket(BitStream& stream, const uint8_t payloadLength) {
 		auto& ac = Aircraft::getInstance();
 		
-		ESP_LOGI(_logTag, "R!!!!ket");
-		
 		if (!validatePayloadChecksumAndLength(
 			stream,
-			RemoteAuxiliaryCalibratePacket::systemLengthBits,
+			RemoteAuxiliaryPacket::typeLengthBits
+				+ RemoteAuxiliaryCalibratePacket::systemLengthBits,
 			payloadLength
 		))
 			return false;
@@ -269,12 +257,13 @@ namespace pizda {
 		
 		if (!validatePayloadChecksumAndLength(
 			stream,
-			(
-				RemoteAuxiliaryMotorConfigurationPacket::minLengthBits
-				+ RemoteAuxiliaryMotorConfigurationPacket::maxLengthBits
-				+ 1
-			)
-			* 8,
+			RemoteAuxiliaryPacket::typeLengthBits
+				+ (
+					RemoteAuxiliaryMotorConfigurationPacket::minLengthBits
+					+ RemoteAuxiliaryMotorConfigurationPacket::maxLengthBits
+					+ 1
+				)
+				* 8,
 			payloadLength
 		))
 			return false;
@@ -308,47 +297,6 @@ namespace pizda {
 	
 	// -------------------------------- Transmitting --------------------------------
 	
-	AircraftPacketType AircraftTransceiver::getTransmitPacketType() {
-		const auto& item = _packetSequence[_packetSequenceIndex];
-		
-		const auto next = [this, &item] {
-			_packetSequenceItemCounter++;
-			
-			if (_packetSequenceItemCounter < item.getCount())
-				return;
-			
-			_packetSequenceItemCounter = 0;
-			
-			_packetSequenceIndex++;
-			
-			if (_packetSequenceIndex >= _packetSequence.size())
-				_packetSequenceIndex = 0;
-		};
-		
-		// Enqueued
-		if (item.useEnqueued() && _packetQueueIndex >= 0) {
-			_auxiliaryPacketType = _packetQueue[0];
-
-			// 01234567
-			// --+-----
-			for (uint16_t i = 0; i < _packetQueueIndex; ++i)
-				_packetQueue[i] = _packetQueue[i + 1];
-
-			_packetQueueIndex--;
-
-			next();
-
-			return AircraftPacketType::auxiliary;
-		}
-
-		// Normal
-		const auto packetType = item.getType();
-			
-		next();
-			
-		return packetType;
-	}
-	
 	void AircraftTransceiver::onTransmit(BitStream& stream, const AircraftPacketType packetType) {
 		switch (packetType) {
 			case AircraftPacketType::telemetryPrimary:
@@ -360,7 +308,7 @@ namespace pizda {
 				break;
 			
 			case AircraftPacketType::auxiliary:
-				transmitAircraftAuxiliaryCalibrationPacket(stream);
+				transmitAircraftAuxiliaryPacket(stream);
 				break;
 			
 			default:
@@ -480,9 +428,9 @@ namespace pizda {
 	}
 
 	void AircraftTransceiver::transmitAircraftAuxiliaryPacket(BitStream& stream) {
-		stream.writeUint8(std::to_underlying(_auxiliaryPacketType), AircraftAuxiliaryPacket::typeLengthBits);
+		stream.writeUint8(std::to_underlying(getEnqueuedAuxiliaryPacketType()), AircraftAuxiliaryPacket::typeLengthBits);
 
-		switch (_auxiliaryPacketType) {
+		switch (getEnqueuedAuxiliaryPacketType()) {
 			case AircraftAuxiliaryPacketType::calibration:
 				transmitAircraftAuxiliaryCalibrationPacket(stream);
 				break;
@@ -493,6 +441,6 @@ namespace pizda {
 		const auto& ac = Aircraft::getInstance();
 	
 		stream.writeUint8(std::to_underlying(ac.aircraftData.calibration.system), AircraftAuxiliaryCalibrationPacket::systemLengthBits);
-		stream.writeUint8(ac.aircraftData.calibration.progress * ((1 << AircraftAuxiliaryCalibrationPacket::progressLengthBits) - 1) / 0xFF, AircraftAuxiliaryCalibrationPacket::progressLengthBits);
+		stream.writeUint8(static_cast<uint16_t>(ac.aircraftData.calibration.progress) * ((1 << AircraftAuxiliaryCalibrationPacket::progressLengthBits) - 1) / 0xFF, AircraftAuxiliaryCalibrationPacket::progressLengthBits);
 	}
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef SIM
+
 #include <cstring>
 #include <array>
 #include <cmath>
@@ -19,15 +21,14 @@
 
 namespace pizda {
 	class SimADIRS : public ADIRS {
-		public:
-			void setup();
-			
 		protected:
 			void onTick() override;
 			void onCalibrateAccelAndGyro() override;
 			void onCalibrateMag() override;
 			
 		private:
-			void simulateCalibration();
+			static void simulateCalibration();
 	};
 }
+
+#endif

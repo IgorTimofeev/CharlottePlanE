@@ -109,123 +109,18 @@ namespace pizda {
 				// SRD
 				_MPU.setSRD(MPUSRD);
 
-//				setMPUOperationalMode();
-				calibrateAccelAndGyro();
-				calibrateMag();
+				setOperationalMode();
 
 				return true;
 			}
 
-			/* The slope of the curve of acceleration vs measured values fits quite well to the theoretical
-			* values, e.g. 16384 units/g in the +/- 2g range. But the starting point, if you position the
-			* MPU9250 flat, is not necessarily 0g/0g/1g for x/y/z. The autoOffset function measures offset
-			* values. It assumes your MPU9250 is positioned flat with its x,y-plane. The more you deviate
-			* from this, the less accurate will be your results.
-			* The function also measures the offset of the gyroscope data. The gyroscope offset does not
-			* depend on the positioning.
-			* This function needs to be called at the beginning since it can overwrite your settings!
-			*
-			*  There's a more accurate method for calibration. You have to determine the minimum and maximum
-			*  raw acceleration values of the axes determined in the range +/- 2 g.
-			*  You call the function as follows: setAccOffsets(xMin,xMax,yMin,yMax,zMin,zMax);
-			*  Use either autoOffset or setAccOffsets, not both.
-			*/
-			void calibrateAccelAndGyro() {
-				constexpr static uint16_t iterations = 512;
+			constexpr static uint8_t MPUSRD = 4;
+			constexpr static uint16_t MPUSampleRateHz = 1000 / (1 + MPUSRD);
+			constexpr static uint32_t MPUSampleIntervalHz = 1'000'000 / MPUSampleRateHz;
 
-				ESP_LOGI(_logTag, "accel and gyro calibration started");
+			constexpr static uint32_t magSampleRateHz = 100;
+			constexpr static uint32_t magSampleIntervalUs = 1'000'000 / magSampleRateHz;
 
-//				accelBias = {
-//					0.080503,
-//					0.092216,
-//					-0.210539
-//				};
-//
-//				gyroBias = {
-//					-3.064394,
-//					-1.297578,
-//					-0.379190
-//				};
-//
-//				setMPUOperationalMode();
-//
-//				return;
-
-				// Using higher attenuation during calibration process
-				setMPUCalibrationMode();
-
-				// Accumulating acc/gyr data
-				Vector3F aSum {};
-				Vector3F gSum {};
-
-				float x, y, z;
-
-				for (uint16_t i = 0; i < iterations; ++i) {
-					_MPU.getAccelData(x, y, z);
-					aSum += Vector3F(x, y, z);
-
-					_MPU.getGyroData(x, y, z);
-					gSum += Vector3F(x, y, z);
-
-					vTaskDelay(pdMS_TO_TICKS(std::max<uint32_t>(1'000 / MPUSampleRateHz, portTICK_PERIOD_MS)));
-				}
-
-				aSum /= iterations;
-				// Z axis - 1G
-				aSum.setZ(aSum.getZ() - 1);
-
-				gSum /= iterations;
-				
-				_accelBias = aSum;
-				_gyroBias = gSum;
-				
-				ESP_LOGI(_logTag, "acc bias: %f x %f x %f", _accelBias.getX(), _accelBias.getY(), _accelBias.getZ());
-				ESP_LOGI(_logTag, "gyr bias: %f x %f x %f", _gyroBias.getX(), _gyroBias.getY(), _gyroBias.getZ());
-				
-				// Restoring attenuation to operational
-				setMPUOperationalMode();
-			}
-
-			void calibrateMag() {
-				_magBias = {
-					11.828777,
-					24.903629,
-					-25.226059
-				};
-
-				return;
-				
-				ESP_LOGI(_logTag, "mag calibration started");
-				
-				constexpr static uint32_t durationUs = 10'000'000;
-				const auto deadline = esp_timer_get_time() + durationUs;
-				
-				Vector3F min {};
-				Vector3F max {};
-				float x, y, z;
-				
-				do {
-					_MPU.getMagData(x, y, z);
-
-					min.setX(std::min(min.getX(), x));
-					min.setY(std::min(min.getY(), y));
-					min.setZ(std::min(min.getZ(), z));
-					
-					max.setX(std::max(max.getX(), x));
-					max.setY(std::max(max.getY(), y));
-					max.setZ(std::max(max.getZ(), z));
-					
-					vTaskDelay(pdMS_TO_TICKS(std::max(magSampleIntervalUs / 1000, portTICK_PERIOD_MS)));
-				}
-				while (esp_timer_get_time() < deadline);
-				
-				_magBias.setX(min.getX() + (max.getX() - min.getX()) / 2);
-				_magBias.setY(min.getY() + (max.getY() - min.getY()) / 2);
-				_magBias.setZ(min.getZ() + (max.getZ() - min.getZ()) / 2);
-				
-				ESP_LOGI(_logTag, "mag bias: %f x %f x %f", _magBias.getX(), _magBias.getY(), _magBias.getZ());
-			}
-			
 			void tick() {
 				magTick();
 				FIFOTick();
@@ -254,55 +149,104 @@ namespace pizda {
 			const Vector3F& getAccelerationG() const {
 				return _accelerationG;
 			}
-		
+
+			void setCalibrationMode() {
+				_MPU.setGyroRange(MPU9250_GYRO_RANGE_250);
+				_MPU.setAccelRange(MPU9250_ACC_RANGE_2G);
+
+				_MPU.setAccelDLPF(MPU9250_DLPF_6);
+				_MPU.enableAccelDLPF();
+
+				_MPU.setGyroDLPF(MPU9250_DLPF_6);
+				_MPU.enableGyroDLPF();
+
+				vTaskDelay(pdMS_TO_TICKS(100));
+
+				_MPU.disableFIFO();
+			}
+
+			void setOperationalMode() {
+				// Range
+				_MPU.setAccelRange(MPU9250_ACC_RANGE_2G);
+				_MPU.setGyroRange(MPU9250_GYRO_RANGE_250);
+
+				// LPF
+				_MPU.setAccelDLPF(MPU9250_DLPF_2);
+				_MPU.enableAccelDLPF();
+
+				_MPU.setGyroDLPF(MPU9250_DLPF_2);
+				_MPU.enableGyroDLPF();
+
+				vTaskDelay(pdMS_TO_TICKS(100));
+
+				// FIFO
+				_MPU.setFIFOMode(MPU9250_STOP_WHEN_FULL);
+				_MPU.enableFIFO();
+
+				// In some cases a delay after enabling FIFO makes sense
+				vTaskDelay(pdMS_TO_TICKS(100));
+
+				_MPU.setFIFODataSource(FIFODataSource);
+			}
+
+			Vector3F getRawAccelData() const {
+				float x, y, z;
+				_MPU.getAccelData(x, y, z);
+
+				return { x, y, z };
+			}
+
+			Vector3F getRawGyroData() const {
+				float x, y, z;
+				_MPU.getGyroData(x, y, z);
+
+				return { x, y, z };
+			}
+
+			Vector3F getRawMagData() const {
+				float x, y, z;
+				_MPU.getMagData(x, y, z);
+
+				return { x, y, z };
+			}
+
+			const Vector3F& getAccelBias() const {
+				return _accelBias;
+			}
+
+			void setAccelBias(const Vector3F& value) {
+				_accelBias = value;
+
+				ESP_LOGI(_logTag, "acc bias: %f x %f x %f", _accelBias.getX(), _accelBias.getY(), _accelBias.getZ());
+			}
+
+			const Vector3F& getGyroBias() const {
+				return _gyroBias;
+			}
+
+			void setGyroBias(const Vector3F& value) {
+				_gyroBias = value;
+
+				ESP_LOGI(_logTag, "gyro bias: %f x %f x %f", _gyroBias.getX(), _gyroBias.getY(), _gyroBias.getZ());
+			}
+
+			const Vector3F& getMagBias() const {
+				return _magBias;
+			}
+
+			void setMagBias(const Vector3F& value) {
+				_magBias = value;
+
+				ESP_LOGI(_logTag, "mag bias: %f x %f x %f", _magBias.getX(), _magBias.getY(), _magBias.getZ());
+			}
+
 		private:
 			constexpr static auto _logTag = "IMU";
 			
 			// -------------------------------- MPU --------------------------------
 			
 			MPU9250 _MPU {};
-			constexpr static uint8_t MPUSRD = 4;
-			constexpr static uint16_t MPUSampleRateHz = 1000 / (1 + MPUSRD);
-			
-			void setMPUCalibrationMode() {
-				_MPU.setGyroRange(MPU9250_GYRO_RANGE_250);
-				_MPU.setAccelRange(MPU9250_ACC_RANGE_2G);
-				
-				_MPU.setAccelDLPF(MPU9250_DLPF_6);
-				_MPU.enableAccelDLPF();
-				
-				_MPU.setGyroDLPF(MPU9250_DLPF_6);
-				_MPU.enableGyroDLPF();
-				
-				vTaskDelay(pdMS_TO_TICKS(100));
-				
-				_MPU.disableFIFO();
-			}
-			
-			void setMPUOperationalMode() {
-				// Range
-				_MPU.setAccelRange(MPU9250_ACC_RANGE_2G);
-				_MPU.setGyroRange(MPU9250_GYRO_RANGE_250);
-				
-				// LPF
-				_MPU.setAccelDLPF(MPU9250_DLPF_2);
-				_MPU.enableAccelDLPF();
-				
-				_MPU.setGyroDLPF(MPU9250_DLPF_2);
-				_MPU.enableGyroDLPF();
-				
-				vTaskDelay(pdMS_TO_TICKS(100));
-				
-				// FIFO
-				_MPU.setFIFOMode(MPU9250_STOP_WHEN_FULL);
-				_MPU.enableFIFO();
-				
-				// In some cases a delay after enabling FIFO makes sense
-				vTaskDelay(pdMS_TO_TICKS(100));
-				
-				_MPU.setFIFODataSource(FIFODataSource);
-			}
-			
+
 			// -------------------------------- Accel --------------------------------
 			
 			Vector3F _accelBias {};
@@ -313,9 +257,6 @@ namespace pizda {
 			Vector3F _gyroBias {};
 			
 			// -------------------------------- Mag --------------------------------
-			
-			constexpr static uint32_t magSampleRateHz = 100;
-			constexpr static uint32_t magSampleIntervalUs = 1'000'000 / magSampleRateHz;
 			
 			constexpr static float magLPFFactorPerSecond = 10.f;
 			constexpr static float magLPFFactor = magLPFFactorPerSecond * static_cast<float>(magSampleIntervalUs) / 1'000'000.f;

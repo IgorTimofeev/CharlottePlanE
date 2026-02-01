@@ -1,8 +1,12 @@
 #pragma once
 
+#include <array>
+
 #include <NVSSettings.h>
 #include <NVSStream.h>
 #include <vector3.h>
+
+#include "config.h"
 
 namespace pizda {
 	using namespace YOBA;
@@ -12,157 +16,44 @@ namespace pizda {
 			Vector3F accelBias {};
 			Vector3F gyroBias {};
 			Vector3F magBias {};
-			
-			void read(
-				const NVSStream& stream,
-				
-				const char* accelBiasXKey,
-				const char* accelBiasYKey,
-				const char* accelBiasZKey,
-				
-				const char* gyroBiasXKey,
-				const char* gyroBiasYKey,
-				const char* gyroBiasZKey,
-				
-				const char* magBiasXKey,
-				const char* magBiasYKey,
-				const char* magBiasZKey
-			) {
-				readVec(
-					stream,
-					accelBiasXKey,
-					accelBiasYKey,
-					accelBiasZKey,
-					accelBias
-				);
-				
-				readVec(
-					stream,
-					gyroBiasXKey,
-					gyroBiasYKey,
-					gyroBiasZKey,
-					gyroBias
-				);
-				
-				readVec(
-					stream,
-					magBiasXKey,
-					magBiasYKey,
-					magBiasZKey,
-					magBias
-				);
-			}
-			
-			void write(
-				const NVSStream& stream,
-				
-				const char* accelBiasXKey,
-				const char* accelBiasYKey,
-				const char* accelBiasZKey,
-				
-				const char* gyroBiasXKey,
-				const char* gyroBiasYKey,
-				const char* gyroBiasZKey,
-				
-				const char* magBiasXKey,
-				const char* magBiasYKey,
-				const char* magBiasZKey
-			) const {
-				writeVec(
-					stream,
-					accelBiasXKey,
-					accelBiasYKey,
-					accelBiasZKey,
-					accelBias
-				);
-				
-				writeVec(
-					stream,
-					gyroBiasXKey,
-					gyroBiasYKey,
-					gyroBiasZKey,
-					gyroBias
-				);
-				
-				writeVec(
-					stream,
-					magBiasXKey,
-					magBiasYKey,
-					magBiasZKey,
-					magBias
-				);
-			}
-			
-		private:
-			static void readVec(const NVSStream& stream, const char* keyX, const char* keyY, const char* keyZ, Vector3F& vec) {
-				vec.setX(stream.readFloat(keyX, 0));
-				vec.setY(stream.readFloat(keyY, 0));
-				vec.setZ(stream.readFloat(keyZ, 0));
-			}
-			
-			static void writeVec(const NVSStream& stream, const char* keyX, const char* keyY, const char* keyZ, const Vector3F& vec) {
-				stream.writeFloat(keyX, vec.getX());
-				stream.writeFloat(keyY, vec.getY());
-				stream.writeFloat(keyZ, vec.getZ());
-			}
 	};
 	
 	class ADIRSSettings : public NVSSettings {
 		public:
-			ADIRSSettingsUnit unit0 {};
-			
+			std::array<ADIRSSettingsUnit, config::adirs::unitsQuantity> units {};
+			uint32_t referencePressurePa;
+
 		protected:
 			const char* getNamespace() override {
-				return "adirs0";
+				return "adirs1";
 			}
 
 			void onRead(const NVSStream& stream) override {
-				unit0.read(
-					stream,
-					
-					_adirs0AccelBiasX,
-					_adirs0AccelBiasY,
-					_adirs0AccelBiasZ,
-					
-					_adirs0GyroBiasX,
-					_adirs0GyroBiasY,
-					_adirs0GyroBiasZ,
-					
-					_adirs0MagBiasX,
-					_adirs0MagBiasY,
-					_adirs0MagBiasZ
-				);
+				referencePressurePa = stream.readUint32(_referencePressurePa, 101325);
+
+				// Units
+				{
+					const auto readUnitsQuantity = stream.readObjectLength<ADIRSSettingsUnit>(_units);
+
+					if (readUnitsQuantity <= 0)
+						return;
+
+					if (readUnitsQuantity != config::adirs::unitsQuantity) {
+						ESP_LOGI("ADIRSSettings", "read units length (%d) != config length (%d)", readUnitsQuantity, config::adirs::unitsQuantity);
+						return;
+					}
+
+					stream.readObject<ADIRSSettingsUnit>(_units, units.data(), readUnitsQuantity);
+				}
 			}
 
 			void onWrite(const NVSStream& stream) override {
-				unit0.write(
-					stream,
-					
-					_adirs0AccelBiasX,
-					_adirs0AccelBiasY,
-					_adirs0AccelBiasZ,
-					
-					_adirs0GyroBiasX,
-					_adirs0GyroBiasY,
-					_adirs0GyroBiasZ,
-					
-					_adirs0MagBiasX,
-					_adirs0MagBiasY,
-					_adirs0MagBiasZ
-				);
+				stream.writeUint32(_referencePressurePa, referencePressurePa);
+				stream.writeObject<ADIRSSettingsUnit>(_units, units.data(), config::adirs::unitsQuantity);
 			}
 			
 		private:
-			constexpr static auto _adirs0AccelBiasX = "a0abx";
-			constexpr static auto _adirs0AccelBiasY = "a0aby";
-			constexpr static auto _adirs0AccelBiasZ = "a0abz";
-			
-			constexpr static auto _adirs0GyroBiasX = "a0gbx";
-			constexpr static auto _adirs0GyroBiasY = "a0gby";
-			constexpr static auto _adirs0GyroBiasZ = "a0gbz";
-			
-			constexpr static auto _adirs0MagBiasX = "a0mbx";
-			constexpr static auto _adirs0MagBiasY = "a0mby";
-			constexpr static auto _adirs0MagBiasZ = "a0mbz";
+			constexpr static auto _units = "un";
+			constexpr static auto _referencePressurePa = "rp";
 	};
 }

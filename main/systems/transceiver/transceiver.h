@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <utility>
 #include <cmath>
+#include <array>
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -18,14 +19,48 @@
 #include "packet.h"
 
 namespace pizda {
+	template<typename TLocalPacketType>
+	class PacketSequenceItem {
+		public:
+			PacketSequenceItem(const TLocalPacketType type, const uint8_t count, const bool useEnqueued = false) : _type(type), _count(count), _useEnqueued(useEnqueued) {
+
+			}
+
+			TLocalPacketType getType() const {
+				return _type;
+			}
+
+			uint8_t getCount() const {
+				return _count;
+			}
+
+			bool useEnqueued() const {
+				return _useEnqueued;
+			}
+
+		private:
+			TLocalPacketType _type;
+			uint8_t _count;
+			bool _useEnqueued;
+	};
+
 	template<
 		typename TLocalPacketType,
 		uint8_t localPacketTypeLengthBits,
+
+		uint8_t TLocalPacketSequenceLength,
+		typename TLocalAuxiliaryPacketType,
+
 		typename TRemotePacketType,
 		uint8_t remotePacketTypeLengthBits
 	>
 	class Transceiver {
 		public:
+			Transceiver(const std::array<PacketSequenceItem<TLocalPacketType>, TLocalPacketSequenceLength>& packetSequence) : _packetSequence(packetSequence) {
+				for (auto& value : _packetQueue)
+					value = false;
+			}
+
 			virtual ~Transceiver() = default;
 
 			bool setup() {
@@ -193,8 +228,13 @@ namespace pizda {
 				return _connectionState == ConnectionState::connected;
 			}
 
+			void enqueueAuxiliary(TLocalAuxiliaryPacketType type) {
+				_packetQueue[static_cast<uint8_t>(type)] = true;
+				_packetEnqueued = true;
+			}
+
 		protected:
-			constexpr static const char* _logTag = "XCVR";
+			constexpr static auto _logTag = "XCVR";
 			SX1262 _SX {};
 
 			constexpr static uint16_t _bufferLength = 255;
@@ -227,6 +267,10 @@ namespace pizda {
 				}
 
 				return crc;
+			}
+
+			TLocalAuxiliaryPacketType getEnqueuedAuxiliaryPacketType() const {
+				return _enqueuedAuxiliaryPacketType;
 			}
 
 			static bool validatePayloadChecksumAndLength(BitStream& stream, size_t expectedDataLengthBits, uint8_t payloadLength) {
@@ -308,8 +352,7 @@ namespace pizda {
 			virtual void onStart() = 0;
 			virtual bool onReceive(BitStream& stream, TRemotePacketType packetType, uint8_t payloadLength) = 0;
 
-			virtual TLocalPacketType getTransmitPacketType() = 0;
-			virtual void onTransmit(BitStream& stream, TLocalPacketType packetType) = 0;
+			virtual void onTransmit(BitStream& stream, TLocalPacketType packetType) {}
 			virtual void onConnectionStateChanged() = 0;
 
 		private:
@@ -329,6 +372,74 @@ namespace pizda {
 
 			int64_t _RXDurationUs = 0;
 			int64_t _TXDurationUs = 0;
+
+			// ----------------------------- Packet queue -----------------------------
+
+			std::array<PacketSequenceItem<TLocalPacketType>, TLocalPacketSequenceLength> _packetSequence;
+
+			uint8_t _packetSequenceIndex = 0;
+			uint8_t _packetSequenceItemCounter = 0;
+
+			// One-time packet queue
+			constexpr static uint8_t packetQueueLength = static_cast<uint8_t>(TLocalAuxiliaryPacketType::maxValue) + 1;
+			bool _packetQueue[packetQueueLength] {};
+			bool _packetEnqueued = false;
+
+			TLocalAuxiliaryPacketType _enqueuedAuxiliaryPacketType {};
+
+			TLocalPacketType getTransmitPacketType() {
+				const auto& item = _packetSequence[_packetSequenceIndex];
+
+				const auto nextSequenceItem = [this, &item] {
+					_packetSequenceItemCounter++;
+
+					if (_packetSequenceItemCounter < item.getCount())
+						return;
+
+					_packetSequenceItemCounter = 0;
+
+					_packetSequenceIndex++;
+
+					if (_packetSequenceIndex >= _packetSequence.size())
+						_packetSequenceIndex = 0;
+				};
+
+				// Enqueued
+				if (item.useEnqueued() && _packetEnqueued) {
+					bool shouldAssign = true;
+					uint8_t remainingPacketQuantity = 0;
+
+					for (uint8_t i = 0; i < packetQueueLength; ++i) {
+						if (!_packetQueue[i])
+							continue;
+
+						if (shouldAssign) {
+							_enqueuedAuxiliaryPacketType = static_cast<TLocalAuxiliaryPacketType>(i);
+
+							_packetQueue[i] = false;
+							shouldAssign = false;
+
+							ESP_LOGI(_logTag, "enqueued packet type: %d", i);
+						}
+						else {
+							remainingPacketQuantity++;
+						}
+					}
+
+					_packetEnqueued = remainingPacketQuantity > 0;
+
+					nextSequenceItem();
+
+					return TLocalPacketType::auxiliary;
+				}
+
+				// Normal
+				const auto packetType = item.getType();
+
+				nextSequenceItem();
+
+				return packetType;
+			}
 
 			// ----------------------------- Connection state -----------------------------
 

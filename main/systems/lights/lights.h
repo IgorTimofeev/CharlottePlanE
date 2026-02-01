@@ -9,9 +9,7 @@
 namespace pizda {
 	class Lights {
 		public:
-			void setup() const;
-			void start();
-			
+			void setup();
 			void setCabinEnabled(bool value) const;
 			void setNavigationEnabled(bool value) const;
 			void setStrobeEnabled(bool value) const;

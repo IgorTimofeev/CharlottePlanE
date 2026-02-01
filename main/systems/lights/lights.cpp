@@ -4,15 +4,7 @@
 #include "aircraft.h"
 
 namespace pizda {
-	void Lights::setup() const {
-//				tail.fill(0x00);
-//				tail.flush();
-
-		leftWing.fill(0x00);
-		leftWing.flush();
-	}
-
-	void Lights::start() {
+	void Lights::setup() {
 		xTaskCreate(
 			[](void* arg) {
 				static_cast<Lights*>(arg)->onStart();
@@ -24,7 +16,7 @@ namespace pizda {
 			&taskHandle
 		);
 	}
-	
+
 	void Lights::setCabinEnabled(const bool value) const {
 		auto& ac = Aircraft::getInstance();
 		

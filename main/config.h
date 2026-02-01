@@ -94,19 +94,18 @@ namespace pizda {
 					};
 			};
 
-			class adiru1 {
+			class adirs {
 				public:
-					constexpr static uint8_t mpu9250Address = 0x68;
-					constexpr static uint8_t bmp280Address = 0x76;
+					constexpr static uint8_t unitsQuantity = 1;
 
-//					constexpr static gpio_num_t mpu9250ss = GPIO_NUM_17;
-//					constexpr static gpio_num_t bmp280ss = GPIO_NUM_18;
-			};
+					class adiru0 {
+						public:
+							constexpr static uint8_t mpu9250Address = 0x68;
+							constexpr static uint8_t bmp280Address = 0x76;
 
-			class adiru2 {
-				public:
-//					constexpr static gpio_num_t mpu9250ss = GPIO_NUM_NC;
-//					constexpr static gpio_num_t bmp280ss = GPIO_NUM_NC;
+							// constexpr static gpio_num_t mpu9250ss = GPIO_NUM_17;
+							// constexpr static gpio_num_t bmp280ss = GPIO_NUM_18;
+					};
 			};
 
 			class transceiver {

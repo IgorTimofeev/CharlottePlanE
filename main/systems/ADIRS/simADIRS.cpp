@@ -2,11 +2,9 @@
 
 #include "aircraft.h"
 
+#ifdef SIM
+
 namespace pizda {
-	void SimADIRS::setup() {
-		start();
-	}
-	
 	void SimADIRS::onTick() {
 		const auto& packet = Aircraft::getInstance().simLink.getLastSimPacket();
 		
@@ -45,7 +43,6 @@ namespace pizda {
 		
 		for (uint8_t i = 0; i < 100; ++i) {
 			ac.aircraftData.calibration.progress = static_cast<uint8_t>(static_cast<uint32_t>(i) * 0xFF / 100);
-			
 			ac.transceiver.enqueueAuxiliary(AircraftAuxiliaryPacketType::calibration);
 
 			vTaskDelay(pdMS_TO_TICKS(percentDurationMs));
@@ -55,3 +52,5 @@ namespace pizda {
 		ac.transceiver.enqueueAuxiliary(AircraftAuxiliaryPacketType::calibration);
 	}
 }
+
+#endif

@@ -4,7 +4,7 @@
 
 namespace pizda {
 	#pragma pack(push, 1)
-	
+
 	class Packet {
 		public:
 			constexpr static uint8_t checksumLengthBytes = 1;
@@ -14,7 +14,9 @@ namespace pizda {
 
 	enum class RemotePacketType : uint8_t {
 		controls,
-		auxiliary
+		auxiliary,
+
+		maxValue = auxiliary
 	};
 
 	class RemotePacket {
@@ -33,7 +35,9 @@ namespace pizda {
 		baro,
 		autopilot,
 		motorConfiguration,
-		calibrate
+		calibrate,
+
+		maxValue = calibrate
 	};
 
 	class RemoteAuxiliaryPacket {
@@ -96,7 +100,9 @@ namespace pizda {
 	enum class AircraftPacketType : uint8_t {
 		telemetryPrimary,
 		telemetrySecondary,
-		auxiliary
+		auxiliary,
+
+		maxValue = auxiliary
 	};
 
 	class AircraftPacket {
@@ -157,7 +163,9 @@ namespace pizda {
 	};
 
 	enum class AircraftAuxiliaryPacketType : uint8_t {
-		calibration
+		calibration,
+
+		maxValue = calibration
 	};
 
 	class AircraftAuxiliaryPacket {

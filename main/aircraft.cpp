@@ -17,16 +17,16 @@ namespace pizda {
 
 		settings.setup();
 
-		adirs.setup();
+		if (!adirs.setup())
+			startErrorLoop("ADIRS setup failed");
+
 		motors.setup();
 		battery.setup();
-
 		lights.setup();
-		lights.start();
 
 		// Transceiver
 		if (!transceiver.setup())
-			startErrorLoop("failed to setup XCVR");
+			startErrorLoop("XCVR setup failed");
 
 		// Autopilot
 		fbw.setup();
