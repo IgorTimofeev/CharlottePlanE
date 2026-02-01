@@ -1,7 +1,5 @@
 #pragma once
 
-#ifdef SIM
-
 #include <cstring>
 #include <array>
 #include <cmath>
@@ -30,5 +28,3 @@ namespace pizda {
 			static void simulateCalibration();
 	};
 }
-
-#endif

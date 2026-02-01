@@ -90,7 +90,7 @@ namespace pizda {
 
 		auto& ac = Aircraft::getInstance();
 
-		constexpr static uint16_t iterations = 10'000;
+		constexpr static uint16_t iterations = 1'000;
 
 		for (size_t ADIRUIndex = 0; ADIRUIndex < config::adirs::unitsQuantity; ++ADIRUIndex) {
 			auto& IMU = _IMUs[ADIRUIndex].unit;

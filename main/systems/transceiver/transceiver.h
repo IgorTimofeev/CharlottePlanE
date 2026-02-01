@@ -418,8 +418,6 @@ namespace pizda {
 
 							_packetQueue[i] = false;
 							shouldAssign = false;
-
-							ESP_LOGI(_logTag, "enqueued packet type: %d", i);
 						}
 						else {
 							remainingPacketQuantity++;
