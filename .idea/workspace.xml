@@ -184,11 +184,17 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="пиздец я тут темплейтами все обмазал">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="))">
+      <change afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/main/settings/transceiverSettings.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262.h" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262/src/SX1262.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/aircraft.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/ADIRS/I2CADIRS.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/ADIRS/I2CADIRS.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/ADIRS/simADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/ADIRS/simADIRS.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/config.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/settings/settings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/settings/settings.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/transceiver/aircraftTransceiver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/transceiver/aircraftTransceiver.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/systems/transceiver/transceiver.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/transceiver/transceiver.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -260,7 +266,7 @@
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Igor/Documents/Code/MCU/ESP32/Charlotte/PlanE/main/systems/ADIRS&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Igor/Documents/Code/MCU/ESP32/Charlotte/PlanE/components/ESP-IDF-SX1262/src&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -274,11 +280,11 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\components\ESP-IDF-SX1262\src" />
+      <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\settings" />
       <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\systems\ADIRS" />
       <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\components\ESP-IDF-MPU9250\src" />
       <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\components\ESP-IDF-MPU9250" />
-      <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\hardware\PWM" />
-      <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\hardware" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\Igor\Documents\Code\MCU\ESP32\Charlotte\PlanE\main\systems\transceiver" />
@@ -799,6 +805,11 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="apidoc" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="apidoc" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -1035,6 +1046,7 @@
       </method>
     </configuration>
     <list>
+      <item itemvalue="CMake Application.bootloader" />
       <item itemvalue="CMake Application.CharlottePlanE.elf" />
       <item itemvalue="CMake Application.__idf_ESP-IDF-BMP280" />
       <item itemvalue="CMake Application.__idf_ESP-IDF-Battery" />
@@ -1142,7 +1154,6 @@
       <item itemvalue="CMake Application.app" />
       <item itemvalue="CMake Application.app_check_size" />
       <item itemvalue="CMake Application.bootloader-flash" />
-      <item itemvalue="CMake Application.bootloader" />
       <item itemvalue="CMake Application.confserver" />
       <item itemvalue="CMake Application.custom_bundle" />
       <item itemvalue="CMake Application.dfu-flash" />
@@ -1300,15 +1311,9 @@
       <workItem from="1769806557238" duration="668000" />
       <workItem from="1769818476018" duration="596000" />
       <workItem from="1769954819641" duration="14225000" />
-      <workItem from="1769981929208" duration="594000" />
-    </task>
-    <task id="LOCAL-00100" summary="автопилик готов к труду и обороне!">
-      <option name="closed" value="true" />
-      <created>1767111779138</created>
-      <option name="number" value="00100" />
-      <option name="presentableId" value="LOCAL-00100" />
-      <option name="project" value="LOCAL" />
-      <updated>1767111779138</updated>
+      <workItem from="1769981929208" duration="1198000" />
+      <workItem from="1770644351628" duration="12059000" />
+      <workItem from="1770671203762" duration="20000" />
     </task>
     <task id="LOCAL-00101" summary="с новым годом, посоны и посонессы!!1">
       <option name="closed" value="true" />
@@ -1694,7 +1699,15 @@
       <option name="project" value="LOCAL" />
       <updated>1769969591491</updated>
     </task>
-    <option name="localTasksCounter" value="149" />
+    <task id="LOCAL-00149" summary="))">
+      <option name="closed" value="true" />
+      <created>1769982535475</created>
+      <option name="number" value="00149" />
+      <option name="presentableId" value="LOCAL-00149" />
+      <option name="project" value="LOCAL" />
+      <updated>1769982535475</updated>
+    </task>
+    <option name="localTasksCounter" value="150" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1717,7 +1730,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="ОПАЧА" />
     <MESSAGE value="чота хз нужен ли трим на самом самбике или это хуйня" />
     <MESSAGE value="накалякал калибровку гирыча и мистера акксика по лоре - выглядит довольно эротишно!" />
     <MESSAGE value="чета подустал, хуйни могу накодить, над отдохнуть" />
@@ -1742,7 +1754,8 @@
     <MESSAGE value="ууууу понапиздил трансюков с пультика" />
     <MESSAGE value="БИТОЁБИМ ПОМАЛЕНЬКУ)) перехуячил логику трансюка под one-time пакеты - теперь они пиздуют под едииным типом, что аж ЦЕЛЫХ ДВА БИТА НА ПАКЕТ (!!!!) сейвит" />
     <MESSAGE value="пиздец я тут темплейтами все обмазал" />
-    <option name="LAST_COMMIT_MESSAGE" value="пиздец я тут темплейтами все обмазал" />
+    <MESSAGE value="))" />
+    <option name="LAST_COMMIT_MESSAGE" value="))" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

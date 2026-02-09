@@ -4,6 +4,7 @@
 #include "settings/ADIRSSettings.h"
 #include "settings/trimSettings.h"
 #include "settings/lightsSettings.h"
+#include "settings/transceiverSettings.h"
 
 namespace pizda {
 	class Settings {
@@ -12,12 +13,14 @@ namespace pizda {
 			ADIRSSettings adirs {};
 			LightsSettings lights {};
 			TrimSettings trim {};
+			TransceiverSettings transceiver {};
 
 			void setup() {
 				motors.read();
 				trim.read();
 				lights.read();
 				adirs.read();
+				transceiver.read();
 			}
 	};
 }

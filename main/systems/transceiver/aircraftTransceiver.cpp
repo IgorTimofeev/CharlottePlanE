@@ -17,11 +17,28 @@ namespace pizda {
 	}
 
 	void AircraftTransceiver::onStart() {
+		// Receive -> wait -> transmit
+
+		bool receiveMode = true;
+		int64_t transmitTime = 0;
+
 		while (true) {
-			if (receive(1'000'000))
-				vTaskDelay(pdMS_TO_TICKS(20));
-			
-			transmit(1'000'000);
+			if (receiveMode) {
+				if (receive(1'000'000)) {
+					receiveMode = false;
+
+					transmitTime = esp_timer_get_time() + 8'000;
+				}
+			}
+			else {
+				if (esp_timer_get_time() >= transmitTime) {
+					transmit(1'000'000);
+					receiveMode = true;
+				}
+				else {
+					taskYIELD();
+				}
+			}
 		}
 	}
 

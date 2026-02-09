@@ -120,11 +120,11 @@ namespace pizda {
 
 					// Initial values, can be changed and stored in NVS
 					constexpr static uint32_t RFFrequencyHz = 915'000'000;
-					constexpr static uint8_t bandwidth = SX1262::LORA_BW_500_0;
+					constexpr static auto bandwidth = SX1262::LoRaBandwidth::bw500_0;
 					constexpr static uint8_t spreadingFactor = 7;
-					constexpr static uint8_t codingRate = SX1262::LORA_CR_4_5;
+					constexpr static auto codingRate = SX1262::LoRaCodingRate::cr4_5;
 					constexpr static uint8_t syncWord = 0x34;
-					constexpr static uint16_t powerDBm = 22;
+					constexpr static int8_t powerDBm = 22;
 					constexpr static uint16_t preambleLength = 8;
 			};
 
