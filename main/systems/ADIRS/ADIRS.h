@@ -13,7 +13,9 @@ namespace pizda {
 		public:
 			virtual ~ADIRS() = default;
 
-			virtual bool setup();
+			virtual void setup();
+			void setupAsync();
+
 			float getRollRad() const;
 			float getPitchRad() const;
 			float getYawRad() const;

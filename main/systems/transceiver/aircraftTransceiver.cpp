@@ -94,8 +94,6 @@ namespace pizda {
 		ac.remoteData.raw.controls.rudder = readMotor();
 		ac.remoteData.raw.controls.flaps = readMotor();
 
-		ac.fbw.applyData();
-
 		return true;
 	}
 
@@ -150,9 +148,7 @@ namespace pizda {
 		ac.settings.trim.elevatorTrim = read();
 		ac.settings.trim.rudderTrim = read();
 		ac.settings.trim.scheduleWrite();
-		
-		ac.fbw.applyData();
-		
+
 		return true;
 	}
 	

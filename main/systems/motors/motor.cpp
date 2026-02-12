@@ -32,7 +32,7 @@ namespace pizda {
 	}
 	
 	void Motor::setPowerF(const float value) {
-		setPower(value * powerMax);
+		setPower(std::round(value * static_cast<float>(powerMax)));
 	}
 
 	void Motor::setConfiguration(const MotorConfiguration& configuration) {

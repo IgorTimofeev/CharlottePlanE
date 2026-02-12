@@ -16,12 +16,12 @@ namespace pizda {
 	void FlyByWire::setup() {
 		xTaskCreate(
 			[](void* arg) {
-				static_cast<FlyByWire*>(arg)->taskBody();
+				static_cast<FlyByWire*>(arg)->onStart();
 			},
-			"Autopilot",
+			"FlyByWire",
 			4 * 1024,
 			this,
-			16,
+			20,
 			nullptr
 		);
 	}
@@ -380,12 +380,12 @@ namespace pizda {
 			const auto power = std::clamp(
 				// Trim
 				ac.settings.trim.aileronsTrim
-				// Value
-				+ (
-					_autopilot && _lateralMode != AutopilotLateralMode::man
-					? _aileronsTargetFactor
-					: ac.remoteData.raw.controls.ailerons
-				),
+					// Value
+					+ (
+						_autopilot && _lateralMode != AutopilotLateralMode::man
+						? _aileronsTargetFactor
+						: ac.remoteData.raw.controls.ailerons
+					),
 				0.f,
 				1.f
 			);
@@ -405,30 +405,35 @@ namespace pizda {
 			const auto elevatorPower = std::clamp(
 				// Trim
 				ac.settings.trim.elevatorTrim
-				// Value
-				+ (
-					_autopilot && _verticalMode != AutopilotVerticalMode::man
-					? _elevatorTargetFactor
-					: ac.remoteData.raw.controls.elevator
-				),
+					// Value
+					+ (
+						_autopilot && _verticalMode != AutopilotVerticalMode::man
+						? _elevatorTargetFactor
+						: ac.remoteData.raw.controls.elevator
+					),
 				0.f,
 				1.f
-			);
+			)
+			* 2.f - 1.f;
 			
 			const auto rudderPower = std::clamp(
+				// Trim
 				ac.settings.trim.rudderTrim
-				+ (
-					ac.remoteData.raw.controls.rudder
-				),
+					// Value
+					+ ac.remoteData.raw.controls.rudder,
 				0.f,
 				1.f
-			);
+			)
+			* 2.f - 1.f;
 			
 			// V-tail mixing
-			// ...
-			
-			leftTailMotor->setPowerF(elevatorPower);
-			rightTailMotor->setPowerF(rudderPower);
+			const auto leftPower = (std::clamp(elevatorPower + rudderPower, -1.f, 1.f) + 1.f) / 2.f;
+			const auto rightPower = (std::clamp(elevatorPower - rudderPower, -1.f, 1.f) + 1.f) / 2.f;
+
+			// ESP_LOGI(_logTag, "elevatorPower: %f, rudderPower: %f, leftPower: %f, rightPower: %f", elevatorPower, rudderPower, leftPower, rightPower);
+
+			leftTailMotor->setPowerF(leftPower);
+			rightTailMotor->setPowerF(rightPower);
 		}
 		
 		// Flaps
@@ -444,8 +449,8 @@ namespace pizda {
 		}
 	}
 	
-	[[noreturn]] void FlyByWire::taskBody() {
-		auto& ac = Aircraft::getInstance();
+	[[noreturn]] void FlyByWire::onStart() {
+		const auto& ac = Aircraft::getInstance();
 		
 		_computationTimeUs = esp_timer_get_time();
 		

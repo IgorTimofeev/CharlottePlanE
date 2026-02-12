@@ -102,7 +102,7 @@ namespace pizda {
 		light.flush();
 	}
 
-	void Lights::updateStrobes(const Light& light, const uint8_t r, const uint8_t g, const uint8_t b) {
+	void Lights::updateWingStrobe(const Light& light, const uint8_t r, const uint8_t g, const uint8_t b) {
 		const auto& ac = Aircraft::getInstance();
 		
 		if (ac.settings.lights.strobe) {
@@ -112,6 +112,13 @@ namespace pizda {
 		else {
 			updateNavOrLanding(light, r, g, b);
 		}
+	}
+
+	void Lights::updateTailStrobe(const bool active) const {
+		const auto& ac = Aircraft::getInstance();
+
+		tail.fill(ac.settings.lights.strobe && active ? 0xFF : tailDimmedValue);
+		tail.flush();
 	}
 	
 	[[noreturn]] void Lights::onStart() const {
@@ -130,12 +137,12 @@ namespace pizda {
 				leftWing.flush();
 				
 				// Right wing
-				leftWing.fill(0xFF, 0x00, 0x00);
-				leftWing.flush();
+				rightWing.fill(0xFF, 0x00, 0x00);
+				rightWing.flush();
 				
 				// Tail
-				leftWing.fill(0xFF, 0x00, 0x00);
-				leftWing.flush();
+				tail.fill(0xFF, 0x00, 0x00);
+				tail.flush();
 				
 				// Cabin
 				cabin.fill(0xFF, 0x00, 0x00);
@@ -149,12 +156,12 @@ namespace pizda {
 				leftWing.flush();
 				
 				// Right wing
-				leftWing.fill(0x00);
-				leftWing.flush();
+				rightWing.fill(0x00);
+				rightWing.flush();
 				
 				// Tail
-				leftWing.fill(0x00);
-				leftWing.flush();
+				tail.fill(0x00);
+				tail.flush();
 				
 				// Cabin
 				cabin.fill(0x00);
@@ -169,15 +176,14 @@ namespace pizda {
 				cabin.flush();
 				
 				// Left wing (strobe 1 or red)
-				updateStrobes(leftWing, 0xFF, 0x00, 0x00);
+				updateWingStrobe(leftWing, 0xFF, 0x00, 0x00);
 				
 				// Right wing (strobe 1 or green)
-				updateStrobes(rightWing, 0x00, 0xFF, 0x00);
+				updateWingStrobe(rightWing, 0x00, 0xFF, 0x00);
 
 				// Tail (dimmed)
-				tail.fill(tailDimmedValue);
-				tail.flush();
-				
+				updateTailStrobe(false);
+
 				if (delay(50))
 					continue;
 
@@ -188,10 +194,10 @@ namespace pizda {
 					continue;
 
 				// Left wing (strobe 2 or red)
-				updateStrobes(leftWing, 0xFF, 0x00, 0x00);
+				updateWingStrobe(leftWing, 0xFF, 0x00, 0x00);
 				
 				// Right wing (strobe 2 or green)
-				updateStrobes(rightWing, 0x00, 0xFF, 0x00);
+				updateWingStrobe(rightWing, 0x00, 0xFF, 0x00);
 				
 				if (delay(50))
 					continue;
@@ -203,16 +209,14 @@ namespace pizda {
 				updateNavOrLanding(rightWing, 0x00, 0xFF, 0x00);
 				
 				// Tail (strobe)
-				tail.fill(0xFF);
-				tail.flush();
-				
+				updateTailStrobe(true);
+
 				if (delay(50))
 					continue;
 
 				// Tail (dimmed)
-				tail.fill(tailDimmedValue);
-				tail.flush();
-				
+				updateTailStrobe(false);
+
 				if (delay(16 * 50))
 					continue;
 			}

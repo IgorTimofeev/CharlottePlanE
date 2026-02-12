@@ -68,9 +68,6 @@ namespace pizda {
 
 			adc_oneshot_unit_handle_t _ADCOneshotUnit2 {};
 
-			static void SPIBusSetup();
-			void ADCSetup();
-
 			constexpr adc_oneshot_unit_handle_t* getAssignedADCOneshotUnit(const adc_unit_t ADCUnit) {
 				switch (ADCUnit) {
 					case ADC_UNIT_2: return &_ADCOneshotUnit2;
@@ -79,5 +76,9 @@ namespace pizda {
 			}
 
 			[[noreturn]] static void startErrorLoop(const char* error);
+
+			int64_t _batteryTickTime = 0;
+
+			void batteryTick();
 	};
 }

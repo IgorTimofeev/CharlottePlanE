@@ -34,13 +34,11 @@ namespace pizda {
 			
 			float getTargetRollRad() const;
 			float getTargetPitchRad() const;
-			
-			void applyData() const;
-		
+
 		private:
 			constexpr static auto _logTag = "FlyByWire";
 			
-			constexpr static uint32_t _tickFrequencyHz = 20;
+			constexpr static uint32_t _tickFrequencyHz = 30;
 
 			int64_t _computationTimeUs = 0;
 			
@@ -72,7 +70,9 @@ namespace pizda {
 			static float predictValue(float valueDelta, uint32_t deltaTimeUs, uint32_t dueTimeUs);
 			
 			void computeData();
-			[[noreturn]] void taskBody();
+			void applyData() const;
+
+			[[noreturn]] void onStart();
 			
 	};
 }

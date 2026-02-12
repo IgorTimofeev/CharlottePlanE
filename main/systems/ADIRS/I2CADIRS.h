@@ -25,7 +25,7 @@ namespace pizda {
 
 	class I2CADIRS : public ADIRS {
 		public:
-			bool setup() override;
+			void setup() override;
 
 		protected:
 			void onCalibrateAccelAndGyro() override;

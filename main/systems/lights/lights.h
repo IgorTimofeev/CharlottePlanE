@@ -17,7 +17,7 @@ namespace pizda {
 			void setEmergencyEnabled(bool value);
 
 		private:
-			constexpr static uint8_t tailDimmedValue = 0x22;
+			constexpr static uint8_t tailDimmedValue = 0x18;
 			
 			TaskHandle_t taskHandle = nullptr;
 			
@@ -46,8 +46,9 @@ namespace pizda {
 			static bool delay(uint32_t ms);
 			void wake() const;
 			static void updateNavOrLanding(const Light& light, uint8_t r, uint8_t g, uint8_t b);
-			static void updateStrobes(const Light& light, uint8_t r, uint8_t g, uint8_t b);
-			
+			static void updateWingStrobe(const Light& light, uint8_t r, uint8_t g, uint8_t b);
+			void updateTailStrobe(bool active) const;
+
 			[[noreturn]] void onStart() const;
 	};
 }

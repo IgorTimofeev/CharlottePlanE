@@ -54,7 +54,9 @@ namespace pizda {
 		typename TLocalAuxiliaryPacketType,
 
 		typename TRemotePacketType,
-		uint8_t remotePacketTypeLengthBits
+		uint8_t remotePacketTypeLengthBits,
+
+		uint8_t CPUCoreID
 	>
 	class Transceiver {
 		public:
@@ -89,7 +91,7 @@ namespace pizda {
 					return false;
 				}
 
-				xTaskCreate(
+				xTaskCreatePinnedToCore(
 					[](void* arg) {
 						static_cast<Transceiver*>(arg)->onStart();
 					},
@@ -97,17 +99,15 @@ namespace pizda {
 					8 * 1024,
 					this,
 					configMAX_PRIORITIES - 1,
-					nullptr
+					nullptr,
+					CPUCoreID
 				);
 
 				return true;
 			}
 
 			bool receive(const uint32_t timeoutUs) {
-				const auto receiveStartTimeUs = esp_timer_get_time();
-
 				uint8_t receivedLength = 0;
-
 
 				const auto error = _SX.receive(_buffer, receivedLength, timeoutUs);
 
@@ -165,8 +165,6 @@ namespace pizda {
 			}
 
 			bool transmit(const uint32_t timeoutUs) {
-				const auto transmitStartTimeUs = esp_timer_get_time();
-
 				BitStream stream { _buffer };
 
 				const auto packetType = getTransmitPacketType();

@@ -3,10 +3,13 @@
 #include <cmath>
 #include <algorithm>
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+
 #include "aircraft.h"
 
 namespace pizda {
-	bool ADIRS::setup() {
+	void ADIRS::setup() {
 		const auto& ac = Aircraft::getInstance();
 
 		_referencePressurePa = ac.settings.adirs.referencePressurePa;
@@ -21,8 +24,20 @@ namespace pizda {
 			10,
 			nullptr
 		);
+	}
 
-		return true;
+	void ADIRS::setupAsync() {
+		xTaskCreate(
+			[](void* arg) {
+				static_cast<ADIRS*>(arg)->setup();
+				vTaskDelete(nullptr);
+			},
+			"ADIRSSetup",
+			4 * 1024,
+			this,
+			10,
+			nullptr
+		);
 	}
 
 	float ADIRS::getRollRad() const {

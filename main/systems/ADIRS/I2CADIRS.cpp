@@ -1,22 +1,23 @@
 #include "systems/ADIRS/I2CADIRS.h"
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+
+
 #include "aircraft.h"
 #include "config.h"
 
 namespace pizda {
-	bool I2CADIRS::setup() {
+	void I2CADIRS::setup() {
 		const auto& ac = Aircraft::getInstance();
 
 		if (!setupBus())
-			return false;
+			return;
 
 		if (!setupIMUs())
-			return false;
+			return;
 
-		if (!setupBMPs())
-			return false;
-
-		// Updating bias from settings
+		// Updating IMU biases from settings
 		for (size_t ADIRUIndex = 0; ADIRUIndex < config::adirs::unitsQuantity; ++ADIRUIndex) {
 			auto& IMU = _IMUs[ADIRUIndex].unit;
 			auto& settingsUnit = ac.settings.adirs.units[ADIRUIndex];
@@ -26,10 +27,10 @@ namespace pizda {
 			IMU.setMagBias(settingsUnit.magBias);
 		}
 
-		if (!ADIRS::setup())
-			return false;
+		if (!setupBMPs())
+			return;
 
-		return true;
+		ADIRS::setup();
 	}
 
 	void I2CADIRS::onCalibrateAccelAndGyro() {
