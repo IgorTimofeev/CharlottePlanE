@@ -378,62 +378,68 @@ namespace pizda {
 				return;
 			
 			const auto power = std::clamp(
-				// Trim
-				ac.settings.trim.aileronsTrim
-					// Value
-					+ (
-						_autopilot && _lateralMode != AutopilotLateralMode::man
-						? _aileronsTargetFactor
-						: ac.remoteData.raw.controls.ailerons
-					),
+				// Value
+				(
+					_autopilot && _lateralMode != AutopilotLateralMode::man
+					? _aileronsTargetFactor
+					: ac.remoteData.raw.controls.ailerons
+				)
+					// Trim
+					+ ac.settings.trim.aileronsTrim,
 				0.f,
 				1.f
 			);
 				
 			leftAileronMotor->setPowerF(power);
-			rightAileronMotor->setPower(power);
+			rightAileronMotor->setPowerF(power);
 		}
 		
 		// Elevator & rudder
 		{
 			const auto leftTailMotor = ac.motors.getMotor(MotorType::tailLeft);
 			const auto rightTailMotor = ac.motors.getMotor(MotorType::tailRight);
-			
-			if (!leftTailMotor || !rightTailMotor)
+			const auto noseWheelMotor = ac.motors.getMotor(MotorType::noseWheel);
+
+			if (!leftTailMotor || !rightTailMotor || !noseWheelMotor)
 				return;
 			
-			const auto elevatorPower = std::clamp(
-				// Trim
-				ac.settings.trim.elevatorTrim
+			// V-tail mixing
+			{
+				const auto elevatorPower = std::clamp(
 					// Value
-					+ (
+					(
 						_autopilot && _verticalMode != AutopilotVerticalMode::man
 						? _elevatorTargetFactor
 						: ac.remoteData.raw.controls.elevator
-					),
-				0.f,
-				1.f
-			)
-			* 2.f - 1.f;
-			
-			const auto rudderPower = std::clamp(
-				// Trim
-				ac.settings.trim.rudderTrim
+					)
+						// Trim
+						+ ac.settings.trim.elevatorTrim,
+					0.f,
+					1.f
+				);
+
+				const auto rudderPower = std::clamp(
 					// Value
-					+ ac.remoteData.raw.controls.rudder,
-				0.f,
-				1.f
-			)
-			* 2.f - 1.f;
-			
-			// V-tail mixing
-			const auto leftPower = (std::clamp(elevatorPower + rudderPower, -1.f, 1.f) + 1.f) / 2.f;
-			const auto rightPower = (std::clamp(elevatorPower - rudderPower, -1.f, 1.f) + 1.f) / 2.f;
+					ac.remoteData.raw.controls.rudder
+						// Trim
+						+ ac.settings.trim.rudderTrim,
+					0.f,
+					1.f
+				);
 
-			// ESP_LOGI(_logTag, "elevatorPower: %f, rudderPower: %f, leftPower: %f, rightPower: %f", elevatorPower, rudderPower, leftPower, rightPower);
+				const auto elevatorPowerShifted = elevatorPower * 2 - 1;
+				const auto rudderPowerShifted = rudderPower * 2 - 1;
+				const auto leftPower = (std::clamp(elevatorPowerShifted + rudderPowerShifted, -1.f, 1.f) + 1.f) / 2.f;
+				const auto rightPower = (std::clamp(elevatorPowerShifted - rudderPowerShifted, -1.f, 1.f) + 1.f) / 2.f;
 
-			leftTailMotor->setPowerF(leftPower);
-			rightTailMotor->setPowerF(rightPower);
+				// ESP_LOGI(_logTag, "elevatorPower: %f, rudderPower: %f, leftPower: %f, rightPower: %f", elevatorPower, rudderPower, leftPower, rightPower);
+
+				leftTailMotor->setPowerF(leftPower);
+				rightTailMotor->setPowerF(rightPower);
+			}
+
+			// Nose wheel
+			noseWheelMotor->setPowerF(ac.remoteData.raw.controls.rudder);
 		}
 		
 		// Flaps

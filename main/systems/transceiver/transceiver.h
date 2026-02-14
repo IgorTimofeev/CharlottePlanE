@@ -69,7 +69,7 @@ namespace pizda {
 
 			virtual bool setup() {
 				const auto error = _SX.setup(
-					config::spi::device,
+					config::SPI::device,
 					config::transceiver::SPIFrequencyHz,
 
 					config::transceiver::RFFrequencyHz,
@@ -190,10 +190,10 @@ namespace pizda {
 
 				if (error != SX1262::error::none) {
 					logSXError("transmit error", error);
-					return true;
+					return false;
 				}
 
-				return false;
+				return true;
 			}
 
 			float getSNR() const {

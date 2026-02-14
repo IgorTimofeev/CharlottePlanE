@@ -189,6 +189,9 @@ namespace pizda {
 
 				// Left wing (red)
 				updateNavOrLanding(leftWing, 0xFF, 0x00, 0x00);
+
+				// Right wing (green)
+				updateNavOrLanding(rightWing, 0x00, 0xFF, 0x00);
 				
 				if (delay(50))
 					continue;

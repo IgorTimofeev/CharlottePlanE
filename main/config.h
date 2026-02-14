@@ -25,7 +25,7 @@ namespace pizda {
 					constexpr static gpio_num_t RST = GPIO_NUM_4;
 			};
 
-			class spi {
+			class SPI {
 				public:
 					constexpr static spi_host_device_t device = SPI2_HOST;
 					
@@ -34,7 +34,7 @@ namespace pizda {
 					constexpr static gpio_num_t SCK = GPIO_NUM_12;
 			};
 
-			class i2c {
+			class I2C {
 				public:
 					constexpr static gpio_num_t SCL = GPIO_NUM_9;
 					constexpr static gpio_num_t SDA = GPIO_NUM_8;
@@ -128,7 +128,7 @@ namespace pizda {
 					constexpr static uint16_t preambleLength = 8;
 			};
 
-			class gnss {
+			class GNSS {
 				public:
 					constexpr static gpio_num_t rx = GPIO_NUM_NC;
 					constexpr static gpio_num_t tx = GPIO_NUM_NC;

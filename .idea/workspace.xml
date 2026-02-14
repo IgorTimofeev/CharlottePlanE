@@ -184,12 +184,14 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="))">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="че каво">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-Battery" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-Battery" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/aircraft.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/aircraft.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/config.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/ADIRS/I2CADIRS.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/ADIRS/I2CADIRS.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/flyByWire/flyByWire.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/flyByWire/flyByWire.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/lights/lights.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/lights/lights.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/systems/transceiver/transceiver.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/transceiver/transceiver.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -800,11 +802,6 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="apidoc" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="apidoc" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -1312,15 +1309,8 @@
       <workItem from="1770680225891" duration="43000" />
       <workItem from="1770884850445" duration="1772000" />
       <workItem from="1770897488070" duration="6088000" />
-      <workItem from="1771031873488" duration="1535000" />
-    </task>
-    <task id="LOCAL-00104" summary="пашет, но нужно затюнить кэфики">
-      <option name="closed" value="true" />
-      <created>1767366035953</created>
-      <option name="number" value="00104" />
-      <option name="presentableId" value="LOCAL-00104" />
-      <option name="project" value="LOCAL" />
-      <updated>1767366035953</updated>
+      <workItem from="1771031873488" duration="1890000" />
+      <workItem from="1771044592772" duration="7086000" />
     </task>
     <task id="LOCAL-00105" summary="РАБОТАИТ!11">
       <option name="closed" value="true" />
@@ -1706,7 +1696,15 @@
       <option name="project" value="LOCAL" />
       <updated>1770901803168</updated>
     </task>
-    <option name="localTasksCounter" value="153" />
+    <task id="LOCAL-00153" summary="че каво">
+      <option name="closed" value="true" />
+      <created>1771033664337</created>
+      <option name="number" value="00153" />
+      <option name="presentableId" value="LOCAL-00153" />
+      <option name="project" value="LOCAL" />
+      <updated>1771033664337</updated>
+    </task>
+    <option name="localTasksCounter" value="154" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1729,7 +1727,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="чота хз нужен ли трим на самом самбике или это хуйня" />
     <MESSAGE value="накалякал калибровку гирыча и мистера акксика по лоре - выглядит довольно эротишно!" />
     <MESSAGE value="чета подустал, хуйни могу накодить, над отдохнуть" />
     <MESSAGE value="таймаут на калибровку заебенил, по идее даже если чет отвалится, то оно само в норму придет" />
@@ -1754,7 +1751,8 @@
     <MESSAGE value="БИТОЁБИМ ПОМАЛЕНЬКУ)) перехуячил логику трансюка под one-time пакеты - теперь они пиздуют под едииным типом, что аж ЦЕЛЫХ ДВА БИТА НА ПАКЕТ (!!!!) сейвит" />
     <MESSAGE value="пиздец я тут темплейтами все обмазал" />
     <MESSAGE value="))" />
-    <option name="LAST_COMMIT_MESSAGE" value="))" />
+    <MESSAGE value="че каво" />
+    <option name="LAST_COMMIT_MESSAGE" value="че каво" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

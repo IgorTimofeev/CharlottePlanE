@@ -15,13 +15,13 @@ namespace pizda {
 		// SPI
 		{
 			spi_bus_config_t busConfig {};
-			busConfig.mosi_io_num = config::spi::MOSI;
-			busConfig.miso_io_num = config::spi::MISO;
-			busConfig.sclk_io_num = config::spi::SCK;
+			busConfig.mosi_io_num = config::SPI::MOSI;
+			busConfig.miso_io_num = config::SPI::MISO;
+			busConfig.sclk_io_num = config::SPI::SCK;
 			busConfig.quadwp_io_num = -1;
 			busConfig.quadhd_io_num = -1;
 			busConfig.max_transfer_sz = 512;
-			ESP_ERROR_CHECK(spi_bus_initialize(config::spi::device, &busConfig, SPI_DMA_CH_AUTO));
+			ESP_ERROR_CHECK(spi_bus_initialize(config::SPI::device, &busConfig, SPI_DMA_CH_AUTO));
 		}
 
 		// ADC
