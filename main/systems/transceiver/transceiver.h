@@ -72,11 +72,6 @@ namespace pizda {
 					config::spi::device,
 					config::transceiver::SPIFrequencyHz,
 
-					config::transceiver::SS,
-					config::transceiver::RST,
-					config::transceiver::busy,
-					config::transceiver::DIO1,
-
 					config::transceiver::RFFrequencyHz,
 					config::transceiver::bandwidth,
 					config::transceiver::spreadingFactor,
@@ -224,7 +219,13 @@ namespace pizda {
 
 		protected:
 			constexpr static auto _logTag = "XCVR";
-			SX1262::Transceiver _SX {};
+
+			SX1262::Transceiver _SX {
+				config::transceiver::SS,
+				config::transceiver::busy,
+				config::transceiver::DIO1,
+				config::transceiver::RST
+			};
 
 			constexpr static uint16_t _bufferLength = 255;
 			uint8_t _buffer[_bufferLength] {};

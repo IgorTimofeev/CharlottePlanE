@@ -187,19 +187,9 @@
     <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="))">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ESP-IDF-Battery" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-Battery" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/aircraft.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-SX1262" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-SX1262" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/aircraft.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/aircraft.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/ADIRS/ADIRS.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/ADIRS/ADIRS.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/ADIRS/ADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/ADIRS/ADIRS.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/ADIRS/I2CADIRS.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/ADIRS/I2CADIRS.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/ADIRS/I2CADIRS.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/ADIRS/I2CADIRS.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/flyByWire/flyByWire.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/flyByWire/flyByWire.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/flyByWire/flyByWire.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/flyByWire/flyByWire.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/lights/lights.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/lights/lights.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/lights/lights.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/lights/lights.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/motors/motor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/motors/motor.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/transceiver/aircraftTransceiver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/transceiver/aircraftTransceiver.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/transceiver/aircraftTransceiver.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/transceiver/aircraftTransceiver.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/config.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/systems/transceiver/transceiver.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/transceiver/transceiver.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -810,6 +800,11 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="apidoc" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="apidoc" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -1316,15 +1311,8 @@
       <workItem from="1770671203762" duration="689000" />
       <workItem from="1770680225891" duration="43000" />
       <workItem from="1770884850445" duration="1772000" />
-      <workItem from="1770897488070" duration="4270000" />
-    </task>
-    <task id="LOCAL-00103" summary="симконнект успешно захуячен - пока что в тестовом формате, но уже даж летать можно">
-      <option name="closed" value="true" />
-      <created>1767304735488</created>
-      <option name="number" value="00103" />
-      <option name="presentableId" value="LOCAL-00103" />
-      <option name="project" value="LOCAL" />
-      <updated>1767304735488</updated>
+      <workItem from="1770897488070" duration="6088000" />
+      <workItem from="1771031873488" duration="1535000" />
     </task>
     <task id="LOCAL-00104" summary="пашет, но нужно затюнить кэфики">
       <option name="closed" value="true" />
@@ -1710,7 +1698,15 @@
       <option name="project" value="LOCAL" />
       <updated>1770899414631</updated>
     </task>
-    <option name="localTasksCounter" value="152" />
+    <task id="LOCAL-00152" summary="))">
+      <option name="closed" value="true" />
+      <created>1770901803168</created>
+      <option name="number" value="00152" />
+      <option name="presentableId" value="LOCAL-00152" />
+      <option name="project" value="LOCAL" />
+      <updated>1770901803168</updated>
+    </task>
+    <option name="localTasksCounter" value="153" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

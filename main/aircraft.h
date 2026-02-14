@@ -32,16 +32,16 @@ namespace pizda {
 			Lights lights {};
 			Motors motors {};
 
-			Battery<
+			Battery battery {
 				config::battery::unit,
+				getAssignedADCOneshotUnit(config::battery::unit),
 				config::battery::channel,
 
 				config::battery::voltageMin,
 				config::battery::voltageMax,
 				config::battery::voltageDividerR1,
 				config::battery::voltageDividerR2
-			>
-			battery { getAssignedADCOneshotUnit(config::battery::unit) };
+			};
 			
 			AircraftTransceiver transceiver {};
 			
