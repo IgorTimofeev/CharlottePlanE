@@ -96,7 +96,7 @@ namespace pizda {
 
 			class adirs {
 				public:
-					constexpr static uint8_t unitsQuantity = 1;
+					constexpr static uint8_t unitCount = 1;
 
 					class adiru0 {
 						public:

@@ -231,8 +231,8 @@ namespace pizda {
 			uint8_t _buffer[_bufferLength] {};
 
 			static void logSXError(const char* key, const SX1262::error error) {
-				// if (error == SX1262::error::timeout)
-				// 	return;
+				if (error == SX1262::error::timeout)
+					return;
 
 				constexpr static uint8_t errorBufferLength = 255;
 				char errorBuffer[errorBufferLength];
@@ -394,7 +394,7 @@ namespace pizda {
 				// Enqueued
 				if (item.useEnqueued() && _packetEnqueued) {
 					bool shouldAssign = true;
-					uint8_t remainingPacketQuantity = 0;
+					uint8_t remainingPacketCount = 0;
 
 					for (uint8_t i = 0; i < packetQueueLength; ++i) {
 						if (!_packetQueue[i])
@@ -407,11 +407,11 @@ namespace pizda {
 							shouldAssign = false;
 						}
 						else {
-							remainingPacketQuantity++;
+							remainingPacketCount++;
 						}
 					}
 
-					_packetEnqueued = remainingPacketQuantity > 0;
+					_packetEnqueued = remainingPacketCount > 0;
 
 					nextSequenceItem();
 

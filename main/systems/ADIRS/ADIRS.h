@@ -26,8 +26,9 @@ namespace pizda {
 			
 			float getSlipAndSkidFactor() const;
 			const GeoCoordinates& getCoordinates() const;
-			float getAccelSpeedMPS() const;
+			const Vector3F& getIntegratedVelocityMPS() const;
 			void setReferencePressurePa(const uint32_t value);
+			float getAirspeedMPS() const;
 
 		protected:
 			constexpr static auto _logTag = "ADIRS";
@@ -36,11 +37,12 @@ namespace pizda {
 			virtual void onCalibrateAccelAndGyro() = 0;
 			virtual void onCalibrateMag() = 0;
 
-			void setRollRad(const float rollRad);
-			void setPitchRad(const float pitchRad);
+			void setRollRad(const float value);
+			void setPitchRad(const float value);
 			void setYawRad(const float value);
 			void updateHeadingFromYaw();
-			void setAccelSpeedMPS(const float accelSpeedMPS);
+			void setIntegratedVelocityMPS(const Vector3F& value);
+			void setAirspeedMPS(const float value);
 
 			static float computeAltitude(
 				const float pressurePa,
@@ -49,7 +51,7 @@ namespace pizda {
 				const float lapseRateKpm = -0.0065f
 			);
 
-			void updateSlipAndSkidFactor(const float lateralAcceleration, const float GMax);
+			void updateSlipAndSkidFactor(const float lateralAccelerationG, const float maxG);
 			void setPressurePa(const float pressurePa);
 			void setTemperatureC(const float temperatureC);
 			void updateAltitudeFromPressureTemperatureAndReferenceValue();
@@ -62,10 +64,14 @@ namespace pizda {
 			
 			float _yawRad = 0;
 			float _headingDeg = 0;
-			
-			float _accelSpeedMPS = 0;
+
 			float _slipAndSkidFactor = 0;
-			
+
+			Vector3F _integratedVelocityMPS {};
+			Vector3F _integratedPositionMPS {};
+
+			float _airspeedMPS = 0;
+
 			float _pressurePa = 0;
 			float _temperatureC = 0;
 

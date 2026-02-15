@@ -64,28 +64,28 @@ namespace pizda {
 		return _coordinates;
 	}
 
-	float ADIRS::getAccelSpeedMPS() const {
-		//				if (esp_timer_get_time() > _speedTime) {
-		//					_speed = random(14, 15);
-		//
-		//					_speedTime = esp_timer_get_time() + 1'000'000;
-		//				}
-		//
-		//				return _speed;
-
-		return _accelSpeedMPS;
+	const Vector3F& ADIRS::getIntegratedVelocityMPS() const {
+		return _integratedVelocityMPS;
 	}
 
 	void ADIRS::setReferencePressurePa(const uint32_t value) {
 		_referencePressurePa = value;
 	}
 
-	void ADIRS::setRollRad(const float rollRad) {
-		_rollRad = rollRad;
+	float ADIRS::getAirspeedMPS() const {
+		return _airspeedMPS;
 	}
 
-	void ADIRS::setPitchRad(const float pitchRad) {
-		_pitchRad = pitchRad;
+	void ADIRS::setAirspeedMPS(const float value) {
+		_airspeedMPS = value;
+	}
+
+	void ADIRS::setRollRad(const float value) {
+		_rollRad = value;
+	}
+
+	void ADIRS::setPitchRad(const float value) {
+		_pitchRad = value;
 	}
 
 	void ADIRS::setYawRad(const float value) {
@@ -96,8 +96,8 @@ namespace pizda {
 		_headingDeg = toDegrees(-_yawRad);
 	}
 
-	void ADIRS::setAccelSpeedMPS(const float accelSpeedMPS) {
-		_accelSpeedMPS = accelSpeedMPS;
+	void ADIRS::setIntegratedVelocityMPS(const Vector3F& value) {
+		_integratedVelocityMPS = value;
 	}
 
 	float ADIRS::computeAltitude(const float pressurePa, const float temperatureC, const uint32_t referencePressurePa, const float lapseRateKpm) {
@@ -131,10 +131,10 @@ namespace pizda {
 		return altitude;
 	}
 
-	void ADIRS::updateSlipAndSkidFactor(const float lateralAcceleration, const float GMax) {
+	void ADIRS::updateSlipAndSkidFactor(const float lateralAccelerationG, const float maxG) {
 		_slipAndSkidFactor =
-		std::clamp<float>(-lateralAcceleration - std::sin(getRollRad()), -GMax, GMax)
-		/ static_cast<float>(GMax);
+			std::clamp<float>(-lateralAccelerationG - std::sin(getRollRad()), -maxG, maxG)
+			/ static_cast<float>(maxG);
 	}
 
 	void ADIRS::setPressurePa(const float pressurePa) {

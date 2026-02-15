@@ -20,7 +20,7 @@ namespace pizda {
 	
 	class ADIRSSettings : public NVSSettings {
 		public:
-			std::array<ADIRSSettingsUnit, config::adirs::unitsQuantity> units {};
+			std::array<ADIRSSettingsUnit, config::adirs::unitCount> units {};
 			uint32_t referencePressurePa;
 
 		protected:
@@ -33,23 +33,23 @@ namespace pizda {
 
 				// Units
 				{
-					const auto readUnitsQuantity = stream.readObjectLength<ADIRSSettingsUnit>(_units);
+					const auto readUnitCount = stream.readObjectLength<ADIRSSettingsUnit>(_units);
 
-					if (readUnitsQuantity <= 0)
+					if (readUnitCount <= 0)
 						return;
 
-					if (readUnitsQuantity != config::adirs::unitsQuantity) {
-						ESP_LOGI("ADIRSSettings", "read units length (%d) != config length (%d)", readUnitsQuantity, config::adirs::unitsQuantity);
+					if (readUnitCount != config::adirs::unitCount) {
+						ESP_LOGI("ADIRSSettings", "read units length (%d) != config length (%d)", readUnitCount, config::adirs::unitCount);
 						return;
 					}
 
-					stream.readObject<ADIRSSettingsUnit>(_units, units.data(), readUnitsQuantity);
+					stream.readObject<ADIRSSettingsUnit>(_units, units.data(), readUnitCount);
 				}
 			}
 
 			void onWrite(const NVSStream& stream) override {
 				stream.writeUint32(_referencePressurePa, referencePressurePa);
-				stream.writeObject<ADIRSSettingsUnit>(_units, units.data(), config::adirs::unitsQuantity);
+				stream.writeObject<ADIRSSettingsUnit>(_units, units.data(), config::adirs::unitCount);
 			}
 			
 		private:

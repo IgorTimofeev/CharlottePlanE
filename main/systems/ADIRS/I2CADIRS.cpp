@@ -18,7 +18,7 @@ namespace pizda {
 			return;
 
 		// Updating IMU biases from settings
-		for (size_t ADIRUIndex = 0; ADIRUIndex < config::adirs::unitsQuantity; ++ADIRUIndex) {
+		for (size_t ADIRUIndex = 0; ADIRUIndex < config::adirs::unitCount; ++ADIRUIndex) {
 			auto& IMU = _IMUs[ADIRUIndex].unit;
 			auto& settingsUnit = ac.settings.adirs.units[ADIRUIndex];
 
@@ -38,9 +38,9 @@ namespace pizda {
 
 		auto& ac = Aircraft::getInstance();
 
-		constexpr static uint16_t iterations = 10'000;
+		constexpr static uint16_t iterations = 5'000;
 
-		for (size_t ADIRUIndex = 0; ADIRUIndex < config::adirs::unitsQuantity; ++ADIRUIndex) {
+		for (size_t ADIRUIndex = 0; ADIRUIndex < config::adirs::unitCount; ++ADIRUIndex) {
 			auto& IMU = _IMUs[ADIRUIndex].unit;
 
 			// Setting calibration attenuation
@@ -91,9 +91,9 @@ namespace pizda {
 
 		auto& ac = Aircraft::getInstance();
 
-		constexpr static uint16_t iterations = 1'000;
+		constexpr static uint16_t iterations = 2'000;
 
-		for (size_t ADIRUIndex = 0; ADIRUIndex < config::adirs::unitsQuantity; ++ADIRUIndex) {
+		for (size_t ADIRUIndex = 0; ADIRUIndex < config::adirs::unitCount; ++ADIRUIndex) {
 			auto& IMU = _IMUs[ADIRUIndex].unit;
 
 			// Setting calibration attenuation
@@ -112,7 +112,7 @@ namespace pizda {
 				ac.aircraftData.calibration.progress = static_cast<uint8_t>(static_cast<uint32_t>(i) * 0xFF / iterations);
 				ac.transceiver.enqueueAuxiliary(AircraftAuxiliaryPacketType::calibration);
 
-				vTaskDelay(pdMS_TO_TICKS(std::max(IMU::magSampleIntervalUs / 1000, portTICK_PERIOD_MS)));
+				vTaskDelay(pdMS_TO_TICKS(std::max(IMU::magTickIntervalUs / 1000, portTICK_PERIOD_MS)));
 			}
 
 			auto& settingsUnit = ac.settings.adirs.units[ADIRUIndex];
@@ -136,8 +136,7 @@ namespace pizda {
 		updateIMUs();
 		updateBMPs();
 
-		vTaskDelay(pdMS_TO_TICKS(std::max(IMU::recommendedTickDelayUs / 1000, portTICK_PERIOD_MS)));
-		//					vTaskDelay(pdMS_TO_TICKS(1000));
+		vTaskDelay(pdMS_TO_TICKS(std::max(IMU::commonTickIntervalUs / 1000, portTICK_PERIOD_MS)));
 	}
 
 	bool I2CADIRS::setupBus() {
@@ -179,7 +178,8 @@ namespace pizda {
 		float pitchRadSum = 0;
 		float yawRadSum = 0;
 		Vector3F accelerationGSum {};
-		float accelVelocityMsSum = 0;
+		Vector3F integratedVelocityMsSum {};
+		Vector3F integratedPositionMSum {};
 
 		for (auto& IMU : _IMUs) {
 			IMU.unit.tick();
@@ -188,18 +188,29 @@ namespace pizda {
 			pitchRadSum += IMU.unit.getPitchRad();
 			yawRadSum += IMU.unit.getYawRad();
 			accelerationGSum += IMU.unit.getAccelerationG();
-			accelVelocityMsSum += std::abs(IMU.unit.getVelocityMs().getY());
+			integratedVelocityMsSum += IMU.unit.getIntegratedVelocityMs();
+			integratedPositionMSum += IMU.unit.getIntegratedPositionM();
 		}
 
+		// Roll / pitch / yaw
 		setRollRad(rollRadSum / _IMUs.size());
 		setPitchRad(pitchRadSum / _IMUs.size());
 		setYawRad(yawRadSum / _IMUs.size());
 		updateHeadingFromYaw();
 
-		setAccelSpeedMPS(accelVelocityMsSum / _IMUs.size());
+		// Velocity
+		integratedVelocityMsSum /= _IMUs.size();
+		setIntegratedVelocityMPS(integratedVelocityMsSum);
 
+		// Airspeed
+		setAirspeedMPS(std::max<float>(integratedVelocityMsSum.getY(), 0));
+
+		// Coordinates
+		integratedPositionMSum /= _IMUs.size();
+
+		// Slip & skid
 		const auto accelerationG = accelerationGSum / _IMUs.size();
-		updateSlipAndSkidFactor(accelerationG.getX(), IMU::accelerationGMax);
+		updateSlipAndSkidFactor(accelerationG.getX(), IMU::accelOperationalRangeG);
 	}
 
 	bool I2CADIRS::setupBMPs() {

@@ -349,7 +349,7 @@ namespace pizda {
 		
 		// Speed
 		const auto speedFactor =
-			std::min<float>(ac.adirs.getAccelSpeedMPS(), AircraftTelemetryPrimaryPacket::speedMaxMPS)
+			std::min<float>(ac.adirs.getAirspeedMPS(), AircraftTelemetryPrimaryPacket::speedMaxMPS)
 		    / static_cast<float>(AircraftTelemetryPrimaryPacket::speedMaxMPS);
 		
 		const auto speedMapped = static_cast<float>((1 << AircraftTelemetryPrimaryPacket::speedLengthBits) - 1) * speedFactor;

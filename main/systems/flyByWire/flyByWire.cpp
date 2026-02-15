@@ -113,7 +113,7 @@ namespace pizda {
 		// -------------------------------- Prediction --------------------------------
 		
 		// Speed
-		const auto speedMPS = ac.adirs.getAccelSpeedMPS();
+		const auto speedMPS = ac.adirs.getAirspeedMPS();
 		const auto speedPrevDeltaMPS = speedMPS - _speedPrevMPS;
 		const auto speedPredictedMPS = _speedPrevMPS + predictValue(speedPrevDeltaMPS, deltaTimeUs, 2'000'000);
 		_speedPrevMPS = speedMPS;
@@ -460,7 +460,7 @@ namespace pizda {
 		
 		_computationTimeUs = esp_timer_get_time();
 		
-		_speedPrevMPS = ac.adirs.getAccelSpeedMPS();
+		_speedPrevMPS = ac.adirs.getAirspeedMPS();
 		_altitudePrevM = ac.adirs.getCoordinates().getAltitude();
 		_rollPrevRad = ac.adirs.getRollRad();
 		_pitchPrevRad = ac.adirs.getPitchRad();
