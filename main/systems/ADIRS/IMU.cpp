@@ -172,8 +172,8 @@ namespace pizda {
 		// _magDataFiltered.setY(x - _magBias.getX());
 		// _magDataFiltered.setZ(-(z - _magBias.getZ()));
 
-		//				const auto magYaw = std::atan2(magSample.getX(), magSample.getY());
-		//				ESP_LOGI(_logTag, "Mag: %f x %f x %f, yaw: %f", magData.getX(), magSample.getY(), magSample.getZ(), toDegrees(magYaw));
+		// const auto magYaw = std::atan2(_magDataFiltered.getX(), _magDataFiltered.getY());
+		// ESP_LOGI(_logTag, "Mag yaw: %f", toDegrees(magYaw));
 	}
 
 	void IMU::FIFOTick() {
@@ -241,11 +241,10 @@ namespace pizda {
 
 			auto accelPositionOffsetM = _integratedVelocityMs * FIFOSampleIntervalS;
 			_integratedPositionM += accelPositionOffsetM;
-		}
 
-		//				ESP_LOGI(_logTag, "Velocity: %f x %f x %f", accelVelocityMs.getX(), accelVelocityMs.getY(), accelVelocityMs.getZ());
-		//				ESP_LOGI(_logTag, "Pos: %f x %f x %f", accelPosM.getX(), accelPosM.getY(), accelPosM.getZ());
-		//				ESP_LOGI(_logTag, "Roll pitch yaw: %f x %f x %f", toDegrees(rollRad), toDegrees(pitchRad), toDegrees(yawRad));
+			// ESP_LOGI(_logTag, "Acc vel: %f x %f x %f", _integratedVelocityMs.getX(), _integratedVelocityMs.getY(), _integratedVelocityMs.getZ());
+			// ESP_LOGI(_logTag, "Acc pos: %f x %f x %f", _integratedPositionM.getX(), _integratedPositionM.getY(), _integratedPositionM.getZ());
+		}
 
 		_MPU.resetFIFO();
 		_MPU.setFIFODataSource(FIFODataSource);

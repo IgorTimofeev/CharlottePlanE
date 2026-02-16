@@ -54,18 +54,18 @@ namespace pizda {
 						+ (rollAndPitchGyroTrustFactorMax - rollAndPitchGyroTrustFactorMin)
 						* accelMagnitudeFactor;
 
-					rollRad = applyGyroTrustFactor(gyroRoll, accelRoll, rollAndPitchGyroTrustFactor);
-					pitchRad = applyGyroTrustFactor(gyroPitch, accelPitch, rollAndPitchGyroTrustFactor);
+					rollRad = applyGyroTrustFactor(accelRoll, gyroRoll, rollAndPitchGyroTrustFactor);
+					pitchRad = applyGyroTrustFactor(accelPitch, gyroPitch, rollAndPitchGyroTrustFactor);
 				}
 
 				// Mag tilt compensation using computed pitch/roll
 //				float magYawWithoutTilt = std::atan2(magData.getX(), magData.getY());
 
 				const auto magDataTilt = applyTiltCompensation(magData, rollRad, pitchRad);
-				const auto magYaw = std::atan2(magDataTilt.getX(), magDataTilt.getY());
+				const auto magYawRad = std::atan2(magDataTilt.getX(), magDataTilt.getY());
 
 				// For mag, we're using other gyro trust factor, because mag produces a lot of noise
-				yawRad = applyGyroTrustFactor(gyroYaw, magYaw, magGyroTrustFactor);
+				yawRad = applyGyroTrustFactor(magYawRad, gyroYaw, magGyroTrustFactor);
 
 //					ESP_LOGI("Compl", "acc roll/pitch: %f x %f", toDegrees(accelRoll), toDegrees(accelPitch));
 //					ESP_LOGI("Compl", "acc: %f x %f x %f", accelData.getX(), accelData.getY(), accelData.getZ());
@@ -73,7 +73,9 @@ namespace pizda {
 //					ESP_LOGI("Compl", "mag: %f x %f x %f", magData.getX(), magData.getY(), magData.getZ());
 //					ESP_LOGI("Compl", "mag cor: %f x %f x %f", magDataTilt.getX(), magDataTilt.getY(), magDataTilt.getZ());
 //					ESP_LOGI("Compl", "mag yaw no tilt: %f", toDegrees(magYawWithoutTilt));
-//					ESP_LOGI("Compl", "mag yaw: %f", toDegrees(magYaw));
+
+					// ESP_LOGI("Compl", "gyr yaw: %f", toDegrees(yawRad));
+					// ESP_LOGI("Compl", "mag yaw: %f", toDegrees(magYawRad));
 			}
 
 			static Vector3F applyTiltCompensation(const Vector3F& vec, const float rollRad, const float pitchRad) {
@@ -81,8 +83,13 @@ namespace pizda {
 			}
 
 		private:
-			static float applyGyroTrustFactor(const float gyroValue, const float nonGyroValue, const float gyroTrustFactor) {
-				return gyroTrustFactor * gyroValue + (1.0f - gyroTrustFactor) * nonGyroValue;
+			static float applyGyroTrustFactor(const float nonGyroValue, const float gyroValue, const float gyroTrustFactor) {
+				// Normally calculation logic should be as simple as
+				// return nonGyroValue * (1.0f - gyroTrustFactor) + gyroValue * gyroTrustFactor;
+
+				// But since we're dealing with angles, we should do some range checks to keep result in [-pi; pi] range
+				// Those checks can be done here, but we can simply use LPF, because it behaves the same way
+				return LowPassFilter::applyToAngle(nonGyroValue, gyroValue, gyroTrustFactor);
 			}
 	};
 

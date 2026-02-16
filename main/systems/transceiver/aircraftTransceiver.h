@@ -40,7 +40,9 @@ namespace pizda {
 			bool receiveRemoteAuxiliaryLightsPacket(BitStream& stream, uint8_t payloadLength);
 			bool receiveRemoteAuxiliaryBaroPacket(BitStream& stream, uint8_t payloadLength);
 			bool receiveRemoteAuxiliaryAutopilotPacket(BitStream& stream, uint8_t payloadLength);
-			bool receiveRemoteAuxiliaryMotorConfigurationPacket(BitStream& stream, uint8_t payloadLength);
+			bool receiveRemoteAuxiliaryMotorsPacket(BitStream& stream, uint8_t payloadLength);
+			bool receiveRemoteAuxiliaryADIRSPacket(BitStream& stream, uint8_t payloadLength);
+			bool receiveRemoteAuxiliaryXCVRPacket(BitStream& stream, uint8_t payloadLength);
 			bool receiveRemoteAuxiliaryCalibratePacket(BitStream& stream, uint8_t payloadLength);
 
 			void transmitAircraftTelemetryPrimaryPacket(BitStream& stream);

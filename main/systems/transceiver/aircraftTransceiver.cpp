@@ -116,8 +116,14 @@ namespace pizda {
 			case RemoteAuxiliaryPacketType::autopilot:
 				return receiveRemoteAuxiliaryAutopilotPacket(stream, payloadLength);
 
-			case RemoteAuxiliaryPacketType::motorConfiguration:
-				return receiveRemoteAuxiliaryMotorConfigurationPacket(stream, payloadLength);
+			case RemoteAuxiliaryPacketType::motors:
+				return receiveRemoteAuxiliaryMotorsPacket(stream, payloadLength);
+
+			case RemoteAuxiliaryPacketType::ADIRS:
+				return receiveRemoteAuxiliaryADIRSPacket(stream, payloadLength);
+
+			case RemoteAuxiliaryPacketType::XCVR:
+				return receiveRemoteAuxiliaryXCVRPacket(stream, payloadLength);
 
 			default:
 				ESP_LOGE(_logTag, "failed to receive packet: unsupported type %d", std::to_underlying(type));
@@ -263,7 +269,7 @@ namespace pizda {
 		return true;
 	}
 	
-	bool AircraftTransceiver::receiveRemoteAuxiliaryMotorConfigurationPacket(BitStream& stream, const uint8_t payloadLength) {
+	bool AircraftTransceiver::receiveRemoteAuxiliaryMotorsPacket(BitStream& stream, const uint8_t payloadLength) {
 		auto& ac = Aircraft::getInstance();
 		
 		ESP_LOGI(_logTag, "Received motor config packet");
@@ -281,13 +287,13 @@ namespace pizda {
 		))
 			return false;
 		
-		const auto read = [&stream](MotorConfiguration& configuration) {
-			configuration.min = stream.readUint16(RemoteAuxiliaryMotorConfigurationPacket::minLengthBits);
-			configuration.max = stream.readUint16(RemoteAuxiliaryMotorConfigurationPacket::maxLengthBits);
-			configuration.reverse = stream.readBool();
-			configuration.sanitize();
+		const auto read = [&stream](MotorSettings& settings) {
+			settings.min = stream.readUint16(RemoteAuxiliaryMotorConfigurationPacket::minLengthBits);
+			settings.max = stream.readUint16(RemoteAuxiliaryMotorConfigurationPacket::maxLengthBits);
+			settings.reverse = stream.readBool();
+			settings.sanitize();
 			
-			ESP_LOGI(_logTag, "min: %d, max: %d, reverse: %d", configuration.min, configuration.max, configuration.reverse);
+			ESP_LOGI(_logTag, "min: %d, max: %d, reverse: %d", settings.min, settings.max, settings.reverse);
 		};
 		
 		read(ac.settings.motors.throttle);
@@ -305,6 +311,64 @@ namespace pizda {
 		ac.motors.updateConfigurationsFromSettings();
 		ac.settings.motors.scheduleWrite();
 		
+		return true;
+	}
+
+	bool AircraftTransceiver::receiveRemoteAuxiliaryADIRSPacket(BitStream& stream, const uint8_t payloadLength) {
+		auto& ac = Aircraft::getInstance();
+
+		if (!validatePayloadChecksumAndLength(
+			stream,
+			RemoteAuxiliaryPacket::typeLengthBits
+				+ RemoteAuxiliaryADIRSPacket::magneticDeclinationLengthBits,
+			payloadLength
+		))
+			return false;
+
+		ac.settings.adirs.magneticDeclinationDeg = stream.readInt16(RemoteAuxiliaryADIRSPacket::magneticDeclinationLengthBits);
+		ac.settings.adirs.scheduleWrite();
+
+		ESP_LOGI(_logTag, "Magnetic declination: %d", ac.settings.adirs.magneticDeclinationDeg);
+
+		return true;
+	}
+
+	bool AircraftTransceiver::receiveRemoteAuxiliaryXCVRPacket(BitStream& stream, const uint8_t payloadLength) {
+		auto& ac = Aircraft::getInstance();
+
+		if (!validatePayloadChecksumAndLength(
+			stream,
+			RemoteAuxiliaryPacket::typeLengthBits
+				+ RemoteAuxiliaryXCVRPacket::RFFrequencyLengthBits
+				+ RemoteAuxiliaryXCVRPacket::bandwidthLengthBits
+				+ RemoteAuxiliaryXCVRPacket::spreadingFactorLengthBits
+				+ RemoteAuxiliaryXCVRPacket::codingRateLengthBits
+				+ RemoteAuxiliaryXCVRPacket::syncWordLengthBits
+				+ RemoteAuxiliaryXCVRPacket::powerDBmLengthBits
+				+ RemoteAuxiliaryXCVRPacket::preambleLengthLengthBits,
+			payloadLength
+		))
+			return false;
+
+		TransceiverCommunicationSettings settings {};
+		settings.RFFrequencyHz = stream.readUint16(RemoteAuxiliaryXCVRPacket::RFFrequencyLengthBits) * 1'000'000;
+		settings.bandwidth = static_cast<SX1262::LoRaBandwidth>(stream.readUint8(RemoteAuxiliaryXCVRPacket::bandwidthLengthBits));
+		settings.spreadingFactor = stream.readUint8(RemoteAuxiliaryXCVRPacket::spreadingFactorLengthBits);
+		settings.codingRate = static_cast<SX1262::LoRaCodingRate>(stream.readUint8(RemoteAuxiliaryXCVRPacket::codingRateLengthBits));
+		settings.syncWord = stream.readUint8(RemoteAuxiliaryXCVRPacket::syncWordLengthBits);
+		settings.powerDBm = stream.readInt8(RemoteAuxiliaryXCVRPacket::powerDBmLengthBits);
+		settings.preambleLength = stream.readUint16(RemoteAuxiliaryXCVRPacket::preambleLengthLengthBits);
+		settings.sanitize();
+
+		ESP_LOGI(_logTag, "test XCVR settings");
+		ESP_LOGI(_logTag, "RFFrequencyHz: %d", settings.RFFrequencyHz);
+		ESP_LOGI(_logTag, "bandwidth: %d", std::to_underlying(settings.bandwidth));
+		ESP_LOGI(_logTag, "spreadingFactor: %d", settings.spreadingFactor);
+		ESP_LOGI(_logTag, "codingRate: %d",std::to_underlying(settings.codingRate));
+		ESP_LOGI(_logTag, "syncWord: %d", settings.syncWord);
+		ESP_LOGI(_logTag, "powerDBm: %d", settings.powerDBm);
+		ESP_LOGI(_logTag, "preambleLength: %d", settings.preambleLength);
+
 		return true;
 	}
 	

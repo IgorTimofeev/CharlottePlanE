@@ -26,16 +26,16 @@ namespace pizda {
 	void Motors::updateConfigurationsFromSettings() {
 		const auto& ac = Aircraft::getInstance();
 		
-		getMotor(MotorType::throttle)->setConfiguration(ac.settings.motors.throttle);
-		getMotor(MotorType::noseWheel)->setConfiguration(ac.settings.motors.noseWheel);
+		getMotor(MotorType::throttle)->setSettings(ac.settings.motors.throttle);
+		getMotor(MotorType::noseWheel)->setSettings(ac.settings.motors.noseWheel);
 		
-		getMotor(MotorType::flapLeft)->setConfiguration(ac.settings.motors.flapLeft);
-		getMotor(MotorType::aileronLeft)->setConfiguration(ac.settings.motors.aileronLeft);
+		getMotor(MotorType::flapLeft)->setSettings(ac.settings.motors.flapLeft);
+		getMotor(MotorType::aileronLeft)->setSettings(ac.settings.motors.aileronLeft);
 		
-		getMotor(MotorType::flapRight)->setConfiguration(ac.settings.motors.flapRight);
-		getMotor(MotorType::aileronRight)->setConfiguration(ac.settings.motors.aileronRight);
+		getMotor(MotorType::flapRight)->setSettings(ac.settings.motors.flapRight);
+		getMotor(MotorType::aileronRight)->setSettings(ac.settings.motors.aileronRight);
 		
-		getMotor(MotorType::tailLeft)->setConfiguration(ac.settings.motors.tailLeft);
-		getMotor(MotorType::tailRight)->setConfiguration(ac.settings.motors.tailRight);
+		getMotor(MotorType::tailLeft)->setSettings(ac.settings.motors.tailLeft);
+		getMotor(MotorType::tailRight)->setSettings(ac.settings.motors.tailRight);
 	}
 }

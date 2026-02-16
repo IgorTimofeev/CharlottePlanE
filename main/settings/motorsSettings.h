@@ -11,17 +11,17 @@ namespace pizda {
 	
 	class MotorsSettings : public NVSSettings {
 		public:
-			MotorConfiguration throttle {};
-			MotorConfiguration noseWheel {};
+			MotorSettings throttle {};
+			MotorSettings noseWheel {};
 			
-			MotorConfiguration flapLeft {};
-			MotorConfiguration aileronLeft {};
+			MotorSettings flapLeft {};
+			MotorSettings aileronLeft {};
 			
-			MotorConfiguration flapRight {};
-			MotorConfiguration aileronRight {};
+			MotorSettings flapRight {};
+			MotorSettings aileronRight {};
 			
-			MotorConfiguration tailLeft {};
-			MotorConfiguration tailRight {};
+			MotorSettings tailLeft {};
+			MotorSettings tailRight {};
 		
 		protected:
 			const char* getNamespace() override {
@@ -213,7 +213,7 @@ namespace pizda {
 			
 			static void readMotor(
 				const NVSStream& stream,
-				MotorConfiguration& motor,
+				MotorSettings& motor,
 				
 				const char* minKey,
 				const char* maxKey,
@@ -226,7 +226,7 @@ namespace pizda {
 			
 			static void writeMotor(
 				const NVSStream& stream,
-				const MotorConfiguration& motor,
+				const MotorSettings& motor,
 				
 				const char* minKey,
 				const char* maxKey,

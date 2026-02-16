@@ -128,7 +128,7 @@ namespace pizda {
 		//             +--------+---------+
 		// Left wing:  WRWRRRRRRRRRRRRRRRRR
 		// Right wing: WGWGGGGGGGGGGGGGGGGG
-		// Tail:       DDDWDDDDDDDDDDDDDDDD
+		// Tail:       DDDDWDDDDDDDDDDDDDDD
 
 		while (true) {
 			if (_emergency) {
@@ -202,7 +202,7 @@ namespace pizda {
 				// Right wing (strobe 2 or green)
 				updateWingStrobe(rightWing, 0x00, 0xFF, 0x00);
 				
-				if (delay(50))
+				if (delay(50 * 2))
 					continue;
 
 				// Left wing (red)
@@ -220,8 +220,7 @@ namespace pizda {
 				// Tail (dimmed)
 				updateTailStrobe(false);
 
-				if (delay(16 * 50))
-					continue;
+				delay(50 * 15);
 			}
 		}
 	}

@@ -20,8 +20,10 @@ namespace pizda {
 	
 	class ADIRSSettings : public NVSSettings {
 		public:
+			uint32_t referencePressurePa = 0;
+			int16_t magneticDeclinationDeg = 0;
+
 			std::array<ADIRSSettingsUnit, config::adirs::unitCount> units {};
-			uint32_t referencePressurePa;
 
 		protected:
 			const char* getNamespace() override {
@@ -30,6 +32,7 @@ namespace pizda {
 
 			void onRead(const NVSStream& stream) override {
 				referencePressurePa = stream.readUint32(_referencePressurePa, 101325);
+				magneticDeclinationDeg = stream.readInt16(_magneticDeclinationDeg, 0);
 
 				// Units
 				{
@@ -49,11 +52,13 @@ namespace pizda {
 
 			void onWrite(const NVSStream& stream) override {
 				stream.writeUint32(_referencePressurePa, referencePressurePa);
+				stream.writeInt16(_magneticDeclinationDeg, magneticDeclinationDeg);
 				stream.writeObject<ADIRSSettingsUnit>(_units, units.data(), config::adirs::unitCount);
 			}
 			
 		private:
 			constexpr static auto _units = "un";
 			constexpr static auto _referencePressurePa = "rp";
+			constexpr static auto _magneticDeclinationDeg = "md";
 	};
 }

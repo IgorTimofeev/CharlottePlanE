@@ -23,12 +23,12 @@ namespace pizda {
 			
 			void setPower(uint16_t value);
 			void setPowerF(float value);
-			void setConfiguration(const MotorConfiguration& configuration);
+			void setSettings(const MotorSettings& settings);
 		
 		private:
 			PulseWidthModulator* _PWM;
 
-			MotorConfiguration _configuration {};
+			MotorSettings _settings {};
 			uint16_t _power = 0;
 		
 	};

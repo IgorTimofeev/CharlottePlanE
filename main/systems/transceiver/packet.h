@@ -34,10 +34,12 @@ namespace pizda {
 		lights,
 		baro,
 		autopilot,
-		motorConfiguration,
+		motors,
 		calibrate,
+		ADIRS,
+		XCVR,
 
-		maxValue = calibrate
+		maxValue = XCVR
 	};
 
 	class RemoteAuxiliaryPacket {
@@ -93,6 +95,22 @@ namespace pizda {
 			// So in theory 1100 daPa will be more than enough
 			// So 14 bits
 			constexpr static uint8_t referencePressureLengthBits = 14;
+	};
+
+	class RemoteAuxiliaryADIRSPacket {
+		public:
+			constexpr static uint8_t magneticDeclinationLengthBits = 9;
+	};
+
+	class RemoteAuxiliaryXCVRPacket {
+		public:
+			constexpr static uint8_t RFFrequencyLengthBits = 10;
+			constexpr static uint8_t bandwidthLengthBits = 3;
+			constexpr static uint8_t spreadingFactorLengthBits = 4;
+			constexpr static uint8_t codingRateLengthBits = 3;
+			constexpr static uint8_t syncWordLengthBits = 8;
+			constexpr static uint8_t powerDBmLengthBits = 8;
+			constexpr static uint8_t preambleLengthLengthBits = 16;
 	};
 
 	// -------------------------------- Aircraft --------------------------------

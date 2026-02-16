@@ -4,31 +4,14 @@
 #include <SX1262.h>
 
 #include "config.h"
+#include "types/generic.h"
 
 namespace pizda {
 	using namespace YOBA;
 
-	class TransceiverSettingsCommunication {
-		public:
-			uint32_t RFFrequencyHz = config::transceiver::RFFrequencyHz;
-			SX1262::LoRaBandwidth bandwidth = config::transceiver::bandwidth;
-			uint8_t spreadingFactor = config::transceiver::spreadingFactor;
-			SX1262::LoRaCodingRate codingRate = config::transceiver::codingRate;
-			uint8_t syncWord = config::transceiver::syncWord;
-			int8_t powerDBm = config::transceiver::powerDBm;
-			uint16_t preambleLength = config::transceiver::preambleLength;
-
-			void sanitize() {
-				RFFrequencyHz = std::clamp<uint32_t>(RFFrequencyHz, 120'000'000, 960'000'000);
-				spreadingFactor = std::clamp<uint8_t>(spreadingFactor, 5, 12);
-				powerDBm = std::clamp<int8_t>(powerDBm, -16, 22);
-			}
-	};
-
-
 	class TransceiverSettings : public NVSSettings {
 		public:
-			TransceiverSettingsCommunication communication {};
+			TransceiverCommunicationSettings communication {};
 
 		protected:
 			const char* getNamespace() override {
