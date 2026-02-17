@@ -242,6 +242,59 @@ namespace pizda {
 				ESP_LOGE(_logTag, "%s: %s", key, errorBuffer);
 			}
 
+			static bool checkSetCommunicationSettingsSXError(const SX1262::error error) {
+				if (error != SX1262::error::none) {
+					logSXError("failed to set communication settings", error);
+					return false;
+				}
+
+				return true;
+			}
+
+			bool setCommunicationSettings(const TransceiverCommunicationSettings& settings) {
+				if (!checkSetCommunicationSettingsSXError(
+					_SX.setStandby()
+				))
+					return false;
+
+				if (!checkSetCommunicationSettingsSXError(
+					_SX.setLoRaSyncWord(settings.syncWord)
+				))
+					return false;
+
+				if (!checkSetCommunicationSettingsSXError(
+					_SX.setLoRaPreambleLength(settings.preambleLength)
+				))
+					return false;
+
+				if (!checkSetCommunicationSettingsSXError(
+					_SX.setLoRaModulationParams(
+						settings.spreadingFactor,
+						settings.bandwidth,
+						settings.codingRate,
+						false
+					)
+				))
+					return false;
+
+				if (!checkSetCommunicationSettingsSXError(
+					_SX.setLoRaCADParams()
+				))
+					return false;
+
+				if (!checkSetCommunicationSettingsSXError(
+					_SX.setRFFrequency(settings.RFFrequencyHz)
+				))
+					return false;
+
+				if (!checkSetCommunicationSettingsSXError(
+					_SX.setOutputPower(settings.powerDBm)
+				))
+					return false;
+
+				return true;
+			}
+
 			static uint8_t getCRC8(const uint8_t* buffer, const size_t length) {
 				uint8_t crc = 0xff;
 

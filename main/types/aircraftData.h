@@ -11,9 +11,15 @@ namespace pizda {
 			AircraftCalibrationSystem system = AircraftCalibrationSystem::accelAndGyro;
 			uint8_t progress = 0xFF;
 	};
+
+	class AircraftDataTransceiver {
+		public:
+			TransceiverCommunicationSettings receivedCommunicationSettings {};
+	};
 	
 	class AircraftData {
 		public:
 			AircraftDataCalibration calibration {};
+			AircraftDataTransceiver transceiver {};
 	};
 }

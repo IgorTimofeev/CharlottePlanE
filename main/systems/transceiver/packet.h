@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <numbers>
 
 namespace pizda {
 	#pragma pack(push, 1)
@@ -105,7 +106,7 @@ namespace pizda {
 	class RemoteAuxiliaryXCVRPacket {
 		public:
 			constexpr static uint8_t RFFrequencyLengthBits = 10;
-			constexpr static uint8_t bandwidthLengthBits = 3;
+			constexpr static uint8_t bandwidthLengthBits = 4;
 			constexpr static uint8_t spreadingFactorLengthBits = 4;
 			constexpr static uint8_t codingRateLengthBits = 3;
 			constexpr static uint8_t syncWordLengthBits = 8;
@@ -182,8 +183,9 @@ namespace pizda {
 
 	enum class AircraftAuxiliaryPacketType : uint8_t {
 		calibration,
+		XCVRACK,
 
-		maxValue = calibration
+		maxValue = XCVRACK
 	};
 
 	class AircraftAuxiliaryPacket {

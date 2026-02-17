@@ -34,6 +34,7 @@ namespace pizda {
 			int64_t _trendsTime = 0;
 			float _trendsAirspeedPrevMPS = 0;
 			float _trendsAltitudePrevM = 0;
+			int64_t _communicationSettingsACKTime = 0;
 
 			bool receiveRemoteControlsPacket(BitStream& stream, uint8_t payloadLength);
 			bool receiveRemoteAuxiliaryTrimPacket(BitStream& stream, uint8_t payloadLength);
@@ -49,5 +50,6 @@ namespace pizda {
 			void transmitAircraftTelemetrySecondaryPacket(BitStream& stream);
 			void transmitAircraftAuxiliaryPacket(BitStream& stream);
 			void transmitAircraftAuxiliaryCalibrationPacket(BitStream& stream);
+			void transmitAircraftAuxiliaryXCVRACKPacket(BitStream& stream);
 	};
 }

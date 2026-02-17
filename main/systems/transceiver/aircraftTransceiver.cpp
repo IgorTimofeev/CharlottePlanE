@@ -17,22 +17,50 @@ namespace pizda {
 	}
 
 	void AircraftTransceiver::onStart() {
+		auto& ac = Aircraft::getInstance();
 		// Receive -> wait -> transmit
 
 		bool receiveMode = true;
 		int64_t transmitTime = 0;
 
 		while (true) {
+			if (_communicationSettingsACKTime < 0) {
+				setCommunicationSettings(ac.aircraftData.transceiver.receivedCommunicationSettings);
+
+				_communicationSettingsACKTime = esp_timer_get_time() + 5'000'000;
+			}
+
 			if (receiveMode) {
 				if (receive(1'000'000)) {
+					if (_communicationSettingsACKTime > 0) {
+						ESP_LOGI(_logTag, "communication settings synchronized");
+
+						ac.settings.transceiver.communication = ac.aircraftData.transceiver.receivedCommunicationSettings;
+						ac.settings.transceiver.scheduleWrite();
+
+						_communicationSettingsACKTime = 0;
+					}
+
 					receiveMode = false;
 
 					transmitTime = esp_timer_get_time() + 8'000;
+				}
+				else {
+					// Remote didn't respond after communication settings change
+					if (_communicationSettingsACKTime > 0 && esp_timer_get_time() >= _communicationSettingsACKTime) {
+						ESP_LOGI(_logTag, "communication settings change timed out, falling back to previous");
+
+						// Falling back to previous communication settings
+						setCommunicationSettings(ac.settings.transceiver.communication);
+
+						_communicationSettingsACKTime = 0;
+					}
 				}
 			}
 			else {
 				if (esp_timer_get_time() >= transmitTime) {
 					transmit(1'000'000);
+
 					receiveMode = true;
 				}
 				else {
@@ -70,7 +98,6 @@ namespace pizda {
 		
 		return true;
 	}
-
 
 	bool AircraftTransceiver::receiveRemoteControlsPacket(BitStream& stream, const uint8_t payloadLength) {
 		auto& ac = Aircraft::getInstance();
@@ -350,7 +377,7 @@ namespace pizda {
 		))
 			return false;
 
-		TransceiverCommunicationSettings settings {};
+		auto& settings = ac.aircraftData.transceiver.receivedCommunicationSettings;
 		settings.RFFrequencyHz = stream.readUint16(RemoteAuxiliaryXCVRPacket::RFFrequencyLengthBits) * 1'000'000;
 		settings.bandwidth = static_cast<SX1262::LoRaBandwidth>(stream.readUint8(RemoteAuxiliaryXCVRPacket::bandwidthLengthBits));
 		settings.spreadingFactor = stream.readUint8(RemoteAuxiliaryXCVRPacket::spreadingFactorLengthBits);
@@ -360,7 +387,7 @@ namespace pizda {
 		settings.preambleLength = stream.readUint16(RemoteAuxiliaryXCVRPacket::preambleLengthLengthBits);
 		settings.sanitize();
 
-		ESP_LOGI(_logTag, "test XCVR settings");
+		ESP_LOGI(_logTag, "received communication settings");
 		ESP_LOGI(_logTag, "RFFrequencyHz: %d", settings.RFFrequencyHz);
 		ESP_LOGI(_logTag, "bandwidth: %d", std::to_underlying(settings.bandwidth));
 		ESP_LOGI(_logTag, "spreadingFactor: %d", settings.spreadingFactor);
@@ -368,6 +395,8 @@ namespace pizda {
 		ESP_LOGI(_logTag, "syncWord: %d", settings.syncWord);
 		ESP_LOGI(_logTag, "powerDBm: %d", settings.powerDBm);
 		ESP_LOGI(_logTag, "preambleLength: %d", settings.preambleLength);
+
+		enqueueAuxiliary(AircraftAuxiliaryPacketType::XCVRACK);
 
 		return true;
 	}
@@ -511,6 +540,11 @@ namespace pizda {
 			case AircraftAuxiliaryPacketType::calibration:
 				transmitAircraftAuxiliaryCalibrationPacket(stream);
 				break;
+			case AircraftAuxiliaryPacketType::XCVRACK:
+				transmitAircraftAuxiliaryXCVRACKPacket(stream);
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -519,5 +553,11 @@ namespace pizda {
 	
 		stream.writeUint8(std::to_underlying(ac.aircraftData.calibration.system), AircraftAuxiliaryCalibrationPacket::systemLengthBits);
 		stream.writeUint8(static_cast<uint16_t>(ac.aircraftData.calibration.progress) * ((1 << AircraftAuxiliaryCalibrationPacket::progressLengthBits) - 1) / 0xFF, AircraftAuxiliaryCalibrationPacket::progressLengthBits);
+	}
+
+	void AircraftTransceiver::transmitAircraftAuxiliaryXCVRACKPacket(BitStream& stream) {
+		const auto& ac = Aircraft::getInstance();
+
+		_communicationSettingsACKTime = -1;
 	}
 }
