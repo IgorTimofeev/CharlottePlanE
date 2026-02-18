@@ -72,13 +72,13 @@ namespace pizda {
 					config::SPI::device,
 					config::transceiver::SPIFrequencyHz,
 
-					config::transceiver::RFFrequencyHz,
-					config::transceiver::bandwidth,
-					config::transceiver::spreadingFactor,
-					config::transceiver::codingRate,
-					config::transceiver::syncWord,
-					config::transceiver::powerDBm,
-					config::transceiver::preambleLength
+					config::transceiver::communicationSettings.frequencyHz,
+					config::transceiver::communicationSettings.bandwidth,
+					config::transceiver::communicationSettings.spreadingFactor,
+					config::transceiver::communicationSettings.codingRate,
+					config::transceiver::communicationSettings.syncWord,
+					config::transceiver::communicationSettings.powerDBm,
+					config::transceiver::communicationSettings.preambleLength
 				);
 
 				if (error != SX1262::error::none) {
@@ -113,19 +113,6 @@ namespace pizda {
 					//			ESP_LOGI(_logTag, "read buffer[%d]: %d", i, _buffer[i]);
 					//		}
 
-					// Updating RSSI and SNR
-					if (esp_timer_get_time() > _RSSIAndSNRUpdateTimeUs) {
-						float valueF;
-
-						if (_SX.getRSSI(valueF) == SX1262::error::none)
-							_RSSI = static_cast<int8_t>(valueF);
-
-						if (_SX.getSNR(valueF) == SX1262::error::none)
-							_SNR = static_cast<int8_t>(valueF);
-
-						_RSSIAndSNRUpdateTimeUs = esp_timer_get_time() + _RSSIAndSNRUpdateIntervalUs;
-					}
-
 					// Length check
 					if (receivedLength >= 1) {
 						const uint8_t payloadLength = receivedLength - Packet::checksumLengthBytes;
@@ -141,6 +128,8 @@ namespace pizda {
 
 							if (_connectionState != ConnectionState::connected)
 								setConnectionState(ConnectionState::connected);
+
+							_RXPPSTemp++;
 
 							return true;
 						}
@@ -193,15 +182,9 @@ namespace pizda {
 					return false;
 				}
 
+				_TXPPSTemp++;
+
 				return true;
-			}
-
-			float getSNR() const {
-				return _SNR;
-			}
-
-			float getRSSI() const {
-				return _RSSI;
 			}
 
 			ConnectionState getConnectionState() const {
@@ -215,6 +198,14 @@ namespace pizda {
 			void enqueueAuxiliary(TLocalAuxiliaryPacketType type) {
 				_packetQueue[static_cast<uint8_t>(type)] = true;
 				_packetEnqueued = true;
+			}
+
+			uint16_t getRXPPS() const {
+				return _RXPPS;
+			}
+
+			uint16_t getTXPPS() const {
+				return _TXPPS;
 			}
 
 		protected:
@@ -283,7 +274,7 @@ namespace pizda {
 					return false;
 
 				if (!checkSetCommunicationSettingsSXError(
-					_SX.setRFFrequency(settings.RFFrequencyHz)
+					_SX.setRFFrequency(settings.frequencyHz)
 				))
 					return false;
 
@@ -340,6 +331,19 @@ namespace pizda {
 				}
 
 				return true;
+			}
+
+			void PPSTick() {
+				if (esp_timer_get_time() < _PPSTime)
+					return;
+
+				_RXPPS = _RXPPSTemp;
+				_TXPPS = _TXPPSTemp;
+
+				_RXPPSTemp = 0;
+				_TXPPSTemp = 0;
+
+				_PPSTime = esp_timer_get_time() + 1'000'000;
 			}
 
 			template<typename T>
@@ -406,12 +410,11 @@ namespace pizda {
 			constexpr static uint32_t _desiredTXDurationUs = (_desiredTickDurationUs - _safetyMarginDurationUs) / 2;
 			constexpr static uint32_t _desiredRXDurationUs = _desiredTickDurationUs - _desiredTXDurationUs - _safetyMarginDurationUs;
 
-			constexpr static uint8_t _RSSIAndSNRUpdateFrequencyHz = 1;
-			constexpr static uint32_t _RSSIAndSNRUpdateIntervalUs = 1'000'000 / _RSSIAndSNRUpdateFrequencyHz;
-
-			int64_t _RSSIAndSNRUpdateTimeUs = 0;
-			int8_t _RSSI = 0;
-			int8_t _SNR = 0;
+			int64_t _PPSTime = 0;
+			uint16_t _RXPPSTemp = 0;
+			uint16_t _TXPPSTemp = 0;
+			uint16_t _RXPPS = 0;
+			uint16_t _TXPPS = 0;
 
 			// ----------------------------- Packet queue -----------------------------
 

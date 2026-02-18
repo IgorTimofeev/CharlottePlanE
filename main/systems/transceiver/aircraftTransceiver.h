@@ -34,6 +34,8 @@ namespace pizda {
 			int64_t _trendsTime = 0;
 			float _trendsAirspeedPrevMPS = 0;
 			float _trendsAltitudePrevM = 0;
+
+			TransceiverCommunicationSettings _tmpCommunicationSettings {};
 			int64_t _communicationSettingsACKTime = 0;
 
 			bool receiveRemoteControlsPacket(BitStream& stream, uint8_t payloadLength);

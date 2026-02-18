@@ -3,7 +3,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
-
+#include "utilities/math.h"
 #include "aircraft.h"
 #include "config.h"
 
@@ -174,6 +174,8 @@ namespace pizda {
 	}
 
 	void I2CADIRS::updateIMUs() {
+		const auto& ac = Aircraft::getInstance();
+
 		float rollRadSum = 0;
 		float pitchRadSum = 0;
 		float yawRadSum = 0;
@@ -195,7 +197,7 @@ namespace pizda {
 		// Roll / pitch / yaw
 		setRollRad(rollRadSum / _IMUs.size());
 		setPitchRad(pitchRadSum / _IMUs.size());
-		setYawRad(yawRadSum / _IMUs.size());
+		setYawRad(yawRadSum / _IMUs.size() + toRadians(ac.settings.adirs.magneticDeclinationDeg));
 		updateHeadingFromYaw();
 
 		// Velocity

@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <algorithm>
 
-#include "config.h"
+#include <SX1262.h>
 
 namespace pizda {
 	enum class ConnectionState : uint8_t {
@@ -46,16 +46,16 @@ namespace pizda {
 
 	class TransceiverCommunicationSettings {
 		public:
-			uint32_t RFFrequencyHz = config::transceiver::RFFrequencyHz;
-			SX1262::LoRaBandwidth bandwidth = config::transceiver::bandwidth;
-			uint8_t spreadingFactor = config::transceiver::spreadingFactor;
-			SX1262::LoRaCodingRate codingRate = config::transceiver::codingRate;
-			uint8_t syncWord = config::transceiver::syncWord;
-			int8_t powerDBm = config::transceiver::powerDBm;
-			uint16_t preambleLength = config::transceiver::preambleLength;
+			uint32_t frequencyHz = 0;
+			SX1262::LoRaBandwidth bandwidth = SX1262::LoRaBandwidth::bw500_0;
+			uint8_t spreadingFactor = 0;
+			SX1262::LoRaCodingRate codingRate = SX1262::LoRaCodingRate::cr4_5;
+			uint8_t syncWord = 0;
+			int8_t powerDBm = 0;
+			uint16_t preambleLength = 0;
 
 			void sanitize() {
-				RFFrequencyHz = std::clamp<uint32_t>(RFFrequencyHz, 120'000'000, 960'000'000);
+				frequencyHz = std::clamp<uint32_t>(frequencyHz, 120'000'000, 960'000'000);
 				spreadingFactor = std::clamp<uint8_t>(spreadingFactor, 5, 12);
 				powerDBm = std::clamp<int8_t>(powerDBm, -17, 22);
 			}

@@ -24,37 +24,37 @@ namespace pizda {
 		int64_t transmitTime = 0;
 
 		while (true) {
+			// Should schedule communication settings sync check
 			if (_communicationSettingsACKTime < 0) {
-				setCommunicationSettings(ac.aircraftData.transceiver.receivedCommunicationSettings);
+				setCommunicationSettings(_tmpCommunicationSettings);
 
-				_communicationSettingsACKTime = esp_timer_get_time() + 5'000'000;
+				_communicationSettingsACKTime = esp_timer_get_time() + 2'000'000;
+			}
+			// Should perform communication settings sync check
+			else if (_communicationSettingsACKTime > 0 && esp_timer_get_time() >= _communicationSettingsACKTime) {
+				// Received and decoded enough packets to consider the connection is stable
+				if (getRXPPS() > 5) {
+					ESP_LOGI(_logTag, "communication settings synchronized");
+
+					ac.settings.transceiver.communication = _tmpCommunicationSettings;
+					ac.settings.transceiver.scheduleWrite();
+				}
+				// Or not enough...
+				else {
+					ESP_LOGI(_logTag, "communication settings change timed out, falling back to default");
+
+					// Falling back to default communication settings
+					setCommunicationSettings(config::transceiver::communicationSettings);
+				}
+
+				_communicationSettingsACKTime = 0;
 			}
 
 			if (receiveMode) {
 				if (receive(1'000'000)) {
-					if (_communicationSettingsACKTime > 0) {
-						ESP_LOGI(_logTag, "communication settings synchronized");
-
-						ac.settings.transceiver.communication = ac.aircraftData.transceiver.receivedCommunicationSettings;
-						ac.settings.transceiver.scheduleWrite();
-
-						_communicationSettingsACKTime = 0;
-					}
-
 					receiveMode = false;
 
 					transmitTime = esp_timer_get_time() + 8'000;
-				}
-				else {
-					// Remote didn't respond after communication settings change
-					if (_communicationSettingsACKTime > 0 && esp_timer_get_time() >= _communicationSettingsACKTime) {
-						ESP_LOGI(_logTag, "communication settings change timed out, falling back to previous");
-
-						// Falling back to previous communication settings
-						setCommunicationSettings(ac.settings.transceiver.communication);
-
-						_communicationSettingsACKTime = 0;
-					}
 				}
 			}
 			else {
@@ -67,6 +67,8 @@ namespace pizda {
 					taskYIELD();
 				}
 			}
+
+			PPSTick();
 		}
 	}
 
@@ -377,24 +379,23 @@ namespace pizda {
 		))
 			return false;
 
-		auto& settings = ac.aircraftData.transceiver.receivedCommunicationSettings;
-		settings.RFFrequencyHz = stream.readUint16(RemoteAuxiliaryXCVRPacket::RFFrequencyLengthBits) * 1'000'000;
-		settings.bandwidth = static_cast<SX1262::LoRaBandwidth>(stream.readUint8(RemoteAuxiliaryXCVRPacket::bandwidthLengthBits));
-		settings.spreadingFactor = stream.readUint8(RemoteAuxiliaryXCVRPacket::spreadingFactorLengthBits);
-		settings.codingRate = static_cast<SX1262::LoRaCodingRate>(stream.readUint8(RemoteAuxiliaryXCVRPacket::codingRateLengthBits));
-		settings.syncWord = stream.readUint8(RemoteAuxiliaryXCVRPacket::syncWordLengthBits);
-		settings.powerDBm = stream.readInt8(RemoteAuxiliaryXCVRPacket::powerDBmLengthBits);
-		settings.preambleLength = stream.readUint16(RemoteAuxiliaryXCVRPacket::preambleLengthLengthBits);
-		settings.sanitize();
+		_tmpCommunicationSettings.frequencyHz = stream.readUint16(RemoteAuxiliaryXCVRPacket::RFFrequencyLengthBits) * 1'000'000;
+		_tmpCommunicationSettings.bandwidth = static_cast<SX1262::LoRaBandwidth>(stream.readUint8(RemoteAuxiliaryXCVRPacket::bandwidthLengthBits));
+		_tmpCommunicationSettings.spreadingFactor = stream.readUint8(RemoteAuxiliaryXCVRPacket::spreadingFactorLengthBits);
+		_tmpCommunicationSettings.codingRate = static_cast<SX1262::LoRaCodingRate>(stream.readUint8(RemoteAuxiliaryXCVRPacket::codingRateLengthBits));
+		_tmpCommunicationSettings.syncWord = stream.readUint8(RemoteAuxiliaryXCVRPacket::syncWordLengthBits);
+		_tmpCommunicationSettings.powerDBm = stream.readInt8(RemoteAuxiliaryXCVRPacket::powerDBmLengthBits);
+		_tmpCommunicationSettings.preambleLength = stream.readUint16(RemoteAuxiliaryXCVRPacket::preambleLengthLengthBits);
+		_tmpCommunicationSettings.sanitize();
 
 		ESP_LOGI(_logTag, "received communication settings");
-		ESP_LOGI(_logTag, "RFFrequencyHz: %d", settings.RFFrequencyHz);
-		ESP_LOGI(_logTag, "bandwidth: %d", std::to_underlying(settings.bandwidth));
-		ESP_LOGI(_logTag, "spreadingFactor: %d", settings.spreadingFactor);
-		ESP_LOGI(_logTag, "codingRate: %d",std::to_underlying(settings.codingRate));
-		ESP_LOGI(_logTag, "syncWord: %d", settings.syncWord);
-		ESP_LOGI(_logTag, "powerDBm: %d", settings.powerDBm);
-		ESP_LOGI(_logTag, "preambleLength: %d", settings.preambleLength);
+		ESP_LOGI(_logTag, "RFFrequencyHz: %d", _tmpCommunicationSettings.frequencyHz);
+		ESP_LOGI(_logTag, "bandwidth: %d", std::to_underlying(_tmpCommunicationSettings.bandwidth));
+		ESP_LOGI(_logTag, "spreadingFactor: %d", _tmpCommunicationSettings.spreadingFactor);
+		ESP_LOGI(_logTag, "codingRate: %d",std::to_underlying(_tmpCommunicationSettings.codingRate));
+		ESP_LOGI(_logTag, "syncWord: %d", _tmpCommunicationSettings.syncWord);
+		ESP_LOGI(_logTag, "powerDBm: %d", _tmpCommunicationSettings.powerDBm);
+		ESP_LOGI(_logTag, "preambleLength: %d", _tmpCommunicationSettings.preambleLength);
 
 		enqueueAuxiliary(AircraftAuxiliaryPacketType::XCVRACK);
 

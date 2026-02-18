@@ -14,6 +14,7 @@
 #include <SX1262.h>
 
 #include "utilities/math.h"
+#include "types/generic.h"
 
 namespace pizda {
 	using namespace YOBA;
@@ -118,14 +119,16 @@ namespace pizda {
 					// SX1262 supports up to 16 MHz, but with long wires (10+ cm) there will be troubles, so
 					constexpr static uint32_t SPIFrequencyHz = 10'000'000;
 
-					// Initial values, can be changed and stored in NVS
-					constexpr static uint32_t RFFrequencyHz = 915'000'000;
-					constexpr static auto bandwidth = SX1262::LoRaBandwidth::bw500_0;
-					constexpr static uint8_t spreadingFactor = 7;
-					constexpr static auto codingRate = SX1262::LoRaCodingRate::cr4_5;
-					constexpr static uint8_t syncWord = 0x34;
-					constexpr static int8_t powerDBm = 22;
-					constexpr static uint16_t preambleLength = 8;
+					// Default values, can be changed and stored in NVS
+					constexpr static TransceiverCommunicationSettings communicationSettings {
+						915'000'000,
+						SX1262::LoRaBandwidth::bw500_0,
+						7,
+						SX1262::LoRaCodingRate::cr4_5,
+						0x34,
+						22,
+						8
+					};
 			};
 
 			class GNSS {
