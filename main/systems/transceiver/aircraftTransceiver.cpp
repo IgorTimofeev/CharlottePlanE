@@ -242,6 +242,8 @@ namespace pizda {
 				// A/T
 				+ 1
 				// A/P
+				+ 1
+				// Gyro
 				+ 1,
 			payloadLength
 		))
@@ -274,6 +276,9 @@ namespace pizda {
 		
 		// Autopilot
 		ac.fbw.setAutopilot(stream.readBool());
+
+		// Gyro
+		ac.fbw.setGyro(stream.readBool());
 		
 		return true;
 	}
@@ -532,6 +537,9 @@ namespace pizda {
 		
 		// Autopilot
 		stream.writeBool(ac.fbw.getAutopilot());
+
+		// Gyro
+		stream.writeBool(ac.fbw.getGyro());
 	}
 
 	void AircraftTransceiver::transmitAircraftAuxiliaryPacket(BitStream& stream) {

@@ -5,8 +5,6 @@
 #include "types/generic.h"
 
 namespace pizda {
-	
-	
 	class FlyByWire {
 		public:
 			void setup();
@@ -31,7 +29,10 @@ namespace pizda {
 			
 			bool getAutopilot() const;
 			void setAutopilot(bool value);
-			
+
+			bool getGyro() const;
+			void setGyro(bool value);
+
 			float getTargetRollRad() const;
 			float getTargetPitchRad() const;
 
@@ -64,7 +65,8 @@ namespace pizda {
 			
 			bool _autothrottle = false;
 			bool _autopilot = false;
-			
+			bool _gyro = false;
+
 			static float mapPizda(float min, float max, float factor);
 			static float getInterpolationFactor(float range, float rangeMax);
 			static float predictValue(float valueDelta, uint32_t deltaTimeUs, uint32_t dueTimeUs);

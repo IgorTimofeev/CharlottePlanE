@@ -16,6 +16,7 @@ idf_component_register(
         ESP-IDF-SpatialTypes
         ESP-IDF-BitStream
         ESP-IDF-LowPassFilter
+        ESP-IDF-PIDController
         ESP-IDF-BusHAL
         ESP-IDF-SX1262
         ESP-IDF-MPU9250

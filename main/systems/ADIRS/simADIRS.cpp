@@ -1,5 +1,16 @@
 #include "simADIRS.h"
 
+
+#include <cstring>
+
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+
+#include <esp_timer.h>
+
+#include "systems/ADIRS/ADIRS.h"
+#include "systems/simLink/simLink.h"
+
 #include "aircraft.h"
 
 #ifdef SIM
@@ -18,7 +29,7 @@ namespace pizda {
 		setLatitude(packet.latitudeRad);
 		setLongitude(packet.longitudeRad);
 		
-		setAccelSpeedMPS(packet.speedMPS);
+		setAirspeedMPS(packet.speedMPS);
 		
 		setPressurePa(packet.pressurePA);
 		setTemperatureC(packet.temperatureC);
