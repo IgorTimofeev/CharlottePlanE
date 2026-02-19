@@ -106,16 +106,16 @@ namespace pizda {
 		return std::min(std::abs(range), rangeMax) / rangeMax;
 	}
 	
-	float FlyByWire::predictValue(const float valueDelta, const uint32_t deltaTimeUs, const uint32_t dueTimeUs) {
-		// valueDelta - deltaTimeUs
-		// x          - dueTimeUs
-		return valueDelta * static_cast<float>(dueTimeUs) / static_cast<float>(deltaTimeUs);
+	float FlyByWire::predictValue(const float valueDelta, const float deltaTimeS, const float dueTimeS) {
+		// valueDelta - deltaTimeS
+		// x          - dueTimeS
+		return valueDelta * dueTimeS / deltaTimeS;
 	}
 	
 	void FlyByWire::computeData() {
 		auto& ac = Aircraft::getInstance();
 		
-		const auto deltaTimeUs = esp_timer_get_time() - _computationTimeUs;
+		const auto deltaTimeS = static_cast<float>(esp_timer_get_time() - _computationTimeUs) / 1'000'000;
 		_computationTimeUs = esp_timer_get_time();
 		
 		// -------------------------------- Prediction --------------------------------
@@ -123,31 +123,31 @@ namespace pizda {
 		// Speed
 		const auto speedMPS = ac.adirs.getAirspeedMPS();
 		const auto speedPrevDeltaMPS = speedMPS - _speedPrevMPS;
-		const auto speedPredictedMPS = _speedPrevMPS + predictValue(speedPrevDeltaMPS, deltaTimeUs, 2'000'000);
+		const auto speedPredictedMPS = _speedPrevMPS + predictValue(speedPrevDeltaMPS, deltaTimeS, 2);
 		_speedPrevMPS = speedMPS;
 		
 		// Altitude
 		const auto altitudeM = ac.adirs.getCoordinates().getAltitude();
 		const auto altitudePrevDeltaM = altitudeM - _altitudePrevM;
-		const auto altitudePredictedM = _altitudePrevM + predictValue(altitudePrevDeltaM, deltaTimeUs, 1'000'000);
+		const auto altitudePredictedM = _altitudePrevM + predictValue(altitudePrevDeltaM, deltaTimeS, 1);
 		_altitudePrevM = altitudeM;
 		
 		// Roll
 		const auto rollRad = ac.adirs.getRollRad();
 		const auto rollPrevDeltaRad = rollRad - _rollPrevRad;
-		const auto rollPredictedRad = _rollPrevRad + predictValue(rollPrevDeltaRad, deltaTimeUs, 1'000'000);
+		const auto rollPredictedRad = _rollPrevRad + predictValue(rollPrevDeltaRad, deltaTimeS, 1);
 		_rollPrevRad = rollRad;
 		
 		// Pitch
 		const auto pitchRad = ac.adirs.getPitchRad();
 		// const auto pitchPrevDeltaRad = pitchRad - _pitchPrevRad;
-		// const auto pitchPredictedRad = _pitchPrevRad + predictValue(pitchPrevDeltaRad, deltaTimeUs, 1'000'000);
+		// const auto pitchPredictedRad = _pitchPrevRad + predictValue(pitchPrevDeltaRad, deltaTimeS, 1);
 		// _pitchPrevRad = pitchRad;
 		
 		// Yaw
 		const auto yawRad = ac.adirs.getYawRad();
 		const auto yawPrevDeltaRad = yawRad - _yawPrevRad;
-		const auto yawPredictedRad = _yawPrevRad + predictValue(yawPrevDeltaRad, deltaTimeUs, 1'000'000);
+		const auto yawPredictedRad = _yawPrevRad + predictValue(yawPrevDeltaRad, deltaTimeS, 1);
 		_yawPrevRad = yawRad;
 
 		// -------------------------------- Deltas --------------------------------
@@ -171,14 +171,14 @@ namespace pizda {
 						-config::flyByWire::rollAngleMaxRad,
 						config::flyByWire::rollAngleMaxRad
 					),
-					LowPassFilter::getDeltaTimeFactor(0.6f, deltaTimeUs)
+					LowPassFilter::getDeltaTimeSFactor(0.6f, deltaTimeS)
 				);
 			}
 			else {
 				_rollTargetRad = LowPassFilter::applyToAngle(
 					_rollTargetRad,
 					0,
-					LowPassFilter::getDeltaTimeFactor(0.5f, deltaTimeUs)
+					LowPassFilter::getDeltaTimeSFactor(0.5f, deltaTimeS)
 				);
 			}
 		}
@@ -206,7 +206,7 @@ namespace pizda {
 			_rollTargetRad = LowPassFilter::applyToAngle(
 				_rollTargetRad,
 				targetAngleRad,
-				LowPassFilter::getDeltaTimeFactor(0.5f, deltaTimeUs)
+				LowPassFilter::getDeltaTimeSFactor(0.5f, deltaTimeS)
 			);
 		}
 
@@ -221,14 +221,14 @@ namespace pizda {
 						-config::flyByWire::pitchAngleMaxRad,
 						config::flyByWire::pitchAngleMaxRad
 					),
-					LowPassFilter::getDeltaTimeFactor(0.6f, deltaTimeUs)
+					LowPassFilter::getDeltaTimeSFactor(0.6f, deltaTimeS)
 				);
 			}
 			else {
 				_pitchTargetRad = LowPassFilter::applyToAngle(
 					_pitchTargetRad,
 					0,
-					LowPassFilter::getDeltaTimeFactor(0.5f, deltaTimeUs)
+					LowPassFilter::getDeltaTimeSFactor(0.5f, deltaTimeS)
 				);
 			}
 		}
@@ -303,7 +303,7 @@ namespace pizda {
 			_pitchTargetRad = LowPassFilter::applyToAngle(
 				_pitchTargetRad,
 				targetAngleRad,
-				LowPassFilter::getDeltaTimeFactor(0.5f, deltaTimeUs)
+				LowPassFilter::getDeltaTimeSFactor(0.5f, deltaTimeS)
 			);
 		}
 
@@ -317,7 +317,7 @@ namespace pizda {
 			ac.settings.PID.rollToAilerons.i,
 			ac.settings.PID.rollToAilerons.d,
 
-			deltaTimeUs,
+			deltaTimeS,
 
 			-1,
 			1
@@ -335,7 +335,7 @@ namespace pizda {
 			ac.settings.PID.pitchToElevator.i,
 			ac.settings.PID.pitchToElevator.d,
 
-			deltaTimeUs,
+			deltaTimeS,
 
 			-1,
 			1,
@@ -381,7 +381,7 @@ namespace pizda {
 		_throttleTargetFactor = LowPassFilter::apply(
 			_throttleTargetFactor,
 			throttleTargetFactor,
-			LowPassFilter::getDeltaTimeFactor(throttleLPFFactor, deltaTimeUs)
+			LowPassFilter::getDeltaTimeSFactor(throttleLPFFactor, deltaTimeS)
 		);
 	}
 	

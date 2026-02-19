@@ -78,7 +78,7 @@ namespace pizda {
 
 			static float mapPizda(float min, float max, float factor);
 			static float getInterpolationFactor(float range, float rangeMax);
-			static float predictValue(float valueDelta, uint32_t deltaTimeUs, uint32_t dueTimeUs);
+			static float predictValue(float valueDelta, float deltaTimeS, float dueTimeS);
 			
 			void computeData();
 			void applyData() const;
