@@ -39,13 +39,14 @@ namespace pizda {
 		calibrate,
 		ADIRS,
 		XCVR,
+		PID,
 
-		maxValue = XCVR
+		maxValue = PID
 	};
 
 	class RemoteAuxiliaryPacket {
 		public:
-			constexpr static uint8_t typeLengthBits = 3;
+			constexpr static uint8_t typeLengthBits = 4;
 	};
 
 	class RemoteAuxiliaryMotorConfigurationPacket {
@@ -112,6 +113,12 @@ namespace pizda {
 			constexpr static uint8_t syncWordLengthBits = 8;
 			constexpr static uint8_t powerDBmLengthBits = 8;
 			constexpr static uint8_t preambleLengthLengthBits = 16;
+	};
+
+	class RemoteAuxiliaryPIDPacket {
+		public:
+			constexpr static uint8_t typeLengthBits = 4;
+			constexpr static uint8_t coefficientLengthBits = 32;
 	};
 
 	// -------------------------------- Aircraft --------------------------------

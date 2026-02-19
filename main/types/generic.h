@@ -11,24 +11,32 @@ namespace pizda {
 		connected,
 		disconnected
 	};
-	
+
 	enum class AircraftCalibrationSystem : uint8_t {
 		accelAndGyro,
 		mag
 	};
-	
+
 	enum class AutopilotLateralMode : uint8_t {
 		man,
 		hdg
 	};
-	
+
 	enum class AutopilotVerticalMode : uint8_t {
 		man,
 		flc,
 		alts,
 		alt
 	};
-	
+
+	enum class AutopilotPIDType : uint8_t {
+		targetToRoll,
+		targetToPitch,
+
+		rollToAilerons,
+		pitchToElevator
+	};
+
 	class MotorSettings {
 		public:
 			uint16_t min = 1000;

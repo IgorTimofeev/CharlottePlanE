@@ -154,6 +154,9 @@ namespace pizda {
 			case RemoteAuxiliaryPacketType::XCVR:
 				return receiveRemoteAuxiliaryXCVRPacket(stream, payloadLength);
 
+			case RemoteAuxiliaryPacketType::PID:
+				return receiveRemoteAuxiliaryPIDPacket(stream, payloadLength);
+
 			default:
 				ESP_LOGE(_logTag, "failed to receive packet: unsupported type %d", std::to_underlying(type));
 				return false;
@@ -403,6 +406,53 @@ namespace pizda {
 		ESP_LOGI(_logTag, "preambleLength: %d", _tmpCommunicationSettings.preambleLength);
 
 		enqueueAuxiliary(AircraftAuxiliaryPacketType::XCVRACK);
+
+		return true;
+	}
+
+	bool AircraftTransceiver::receiveRemoteAuxiliaryPIDPacket(BitStream& stream, const uint8_t payloadLength) {
+		auto& ac = Aircraft::getInstance();
+
+		if (!validatePayloadChecksumAndLength(
+			stream,
+			RemoteAuxiliaryPacket::typeLengthBits
+				// Type
+				+ RemoteAuxiliaryPIDPacket::typeLengthBits
+				// P, I, D
+				+ RemoteAuxiliaryPIDPacket::coefficientLengthBits * 3,
+			payloadLength
+		))
+			return false;
+
+		const auto type = static_cast<AutopilotPIDType>(stream.readUint8(RemoteAuxiliaryPIDPacket::typeLengthBits));
+
+		const PIDCoefficients coefficients {
+			stream.readFloat(),
+			stream.readFloat(),
+			stream.readFloat()
+		};
+
+		ESP_LOGI(_logTag, "received PID packet, type: %d, P: %f, I: %f, D: %f", std::to_underlying(type), coefficients.p, coefficients.i, coefficients.d);
+
+		switch (type) {
+			case AutopilotPIDType::targetToRoll:
+				ac.settings.PID.targetToRoll = coefficients;
+				break;
+
+			case AutopilotPIDType::targetToPitch:
+				ac.settings.PID.targetToPitch = coefficients;
+				break;
+
+			case AutopilotPIDType::rollToAilerons:
+				ac.settings.PID.rollToAilerons = coefficients;
+				break;
+
+			case AutopilotPIDType::pitchToElevator:
+				ac.settings.PID.pitchToElevator = coefficients;
+				break;
+		}
+
+		ac.settings.PID.scheduleWrite();
 
 		return true;
 	}

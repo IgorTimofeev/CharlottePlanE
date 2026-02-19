@@ -2,9 +2,13 @@
 
 #include <cstdint>
 
+#include <PIDController.h>
+
 #include "types/generic.h"
 
 namespace pizda {
+	using namespace YOBA;
+
 	class FlyByWire {
 		public:
 			void setup();
@@ -59,10 +63,15 @@ namespace pizda {
 			float _speedSelectedMPS = 0;
 			uint16_t _headingSelectedDeg = 0;
 			float _altitudeSelectedM = 0;
-			
+
 			AutopilotLateralMode _lateralMode = AutopilotLateralMode::man;
 			AutopilotVerticalMode _verticalMode = AutopilotVerticalMode::man;
-			
+
+			PIDController _targetToRollPID {};
+			PIDController _targetToPitchPID {};
+			PIDController _rollToAileronsPID {};
+			PIDController _pitchToElevatorPID {};
+
 			bool _autothrottle = false;
 			bool _autopilot = false;
 			bool _gyro = false;
