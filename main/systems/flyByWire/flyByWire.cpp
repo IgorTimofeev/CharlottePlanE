@@ -82,14 +82,6 @@ namespace pizda {
 		_autopilot = value;
 	}
 
-	bool FlyByWire::getGyro() const {
-		return _gyro;
-	}
-
-	void FlyByWire::setGyro(const bool value) {
-		_gyro = value;
-	}
-
 	float FlyByWire::getTargetRollRad() const {
 		return _rollTargetRad;
 	}
@@ -156,80 +148,68 @@ namespace pizda {
 
 		const auto altitudeTargetAndPredictedDeltaM = _altitudeSelectedM - altitudePredictedM;
 
-		const auto yawTargetRad = -normalizeAngleRadPi(toRadians(static_cast<float>(_headingSelectedDeg)));
-		const auto yawTargetAndPredictedDeltaRad = normalizeAngleRadPi(yawTargetRad - yawPredictedRad);
-
 
 		// -------------------------------- Lateral --------------------------------
 
-		if (_lateralMode == AutopilotLateralMode::man) {
-			if (_gyro) {
-				_rollTargetRad = LowPassFilter::applyToAngle(
-					_rollTargetRad,
-					std::clamp(
-						_rollTargetRad + (ac.remoteData.raw.controls.ailerons * 2 - 1) * config::flyByWire::rollAngleMaxRad,
-						-config::flyByWire::rollAngleMaxRad,
-						config::flyByWire::rollAngleMaxRad
-					),
-					LowPassFilter::getDeltaTimeSFactor(0.6f, deltaTimeS)
+		float rollTargetRad = 0;
+
+		if (_lateralMode == AutopilotLateralMode::dir) {
+			rollTargetRad = 0;
+		}
+		else if (_lateralMode == AutopilotLateralMode::stab) {
+			if (_autopilot) {
+				rollTargetRad = std::clamp(
+					_rollTargetRad + (ac.remoteData.raw.controls.ailerons * 2 - 1) * config::flyByWire::rollAngleMaxRad,
+					-config::flyByWire::rollAngleMaxRad,
+					config::flyByWire::rollAngleMaxRad
 				);
 			}
 			else {
-				_rollTargetRad = LowPassFilter::applyToAngle(
-					_rollTargetRad,
-					0,
-					LowPassFilter::getDeltaTimeSFactor(0.5f, deltaTimeS)
-				);
+				rollTargetRad = 0;
 			}
 		}
 		else {
-			const bool yawToRight =
-				(yawTargetAndPredictedDeltaRad < 0 && yawTargetAndPredictedDeltaRad < std::numbers::pi_v<float>)
-				|| (yawTargetAndPredictedDeltaRad > 0 && yawTargetAndPredictedDeltaRad < -std::numbers::pi_v<float>);
+			const auto yawTargetRad = -normalizeAngleRadPi(toRadians(static_cast<float>(_headingSelectedDeg)));
+			const auto yawTargetDeltaRad = normalizeAngleRadPi(yawTargetRad - yawRad);
 
-			const bool rollToRight =
-				(yawToRight && rollPredictedRad < config::flyByWire::rollAngleMaxRad)
-				|| (!yawToRight && rollPredictedRad < -config::flyByWire::rollAngleMaxRad);
+			rollTargetRad = _targetToRollPID.tick(
+				yawTargetDeltaRad,
+				0,
 
-			const auto targetAngleRad =
-				_lateralMode == AutopilotLateralMode::hdg
-				? (
-					config::flyByWire::rollAngleMaxRad
-					* getInterpolationFactor(
-						yawTargetAndPredictedDeltaRad,
-						toRadians(30)
-					)
-					* (rollToRight ? 1 : -1)
-				)
-				: 0;
+				ac.settings.PID.targetToRoll.p,
+				ac.settings.PID.targetToRoll.i,
+				ac.settings.PID.targetToRoll.d,
 
-			_rollTargetRad = LowPassFilter::applyToAngle(
-				_rollTargetRad,
-				targetAngleRad,
-				LowPassFilter::getDeltaTimeSFactor(0.5f, deltaTimeS)
+				deltaTimeS,
+
+				-config::flyByWire::rollAngleMaxRad,
+				config::flyByWire::rollAngleMaxRad
 			);
 		}
 
+		_rollTargetRad = LowPassFilter::applyToAngle(
+			_rollTargetRad,
+			rollTargetRad,
+			LowPassFilter::getDeltaTimeSFactor(0.7f, deltaTimeS)
+		);
+
 		// -------------------------------- Vertical --------------------------------
-		
-		if (_verticalMode == AutopilotVerticalMode::man) {
-			if (_gyro) {
-				_pitchTargetRad = LowPassFilter::applyToAngle(
-					_pitchTargetRad,
-					std::clamp(
-						_pitchTargetRad - (ac.remoteData.raw.controls.elevator * 2 - 1) * config::flyByWire::pitchAngleMaxRad,
-						-config::flyByWire::pitchAngleMaxRad,
-						config::flyByWire::pitchAngleMaxRad
-					),
-					LowPassFilter::getDeltaTimeSFactor(0.6f, deltaTimeS)
+
+		float pitchTargetRad = 0;
+
+		if (_verticalMode == AutopilotVerticalMode::dir) {
+			pitchTargetRad = 0;
+		}
+		else if (_verticalMode == AutopilotVerticalMode::stab) {
+			if (_autopilot) {
+				pitchTargetRad = std::clamp(
+					_pitchTargetRad - (ac.remoteData.raw.controls.elevator * 2 - 1) * config::flyByWire::pitchAngleMaxRad,
+					-config::flyByWire::pitchAngleMaxRad,
+					config::flyByWire::pitchAngleMaxRad
 				);
 			}
 			else {
-				_pitchTargetRad = LowPassFilter::applyToAngle(
-					_pitchTargetRad,
-					0,
-					LowPassFilter::getDeltaTimeSFactor(0.5f, deltaTimeS)
-				);
+				pitchTargetRad = 0;
 			}
 		}
 		else {
@@ -245,13 +225,11 @@ namespace pizda {
 			
 			const auto pitchUp = altitudeTargetAndPredictedDeltaM >= 0;
 
-			float targetAngleRad;
-
 			switch (_verticalMode) {
 				case AutopilotVerticalMode::alts:
 				case AutopilotVerticalMode::alt: {
 					// Relying on altitude difference, speed doesn't matter
-					targetAngleRad =
+					pitchTargetRad =
 						config::flyByWire::pitchAngleMaxRad
 						* (pitchUp ? 1 : -1)
 						* getInterpolationFactor(
@@ -272,22 +250,22 @@ namespace pizda {
 					
 					if (pitchUp) {
 						if (speedLow) {
-							targetAngleRad = 0;
+							pitchTargetRad = 0;
 						}
 						else {
-							targetAngleRad =
+							pitchTargetRad =
 								config::flyByWire::pitchAngleMaxRad
 								* pitchSpeedDeltaFactor;
 						}
 					}
 					else {
 						if (speedLow) {
-							targetAngleRad =
+							pitchTargetRad =
 								-config::flyByWire::pitchAngleMaxRad
 								* pitchSpeedDeltaFactor;
 						}
 						else {
-							targetAngleRad = 0;
+							pitchTargetRad = 0;
 						}
 					}
 
@@ -295,58 +273,74 @@ namespace pizda {
 				}
 				// Won't ever happen, BUT
 				default: {
-					targetAngleRad = 0;
+					pitchTargetRad = 0;
 					break;
 				}
 			}
-
-			_pitchTargetRad = LowPassFilter::applyToAngle(
-				_pitchTargetRad,
-				targetAngleRad,
-				LowPassFilter::getDeltaTimeSFactor(0.5f, deltaTimeS)
-			);
 		}
 
-		// -------------------------------- Ailerons --------------------------------
-		
-		_aileronsTargetFactor = _rollToAileronsPID.tick(
-			rollRad,
-			_rollTargetRad,
-
-			ac.settings.PID.rollToAilerons.p,
-			ac.settings.PID.rollToAilerons.i,
-			ac.settings.PID.rollToAilerons.d,
-
-			deltaTimeS,
-
-			-1,
-			1
+		_pitchTargetRad = LowPassFilter::applyToAngle(
+			_pitchTargetRad,
+			pitchTargetRad,
+			LowPassFilter::getDeltaTimeSFactor(0.7f, deltaTimeS)
 		);
 
-		_aileronsTargetFactor = (_aileronsTargetFactor + 1) / 2;
+		// -------------------------------- Ailerons --------------------------------
+
+		if (_autopilot && _lateralMode != AutopilotLateralMode::dir) {
+			const auto rollTargetDeltaRad = normalizeAngleRadPi(_rollTargetRad - rollRad);
+
+			_aileronsFactor = _rollToAileronsPID.tick(
+				rollTargetDeltaRad,
+				0,
+
+				ac.settings.PID.rollToAilerons.p,
+				ac.settings.PID.rollToAilerons.i,
+				ac.settings.PID.rollToAilerons.d,
+
+				deltaTimeS,
+
+				-1.f,
+				1.f
+			);
+
+			_aileronsFactor = 1.f - (_aileronsFactor + 1.f) / 2.f;
+		}
+		else {
+			_aileronsFactor = std::clamp(ac.remoteData.raw.controls.ailerons + ac.settings.trim.aileronsTrim, 0.f, 1.f);
+		}
 
 		// -------------------------------- Elevator --------------------------------
-		
-		_elevatorTargetFactor = _pitchToElevatorPID.tick(
-			pitchRad,
-			_pitchTargetRad,
 
-			ac.settings.PID.pitchToElevator.p,
-			ac.settings.PID.pitchToElevator.i,
-			ac.settings.PID.pitchToElevator.d,
+		if (_autopilot && _verticalMode != AutopilotVerticalMode::dir) {
+			const auto pitchTargetDeltaRad = normalizeAngleRadPi(_pitchTargetRad - pitchRad);
 
-			deltaTimeS,
+			_elevatorFactor = _pitchToElevatorPID.tick(
+				pitchTargetDeltaRad,
+				0,
 
-			-1,
-			1,
+				ac.settings.PID.pitchToElevator.p,
+				ac.settings.PID.pitchToElevator.i,
+				ac.settings.PID.pitchToElevator.d,
 
-			0.8f
-		);
+				deltaTimeS,
 
-		_elevatorTargetFactor = 1 - (_elevatorTargetFactor + 1) / 2;
-		
+				-1.f,
+				1.f
+			);
+
+			_elevatorFactor = (_elevatorFactor + 1.f) / 2.f;
+		}
+		else {
+			_elevatorFactor = std::clamp(ac.remoteData.raw.controls.elevator + ac.settings.trim.elevatorTrim, 0.f, 1.f);
+		}
+
+		// -------------------------------- Rudder --------------------------------
+
+		_rudderFactor = std::clamp(ac.remoteData.raw.controls.rudder + ac.settings.trim.rudderTrim, 0.f, 1.f);
+
 		// -------------------------------- Throttle --------------------------------
-		
+
 		float throttleTargetFactor;
 		float throttleLPFFactor;
 		
@@ -406,26 +400,9 @@ namespace pizda {
 		{
 			const auto leftAileronMotor = ac.motors.getMotor(MotorType::aileronLeft);
 			const auto rightAileronMotor = ac.motors.getMotor(MotorType::aileronRight);
-			
-			if (!leftAileronMotor || !rightAileronMotor)
-				return;
-			
-			const auto power = std::clamp(
-				// Value
-				(
-					(_autopilot && _lateralMode != AutopilotLateralMode::man)
-					|| _gyro
-					? _aileronsTargetFactor
-					: ac.remoteData.raw.controls.ailerons
-				)
-					// Trim
-					+ ac.settings.trim.aileronsTrim,
-				0.f,
-				1.f
-			);
-				
-			leftAileronMotor->setPowerF(power);
-			rightAileronMotor->setPowerF(power);
+
+			leftAileronMotor->setPowerF(_aileronsFactor);
+			rightAileronMotor->setPowerF(_aileronsFactor);
 		}
 		
 		// Elevator & rudder
@@ -434,44 +411,18 @@ namespace pizda {
 			const auto rightTailMotor = ac.motors.getMotor(MotorType::tailRight);
 			const auto noseWheelMotor = ac.motors.getMotor(MotorType::noseWheel);
 
-			if (!leftTailMotor || !rightTailMotor || !noseWheelMotor)
-				return;
-
-			const auto elevatorPower = std::clamp(
-				// Value
-				(
-					(_autopilot && _verticalMode != AutopilotVerticalMode::man)
-					|| _gyro
-					? _elevatorTargetFactor
-					: ac.remoteData.raw.controls.elevator
-				)
-					// Trim
-					+ ac.settings.trim.elevatorTrim,
-				0.f,
-				1.f
-			);
-
-			const auto rudderPower = std::clamp(
-				// Value
-				ac.remoteData.raw.controls.rudder
-					// Trim
-					+ ac.settings.trim.rudderTrim,
-				0.f,
-				1.f
-			);
-
 			#ifdef SIM
-				leftTailMotor->setPowerF(elevatorPower);
-				rightTailMotor->setPowerF(rudderPower);
+				leftTailMotor->setPowerF(_elevatorFactor);
+				rightTailMotor->setPowerF(_rudderFactor);
 
 			#else
 				// V-tail mixing
-				const auto elevatorPowerShifted = elevatorPower * 2 - 1;
-				const auto rudderPowerShifted = rudderPower * 2 - 1;
+				const auto elevatorPowerShifted = _elevatorFactor * 2 - 1;
+				const auto rudderPowerShifted = _rudderFactor * 2 - 1;
 				const auto leftPower = (std::clamp(elevatorPowerShifted + rudderPowerShifted, -1.f, 1.f) + 1.f) / 2.f;
 				const auto rightPower = (std::clamp(elevatorPowerShifted - rudderPowerShifted, -1.f, 1.f) + 1.f) / 2.f;
 
-				// ESP_LOGI(_logTag, "elevatorPower: %f, rudderPower: %f, leftPower: %f, rightPower: %f", elevatorPower, rudderPower, leftPower, rightPower);
+				// ESP_LOGI(_logTag, "elevatorPower: %f, rudderPower: %f, leftPower: %f, rightPower: %f", _elevatorTargetFactor, _rudderFactor, leftPower, rightPower);
 
 				leftTailMotor->setPowerF(leftPower);
 				rightTailMotor->setPowerF(rightPower);

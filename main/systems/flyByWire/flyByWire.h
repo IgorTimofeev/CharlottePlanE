@@ -57,15 +57,16 @@ namespace pizda {
 			float _rollTargetRad = 0;
 			float _pitchTargetRad = 0;
 			
-			float _aileronsTargetFactor = 0.5;
-			float _elevatorTargetFactor = 0.5;
-			
+			float _aileronsFactor = 0.5;
+			float _elevatorFactor = 0.5;
+			float _rudderFactor = 0.5;
+
 			float _speedSelectedMPS = 0;
 			uint16_t _headingSelectedDeg = 0;
 			float _altitudeSelectedM = 0;
 
-			AutopilotLateralMode _lateralMode = AutopilotLateralMode::man;
-			AutopilotVerticalMode _verticalMode = AutopilotVerticalMode::man;
+			AutopilotLateralMode _lateralMode = AutopilotLateralMode::dir;
+			AutopilotVerticalMode _verticalMode = AutopilotVerticalMode::dir;
 
 			PIDController _targetToRollPID {};
 			PIDController _targetToPitchPID {};
@@ -74,7 +75,6 @@ namespace pizda {
 
 			bool _autothrottle = false;
 			bool _autopilot = false;
-			bool _gyro = false;
 
 			static float mapPizda(float min, float max, float factor);
 			static float getInterpolationFactor(float range, float rangeMax);
