@@ -186,11 +186,18 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="ааааа так вот че там было дельтатайм в us">
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="ахуй">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-NVSExtensions" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-NVSExtensions" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/config.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/settings/PIDSettings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/settings/autopilotSettings.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/settings/settings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/settings/settings.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/systems/flyByWire/flyByWire.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/flyByWire/flyByWire.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/systems/flyByWire/flyByWire.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/flyByWire/flyByWire.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/systems/transceiver/aircraftTransceiver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/transceiver/aircraftTransceiver.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/transceiver/aircraftTransceiver.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/transceiver/aircraftTransceiver.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/transceiver/packet.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/transceiver/packet.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/systems/transceiver/transceiver.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/transceiver/transceiver.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/types/generic.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/types/generic.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -291,6 +298,11 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.CharlottePlanE.elf">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="CharlottePlanE.elf" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CharlottePlanE" TARGET_NAME="CharlottePlanE.elf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="CharlottePlanE" RUN_TARGET_NAME="CharlottePlanE.elf">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -1325,23 +1337,7 @@
       <workItem from="1771416052482" duration="931000" />
       <workItem from="1771476023177" duration="17004000" />
       <workItem from="1771501822274" duration="4027000" />
-      <workItem from="1771559061237" duration="7091000" />
-    </task>
-    <task id="LOCAL-00113" summary="ОПАЧА">
-      <option name="closed" value="true" />
-      <created>1767637083380</created>
-      <option name="number" value="00113" />
-      <option name="presentableId" value="LOCAL-00113" />
-      <option name="project" value="LOCAL" />
-      <updated>1767637083380</updated>
-    </task>
-    <task id="LOCAL-00114" summary="ОПАЧА">
-      <option name="closed" value="true" />
-      <created>1767668976889</created>
-      <option name="number" value="00114" />
-      <option name="presentableId" value="LOCAL-00114" />
-      <option name="project" value="LOCAL" />
-      <updated>1767668976891</updated>
+      <workItem from="1771559061237" duration="26561000" />
     </task>
     <task id="LOCAL-00115" summary="ОПАЧА">
       <option name="closed" value="true" />
@@ -1719,7 +1715,23 @@
       <option name="project" value="LOCAL" />
       <updated>1771504803120</updated>
     </task>
-    <option name="localTasksCounter" value="162" />
+    <task id="LOCAL-00162" summary="ахуй">
+      <option name="closed" value="true" />
+      <created>1771566571968</created>
+      <option name="number" value="00162" />
+      <option name="presentableId" value="LOCAL-00162" />
+      <option name="project" value="LOCAL" />
+      <updated>1771566571968</updated>
+    </task>
+    <task id="LOCAL-00163" summary="ахуй">
+      <option name="closed" value="true" />
+      <created>1771571450136</created>
+      <option name="number" value="00163" />
+      <option name="presentableId" value="LOCAL-00163" />
+      <option name="project" value="LOCAL" />
+      <updated>1771571450136</updated>
+    </task>
+    <option name="localTasksCounter" value="164" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1742,7 +1754,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="работаит, но чутка пердит" />
     <MESSAGE value="бля да че за интерференции откуда" />
     <MESSAGE value="так, ну вроде с костыльынм интервалом пиздато работает - можно оставить" />
     <MESSAGE value="хотя хз, чота доверия не внушает" />
@@ -1767,7 +1778,8 @@
     <MESSAGE value="а ну-ка попробуем пидом все это контроллить" />
     <MESSAGE value="захуярил режим гиростабилизированного управления - юзер задает целевой угол, а FBW его выдерживает по PIDам. В симе летается охуенно стабильно, но ИРЛ с IMUшкой хуй знает, надо будет потестить" />
     <MESSAGE value="ааааа так вот че там было дельтатайм в us" />
-    <option name="LAST_COMMIT_MESSAGE" value="ааааа так вот че там было дельтатайм в us" />
+    <MESSAGE value="ахуй" />
+    <option name="LAST_COMMIT_MESSAGE" value="ахуй" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

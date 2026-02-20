@@ -139,12 +139,6 @@ namespace pizda {
 			
 			class flyByWire {
 				public:
-					constexpr static float pitchAngleMaxRad = toRadians(15);
-					constexpr static float rollAngleMaxRad = toRadians(30);
-					
-					constexpr static float aileronMaxFactor = 0.4f;
-					constexpr static float elevatorMaxFactor = 0.4f;
-					
 					// How many meters between selected and indicated altitude are required to switch from FLC mode to ALTS mode
 					constexpr static float altitudeDeltaForFLCToALTSSwitchM = Units::convertDistance(50.f, DistanceUnit::foot, DistanceUnit::meter);
 			};

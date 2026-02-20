@@ -39,9 +39,8 @@ namespace pizda {
 		calibrate,
 		ADIRS,
 		XCVR,
-		PID,
 
-		maxValue = PID
+		maxValue = XCVR
 	};
 
 	class RemoteAuxiliaryPacket {
@@ -65,8 +64,36 @@ namespace pizda {
 			constexpr static uint8_t valueLengthBits = RemoteControlsPacket::motorLengthBits;
 	};
 
+	enum class RemoteAuxiliaryAutopilotPacketType : uint8_t {
+		setSpeed,
+		setHeading,
+		setAltitude,
+		setLateralMode,
+		setVerticalMode,
+		setAutothrottle,
+		setAutopilot,
+
+		setMaxRollAngleRad,
+		setMaxPitchAngleRad,
+
+		setTargetAngleLPFF,
+		setStabAngleIncrementRad,
+
+		setMaxAileronsFactor,
+		setMaxElevatorFactor,
+
+		setYawToRollPID,
+		setAltitudeToPitchPID,
+		setSpeedToPitchPID,
+		setRollToAileronsPID,
+		setPitchToElevatorPID,
+		setSpeedToThrottlePID,
+	};
+
 	class RemoteAuxiliaryAutopilotPacket {
 		public:
+			constexpr static uint8_t typeLengthBits = 5;
+
 			// Speed
 			// The Guinness World Record for the fastest RC jet-powered aircraft is 749.221 km/h, set by Niels Herbrich in 2017.
 			// In our case 350 km/h (97.2 m/s) will be enough, because it gives precision of ~0.37 m/s per 1 bit

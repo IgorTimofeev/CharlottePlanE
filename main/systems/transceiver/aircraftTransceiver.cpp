@@ -154,9 +154,6 @@ namespace pizda {
 			case RemoteAuxiliaryPacketType::XCVR:
 				return receiveRemoteAuxiliaryXCVRPacket(stream, payloadLength);
 
-			case RemoteAuxiliaryPacketType::PID:
-				return receiveRemoteAuxiliaryPIDPacket(stream, payloadLength);
-
 			default:
 				ESP_LOGE(_logTag, "failed to receive packet: unsupported type %d", std::to_underlying(type));
 				return false;
@@ -233,51 +230,205 @@ namespace pizda {
 	
 	bool AircraftTransceiver::receiveRemoteAuxiliaryAutopilotPacket(BitStream& stream, const uint8_t payloadLength) {
 		auto& ac = Aircraft::getInstance();
-		
-		if (!validatePayloadChecksumAndLength(
-			stream,
-			RemoteAuxiliaryPacket::typeLengthBits
-				+ RemoteAuxiliaryAutopilotPacket::speedLengthBits
-				+ RemoteAuxiliaryAutopilotPacket::headingLengthBits
-				+ RemoteAuxiliaryAutopilotPacket::altitudeLengthBits
-				+ RemoteAuxiliaryAutopilotPacket::lateralModeLengthBits
-				+ RemoteAuxiliaryAutopilotPacket::verticalModeLengthBits
-				// A/T
-				+ 1
-				// A/P
-				+ 1
-				,
-			payloadLength
-		))
-			return false;
-		
-		// Speed
-		const auto speedFactor =
-			static_cast<float>(stream.readUint8(RemoteAuxiliaryAutopilotPacket::speedLengthBits))
-			/ static_cast<float>((1 << RemoteAuxiliaryAutopilotPacket::speedLengthBits) - 1);
-		
-		ac.fbw.setSelectedSpeedMps(static_cast<float>(RemoteAuxiliaryAutopilotPacket::speedMaxMPS) * speedFactor);
-		
-		// Heading
-		ac.fbw.setSelectedHeadingDeg(stream.readUint16(RemoteAuxiliaryAutopilotPacket::headingLengthBits));
-		
-		// Altitude
-		ac.fbw.setSelectedAltitudeM(readAltitude(
-			stream,
-			RemoteAuxiliaryAutopilotPacket::altitudeLengthBits,
-			RemoteAuxiliaryAutopilotPacket::altitudeMinM,
-			RemoteAuxiliaryAutopilotPacket::altitudeMaxM
-		));
-		
-		// Modes
-		ac.fbw.setLateralMode(static_cast<AutopilotLateralMode>(stream.readUint8(RemoteAuxiliaryAutopilotPacket::lateralModeLengthBits)));
-		ac.fbw.setVerticalMode(static_cast<AutopilotVerticalMode>(stream.readUint8(RemoteAuxiliaryAutopilotPacket::verticalModeLengthBits)));
-		
-		// Autothrottle
-		ac.fbw.setAutothrottle(stream.readBool());
-		
-		// Autopilot
-		ac.fbw.setAutopilot(stream.readBool());
+
+		const auto type = static_cast<RemoteAuxiliaryAutopilotPacketType>(stream.readUint8(RemoteAuxiliaryAutopilotPacket::typeLengthBits));
+
+		ESP_LOGI(_logTag, "A/P packet, type: %d", std::to_underlying(type));
+
+		const auto validate = [&stream, payloadLength](const size_t adder) {
+			return validatePayloadChecksumAndLength(
+				stream,
+				RemoteAuxiliaryPacket::typeLengthBits
+					+ RemoteAuxiliaryAutopilotPacket::typeLengthBits
+					+ adder,
+				payloadLength
+			);
+		};
+
+		const auto readPID = [&stream, &validate, &ac](PIDCoefficients& coefficients) {
+			if (!validate(8 * 4 * 3))
+				return false;
+
+			coefficients.p = stream.readFloat();
+			coefficients.i = stream.readFloat();
+			coefficients.d = stream.readFloat();
+			ac.settings.autopilot.scheduleWrite();
+
+			ESP_LOGI(_logTag, "PID values: %f, %f, %f", coefficients.p, coefficients.i, coefficients.d);
+
+			return true;
+		};
+
+		switch (type) {
+			case RemoteAuxiliaryAutopilotPacketType::setSpeed: {
+				if (!validate(RemoteAuxiliaryAutopilotPacket::speedLengthBits))
+					return false;
+
+				const auto speedFactor =
+					static_cast<float>(stream.readUint8(RemoteAuxiliaryAutopilotPacket::speedLengthBits))
+					/ static_cast<float>((1 << RemoteAuxiliaryAutopilotPacket::speedLengthBits) - 1);
+
+				ac.fbw.setSelectedSpeedMps(static_cast<float>(RemoteAuxiliaryAutopilotPacket::speedMaxMPS) * speedFactor);
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setHeading: {
+				if (!validate(RemoteAuxiliaryAutopilotPacket::headingLengthBits))
+					return false;
+
+				ac.fbw.setSelectedHeadingDeg(stream.readUint16(RemoteAuxiliaryAutopilotPacket::headingLengthBits));
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setAltitude: {
+				if (!validate(RemoteAuxiliaryAutopilotPacket::altitudeLengthBits))
+					return false;
+
+				ac.fbw.setSelectedAltitudeM(readAltitude(
+					stream,
+					RemoteAuxiliaryAutopilotPacket::altitudeLengthBits,
+					RemoteAuxiliaryAutopilotPacket::altitudeMinM,
+					RemoteAuxiliaryAutopilotPacket::altitudeMaxM
+				));
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setLateralMode: {
+				if (!validate(RemoteAuxiliaryAutopilotPacket::lateralModeLengthBits))
+					return false;
+
+				ac.fbw.setLateralMode(static_cast<AutopilotLateralMode>(stream.readUint8(RemoteAuxiliaryAutopilotPacket::lateralModeLengthBits)));
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setVerticalMode: {
+				if (!validate(RemoteAuxiliaryAutopilotPacket::verticalModeLengthBits))
+					return false;
+
+				ac.fbw.setVerticalMode(static_cast<AutopilotVerticalMode>(stream.readUint8(RemoteAuxiliaryAutopilotPacket::verticalModeLengthBits)));
+
+				switch (ac.fbw.getVerticalMode()) {
+					case AutopilotVerticalMode::alt: {
+						ac.fbw.setSelectedAltitudeM(ac.adirs.getCoordinates().getAltitude());
+
+						break;
+					}
+					default:
+						break;
+				}
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setAutothrottle: {
+				if (!validate(1))
+					return false;
+
+				ac.fbw.setAutothrottle(stream.readBool());
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setAutopilot: {
+				if (!validate(1))
+					return false;
+
+				ac.fbw.setAutopilot(stream.readBool());
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setMaxRollAngleRad: {
+				if (!validate(8 * 4))
+					return false;
+
+				ac.settings.autopilot.maxRollAngleRad = stream.readFloat();
+				ac.settings.autopilot.scheduleWrite();
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setMaxPitchAngleRad: {
+				if (!validate(8 * 4))
+					return false;
+
+				ac.settings.autopilot.maxPitchAngleRad = stream.readFloat();
+				ac.settings.autopilot.scheduleWrite();
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setTargetAngleLPFF: {
+				if (!validate(8 * 4))
+					return false;
+
+				ac.settings.autopilot.targetAngleLPFF = stream.readFloat();
+				ac.settings.autopilot.scheduleWrite();
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setStabAngleIncrementRad: {
+				if (!validate(8 * 4))
+					return false;
+
+				ac.settings.autopilot.stabTargetAngleIncrementFactor = stream.readFloat();
+				ac.settings.autopilot.scheduleWrite();
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setMaxAileronsFactor: {
+				if (!validate(8 * 4))
+					return false;
+
+				ac.settings.autopilot.maxAileronsFactor = stream.readFloat();
+				ac.settings.autopilot.scheduleWrite();
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setMaxElevatorFactor: {
+				if (!validate(8 * 4))
+					return false;
+
+				ac.settings.autopilot.maxElevatorFactor = stream.readFloat();
+				ac.settings.autopilot.scheduleWrite();
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setYawToRollPID: {
+				if (!readPID(ac.settings.autopilot.PIDs.yawToRoll))
+					return false;
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setAltitudeToPitchPID: {
+				if (!readPID(ac.settings.autopilot.PIDs.altitudeToPitch))
+					return false;
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setSpeedToPitchPID: {
+				if (!readPID(ac.settings.autopilot.PIDs.speedToPitch))
+					return false;
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setRollToAileronsPID: {
+				if (!readPID(ac.settings.autopilot.PIDs.rollToAilerons))
+					return false;
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setPitchToElevatorPID: {
+				if (!readPID(ac.settings.autopilot.PIDs.pitchToElevator))
+					return false;
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setSpeedToThrottlePID: {
+				if (!readPID(ac.settings.autopilot.PIDs.speedToThrottle))
+					return false;
+
+				break;
+			}
+			default: {
+				break;
+			}
+		}
 
 		return true;
 	}
@@ -402,53 +553,6 @@ namespace pizda {
 		ESP_LOGI(_logTag, "preambleLength: %d", _tmpCommunicationSettings.preambleLength);
 
 		enqueueAuxiliary(AircraftAuxiliaryPacketType::XCVRACK);
-
-		return true;
-	}
-
-	bool AircraftTransceiver::receiveRemoteAuxiliaryPIDPacket(BitStream& stream, const uint8_t payloadLength) {
-		auto& ac = Aircraft::getInstance();
-
-		if (!validatePayloadChecksumAndLength(
-			stream,
-			RemoteAuxiliaryPacket::typeLengthBits
-				// Type
-				+ RemoteAuxiliaryPIDPacket::typeLengthBits
-				// P, I, D
-				+ RemoteAuxiliaryPIDPacket::coefficientLengthBits * 3,
-			payloadLength
-		))
-			return false;
-
-		const auto type = static_cast<AutopilotPIDType>(stream.readUint8(RemoteAuxiliaryPIDPacket::typeLengthBits));
-
-		const PIDCoefficients coefficients {
-			stream.readFloat(),
-			stream.readFloat(),
-			stream.readFloat()
-		};
-
-		ESP_LOGI(_logTag, "received PID packet, type: %d, P: %f, I: %f, D: %f", std::to_underlying(type), coefficients.p, coefficients.i, coefficients.d);
-
-		switch (type) {
-			case AutopilotPIDType::targetToRoll:
-				ac.settings.PID.targetToRoll = coefficients;
-				break;
-
-			case AutopilotPIDType::targetToPitch:
-				ac.settings.PID.targetToPitch = coefficients;
-				break;
-
-			case AutopilotPIDType::rollToAilerons:
-				ac.settings.PID.rollToAilerons = coefficients;
-				break;
-
-			case AutopilotPIDType::pitchToElevator:
-				ac.settings.PID.pitchToElevator = coefficients;
-				break;
-		}
-
-		ac.settings.PID.scheduleWrite();
 
 		return true;
 	}

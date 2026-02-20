@@ -46,13 +46,7 @@ namespace pizda {
 			constexpr static uint32_t _tickFrequencyHz = 30;
 
 			int64_t _computationTimeUs = 0;
-			
-			float _speedPrevMPS = 0;
-			float _altitudePrevM = 0;
-			float _rollPrevRad = 0;
-			float _pitchPrevRad = 0;
-			float _yawPrevRad = 0;
-			
+
 			float _throttleTargetFactor = 0;
 			float _rollTargetRad = 0;
 			float _pitchTargetRad = 0;
@@ -68,8 +62,9 @@ namespace pizda {
 			AutopilotLateralMode _lateralMode = AutopilotLateralMode::dir;
 			AutopilotVerticalMode _verticalMode = AutopilotVerticalMode::dir;
 
-			PIDController _targetToRollPID {};
-			PIDController _targetToPitchPID {};
+			PIDController _yawDeltaToRollPID {};
+			PIDController _altitudeToPitchPID {};
+			PIDController _speedToPitchPID {};
 			PIDController _rollToAileronsPID {};
 			PIDController _pitchToElevatorPID {};
 

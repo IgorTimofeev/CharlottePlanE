@@ -31,14 +31,6 @@ namespace pizda {
 		alt
 	};
 
-	enum class AutopilotPIDType : uint8_t {
-		targetToRoll,
-		targetToPitch,
-
-		rollToAilerons,
-		pitchToElevator
-	};
-
 	class MotorSettings {
 		public:
 			uint16_t min = 1000;

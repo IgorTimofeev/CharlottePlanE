@@ -307,15 +307,15 @@ namespace pizda {
 				return _enqueuedAuxiliaryPacketType;
 			}
 
-			static bool validatePayloadChecksumAndLength(BitStream& stream, size_t expectedDataLengthBits, uint8_t payloadLength) {
+			static bool validatePayloadChecksumAndLength(BitStream& stream, size_t expectedDataLengthBits, uint8_t payloadLengthBytes) {
 				const auto expectedPayloadLengthBytes = static_cast<uint8_t>(divideCeiling<uint16_t>(
 					static_cast<uint16_t>(remotePacketTypeLengthBits) + expectedDataLengthBits,
 					8
 				));
 
 				// Length
-				if (payloadLength != expectedPayloadLengthBytes) {
-					ESP_LOGE(_logTag, "payload length mismatch: got %d, expected %d", payloadLength, expectedPayloadLengthBytes);
+				if (payloadLengthBytes != expectedPayloadLengthBytes) {
+					ESP_LOGE(_logTag, "payload length mismatch: got %d, expected %d", payloadLengthBytes, expectedPayloadLengthBytes);
 
 					return false;
 				}
