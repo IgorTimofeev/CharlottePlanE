@@ -36,19 +36,22 @@ namespace pizda {
 
 	class AutopilotSettings : public NVSSettings {
 		public:
-			uint16_t speedKt = 0;
-			uint16_t headingDeg = 0;
-			uint16_t altitudeFt = 0;
-
+			// Lateral
 			float maxRollAngleRad = 0;
-			float maxPitchAngleRad = 0;
-
-			float targetAngleLPFFPS = 0;
-			float stabTargetAngleIncrementFPS = 0;
-
+			float stabilizedModeRollAngleIncrementFactorPerSecond = 0;
+			float rollAngleLPFFactorPerSecond = 0;
 			float maxAileronsFactor = 0;
+
+			// Vertical
+			float maxPitchAngleRad = 0;
+			float stabilizedModePitchAngleIncrementFactorPerSecond = 0;
+			float pitchAngleLPFFactorPerSecond = 0;
 			float maxElevatorFactor = 0;
 
+			// Longitudinal
+			float throttleLPFFactorPerSecond = 0;
+
+			// PIDs
 			AutopilotSettingsPIDs PIDs {};
 
 		protected:
@@ -57,14 +60,20 @@ namespace pizda {
 			}
 
 			void onRead(const NVSStream& stream) override {
+				// Lateral
 				maxRollAngleRad = stream.readFloat(_maxRollAngleRad, toRadians(30));
-				maxPitchAngleRad = stream.readFloat(_maxPitchAngleRad, toRadians(20));
-
-				targetAngleLPFFPS = stream.readFloat(_targetAngleLPFFPS, 0.6f);
-				stabTargetAngleIncrementFPS = stream.readFloat(_stabTargetAngleIncrementFPS, 0.5f);
-
+				stabilizedModeRollAngleIncrementFactorPerSecond = stream.readFloat(_stabilizedModeRollAngleIncrementFactorPerSecond, 30.f);
+				rollAngleLPFFactorPerSecond = stream.readFloat(_rollAngleLPFFactorPerSecond, 0.5f);
 				maxAileronsFactor = stream.readFloat(_maxAileronsFactor, 1.0f);
+
+				// Vertical
+				maxPitchAngleRad = stream.readFloat(_maxPitchAngleRad, toRadians(20));
+				stabilizedModePitchAngleIncrementFactorPerSecond = stream.readFloat(_stabilizedModePitchAngleIncrementFactorPerSecond, 20.f);
+				pitchAngleLPFFactorPerSecond = stream.readFloat(_pitchAngleLPFFactorPerSecond, 0.5f);
 				maxElevatorFactor = stream.readFloat(_maxElevatorFactor, 1.0f);
+
+				// Longitudinal
+				throttleLPFFactorPerSecond = stream.readFloat(_throttleLPFFactorPerSecond, 0.5f);
 
 				// PIDs
 				AutopilotSettingsPIDs::read(stream, _yawToRollP, _yawToRollI, _yawToRollD, PIDs.yawToRoll);
@@ -76,14 +85,20 @@ namespace pizda {
 			}
 
 			void onWrite(const NVSStream& stream) override {
+				// Lateral
 				stream.writeFloat(_maxRollAngleRad, maxRollAngleRad);
-				stream.writeFloat(_maxPitchAngleRad, maxPitchAngleRad);
-
-				stream.writeFloat(_targetAngleLPFFPS, targetAngleLPFFPS);
-				stream.writeFloat(_stabTargetAngleIncrementFPS, stabTargetAngleIncrementFPS);
-
+				stream.writeFloat(_stabilizedModeRollAngleIncrementFactorPerSecond, stabilizedModeRollAngleIncrementFactorPerSecond);
+				stream.writeFloat(_rollAngleLPFFactorPerSecond, rollAngleLPFFactorPerSecond);
 				stream.writeFloat(_maxAileronsFactor, maxAileronsFactor);
+
+				// Vertical
+				stream.writeFloat(_maxPitchAngleRad, maxPitchAngleRad);
+				stream.writeFloat(_stabilizedModePitchAngleIncrementFactorPerSecond, stabilizedModePitchAngleIncrementFactorPerSecond);
+				stream.writeFloat(_pitchAngleLPFFactorPerSecond, pitchAngleLPFFactorPerSecond);
 				stream.writeFloat(_maxElevatorFactor, maxElevatorFactor);
+
+				// Longitudinal
+				stream.writeFloat(_throttleLPFFactorPerSecond, throttleLPFFactorPerSecond);
 
 				// PIDs
 				AutopilotSettingsPIDs::write(stream, _yawToRollP, _yawToRollI, _yawToRollD, PIDs.yawToRoll);
@@ -97,17 +112,20 @@ namespace pizda {
 		private:
 			constexpr static auto _namespace = "ap1";
 
-			// Angles
+			// Lateral
 			constexpr static auto _maxRollAngleRad = "mrla";
+			constexpr static auto _stabilizedModeRollAngleIncrementFactorPerSecond = "raif";
+			constexpr static auto _rollAngleLPFFactorPerSecond = "ralf";
+			constexpr static auto _maxAileronsFactor = "aiff";
+
+			// Vertical
 			constexpr static auto _maxPitchAngleRad = "mpia";
+			constexpr static auto _stabilizedModePitchAngleIncrementFactorPerSecond = "paif";
+			constexpr static auto _pitchAngleLPFFactorPerSecond = "palf";
+			constexpr static auto _maxElevatorFactor = "elff";
 
-			// LPF
-			constexpr static auto _targetAngleLPFFPS = "dtlp";
-			constexpr static auto _stabTargetAngleIncrementFPS = "stif";
-
-			// Surfaces
-			constexpr static auto _maxAileronsFactor = "malf";
-			constexpr static auto _maxElevatorFactor = "melf";
+			// Longitudinal
+			constexpr static auto _throttleLPFFactorPerSecond = "tlpf";
 
 			// PIDs
 			constexpr static auto _yawToRollP = "pyrp";

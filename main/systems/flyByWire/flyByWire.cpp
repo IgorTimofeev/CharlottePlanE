@@ -83,20 +83,20 @@ namespace pizda {
 			_altitudeHoldM = Aircraft::getInstance().adirs.getCoordinates().getAltitude();
 	}
 	
-	bool FlyByWire::getAutothrottle() const {
-		return _autothrottle;
+	bool FlyByWire::isAutothrottleEnabled() const {
+		return _autothrottleEnabled;
 	}
 	
-	void FlyByWire::setAutothrottle(const bool value) {
-		_autothrottle = value;
+	void FlyByWire::setAutothrottleEnabled(const bool value) {
+		_autothrottleEnabled = value;
 	}
 	
-	bool FlyByWire::getAutopilot() const {
-		return _autopilot;
+	bool FlyByWire::isAutopilotEngaged() const {
+		return _autopilotEngaged;
 	}
 	
-	void FlyByWire::setAutopilot(const bool value) {
-		_autopilot = value;
+	void FlyByWire::setAutopilotEngaged(const bool value) {
+		_autopilotEngaged = value;
 	}
 
 	float FlyByWire::getTargetRollRad() const {
@@ -106,15 +106,7 @@ namespace pizda {
 	float FlyByWire::getTargetPitchRad() const {
 		return _pitchTargetRad;
 	}
-	
-	float FlyByWire::mapPizda(const float min, const float max, const float factor) {
-		return min + (max - min) * factor;
-	}
-	
-	float FlyByWire::getInterpolationFactor(const float range, const float rangeMax) {
-		return std::min(std::abs(range), rangeMax) / rangeMax;
-	}
-	
+
 	float FlyByWire::predictValue(const float valueDelta, const float deltaTimeS, const float dueTimeS) {
 		// valueDelta - deltaTimeS
 		// x          - dueTimeS
@@ -141,12 +133,12 @@ namespace pizda {
 			float rollTargetRad = 0;
 
 			if (_lateralMode == AutopilotLateralMode::stab) {
-				if (_autopilot) {
+				if (_autopilotEngaged) {
 					rollTargetRad = std::clamp(
 						_rollTargetRad
 							+ (ac.remoteData.raw.controls.ailerons * 2 - 1)
 							* ac.settings.autopilot.maxRollAngleRad
-							* ac.settings.autopilot.stabTargetAngleIncrementFPS
+							* ac.settings.autopilot.stabilizedModeRollAngleIncrementFactorPerSecond
 							* deltaTimeS,
 						-ac.settings.autopilot.maxRollAngleRad,
 						ac.settings.autopilot.maxRollAngleRad
@@ -175,7 +167,7 @@ namespace pizda {
 			_rollTargetRad = LowPassFilter::applyToAngle(
 				_rollTargetRad,
 				rollTargetRad,
-				LowPassFilter::getDeltaTimeSFactor(ac.settings.autopilot.targetAngleLPFFPS, deltaTimeS)
+				LowPassFilter::getDeltaTimeSFactor(ac.settings.autopilot.rollAngleLPFFactorPerSecond, deltaTimeS)
 			);
 		}
 
@@ -188,12 +180,12 @@ namespace pizda {
 			float pitchTargetRad = 0;
 
 			if (_verticalMode == AutopilotVerticalMode::stab) {
-				if (_autopilot) {
+				if (_autopilotEngaged) {
 					pitchTargetRad = std::clamp(
 						_pitchTargetRad
 							- (ac.remoteData.raw.controls.elevator * 2 - 1)
 							* ac.settings.autopilot.maxPitchAngleRad
-							* ac.settings.autopilot.stabTargetAngleIncrementFPS
+							* ac.settings.autopilot.stabilizedModePitchAngleIncrementFactorPerSecond
 							* deltaTimeS,
 						-ac.settings.autopilot.maxPitchAngleRad,
 						ac.settings.autopilot.maxPitchAngleRad
@@ -268,13 +260,13 @@ namespace pizda {
 			_pitchTargetRad = LowPassFilter::applyToAngle(
 				_pitchTargetRad,
 				pitchTargetRad,
-				LowPassFilter::getDeltaTimeSFactor(ac.settings.autopilot.targetAngleLPFFPS, deltaTimeS)
+				LowPassFilter::getDeltaTimeSFactor(ac.settings.autopilot.pitchAngleLPFFactorPerSecond, deltaTimeS)
 			);
 		}
 
 		// -------------------------------- Ailerons --------------------------------
 
-		if (_autopilot && _lateralMode != AutopilotLateralMode::dir) {
+		if (_autopilotEngaged && _lateralMode != AutopilotLateralMode::dir) {
 			const auto rollTargetDeltaRad = normalizeAngleRadPi(_rollTargetRad - rollRad);
 
 			_aileronsFactor = _rollToAileronsPID.tick(
@@ -300,7 +292,7 @@ namespace pizda {
 
 		// -------------------------------- Elevator --------------------------------
 
-		if (_autopilot && _verticalMode != AutopilotVerticalMode::dir) {
+		if (_autopilotEngaged && _verticalMode != AutopilotVerticalMode::dir) {
 			const auto pitchTargetDeltaRad = normalizeAngleRadPi(_pitchTargetRad - pitchRad);
 
 			_elevatorFactor = _pitchToElevatorPID.tick(
@@ -330,41 +322,43 @@ namespace pizda {
 
 		// -------------------------------- Throttle --------------------------------
 
-		float throttleTargetFactor;
-		float throttleLPFFactor;
-		
-		if (_autothrottle) {
-			const auto pitchUp = altitudeTargetDeltaM >= 0;
-			const auto speedLow = speedTargetDeltaMPS >= 0;
-			
-			// FLC & climb
+		float throttleFactor;
+
+		if (_autothrottleEnabled) {
+			// FLC
 			if (_verticalMode == AutopilotVerticalMode::flc) {
-				throttleTargetFactor = pitchUp ? 1.f : 0.f;
-				throttleLPFFactor = 0.5f;
+				const auto pitchUp = altitudeTargetDeltaM >= 0;
+
+				throttleFactor = pitchUp ? 1.f : 0.f;
 			}
-			// Man, hold
+			// Others
 			else {
-				throttleTargetFactor = speedLow ? 1.f : 0.f;
-				
-				throttleLPFFactor = mapPizda(
-					0.01f,
-					0.8f,
-					getInterpolationFactor(
-						speedTargetDeltaMPS,
-						Units::convertSpeed(8.f, SpeedUnit::knot, SpeedUnit::meterPerSecond)
-					)
+				throttleFactor = _speedToThrottlePID.tick(
+					-speedTargetDeltaMPS,
+					0,
+
+					ac.settings.autopilot.PIDs.speedToThrottle.p,
+					ac.settings.autopilot.PIDs.speedToThrottle.i,
+					ac.settings.autopilot.PIDs.speedToThrottle.d,
+
+					deltaTimeS,
+
+					-1.f,
+					1.f
 				);
+
+				// [-1; 1] => [0; 1]
+				throttleFactor = (throttleFactor + 1.f) / 2.f;
 			}
 		}
 		else {
-			throttleTargetFactor = 0;
-			throttleLPFFactor = 0.5f;
+			throttleFactor = 0;
 		}
 
 		_throttleFactor = LowPassFilter::apply(
 			_throttleFactor,
-			throttleTargetFactor,
-			LowPassFilter::getDeltaTimeSFactor(throttleLPFFactor, deltaTimeS)
+			throttleFactor,
+			LowPassFilter::getDeltaTimeSFactor(ac.settings.autopilot.throttleLPFFactorPerSecond, deltaTimeS)
 		);
 	}
 	
@@ -379,7 +373,7 @@ namespace pizda {
 				return;
 			
 			motor->setPowerF(
-				_autothrottle
+				_autothrottleEnabled
 				? _throttleFactor
 				: ac.remoteData.raw.controls.throttle
 			);

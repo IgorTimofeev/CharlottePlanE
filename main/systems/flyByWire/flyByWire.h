@@ -31,11 +31,11 @@ namespace pizda {
 			AutopilotVerticalMode getVerticalMode() const;
 			void setVerticalMode(AutopilotVerticalMode value);
 			
-			bool getAutothrottle() const;
-			void setAutothrottle(bool value);
+			bool isAutothrottleEnabled() const;
+			void setAutothrottleEnabled(bool value);
 			
-			bool getAutopilot() const;
-			void setAutopilot(bool value);
+			bool isAutopilotEngaged() const;
+			void setAutopilotEngaged(bool value);
 
 			float getTargetRollRad() const;
 			float getTargetPitchRad() const;
@@ -68,13 +68,11 @@ namespace pizda {
 			PIDController _speedToPitchPID {};
 			PIDController _rollToAileronsPID {};
 			PIDController _pitchToElevatorPID {};
-			PIDController _throttlePID {};
+			PIDController _speedToThrottlePID {};
 
-			bool _autothrottle = false;
-			bool _autopilot = false;
+			bool _autothrottleEnabled = false;
+			bool _autopilotEngaged = false;
 
-			static float mapPizda(float min, float max, float factor);
-			static float getInterpolationFactor(float range, float rangeMax);
 			static float predictValue(float valueDelta, float deltaTimeS, float dueTimeS);
 			
 			void computeData();

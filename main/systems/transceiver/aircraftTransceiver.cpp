@@ -260,15 +260,22 @@ namespace pizda {
 		};
 
 		switch (type) {
-			case RemoteAuxiliaryAutopilotPacketType::setSpeed: {
-				if (!validate(RemoteAuxiliaryAutopilotPacket::speedLengthBits))
+			// Generic
+			case RemoteAuxiliaryAutopilotPacketType::setAutopilotEngaged: {
+				if (!validate(1))
 					return false;
 
-				const auto speedFactor =
-					static_cast<float>(stream.readUint8(RemoteAuxiliaryAutopilotPacket::speedLengthBits))
-					/ static_cast<float>((1 << RemoteAuxiliaryAutopilotPacket::speedLengthBits) - 1);
+				ac.fbw.setAutopilotEngaged(stream.readBool());
 
-				ac.fbw.setSelectedSpeedMps(static_cast<float>(RemoteAuxiliaryAutopilotPacket::speedMaxMPS) * speedFactor);
+				break;
+			}
+
+			// Lateral
+			case RemoteAuxiliaryAutopilotPacketType::setLateralMode: {
+				if (!validate(RemoteAuxiliaryAutopilotPacket::lateralModeLengthBits))
+					return false;
+
+				ac.fbw.setLateralMode(static_cast<AutopilotLateralMode>(stream.readUint8(RemoteAuxiliaryAutopilotPacket::lateralModeLengthBits)));
 
 				break;
 			}
@@ -277,6 +284,64 @@ namespace pizda {
 					return false;
 
 				ac.fbw.setSelectedHeadingDeg(stream.readUint16(RemoteAuxiliaryAutopilotPacket::headingLengthBits));
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setMaxRollAngleRad: {
+				if (!validate(8 * 4))
+					return false;
+
+				ac.settings.autopilot.maxRollAngleRad = stream.readFloat();
+				ac.settings.autopilot.scheduleWrite();
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setYawToRollPID: {
+				if (!readPID(ac.settings.autopilot.PIDs.yawToRoll))
+					return false;
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setRollToAileronsPID: {
+				if (!readPID(ac.settings.autopilot.PIDs.rollToAilerons))
+					return false;
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setStabilizedModeRollAngleIncrementFactorPerSecond: {
+				if (!validate(8 * 4))
+					return false;
+
+				ac.settings.autopilot.stabilizedModeRollAngleIncrementFactorPerSecond = stream.readFloat();
+				ac.settings.autopilot.scheduleWrite();
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setRollAngleLPFFactorPerSecond: {
+				if (!validate(8 * 4))
+					return false;
+
+				ac.settings.autopilot.rollAngleLPFFactorPerSecond = stream.readFloat();
+				ac.settings.autopilot.scheduleWrite();
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setMaxAileronsFactor: {
+				if (!validate(8 * 4))
+					return false;
+
+				ac.settings.autopilot.maxAileronsFactor = stream.readFloat();
+				ac.settings.autopilot.scheduleWrite();
+
+				break;
+			}
+
+			// Vertical
+			case RemoteAuxiliaryAutopilotPacketType::setVerticalMode: {
+				if (!validate(RemoteAuxiliaryAutopilotPacket::verticalModeLengthBits))
+					return false;
+
+				ac.fbw.setVerticalMode(static_cast<AutopilotVerticalMode>(stream.readUint8(RemoteAuxiliaryAutopilotPacket::verticalModeLengthBits)));
 
 				break;
 			}
@@ -293,47 +358,6 @@ namespace pizda {
 
 				break;
 			}
-			case RemoteAuxiliaryAutopilotPacketType::setLateralMode: {
-				if (!validate(RemoteAuxiliaryAutopilotPacket::lateralModeLengthBits))
-					return false;
-
-				ac.fbw.setLateralMode(static_cast<AutopilotLateralMode>(stream.readUint8(RemoteAuxiliaryAutopilotPacket::lateralModeLengthBits)));
-
-				break;
-			}
-			case RemoteAuxiliaryAutopilotPacketType::setVerticalMode: {
-				if (!validate(RemoteAuxiliaryAutopilotPacket::verticalModeLengthBits))
-					return false;
-
-				ac.fbw.setVerticalMode(static_cast<AutopilotVerticalMode>(stream.readUint8(RemoteAuxiliaryAutopilotPacket::verticalModeLengthBits)));
-
-				break;
-			}
-			case RemoteAuxiliaryAutopilotPacketType::setAutothrottle: {
-				if (!validate(1))
-					return false;
-
-				ac.fbw.setAutothrottle(stream.readBool());
-
-				break;
-			}
-			case RemoteAuxiliaryAutopilotPacketType::setAutopilot: {
-				if (!validate(1))
-					return false;
-
-				ac.fbw.setAutopilot(stream.readBool());
-
-				break;
-			}
-			case RemoteAuxiliaryAutopilotPacketType::setMaxRollAngleRad: {
-				if (!validate(8 * 4))
-					return false;
-
-				ac.settings.autopilot.maxRollAngleRad = stream.readFloat();
-				ac.settings.autopilot.scheduleWrite();
-
-				break;
-			}
 			case RemoteAuxiliaryAutopilotPacketType::setMaxPitchAngleRad: {
 				if (!validate(8 * 4))
 					return false;
@@ -343,29 +367,38 @@ namespace pizda {
 
 				break;
 			}
-			case RemoteAuxiliaryAutopilotPacketType::setTargetAngleLPFFPS: {
+			case RemoteAuxiliaryAutopilotPacketType::setSpeedToPitchPID: {
+				if (!readPID(ac.settings.autopilot.PIDs.speedToPitch))
+					return false;
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setAltitudeToPitchPID: {
+				if (!readPID(ac.settings.autopilot.PIDs.altitudeToPitch))
+					return false;
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setPitchToElevatorPID: {
+				if (!readPID(ac.settings.autopilot.PIDs.pitchToElevator))
+					return false;
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setStabilizedModePitchAngleIncrementFactorPerSecond: {
 				if (!validate(8 * 4))
 					return false;
 
-				ac.settings.autopilot.targetAngleLPFFPS = stream.readFloat();
+				ac.settings.autopilot.stabilizedModePitchAngleIncrementFactorPerSecond = stream.readFloat();
 				ac.settings.autopilot.scheduleWrite();
 
 				break;
 			}
-			case RemoteAuxiliaryAutopilotPacketType::setStabTargetAngleIncrementFPS: {
+			case RemoteAuxiliaryAutopilotPacketType::setPitchAngleLPFFactorPerSecond: {
 				if (!validate(8 * 4))
 					return false;
 
-				ac.settings.autopilot.stabTargetAngleIncrementFPS = stream.readFloat();
-				ac.settings.autopilot.scheduleWrite();
-
-				break;
-			}
-			case RemoteAuxiliaryAutopilotPacketType::setMaxAileronsFactor: {
-				if (!validate(8 * 4))
-					return false;
-
-				ac.settings.autopilot.maxAileronsFactor = stream.readFloat();
+				ac.settings.autopilot.pitchAngleLPFFactorPerSecond = stream.readFloat();
 				ac.settings.autopilot.scheduleWrite();
 
 				break;
@@ -379,33 +412,25 @@ namespace pizda {
 
 				break;
 			}
-			case RemoteAuxiliaryAutopilotPacketType::setYawToRollPID: {
-				if (!readPID(ac.settings.autopilot.PIDs.yawToRoll))
+
+			// Longitudinal
+			case RemoteAuxiliaryAutopilotPacketType::setAutothrottleEnabled: {
+				if (!validate(1))
 					return false;
+
+				ac.fbw.setAutothrottleEnabled(stream.readBool());
 
 				break;
 			}
-			case RemoteAuxiliaryAutopilotPacketType::setAltitudeToPitchPID: {
-				if (!readPID(ac.settings.autopilot.PIDs.altitudeToPitch))
+			case RemoteAuxiliaryAutopilotPacketType::setSpeed: {
+				if (!validate(RemoteAuxiliaryAutopilotPacket::speedLengthBits))
 					return false;
 
-				break;
-			}
-			case RemoteAuxiliaryAutopilotPacketType::setSpeedToPitchPID: {
-				if (!readPID(ac.settings.autopilot.PIDs.speedToPitch))
-					return false;
+				const auto speedFactor =
+					static_cast<float>(stream.readUint8(RemoteAuxiliaryAutopilotPacket::speedLengthBits))
+					/ static_cast<float>((1 << RemoteAuxiliaryAutopilotPacket::speedLengthBits) - 1);
 
-				break;
-			}
-			case RemoteAuxiliaryAutopilotPacketType::setRollToAileronsPID: {
-				if (!readPID(ac.settings.autopilot.PIDs.rollToAilerons))
-					return false;
-
-				break;
-			}
-			case RemoteAuxiliaryAutopilotPacketType::setPitchToElevatorPID: {
-				if (!readPID(ac.settings.autopilot.PIDs.pitchToElevator))
-					return false;
+				ac.fbw.setSelectedSpeedMps(static_cast<float>(RemoteAuxiliaryAutopilotPacket::speedMaxMPS) * speedFactor);
 
 				break;
 			}
@@ -415,7 +440,13 @@ namespace pizda {
 
 				break;
 			}
-			default: {
+			case RemoteAuxiliaryAutopilotPacketType::setThrottleLPFFactorPerSecond: {
+				if (!validate(8 * 4))
+					return false;
+
+				ac.settings.autopilot.throttleLPFFactorPerSecond = stream.readFloat();
+				ac.settings.autopilot.scheduleWrite();
+
 				break;
 			}
 		}
@@ -675,10 +706,10 @@ namespace pizda {
 		);
 		
 		// Autothrottle
-		stream.writeBool(ac.fbw.getAutothrottle());
+		stream.writeBool(ac.fbw.isAutothrottleEnabled());
 		
 		// Autopilot
-		stream.writeBool(ac.fbw.getAutopilot());
+		stream.writeBool(ac.fbw.isAutopilotEngaged());
 	}
 
 	void AircraftTransceiver::transmitAircraftAuxiliaryPacket(BitStream& stream) {

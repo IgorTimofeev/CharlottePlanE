@@ -65,29 +65,35 @@ namespace pizda {
 	};
 
 	enum class RemoteAuxiliaryAutopilotPacketType : uint8_t {
-		setSpeed,
-		setHeading,
-		setAltitude,
+		// Generic
+		setAutopilotEngaged,
+
+		// Lateral
 		setLateralMode,
-		setVerticalMode,
-		setAutothrottle,
-		setAutopilot,
-
+		setHeading,
 		setMaxRollAngleRad,
-		setMaxPitchAngleRad,
-
-		setTargetAngleLPFFPS,
-		setStabTargetAngleIncrementFPS,
-
+		setYawToRollPID,
+		setRollToAileronsPID,
+		setStabilizedModeRollAngleIncrementFactorPerSecond,
+		setRollAngleLPFFactorPerSecond,
 		setMaxAileronsFactor,
+
+		// Vertical
+		setVerticalMode,
+		setAltitude,
+		setMaxPitchAngleRad,
+		setSpeedToPitchPID,
+		setAltitudeToPitchPID,
+		setPitchToElevatorPID,
+		setStabilizedModePitchAngleIncrementFactorPerSecond,
+		setPitchAngleLPFFactorPerSecond,
 		setMaxElevatorFactor,
 
-		setYawToRollPID,
-		setAltitudeToPitchPID,
-		setSpeedToPitchPID,
-		setRollToAileronsPID,
-		setPitchToElevatorPID,
+		// Longitudinal
+		setAutothrottleEnabled,
+		setSpeed,
 		setSpeedToThrottlePID,
+		setThrottleLPFFactorPerSecond,
 	};
 
 	class RemoteAuxiliaryAutopilotPacket {
