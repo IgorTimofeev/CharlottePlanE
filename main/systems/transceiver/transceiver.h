@@ -12,6 +12,8 @@
 
 #include <SX1262.h>
 #include <bitStream.h>
+#include <circularQueue.h>
+
 #include "utilities/math.h"
 
 #include "config.h"
@@ -61,8 +63,7 @@ namespace pizda {
 	class Transceiver {
 		public:
 			Transceiver(const std::array<PacketSequenceItem<TLocalPacketType>, TLocalPacketSequenceLength>& packetSequence) : _packetSequence(packetSequence) {
-				for (auto& value : _packetQueue)
-					value = false;
+				_packetQueueMutex = xSemaphoreCreateMutex();
 			}
 
 			virtual ~Transceiver() = default;
@@ -196,8 +197,16 @@ namespace pizda {
 			}
 
 			void enqueueAuxiliary(TLocalAuxiliaryPacketType type) {
-				_packetQueue[static_cast<uint8_t>(type)] = true;
-				_packetEnqueued = true;
+				xSemaphoreTake(_packetQueueMutex, portMAX_DELAY);
+
+				if (_packetQueue.full()) {
+					ESP_LOGW(_logTag, "packet queue is full");
+				}
+				else {
+					_packetQueue.push(type);
+				}
+
+				xSemaphoreGive(_packetQueueMutex);
 			}
 
 			uint16_t getRXPPS() const {
@@ -304,7 +313,7 @@ namespace pizda {
 			}
 
 			TLocalAuxiliaryPacketType getEnqueuedAuxiliaryPacketType() const {
-				return _enqueuedAuxiliaryPacketType;
+				return _packetQueueAuxiliaryType;
 			}
 
 			static bool validatePayloadChecksumAndLength(BitStream& stream, size_t expectedDataLengthBits, uint8_t payloadLengthBytes) {
@@ -423,12 +432,9 @@ namespace pizda {
 			uint8_t _packetSequenceIndex = 0;
 			uint8_t _packetSequenceItemCounter = 0;
 
-			// One-time packet queue
-			constexpr static uint8_t packetQueueLength = static_cast<uint8_t>(TLocalAuxiliaryPacketType::maxValue) + 1;
-			bool _packetQueue[packetQueueLength] {};
-			bool _packetEnqueued = false;
-
-			TLocalAuxiliaryPacketType _enqueuedAuxiliaryPacketType {};
+			CircularQueue<TLocalAuxiliaryPacketType, 255> _packetQueue {};
+			SemaphoreHandle_t _packetQueueMutex;
+			TLocalAuxiliaryPacketType _packetQueueAuxiliaryType {};
 
 			TLocalPacketType getTransmitPacketType() {
 				const auto& item = _packetSequence[_packetSequenceIndex];
@@ -448,26 +454,13 @@ namespace pizda {
 				};
 
 				// Enqueued
-				if (item.useEnqueued() && _packetEnqueued) {
-					bool shouldAssign = true;
-					uint8_t remainingPacketCount = 0;
+				if (item.useEnqueued() && !_packetQueue.empty()) {
+					xSemaphoreTake(_packetQueueMutex, portMAX_DELAY);
 
-					for (uint8_t i = 0; i < packetQueueLength; ++i) {
-						if (!_packetQueue[i])
-							continue;
+					_packetQueueAuxiliaryType = _packetQueue.front();
+					_packetQueue.pop();
 
-						if (shouldAssign) {
-							_enqueuedAuxiliaryPacketType = static_cast<TLocalAuxiliaryPacketType>(i);
-
-							_packetQueue[i] = false;
-							shouldAssign = false;
-						}
-						else {
-							remainingPacketCount++;
-						}
-					}
-
-					_packetEnqueued = remainingPacketCount > 0;
+					xSemaphoreGive(_packetQueueMutex);
 
 					nextSequenceItem();
 

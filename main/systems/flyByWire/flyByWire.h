@@ -21,7 +21,10 @@ namespace pizda {
 			
 			float getSelectedAltitudeM() const;
 			void setSelectedAltitudeM(float value);
-			
+
+			float getHoldAltitudeM() const;
+			void setHoldAltitudeM(float value);
+
 			AutopilotLateralMode getLateralMode() const;
 			void setLateralMode(AutopilotLateralMode value);
 			
@@ -34,9 +37,6 @@ namespace pizda {
 			bool getAutopilot() const;
 			void setAutopilot(bool value);
 
-			bool getGyro() const;
-			void setGyro(bool value);
-
 			float getTargetRollRad() const;
 			float getTargetPitchRad() const;
 
@@ -47,7 +47,7 @@ namespace pizda {
 
 			int64_t _computationTimeUs = 0;
 
-			float _throttleTargetFactor = 0;
+			float _throttleFactor = 0;
 			float _rollTargetRad = 0;
 			float _pitchTargetRad = 0;
 			
@@ -58,6 +58,7 @@ namespace pizda {
 			float _speedSelectedMPS = 0;
 			uint16_t _headingSelectedDeg = 0;
 			float _altitudeSelectedM = 0;
+			float _altitudeHoldM = 0;
 
 			AutopilotLateralMode _lateralMode = AutopilotLateralMode::dir;
 			AutopilotVerticalMode _verticalMode = AutopilotVerticalMode::dir;
@@ -67,6 +68,7 @@ namespace pizda {
 			PIDController _speedToPitchPID {};
 			PIDController _rollToAileronsPID {};
 			PIDController _pitchToElevatorPID {};
+			PIDController _throttlePID {};
 
 			bool _autothrottle = false;
 			bool _autopilot = false;

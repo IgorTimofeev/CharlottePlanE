@@ -76,8 +76,8 @@ namespace pizda {
 		setMaxRollAngleRad,
 		setMaxPitchAngleRad,
 
-		setTargetAngleLPFF,
-		setStabAngleIncrementRad,
+		setTargetAngleLPFFPS,
+		setStabTargetAngleIncrementFPS,
 
 		setMaxAileronsFactor,
 		setMaxElevatorFactor,

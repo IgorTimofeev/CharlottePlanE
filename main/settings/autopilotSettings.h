@@ -43,8 +43,8 @@ namespace pizda {
 			float maxRollAngleRad = 0;
 			float maxPitchAngleRad = 0;
 
-			float targetAngleLPFF = 0;
-			float stabTargetAngleIncrementFactor = 0;
+			float targetAngleLPFFPS = 0;
+			float stabTargetAngleIncrementFPS = 0;
 
 			float maxAileronsFactor = 0;
 			float maxElevatorFactor = 0;
@@ -60,8 +60,8 @@ namespace pizda {
 				maxRollAngleRad = stream.readFloat(_maxRollAngleRad, toRadians(30));
 				maxPitchAngleRad = stream.readFloat(_maxPitchAngleRad, toRadians(20));
 
-				targetAngleLPFF = stream.readFloat(_targetAngleLPFF, 0.6f);
-				stabTargetAngleIncrementFactor = stream.readFloat(_stabTargetAngleIncrementFactor, 0.5f);
+				targetAngleLPFFPS = stream.readFloat(_targetAngleLPFFPS, 0.6f);
+				stabTargetAngleIncrementFPS = stream.readFloat(_stabTargetAngleIncrementFPS, 0.5f);
 
 				maxAileronsFactor = stream.readFloat(_maxAileronsFactor, 1.0f);
 				maxElevatorFactor = stream.readFloat(_maxElevatorFactor, 1.0f);
@@ -79,8 +79,8 @@ namespace pizda {
 				stream.writeFloat(_maxRollAngleRad, maxRollAngleRad);
 				stream.writeFloat(_maxPitchAngleRad, maxPitchAngleRad);
 
-				stream.writeFloat(_targetAngleLPFF, targetAngleLPFF);
-				stream.writeFloat(_stabTargetAngleIncrementFactor, stabTargetAngleIncrementFactor);
+				stream.writeFloat(_targetAngleLPFFPS, targetAngleLPFFPS);
+				stream.writeFloat(_stabTargetAngleIncrementFPS, stabTargetAngleIncrementFPS);
 
 				stream.writeFloat(_maxAileronsFactor, maxAileronsFactor);
 				stream.writeFloat(_maxElevatorFactor, maxElevatorFactor);
@@ -102,8 +102,8 @@ namespace pizda {
 			constexpr static auto _maxPitchAngleRad = "mpia";
 
 			// LPF
-			constexpr static auto _targetAngleLPFF = "dtlp";
-			constexpr static auto _stabTargetAngleIncrementFactor = "stif";
+			constexpr static auto _targetAngleLPFFPS = "dtlp";
+			constexpr static auto _stabTargetAngleIncrementFPS = "stif";
 
 			// Surfaces
 			constexpr static auto _maxAileronsFactor = "malf";

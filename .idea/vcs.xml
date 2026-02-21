@@ -6,6 +6,7 @@
     <mapping directory="$PROJECT_DIR$/components/ESP-IDF-Battery" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/components/ESP-IDF-BitStream" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/components/ESP-IDF-BusHAL" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/components/ESP-IDF-CircularQueue" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/components/ESP-IDF-LowPassFilter" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/components/ESP-IDF-MPU9250" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/components/ESP-IDF-NVSExtensions" vcs="Git" />

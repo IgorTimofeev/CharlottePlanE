@@ -31,3 +31,6 @@
 [submodule "components/ESP-IDF-PIDController"]
 	path = components/ESP-IDF-PIDController
 	url = https://github.com/IgorTimofeev/ESP-IDF-PIDController.git
+[submodule "components/ESP-IDF-CircularQueue"]
+	path = components/ESP-IDF-CircularQueue
+	url = https://github.com/IgorTimofeev/ESP-IDF-CircularQueue.git

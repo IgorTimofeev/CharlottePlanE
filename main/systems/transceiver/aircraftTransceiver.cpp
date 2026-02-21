@@ -307,16 +307,6 @@ namespace pizda {
 
 				ac.fbw.setVerticalMode(static_cast<AutopilotVerticalMode>(stream.readUint8(RemoteAuxiliaryAutopilotPacket::verticalModeLengthBits)));
 
-				switch (ac.fbw.getVerticalMode()) {
-					case AutopilotVerticalMode::alt: {
-						ac.fbw.setSelectedAltitudeM(ac.adirs.getCoordinates().getAltitude());
-
-						break;
-					}
-					default:
-						break;
-				}
-
 				break;
 			}
 			case RemoteAuxiliaryAutopilotPacketType::setAutothrottle: {
@@ -353,20 +343,20 @@ namespace pizda {
 
 				break;
 			}
-			case RemoteAuxiliaryAutopilotPacketType::setTargetAngleLPFF: {
+			case RemoteAuxiliaryAutopilotPacketType::setTargetAngleLPFFPS: {
 				if (!validate(8 * 4))
 					return false;
 
-				ac.settings.autopilot.targetAngleLPFF = stream.readFloat();
+				ac.settings.autopilot.targetAngleLPFFPS = stream.readFloat();
 				ac.settings.autopilot.scheduleWrite();
 
 				break;
 			}
-			case RemoteAuxiliaryAutopilotPacketType::setStabAngleIncrementRad: {
+			case RemoteAuxiliaryAutopilotPacketType::setStabTargetAngleIncrementFPS: {
 				if (!validate(8 * 4))
 					return false;
 
-				ac.settings.autopilot.stabTargetAngleIncrementFactor = stream.readFloat();
+				ac.settings.autopilot.stabTargetAngleIncrementFPS = stream.readFloat();
 				ac.settings.autopilot.scheduleWrite();
 
 				break;
@@ -673,10 +663,12 @@ namespace pizda {
 		stream.writeUint8(std::to_underlying(ac.fbw.getLateralMode()), AircraftTelemetrySecondaryPacket::autopilotLateralModeLengthBits);
 		stream.writeUint8(std::to_underlying(ac.fbw.getVerticalMode()), AircraftTelemetrySecondaryPacket::autopilotVerticalModeLengthBits);
 		
-		// Altitude for ALT/VNAV modes
+		// Altitude for ALT/ALTS/VNAV modes
 		writeAltitude(
 			stream,
-			ac.fbw.getSelectedAltitudeM(),
+			ac.fbw.getVerticalMode() == AutopilotVerticalMode::alt
+				? ac.fbw.getHoldAltitudeM()
+				: ac.fbw.getSelectedAltitudeM(),
 			AircraftTelemetrySecondaryPacket::autopilotAltitudeLengthBits,
 			AircraftTelemetrySecondaryPacket::autopilotAltitudeMinM,
 			AircraftTelemetrySecondaryPacket::autopilotAltitudeMaxM
