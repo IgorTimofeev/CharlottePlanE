@@ -74,9 +74,9 @@ namespace pizda {
 		setMaxRollAngleRad,
 		setYawToRollPID,
 		setRollToAileronsPID,
-		setStabilizedModeRollAngleIncrementFactorPerSecond,
+		setStabilizedModeRollAngleIncrementRadPerSecond,
 		setRollAngleLPFFactorPerSecond,
-		setMaxAileronsFactor,
+		setMaxAileronsPercent,
 
 		// Vertical
 		setVerticalMode,
@@ -85,15 +85,16 @@ namespace pizda {
 		setSpeedToPitchPID,
 		setAltitudeToPitchPID,
 		setPitchToElevatorPID,
-		setStabilizedModePitchAngleIncrementFactorPerSecond,
+		setStabilizedModePitchAngleIncrementRadPerSecond,
 		setPitchAngleLPFFactorPerSecond,
-		setMaxElevatorFactor,
+		setMaxElevatorPercent,
 
 		// Longitudinal
 		setAutothrottleEnabled,
 		setSpeed,
 		setSpeedToThrottlePID,
-		setThrottleLPFFactorPerSecond,
+		setMinThrottlePercent,
+		setMaxThrottlePercent,
 	};
 
 	class RemoteAuxiliaryAutopilotPacket {
@@ -120,6 +121,9 @@ namespace pizda {
 			// Mode
 			constexpr static uint8_t lateralModeLengthBits = 2;
 			constexpr static uint8_t verticalModeLengthBits = 3;
+
+			// Ailerons, elevator, throttle
+			constexpr static uint8_t percentLengthBits = 7;
 	};
 
 	class RemoteAuxiliaryBaroPacket {

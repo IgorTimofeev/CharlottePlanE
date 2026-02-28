@@ -308,11 +308,11 @@ namespace pizda {
 
 				break;
 			}
-			case RemoteAuxiliaryAutopilotPacketType::setStabilizedModeRollAngleIncrementFactorPerSecond: {
+			case RemoteAuxiliaryAutopilotPacketType::setStabilizedModeRollAngleIncrementRadPerSecond: {
 				if (!validate(8 * 4))
 					return false;
 
-				ac.settings.autopilot.stabilizedModeRollAngleIncrementFactorPerSecond = stream.readFloat();
+				ac.settings.autopilot.stabilizedModeRollAngleIncrementRadPerSecond = stream.readFloat();
 				ac.settings.autopilot.scheduleWrite();
 
 				break;
@@ -326,11 +326,11 @@ namespace pizda {
 
 				break;
 			}
-			case RemoteAuxiliaryAutopilotPacketType::setMaxAileronsFactor: {
-				if (!validate(8 * 4))
+			case RemoteAuxiliaryAutopilotPacketType::setMaxAileronsPercent: {
+				if (!validate(RemoteAuxiliaryAutopilotPacket::percentLengthBits))
 					return false;
 
-				ac.settings.autopilot.maxAileronsFactor = stream.readFloat();
+				ac.settings.autopilot.maxAileronsPercent = stream.readUint8(RemoteAuxiliaryAutopilotPacket::percentLengthBits);
 				ac.settings.autopilot.scheduleWrite();
 
 				break;
@@ -385,11 +385,11 @@ namespace pizda {
 
 				break;
 			}
-			case RemoteAuxiliaryAutopilotPacketType::setStabilizedModePitchAngleIncrementFactorPerSecond: {
+			case RemoteAuxiliaryAutopilotPacketType::setStabilizedModePitchAngleIncrementRadPerSecond: {
 				if (!validate(8 * 4))
 					return false;
 
-				ac.settings.autopilot.stabilizedModePitchAngleIncrementFactorPerSecond = stream.readFloat();
+				ac.settings.autopilot.stabilizedModePitchAngleIncrementRadPerSecond = stream.readFloat();
 				ac.settings.autopilot.scheduleWrite();
 
 				break;
@@ -403,11 +403,11 @@ namespace pizda {
 
 				break;
 			}
-			case RemoteAuxiliaryAutopilotPacketType::setMaxElevatorFactor: {
-				if (!validate(8 * 4))
+			case RemoteAuxiliaryAutopilotPacketType::setMaxElevatorPercent: {
+				if (!validate(RemoteAuxiliaryAutopilotPacket::percentLengthBits))
 					return false;
 
-				ac.settings.autopilot.maxElevatorFactor = stream.readFloat();
+				ac.settings.autopilot.maxElevatorPercent = stream.readUint8(RemoteAuxiliaryAutopilotPacket::percentLengthBits);
 				ac.settings.autopilot.scheduleWrite();
 
 				break;
@@ -440,11 +440,20 @@ namespace pizda {
 
 				break;
 			}
-			case RemoteAuxiliaryAutopilotPacketType::setThrottleLPFFactorPerSecond: {
-				if (!validate(8 * 4))
+			case RemoteAuxiliaryAutopilotPacketType::setMinThrottlePercent: {
+				if (!validate(RemoteAuxiliaryAutopilotPacket::percentLengthBits))
 					return false;
 
-				ac.settings.autopilot.throttleLPFFactorPerSecond = stream.readFloat();
+				ac.settings.autopilot.minThrottlePercent = stream.readUint8(RemoteAuxiliaryAutopilotPacket::percentLengthBits);
+				ac.settings.autopilot.scheduleWrite();
+
+				break;
+			}
+			case RemoteAuxiliaryAutopilotPacketType::setMaxThrottlePercent: {
+				if (!validate(RemoteAuxiliaryAutopilotPacket::percentLengthBits))
+					return false;
+
+				ac.settings.autopilot.maxThrottlePercent = stream.readUint8(RemoteAuxiliaryAutopilotPacket::percentLengthBits);
 				ac.settings.autopilot.scheduleWrite();
 
 				break;
