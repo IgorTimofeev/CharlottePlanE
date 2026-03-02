@@ -339,8 +339,8 @@ namespace pizda {
 				_throttleFactor =
 					static_cast<float>(
 						altitudeLow
-						? ac.settings.autopilot.minThrottlePercent
-						: ac.settings.autopilot.maxThrottlePercent
+						? ac.settings.autopilot.maxThrottlePercent
+						: ac.settings.autopilot.minThrottlePercent
 					)
 					/ 100.f;
 			}

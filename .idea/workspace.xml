@@ -187,15 +187,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="автопилик по сути завершен, я ДАВОЛИН))))">
-      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
+    <list default="true" id="a04a4ac8-16c5-48a7-ad8e-db4d998b46b6" name="Changes" comment="))">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-CircularQueue" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-CircularQueue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ESP-IDF-NVSExtensions" beforeDir="false" afterPath="$PROJECT_DIR$/components/ESP-IDF-NVSExtensions" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/settings/autopilotSettings.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/settings/autopilotSettings.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/systems/flyByWire/flyByWire.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/flyByWire/flyByWire.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/transceiver/aircraftTransceiver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/transceiver/aircraftTransceiver.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/systems/transceiver/packet.h" beforeDir="false" afterPath="$PROJECT_DIR$/main/systems/transceiver/packet.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -1051,7 +1045,6 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="CMake Application.bootloader" />
       <item itemvalue="CMake Application.CharlottePlanE.elf" />
       <item itemvalue="CMake Application.__idf_ESP-IDF-BMP280" />
       <item itemvalue="CMake Application.__idf_ESP-IDF-Battery" />
@@ -1161,6 +1154,7 @@
       <item itemvalue="CMake Application.app" />
       <item itemvalue="CMake Application.app_check_size" />
       <item itemvalue="CMake Application.bootloader-flash" />
+      <item itemvalue="CMake Application.bootloader" />
       <item itemvalue="CMake Application.confserver" />
       <item itemvalue="CMake Application.custom_bundle" />
       <item itemvalue="CMake Application.dfu-flash" />
@@ -1339,15 +1333,8 @@
       <workItem from="1771647702641" duration="626000" />
       <workItem from="1771653065744" duration="11166000" />
       <workItem from="1771732000691" duration="7690000" />
-      <workItem from="1772265194999" duration="6870000" />
-    </task>
-    <task id="LOCAL-00118" summary="накалякал калибровку гирыча и мистера акксика по лоре - выглядит довольно эротишно!">
-      <option name="closed" value="true" />
-      <created>1767998587279</created>
-      <option name="number" value="00118" />
-      <option name="presentableId" value="LOCAL-00118" />
-      <option name="project" value="LOCAL" />
-      <updated>1767998587280</updated>
+      <workItem from="1772265194999" duration="7200000" />
+      <workItem from="1772450217273" duration="669000" />
     </task>
     <task id="LOCAL-00119" summary="чета подустал, хуйни могу накодить, над отдохнуть">
       <option name="closed" value="true" />
@@ -1733,7 +1720,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771673738544</updated>
     </task>
-    <option name="localTasksCounter" value="167" />
+    <task id="LOCAL-00167" summary="))">
+      <option name="closed" value="true" />
+      <created>1772272502219</created>
+      <option name="number" value="00167" />
+      <option name="presentableId" value="LOCAL-00167" />
+      <option name="project" value="LOCAL" />
+      <updated>1772272502220</updated>
+    </task>
+    <option name="localTasksCounter" value="168" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1774,14 +1769,14 @@
     <MESSAGE value="накалякал семплер попизже, а то оно с FIFO сосало слишком редко" />
     <MESSAGE value="пиздец, наконец-то пофиксил эти углы ебаные" />
     <MESSAGE value="тааакс, ну вроде все пашет и даже фоллбечит на говняных настройках - но сам код какой-то некрасивый получился, надо прилизать" />
-    <MESSAGE value="))" />
     <MESSAGE value="а ну-ка попробуем пидом все это контроллить" />
     <MESSAGE value="захуярил режим гиростабилизированного управления - юзер задает целевой угол, а FBW его выдерживает по PIDам. В симе летается охуенно стабильно, но ИРЛ с IMUшкой хуй знает, надо будет потестить" />
     <MESSAGE value="ааааа так вот че там было дельтатайм в us" />
     <MESSAGE value="ахуй" />
     <MESSAGE value="перехуярил очередь пакетов на закольцованный буфер (RINGED CITY EPILOGUE OST МУЖИКИ Я НЕ ПЛАЧУ Я НЕ ПЛАЧУ)" />
     <MESSAGE value="автопилик по сути завершен, я ДАВОЛИН))))" />
-    <option name="LAST_COMMIT_MESSAGE" value="автопилик по сути завершен, я ДАВОЛИН))))" />
+    <MESSAGE value="))" />
+    <option name="LAST_COMMIT_MESSAGE" value="))" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
