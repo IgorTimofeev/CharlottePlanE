@@ -1,9 +1,9 @@
-[submodule "Aircraft/Firmware"]
-	path = Aircraft/Firmware
-	url = https://github.com/IgorTimofeev/CharlottePlanEAircraftFirmware.git
-[submodule "Remote/Firmware"]
-	path = Remote/Firmware
-	url = https://github.com/IgorTimofeev/CharlottePlanERemoteFirmware.git
 [submodule "Aircraft/Models"]
 	path = Aircraft/Models
 	url = https://github.com/IgorTimofeev/CharlottePlanEAircraftModels.git
+[submodule "Remote/Firmware"]
+	path = Remote/Firmware
+	url = https://github.com/IgorTimofeev/CharlottePlanERemoteFirmware.git
+[submodule "Aircraft/Firmware"]
+	path = Aircraft/Firmware
+	url = https://github.com/IgorTimofeev/CharlottePlanEAircraftFirmware.git
